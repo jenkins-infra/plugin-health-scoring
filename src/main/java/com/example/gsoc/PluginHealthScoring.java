@@ -7,18 +7,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 
-import com.example.gsoc.controller.PluginController;
 import com.example.gsoc.model.Plugin;
-import com.example.gsoc.repository.PluginRepository;
+import com.example.gsoc.service.PluginService;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 
 @SpringBootApplication
+@EnableEncryptableProperties
 public class PluginHealthScoring implements CommandLineRunner {
 
 	@Autowired
-	private PluginRepository pluginRepository;
+	private PluginService pluginService;
+
+	private final Environment env;
+
+	public PluginHealthScoring(Environment env) {
+		this.env = env;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(PluginHealthScoring.class, args);
@@ -26,11 +34,12 @@ public class PluginHealthScoring implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws StreamReadException, DatabindException, IOException {
-		PluginController pluginController = new PluginController();
-		List<Plugin> pluginList = pluginController.readUpdateCenter();
-		
+		List<Plugin> pluginList = pluginService.readUpdateCenter(env.getProperty("jenkins.update.center"));
+	
+		pluginService.readUpdateCenter(env.getProperty("jenkins.update.center"));
+
 		for (Plugin plugin : pluginList) {			
-			pluginRepository.save(plugin);
+			pluginService.saveOrUpdate(plugin);
 		}
 	}
 }

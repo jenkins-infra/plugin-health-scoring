@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
+		<!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>gsoc</artifactId>
+
+	<groupId>io.jenkins.pluginhealth.scoring</groupId>
+	<artifactId>plugin-health-scoring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gsoc</name>
+
+	<name>Plugin Health Scoring</name>
 	<description>GSoC 2022 project</description>
+
+	<developers>
+		<developer>
+            <id>adi10hero</id>
+            <name>Aditya Srivastava</name>
+        </developer>
+		<developer>
+            <id>alecharp</id>
+            <name>Adrien Lecharpentier</name>
+        </developer>
+		<developer>
+            <id>dheerajodha</id>
+            <name>Dheeraj Singh Jodha</name>
+        </developer>
+		<developer>
+            <id>jleon33</id>
+            <name>Jake Leon</name>
+        </developer>
+    </developers>
+
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -36,15 +60,33 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.github.ulisesbocchio</groupId>
+			<artifactId>jasypt-spring-boot-starter</artifactId>
+			<version>3.0.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>tidy-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<id>tidy-pom</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>pom</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
