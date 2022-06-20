@@ -39,6 +39,14 @@
 
 	<name>Plugin Health Scoring</name>
 	<description>GSoC 2022 project</description>
+	<inceptionYear>2022</inceptionYear>
+	<licenses>
+		<license>
+			<name>The MIT license</name>
+			<url>https://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<developers>
 		<developer>
