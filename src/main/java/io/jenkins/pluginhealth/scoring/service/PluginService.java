@@ -43,10 +43,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class PluginService {
-	@Autowired
 	private final PluginRepository pluginRepository;
 
-	@Autowired
 	public PluginService(PluginRepository pluginRepository) {
 		this.pluginRepository = pluginRepository;
 	}
