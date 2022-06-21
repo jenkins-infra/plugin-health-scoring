@@ -54,7 +54,7 @@ public class PluginService {
 
 		URL jsonUrl = new URL(updateCenterURL);
 
-	    ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper();
 
 		JsonNode updateCenterJsonNode = mapper.readTree(jsonUrl);
 
