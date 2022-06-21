@@ -25,8 +25,11 @@
 package io.jenkins.pluginhealth.scoring.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 
+@Repository
 public interface PluginRepository extends JpaRepository<Plugin, Long> {
 
 }
