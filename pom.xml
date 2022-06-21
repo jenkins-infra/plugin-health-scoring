@@ -67,7 +67,6 @@
 		</developer>
 	</developers>
 
-
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
