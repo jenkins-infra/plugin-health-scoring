@@ -10,6 +10,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
   db:
     image: postgres:14.1-alpine
@@ -21,6 +23,8 @@ services:
       interval: 5s
       timeout: 2s
       retries: 5
-      start_period: 2s
     ports:
       - "5432:5432"
+
+volumes:
+  db_data:
