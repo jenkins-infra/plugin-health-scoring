@@ -1,8 +1,20 @@
+FROM openjdk:17-oracle as builder
+
+WORKDIR /app
+COPY target/plugin-health-scoring.jar /app/
+
+RUN java -Djarmode=layertools -jar plugin-health-scoring.jar extract
+
 FROM openjdk:17-oracle
+
 RUN groupadd -r phs && useradd -r -g phs phs
 USER phs:phs
-ARG DEPENDENCY=./target/dependency
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","./target/dependency/BOOT-INF/lib:/app/lib/*","io.jenkins.pluginhealth.scoring.PluginHealthScoring"]
+
+WORKDIR /app
+
+COPY --from=builder /app/dependencies/ ./
+COPY --from=builder /app/spring-boot-loader/ ./
+COPY --from=builder /app/snapshot-dependencies/ ./
+COPY --from=builder /app/application/ ./
+
+ENTRYPOINT ["java","org.springframework.boot.loader.JarLauncher"]
