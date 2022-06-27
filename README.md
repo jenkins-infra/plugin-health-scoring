@@ -8,7 +8,7 @@ This project is part of the Google Summer of Code 2022 selection for the Jenkins
 
 You can find out more about the project at https://www.jenkins.io/projects/gsoc/2022/projects/plugin-health-scoring-system.
 
-# Set up the project locally
+## **Set up the project locally**
 
 This project is composed of 2 essential services:
 1. Spring Boot Application
