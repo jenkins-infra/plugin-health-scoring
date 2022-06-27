@@ -10,7 +10,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh './mvnw verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false'
+        sh './mvnw verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
       }
 
       post {
