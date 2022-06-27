@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,109 +25,111 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "plugins")
 public class Plugin {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	
-	@Column(name = "name")
-	private String name;
-	
-	@Column(name = "scm")
-	private String scm;
-	
-	@Column(name = "release_timestamp")
-	private ZonedDateTime releaseTimestamp;
-	
-	public Plugin() {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long id;
 
-	}
+    @Column(name = "name")
+    private String name;
 
-	public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
-		this.name = name;
-		this.releaseTimestamp = releaseTimestamp;
-		this.scm = scm;
-	}
+    @Column(name = "scm")
+    private String scm;
 
-	public long getId() {
-		return id;
-	}
+    @Column(name = "release_timestamp")
+    private ZonedDateTime releaseTimestamp;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public Plugin() {
 
-	public String getName() {
-		return name;
-	}
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
+        this.name = name;
+        this.releaseTimestamp = releaseTimestamp;
+        this.scm = scm;
+    }
 
-	public String getScm() {
-		return scm;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setScm(String scm) {
-		this.scm = scm;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public ZonedDateTime getReleaseTimestamp() {
-		return releaseTimestamp;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
-		this.releaseTimestamp = releaseTimestamp;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String toString() {
-		return "Plugin [id=" + id + ", name=" + name + ", scm=" + scm + ", releaseTimestamp=" + releaseTimestamp + "]";
-	}
+    public String getScm() {
+        return scm;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((releaseTimestamp == null) ? 0 : releaseTimestamp.hashCode());
-		result = prime * result + ((scm == null) ? 0 : scm.hashCode());
-		return result;
-	}
+    public void setScm(String scm) {
+        this.scm = scm;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Plugin other = (Plugin) obj;
-		if (id != other.id)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (releaseTimestamp == null) {
-			if (other.releaseTimestamp != null)
-				return false;
-		} else if (!releaseTimestamp.equals(other.releaseTimestamp))
-			return false;
-		if (scm == null) {
-			if (other.scm != null)
-				return false;
-		} else if (!scm.equals(other.scm))
-			return false;
-		return true;
-	}
+    public ZonedDateTime getReleaseTimestamp() {
+        return releaseTimestamp;
+    }
+
+    public void setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
+        this.releaseTimestamp = releaseTimestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "Plugin [id=" + id + ", name=" + name + ", scm=" + scm + ", releaseTimestamp=" + releaseTimestamp + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((releaseTimestamp == null) ? 0 : releaseTimestamp.hashCode());
+        result = prime * result + ((scm == null) ? 0 : scm.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Plugin other = (Plugin) obj;
+        if (id != other.id)
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (releaseTimestamp == null) {
+            if (other.releaseTimestamp != null)
+                return false;
+        } else if (!releaseTimestamp.equals(other.releaseTimestamp))
+            return false;
+        if (scm == null) {
+            return other.scm == null;
+        } else return scm.equals(other.scm);
+    }
 
 }
