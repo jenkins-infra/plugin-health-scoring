@@ -24,4 +24,18 @@ And in order to start up these services and keep them up and running, we'll use 
 - Create a JAR file of this project inside the directory *./target/*, using:
   - *mvn package -DskipTests*
 - Run the docker-compose.yml file to start both the services, using:
-  - *docker-compose up*
+  - *docker compose up*
+
+
+**NOTE**
+
+This project uses a **.env** file (at the root folder) where we store our environment variables used for connecting to the database. For example, here's a list of the variables you'd need to override:
+
+```
+POSTGRES_USER=changeIt
+POSTGRES_PASSWORD=changeIt
+POSTGRES_DB=testdb
+POSTGRES_PORT=5432
+POSTGRES_HOST=localhost
+```
+
