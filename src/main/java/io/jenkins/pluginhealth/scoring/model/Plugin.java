@@ -91,11 +91,6 @@ public class Plugin {
 	}
 
 	@Override
-	public String toString() {
-		return "Plugin [id=" + id + ", name=" + name + ", scm=" + scm + ", releaseTimestamp=" + releaseTimestamp + "]";
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
