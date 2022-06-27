@@ -26,14 +26,14 @@ package io.jenkins.pluginhealth.scoring.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public record UpdateCenter(String connectionCheckUrl, String generationTimestamp, String id, JsonNode core, JsonNode deprecations, JsonNode plugins, JsonNode signature, JsonNode updateCenterVersion, JsonNode warnings) {
+public record UpdateCenter(JsonNode plugins) {
 
 	public UpdateCenter {
 		
 	}
 
-	public UpdateCenter(String connectionCheckUrl, String generationTimestamp, String id) {
-		this(connectionCheckUrl, generationTimestamp, id, null, null, null, null, null, null);
+	public UpdateCenter() {
+		this(null);
 	}
 
 }
