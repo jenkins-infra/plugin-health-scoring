@@ -41,11 +41,14 @@ import com.fasterxml.jackson.databind.DatabindException;
 @SpringBootApplication
 public class PluginHealthScoring implements CommandLineRunner {
 
-	@Autowired
 	private PluginService pluginService;
 
 	@Value("${jenkins.update.center}")
 	private String updateCenterURL;
+
+	public PluginHealthScoring(PluginService pluginService) {
+		this.pluginService = pluginService;
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(PluginHealthScoring.class, args);
