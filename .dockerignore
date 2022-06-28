@@ -1,0 +1,10 @@
+pom.xml
+src
+!src/main/docker/Dockerfile
+target
+!target/plugin-health-scoring.jar
+
+.idea
+.mvn
+mvnw
+mvnw.cmd
