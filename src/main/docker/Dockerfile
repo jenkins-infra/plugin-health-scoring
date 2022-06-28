@@ -5,7 +5,7 @@ COPY target/plugin-health-scoring.jar /app/
 
 RUN java -Djarmode=layertools -jar plugin-health-scoring.jar extract
 
-FROM openjdk:17-oracle
+FROM azul/zulu-openjdk:17.0.2-jre-headless
 
 RUN groupadd -r phs && useradd -r -g phs phs
 USER phs:phs
