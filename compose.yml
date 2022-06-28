@@ -7,6 +7,7 @@ services:
       - .env
     environment:
       - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
     depends_on:
       db:
         condition: service_healthy
@@ -24,7 +25,7 @@ services:
       timeout: 2s
       retries: 5
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
 
 volumes:
   db_data:
