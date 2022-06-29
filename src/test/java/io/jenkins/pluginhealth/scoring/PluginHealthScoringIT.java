@@ -39,11 +39,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(initializers = PluginHealthScoringTests.DockerPostgresDatasourceInitializer.class)
+@ContextConfiguration(initializers = PluginHealthScoringIT.DockerPostgresDatasourceInitializer.class)
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-class PluginHealthScoringTests {
+class PluginHealthScoringIT {
     @Container
     private static final PostgreSQLContainer POSTGRE_SQL_CONTAINER = new PostgreSQLContainer("postgres:14.1")
         .withDatabaseName("testdb")
