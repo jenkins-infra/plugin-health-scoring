@@ -34,7 +34,7 @@ pipeline {
             tools: [
               java(),
               checkStyle(pattern: './target/checkstyle-result.xml', reportEncoding: 'UTF-8'),
-              spotbugs(pattern: './target/spotbugsXml.xml')
+              spotBugs(pattern: './target/spotbugsXml.xml')
             ]
           )
         }
