@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,36 +27,34 @@ package io.jenkins.pluginhealth.scoring;
 import java.io.IOException;
 import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.service.PluginService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.service.PluginService;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-
 @SpringBootApplication
 public class PluginHealthScoring implements CommandLineRunner {
 
-	@Autowired
-	private PluginService pluginService;
+    @Autowired
+    private PluginService pluginService;
 
-	@Value("${jenkins.update.center}")
-	private String updateCenterURL;
+    @Value("${jenkins.update.center}")
+    private String updateCenterURL;
 
-	public static void main(String[] args) {
-		SpringApplication.run(PluginHealthScoring.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PluginHealthScoring.class, args);
+    }
 
-	@Override
-	public void run(String... args) throws StreamReadException, DatabindException, IOException {
-		List<Plugin> pluginList = pluginService.readUpdateCenter(updateCenterURL);
+    @Override
+    public void run(String... args) throws IOException {
+        List<Plugin> pluginList = pluginService.readUpdateCenter(updateCenterURL);
 
-		for (Plugin plugin : pluginList) {			
-			pluginService.saveOrUpdate(plugin);
-		}
-	}
+        for (Plugin plugin : pluginList) {
+            pluginService.saveOrUpdate(plugin);
+        }
+    }
 }
