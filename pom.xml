@@ -164,14 +164,6 @@
 							<version>10.3</version>
 						</dependency>
 					</dependencies>
-					<executions>
-						<execution>
-							<phase>validate</phase>
-							<goals>
-								<goal>check</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
