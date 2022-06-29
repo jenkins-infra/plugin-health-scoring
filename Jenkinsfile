@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent {} // TODO
+  agent {
+    label 'docker && linux'
+  }
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
     timestamps()
