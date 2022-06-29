@@ -11,8 +11,11 @@ pipeline {
 
   stages {
     stage('Build') {
+      environment {
+        JAVA_HOME = '/opt/jdk-17/'
+      }
       steps {
-        sh './mvnw verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        sh './mvnw -V verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
       }
 
       post {
