@@ -62,10 +62,6 @@ public class Plugin {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -88,11 +84,6 @@ public class Plugin {
 
     public void setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
         this.releaseTimestamp = releaseTimestamp;
-    }
-
-    @Override
-    public String toString() {
-        return "Plugin [id=" + id + ", name=" + name + ", scm=" + scm + ", releaseTimestamp=" + releaseTimestamp + "]";
     }
 
     @Override
