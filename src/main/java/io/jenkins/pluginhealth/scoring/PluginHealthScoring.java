@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
@@ -38,12 +40,13 @@ import com.fasterxml.jackson.databind.DatabindException;
 public class PluginHealthScoring implements CommandLineRunner {
 
 	private final UpdateCenterService updateCenterService;
+	private final PluginService pluginService;
+	private final String updateCenterURL;
 
-	@Value("${jenkins.update.center}")
-	private String updateCenterURL;
-
-	public PluginHealthScoring(UpdateCenterService updateCenterService) {
+	public PluginHealthScoring(UpdateCenterService updateCenterService, PluginService pluginService, @Value("${jenkins.update.center}") String updateCenterURL) {
 		this.updateCenterService = updateCenterService;
+		this.pluginService = pluginService;
+		this.updateCenterURL = updateCenterURL;
 	}
 
 	public static void main(String[] args) {

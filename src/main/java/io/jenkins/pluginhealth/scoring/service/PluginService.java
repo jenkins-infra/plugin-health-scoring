@@ -24,10 +24,10 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import org.springframework.stereotype.Service;
-
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public class PluginService {

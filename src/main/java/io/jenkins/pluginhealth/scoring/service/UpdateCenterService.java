@@ -33,8 +33,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -47,14 +45,13 @@ public class UpdateCenterService {
         this.objectMapper = objectMapper;
     }
 
-    public List<Plugin> readUpdateCenter(String updateCenterURL)
-            throws StreamReadException, DatabindException, IOException {
+    public List<Plugin> readUpdateCenter(String updateCenterURL) throws IOException {
 
         List<Plugin> plugins = new ArrayList<Plugin>();
 
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
-            Plugin toPlugin(UpdateCenterPlugin plugin) {
-                return new Plugin(plugin.name, plugin.scm, plugin.releaseTimestamp);
+            Plugin toPlugin() {
+                return new Plugin(this.name, this.scm, this.releaseTimestamp);
             }
         }
 
@@ -65,8 +62,9 @@ public class UpdateCenterService {
 
         UpdateCenter updateCenter = objectMapper.readValue(jsonUrl, UpdateCenter.class);
 
-        updateCenter.plugins.keySet()
-                .forEach(k -> plugins.add(new UpdateCenterPlugin(k, k, null).toPlugin(updateCenter.plugins.get(k))));
+        for (UpdateCenterPlugin updateCenterPlugin : updateCenter.plugins.values()) {
+            plugins.add(updateCenterPlugin.toPlugin());
+        }
 
         return plugins;
     }
