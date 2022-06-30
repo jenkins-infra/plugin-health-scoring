@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,12 +41,14 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 @Service
 public class UpdateCenterService {
     private final ObjectMapper objectMapper;
+    private final String updateCenterURL;
 
-    public UpdateCenterService(ObjectMapper objectMapper) {
+    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update.center}") String updateCenterURL) {
         this.objectMapper = objectMapper;
+        this.updateCenterURL = updateCenterURL;
     }
 
-    public List<Plugin> readUpdateCenter(String updateCenterURL) throws IOException {
+    public List<Plugin> readUpdateCenter() throws IOException {
 
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
