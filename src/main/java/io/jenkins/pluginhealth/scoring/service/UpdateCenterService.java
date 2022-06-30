@@ -1,11 +1,36 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Jenkins Infra
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -16,28 +41,34 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 @Service
 public class UpdateCenterService {
-    @Autowired
-    ObjectMapper objectMapper;
-    
-    PluginService pluginService;
-        
-    public UpdateCenterService(PluginService pluginService) {
-        this.pluginService = pluginService;
+    private final ObjectMapper objectMapper;
+
+    public UpdateCenterService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
-    public void readUpdateCenter(String updateCenterURL) throws StreamReadException, DatabindException, IOException {
+    public List<Plugin> readUpdateCenter(String updateCenterURL)
+            throws StreamReadException, DatabindException, IOException {
+
+        List<Plugin> plugins = new ArrayList<Plugin>();
+
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
+            Plugin toPlugin(UpdateCenterPlugin plugin) {
+                return new Plugin(plugin.name, plugin.scm, plugin.releaseTimestamp);
+            }
         }
 
-		record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
-		}
+        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
+        }
 
-		URL jsonUrl = new URL(updateCenterURL);
+        URL jsonUrl = new URL(updateCenterURL);
 
-		UpdateCenter updateCenter = objectMapper.readValue(jsonUrl, UpdateCenter.class);
+        UpdateCenter updateCenter = objectMapper.readValue(jsonUrl, UpdateCenter.class);
 
-		updateCenter.plugins.keySet().forEach(k -> pluginService.saveOrUpdate(new Plugin(updateCenter.plugins.get(k).name, updateCenter.plugins.get(k).scm, updateCenter.plugins.get(k).releaseTimestamp)));
+        updateCenter.plugins.keySet()
+                .forEach(k -> plugins.add(new UpdateCenterPlugin(k, k, null).toPlugin(updateCenter.plugins.get(k))));
 
-	}
-    
+        return plugins;
+    }
+
 }
