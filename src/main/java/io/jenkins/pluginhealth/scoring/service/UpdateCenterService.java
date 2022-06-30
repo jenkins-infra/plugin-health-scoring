@@ -27,9 +27,9 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -47,8 +47,6 @@ public class UpdateCenterService {
 
     public List<Plugin> readUpdateCenter(String updateCenterURL) throws IOException {
 
-        List<Plugin> plugins = new ArrayList<Plugin>();
-
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
                 return new Plugin(this.name, this.scm, this.releaseTimestamp);
@@ -62,11 +60,9 @@ public class UpdateCenterService {
 
         UpdateCenter updateCenter = objectMapper.readValue(jsonUrl, UpdateCenter.class);
 
-        for (UpdateCenterPlugin updateCenterPlugin : updateCenter.plugins.values()) {
-            plugins.add(updateCenterPlugin.toPlugin());
-        }
-
-        return plugins;
+        return updateCenter.plugins.values().stream()
+            .map(UpdateCenterPlugin::toPlugin)
+            .collect(Collectors.toList());
     }
 
 }
