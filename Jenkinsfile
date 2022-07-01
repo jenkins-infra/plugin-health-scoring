@@ -15,7 +15,7 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        sh './mvnw -V verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
       }
 
       post {
@@ -30,7 +30,7 @@ pipeline {
           )
           recordIssues(
             enabledForFailure: true,
-            aggregatingResults: true,
+            aggregatingResults: false,
             tools: [
               java(),
               checkStyle(pattern: './target/checkstyle-result.xml', reportEncoding: 'UTF-8'),
