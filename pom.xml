@@ -153,7 +153,6 @@
 					<artifactId>maven-checkstyle-plugin</artifactId>
 					<version>3.1.2</version>
 					<configuration>
-						<consoleOutput>true</consoleOutput>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
 						<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
 					</configuration>
