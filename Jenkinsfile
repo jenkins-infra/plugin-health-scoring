@@ -28,6 +28,10 @@ pipeline {
             allowEmptyResults: true,
             testResults: '**/target/failsafe-reports/*.xml'
           )
+          jacoco (
+            runAlways: true,
+            execPattern: '**/target/jacoco*.exec'
+          )
           recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true, tool: checkStyle()
           recordIssues enabledForFailure: true, tool: spotBugs()
