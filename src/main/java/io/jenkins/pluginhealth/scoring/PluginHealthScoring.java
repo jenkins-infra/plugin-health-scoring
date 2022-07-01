@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring;
 
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
-
 import java.io.IOException;
 
 import org.springframework.boot.CommandLineRunner;

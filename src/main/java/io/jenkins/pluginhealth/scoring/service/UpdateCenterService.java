@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
@@ -35,8 +36,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 @Service
 public class UpdateCenterService {
