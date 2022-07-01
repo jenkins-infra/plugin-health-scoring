@@ -31,14 +31,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PluginService {
-	private final PluginRepository pluginRepository;
+    private final PluginRepository pluginRepository;
 
-	public PluginService(PluginRepository pluginRepository) {
-		this.pluginRepository = pluginRepository;
-	}
+    public PluginService(PluginRepository pluginRepository) {
+        this.pluginRepository = pluginRepository;
+    }
 
-	public void saveOrUpdate(Plugin plugin) {
-		pluginRepository.save(plugin);
-	}
+    public void saveOrUpdate(Plugin plugin) {
+        pluginRepository.save(plugin);
+    }
 
 }

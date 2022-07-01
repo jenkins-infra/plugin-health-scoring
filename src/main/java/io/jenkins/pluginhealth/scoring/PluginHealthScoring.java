@@ -24,32 +24,32 @@
 
 package io.jenkins.pluginhealth.scoring;
 
+import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
+
 import java.io.IOException;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import io.jenkins.pluginhealth.scoring.service.PluginService;
-import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
-
 @SpringBootApplication
 public class PluginHealthScoring implements CommandLineRunner {
 
-	private final UpdateCenterService updateCenterService;
-	private final PluginService pluginService;
+    private final UpdateCenterService updateCenterService;
+    private final PluginService pluginService;
 
-	public PluginHealthScoring(UpdateCenterService updateCenterService, PluginService pluginService) {
-		this.updateCenterService = updateCenterService;
-		this.pluginService = pluginService;
-	}
+    public PluginHealthScoring(UpdateCenterService updateCenterService, PluginService pluginService) {
+        this.updateCenterService = updateCenterService;
+        this.pluginService = pluginService;
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(PluginHealthScoring.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(PluginHealthScoring.class, args);
+    }
 
-	@Override
-	public void run(String... args) throws IOException {
-		updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
-	}
+    @Override
+    public void run(String... args) throws IOException {
+        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+    }
 }
