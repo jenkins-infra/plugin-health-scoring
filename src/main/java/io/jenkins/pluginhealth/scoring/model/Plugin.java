@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -62,10 +63,6 @@ public class Plugin {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -91,45 +88,15 @@ public class Plugin {
     }
 
     @Override
-    public String toString() {
-        return "Plugin [id=" + id + ", name=" + name + ", scm=" + scm + ", releaseTimestamp=" + releaseTimestamp + "]";
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plugin plugin = (Plugin) o;
+        return name.equals(plugin.name);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((releaseTimestamp == null) ? 0 : releaseTimestamp.hashCode());
-        result = prime * result + ((scm == null) ? 0 : scm.hashCode());
-        return result;
+        return Objects.hash(name);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Plugin other = (Plugin) obj;
-        if (id != other.id)
-            return false;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (releaseTimestamp == null) {
-            if (other.releaseTimestamp != null)
-                return false;
-        } else if (!releaseTimestamp.equals(other.releaseTimestamp))
-            return false;
-        if (scm == null) {
-            return other.scm == null;
-        } else return scm.equals(other.scm);
-    }
-
 }

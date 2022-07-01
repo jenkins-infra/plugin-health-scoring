@@ -24,21 +24,42 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+import java.io.IOException;
+import java.net.URL;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
+public class UpdateCenterService {
+    private final ObjectMapper objectMapper;
+    private final String updateCenterURL;
 
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update.center}") String updateCenterURL) {
+        this.objectMapper = objectMapper;
+        this.updateCenterURL = updateCenterURL;
     }
 
-    public void saveOrUpdate(Plugin plugin) {
-        pluginRepository.save(plugin);
+    public List<Plugin> readUpdateCenter() throws IOException {
+        record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
+            Plugin toPlugin() {
+                return new Plugin(this.name, this.scm, this.releaseTimestamp);
+            }
+        }
+        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
+        }
+
+        UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
+        return updateCenter.plugins.values().stream()
+            .map(UpdateCenterPlugin::toPlugin)
+            .collect(Collectors.toList());
     }
 
 }
