@@ -31,12 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UpdateCenterService {
@@ -49,20 +48,15 @@ public class UpdateCenterService {
     }
 
     public List<Plugin> readUpdateCenter() throws IOException {
-
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
                 return new Plugin(this.name, this.scm, this.releaseTimestamp);
             }
         }
-
         record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
         }
 
-        URL jsonUrl = new URL(updateCenterURL);
-
-        UpdateCenter updateCenter = objectMapper.readValue(jsonUrl, UpdateCenter.class);
-
+        UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
         return updateCenter.plugins.values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .collect(Collectors.toList());
