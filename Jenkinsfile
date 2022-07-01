@@ -15,28 +15,23 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        sh './mvnw -V verify checkstyle:check spotbugs:check -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
       }
 
       post {
         always {
           junit (
             allowEmptyResults: true,
-            testResults: './target/surefire-reports/*.xml'
+            testResults: '**/target/surefire-reports/*.xml'
           )
           junit (
             allowEmptyResults: true,
-            testResults: './target/failsafe-reports/*.xml'
+            testResults: '**/target/failsafe-reports/*.xml'
           )
-          recordIssues(
-            enabledForFailure: true,
-            aggregatingResults: true,
-            tools: [
-              java(),
-              checkStyle(pattern: './target/checkstyle-result.xml', reportEncoding: 'UTF-8'),
-              spotBugs(pattern: './target/spotbugsXml.xml')
-            ]
-          )
+          publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
+          recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+          recordIssues enabledForFailure: true, tool: checkStyle()
+          recordIssues enabledForFailure: true, tool: spotBugs()
         }
       }
     }
