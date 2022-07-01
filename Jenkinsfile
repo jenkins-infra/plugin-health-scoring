@@ -28,15 +28,9 @@ pipeline {
             allowEmptyResults: true,
             testResults: './target/failsafe-reports/*.xml'
           )
-          recordIssues(
-            enabledForFailure: true,
-            aggregatingResults: false,
-            tools: [
-              java(),
-              checkStyle(pattern: './target/checkstyle-result.xml', reportEncoding: 'UTF-8'),
-              spotBugs(pattern: './target/spotbugsXml.xml')
-            ]
-          )
+          recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+          recordIssues enabledForFailure: true, tool: checkStyle()
+          recordIssues enabledForFailure: true, tool: spotBugs()
         }
       }
     }
