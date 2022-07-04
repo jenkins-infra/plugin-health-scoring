@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
@@ -35,6 +37,24 @@ public class PluginService {
 
     public PluginService(PluginRepository pluginRepository) {
         this.pluginRepository = pluginRepository;
+    }
+
+    public void updateDatabase(Plugin plugin) {
+        Optional<Plugin> pluginFromDatabase = pluginRepository.findByName(plugin.getName());
+
+        if (pluginFromDatabase.isPresent()) {
+            if (pluginFromDatabase.get().getReleaseTimestamp() != plugin.getReleaseTimestamp()) {
+                pluginFromDatabase.get().setReleaseTimestamp(plugin.getReleaseTimestamp());
+                saveOrUpdate(pluginFromDatabase.get());
+            }
+            if (pluginFromDatabase.get().getScm() != null && !pluginFromDatabase.get().getScm().equals(plugin.getScm())) {
+                pluginFromDatabase.get().setScm(plugin.getScm());
+                saveOrUpdate(pluginFromDatabase.get());
+            }
+        }
+        else {
+            saveOrUpdate(plugin);
+        }
     }
 
     public void saveOrUpdate(Plugin plugin) {

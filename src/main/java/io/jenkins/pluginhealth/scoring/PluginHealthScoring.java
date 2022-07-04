@@ -50,6 +50,6 @@ public class PluginHealthScoring implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws IOException {
-        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+        updateCenterService.readUpdateCenter().forEach(pluginService::updateDatabase);
     }
 }
