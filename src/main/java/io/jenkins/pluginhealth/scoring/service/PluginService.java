@@ -39,7 +39,7 @@ public class PluginService {
         this.pluginRepository = pluginRepository;
     }
 
-    public void updateDatabase(Plugin plugin) {
+    public void saveOrUpdate(Plugin plugin) {
         Optional<Plugin> pluginFromDatabase = pluginRepository.findByName(plugin.getName());
 
         if (pluginFromDatabase.isPresent()) {
@@ -55,10 +55,6 @@ public class PluginService {
         else {
             saveOrUpdate(plugin);
         }
-    }
-
-    public void saveOrUpdate(Plugin plugin) {
-        pluginRepository.save(plugin);
     }
 
 }
