@@ -43,17 +43,13 @@ public class PluginService {
         Optional<Plugin> pluginFromDatabase = pluginRepository.findByName(plugin.getName());
 
         if (pluginFromDatabase.isPresent()) {
-            if (pluginFromDatabase.get().getReleaseTimestamp() != plugin.getReleaseTimestamp()) {
-                pluginFromDatabase.get().setReleaseTimestamp(plugin.getReleaseTimestamp());
-                saveOrUpdate(pluginFromDatabase.get());
-            }
-            if (pluginFromDatabase.get().getScm() != null && !pluginFromDatabase.get().getScm().equals(plugin.getScm())) {
-                pluginFromDatabase.get().setScm(plugin.getScm());
-                saveOrUpdate(pluginFromDatabase.get());
-            }
+            pluginFromDatabase.get().setReleaseTimestamp(plugin.getReleaseTimestamp());
+            pluginFromDatabase.get().setScm(plugin.getScm());
+
+            pluginRepository.save(pluginFromDatabase.get());
         }
         else {
-            saveOrUpdate(plugin);
+            pluginRepository.save(plugin);
         }
     }
 
