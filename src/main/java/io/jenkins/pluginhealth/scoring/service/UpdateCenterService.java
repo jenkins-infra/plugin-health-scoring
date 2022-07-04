@@ -53,6 +53,7 @@ public class UpdateCenterService {
                 return new Plugin(this.name, this.scm, this.releaseTimestamp);
             }
         }
+
         record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
         }
 
