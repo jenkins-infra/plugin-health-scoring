@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,8 +34,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 @Entity
 @Table(name = "plugins")
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class Plugin {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,14 +55,19 @@ public class Plugin {
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
 
+    @Type(type = "json")
+    @Column(columnDefinition = "jsonb")
+    private Map<String, String> details;
+
     public Plugin() {
 
     }
 
-    public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
+    public Plugin(String name, String scm, ZonedDateTime releaseTimestamp, Map<String, String> details) {
         this.name = name;
         this.releaseTimestamp = releaseTimestamp;
         this.scm = scm;
+        this.details = details;
     }
 
     public long getId() {
@@ -85,6 +96,19 @@ public class Plugin {
 
     public void setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
         this.releaseTimestamp = releaseTimestamp;
+    }
+
+    public Map<String, String> getDetails() {
+        return details;
+    }
+
+    public void setDetails(Map<String, String> details) {
+        this.details = details;
+    }
+
+    public Plugin addDetails(String key, String value) {
+        details.put(key, value);
+        return this;
     }
 
     @Override

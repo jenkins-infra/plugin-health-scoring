@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,16 +51,26 @@ public class UpdateCenterService {
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
-                return new Plugin(this.name, this.scm, this.releaseTimestamp);
+                return new Plugin(this.name, this.scm, this.releaseTimestamp, new HashMap<String, String>());
             }
         }
-        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
+        record UpdateCenterDeprecations(String url) {
+        }
+        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins, Map<String, UpdateCenterDeprecations> deprecations) {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-        return updateCenter.plugins.values().stream()
+        List<Plugin> pluginList = updateCenter.plugins.values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .collect(Collectors.toList());
+
+        for (Plugin plugin : pluginList) {
+            if (updateCenter.deprecations.containsKey(plugin.getName())) {
+                plugin.addDetails("deprecation_reason", updateCenter.deprecations.get(plugin.getName()).url);
+            }
+        }
+
+        return pluginList;
     }
 
 }
