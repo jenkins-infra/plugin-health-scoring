@@ -40,17 +40,10 @@ public class PluginService {
     }
 
     public void saveOrUpdate(Plugin plugin) {
-        Optional<Plugin> pluginFromDatabase = pluginRepository.findByName(plugin.getName());
-
-        if (pluginFromDatabase.isPresent()) {
-            pluginFromDatabase.get().setReleaseTimestamp(plugin.getReleaseTimestamp());
-            pluginFromDatabase.get().setScm(plugin.getScm());
-
-            pluginRepository.save(pluginFromDatabase.get());
-        }
-        else {
-            pluginRepository.save(plugin);
-        }
+        pluginRepository.findByName(plugin.getName())
+            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+            .map(updatedPluginFromDatabase -> pluginRepository.save(updatedPluginFromDatabase))
+            .orElse(pluginRepository.save(plugin));
     }
 
 }
