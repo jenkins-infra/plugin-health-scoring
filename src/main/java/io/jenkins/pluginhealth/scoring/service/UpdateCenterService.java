@@ -51,7 +51,7 @@ public class UpdateCenterService {
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
-                return new Plugin(this.name, this.scm, this.releaseTimestamp);
+                return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
             }
         }
 
@@ -59,7 +59,7 @@ public class UpdateCenterService {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-        return updateCenter.plugins.values().stream()
+        return updateCenter.plugins().values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .collect(Collectors.toList());
     }
