@@ -63,13 +63,14 @@ public class UpdateCenterService {
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
         List<Plugin> pluginList = updateCenter.plugins.values().stream()
             .map(UpdateCenterPlugin::toPlugin)
+            .map(plugin -> {
+                if (updateCenter.deprecations.containsKey(plugin.getName())) {
+                    return plugin.addDetails("deprecation_reason", updateCenter.deprecations.get(plugin.getName()).url);
+                }
+                else
+                    return plugin;
+            })
             .collect(Collectors.toList());
-
-        for (Plugin plugin : pluginList) {
-            if (updateCenter.deprecations.containsKey(plugin.getName())) {
-                plugin.addDetails("deprecation_reason", updateCenter.deprecations.get(plugin.getName()).url);
-            }
-        }
 
         return pluginList;
     }
