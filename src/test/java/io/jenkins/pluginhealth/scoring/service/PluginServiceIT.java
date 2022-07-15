@@ -28,8 +28,6 @@ public class PluginServiceIT {
     @Autowired
     private PluginService pluginService;
 
-    Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
-
     @Container
     private static final PostgreSQLContainer POSTGRE_SQL_CONTAINER = new PostgreSQLContainer("postgres:14.1")
         .withDatabaseName("testdb")
@@ -49,6 +47,8 @@ public class PluginServiceIT {
 
     @Test
     public void shouldNotDuplicatePlugin() {
+        Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
+
         pluginService.saveOrUpdate(plugin);
         pluginService.saveOrUpdate(plugin);
 
