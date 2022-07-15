@@ -51,7 +51,7 @@ public class UpdateCenterService {
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
-                return new Plugin(this.name, this.scm, this.releaseTimestamp, new HashMap<String, String>());
+                return new Plugin(this.name, this.scm, this.releaseTimestamp);
             }
         }
         record UpdateCenterDeprecations(String url) {
