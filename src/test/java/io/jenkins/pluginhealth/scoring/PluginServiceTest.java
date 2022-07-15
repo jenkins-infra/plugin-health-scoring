@@ -1,10 +1,10 @@
 package io.jenkins.pluginhealth.scoring;
 
+import static org.junit.Assert.assertEquals;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
-
-import static org.junit.Assert.assertEquals;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -19,8 +19,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import static org.mockito.Mockito.mock;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = PluginServiceTest.DockerPostgresDatasourceInitializer.class)
