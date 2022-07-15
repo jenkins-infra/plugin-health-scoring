@@ -54,6 +54,6 @@ public class PluginServiceIT {
         pluginService.saveOrUpdate(plugin);
         pluginService.saveOrUpdate(plugin);
 
-        assertEquals(1, pluginRepository.findAllByName("myPlugin").size());
+        assertEquals(1, pluginRepository.findAll().size());
     }
 }
