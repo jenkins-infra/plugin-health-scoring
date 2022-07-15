@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,8 +53,10 @@ public class UpdateCenterService {
                 return new Plugin(this.name, this.scm, this.releaseTimestamp);
             }
         }
+
         record UpdateCenterDeprecations(String url) {
         }
+
         record UpdateCenter(Map<String, UpdateCenterPlugin> plugins, Map<String, UpdateCenterDeprecations> deprecations) {
         }
 
