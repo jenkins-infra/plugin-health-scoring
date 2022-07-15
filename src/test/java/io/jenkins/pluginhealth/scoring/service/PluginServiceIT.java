@@ -7,6 +7,7 @@ import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -22,15 +23,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 public class PluginServiceIT {
-    private final PluginRepository pluginRepository;
-    private final PluginService pluginService;
+    @Autowired
+    private PluginRepository pluginRepository;
+    @Autowired
+    private PluginService pluginService;
 
     Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
-
-    public PluginServiceIT(PluginRepository pluginRepository, PluginService pluginService) {
-        this.pluginRepository = pluginRepository;
-        this.pluginService = pluginService;
-    }
 
     @Container
     private static final PostgreSQLContainer POSTGRE_SQL_CONTAINER = new PostgreSQLContainer("postgres:14.1")
