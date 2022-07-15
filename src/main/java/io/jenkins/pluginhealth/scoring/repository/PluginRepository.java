@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -34,4 +35,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PluginRepository extends JpaRepository<Plugin, Long> {
     Optional<Plugin> findByName(String name);
+
+    List<Plugin> findAllByName(String name);
 }
