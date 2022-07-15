@@ -61,7 +61,7 @@ public class UpdateCenterService {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-        List<Plugin> pluginList = updateCenter.plugins.values().stream()
+        return updateCenter.plugins.values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .map(plugin -> {
                 if (updateCenter.deprecations.containsKey(plugin.getName())) {
@@ -71,8 +71,6 @@ public class UpdateCenterService {
                     return plugin;
             })
             .collect(Collectors.toList());
-
-        return pluginList;
     }
 
 }
