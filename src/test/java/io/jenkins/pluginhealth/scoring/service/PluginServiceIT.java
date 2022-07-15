@@ -50,7 +50,7 @@ public class PluginServiceIT {
     }
 
     @Test
-    public void myTest() {
+    public void shouldNotDuplicatePlugin() {
         pluginService.saveOrUpdate(plugin);
         pluginService.saveOrUpdate(plugin);
 
