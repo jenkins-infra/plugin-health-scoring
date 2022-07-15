@@ -1,15 +1,12 @@
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.service;
 
 import static org.junit.Assert.assertEquals;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
-import io.jenkins.pluginhealth.scoring.service.PluginService;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -21,17 +18,16 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ContextConfiguration(initializers = PluginServiceTest.DockerPostgresDatasourceInitializer.class)
+@ContextConfiguration(initializers = PluginServiceIT.DockerPostgresDatasourceInitializer.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
-@RunWith(MockitoJUnitRunner.class)
-public class PluginServiceTest {
+public class PluginServiceIT {
     private final PluginRepository pluginRepository;
     private final PluginService pluginService;
 
     Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
 
-    public PluginServiceTest(PluginRepository pluginRepository, PluginService pluginService) {
+    public PluginServiceIT(PluginRepository pluginRepository, PluginService pluginService) {
         this.pluginRepository = pluginRepository;
         this.pluginService = pluginService;
     }
