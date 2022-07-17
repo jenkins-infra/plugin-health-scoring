@@ -1,6 +1,6 @@
 package io.jenkins.pluginhealth.scoring.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
@@ -9,10 +9,12 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Service;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -20,7 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = PluginServiceIT.DockerPostgresDatasourceInitializer.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 @Testcontainers
 public class PluginServiceIT {
     @Autowired
@@ -29,7 +31,7 @@ public class PluginServiceIT {
     private PluginService pluginService;
 
     @Container
-    private static final PostgreSQLContainer POSTGRE_SQL_CONTAINER = new PostgreSQLContainer("postgres:14.1")
+    private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:14.1")
         .withDatabaseName("testdb")
         .withUsername("sa")
         .withPassword("sa");
@@ -50,8 +52,14 @@ public class PluginServiceIT {
         Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
 
         pluginService.saveOrUpdate(plugin);
-        pluginService.saveOrUpdate(plugin);
+        assertThat(pluginRepository.findAll())
+            .hasSize(1)
+            .contains(plugin);
 
-        assertEquals(1, pluginRepository.findAll().size());
+        Plugin copy = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
+        pluginService.saveOrUpdate(copy);
+        assertThat(pluginRepository.findAll())
+            .hasSize(1)
+            .contains(plugin);
     }
 }
