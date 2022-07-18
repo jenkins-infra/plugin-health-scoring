@@ -22,18 +22,6 @@ public class PluginServiceIT extends AbstractDBContainerTest {
     private PluginService pluginService;
 
     @Test
-    public void shouldNotDuplicatePlugin() {
-        Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
-
-        pluginService.saveOrUpdate(plugin);
-        pluginService.saveOrUpdate(plugin);
-
-        assertThat(pluginRepository.findAll())
-            .hasSize(1)
-            .contains(plugin);
-    }
-
-    @Test
     public void shouldNotDuplicatePluginWhenNameIsTheSame() {
         Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
 
