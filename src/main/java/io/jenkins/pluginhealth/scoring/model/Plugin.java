@@ -101,7 +101,7 @@ public class Plugin {
     }
 
     public Map<String, String> getDetails() {
-        return new HashMap<>(details);
+        return Map.copyOf(details);
     }
 
     public Plugin addDetails(String key, String value) {
