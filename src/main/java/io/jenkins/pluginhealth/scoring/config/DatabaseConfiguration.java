@@ -22,14 +22,16 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
-    }
+@Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackages = "io.jenkins.pluginhealth.scoring.repository")
+@EntityScan(basePackages = "io.jenkins.pluginhealth.scoring.model")
+public class DatabaseConfiguration {
 }

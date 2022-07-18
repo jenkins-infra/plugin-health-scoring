@@ -40,7 +40,7 @@ public class Plugin {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 
     @Column(name = "scm")
@@ -75,16 +75,18 @@ public class Plugin {
         return scm;
     }
 
-    public void setScm(String scm) {
+    public Plugin setScm(String scm) {
         this.scm = scm;
+        return this;
     }
 
     public ZonedDateTime getReleaseTimestamp() {
         return releaseTimestamp;
     }
 
-    public void setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
+    public Plugin setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
         this.releaseTimestamp = releaseTimestamp;
+        return this;
     }
 
     @Override

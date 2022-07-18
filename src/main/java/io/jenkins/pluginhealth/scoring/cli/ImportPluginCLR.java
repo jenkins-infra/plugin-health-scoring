@@ -22,14 +22,28 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.cli;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.io.IOException;
 
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
+import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ImportPluginCLR implements CommandLineRunner {
+    private final UpdateCenterService updateCenterService;
+    private final PluginService pluginService;
+
+    public ImportPluginCLR(UpdateCenterService updateCenterService, PluginService pluginService) {
+        this.updateCenterService = updateCenterService;
+        this.pluginService = pluginService;
+    }
+
+    @Override
+    public void run(String... args) throws IOException {
+        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
     }
 }

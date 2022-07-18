@@ -37,8 +37,10 @@ public class PluginService {
         this.pluginRepository = pluginRepository;
     }
 
-    public void saveOrUpdate(Plugin plugin) {
-        pluginRepository.save(plugin);
+    public Plugin saveOrUpdate(Plugin plugin) {
+        return pluginRepository.findByName(plugin.getName())
+            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+            .map(pluginRepository::save)
+            .orElseGet(() -> pluginRepository.save(plugin));
     }
-
 }
