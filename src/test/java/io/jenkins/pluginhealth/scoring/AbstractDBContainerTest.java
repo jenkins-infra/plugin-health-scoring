@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

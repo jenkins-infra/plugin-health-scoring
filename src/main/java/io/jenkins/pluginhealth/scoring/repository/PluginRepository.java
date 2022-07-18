@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
