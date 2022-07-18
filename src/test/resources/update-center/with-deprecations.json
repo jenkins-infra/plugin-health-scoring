@@ -1,0 +1,713 @@
+{
+  "deprecations": {
+    "BlameSubversion": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "CFLint": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "DotCi-Plugins-Starter-Pack": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "PUCM": {
+      "url": "https://wiki.jenkins.io/x/fIBVAw"
+    },
+    "SCTMExecutor": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/324"
+    },
+    "analysis-collector": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "analysis-core": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "android-lint": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "appio": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/465"
+    },
+    "appthwack": {
+      "url": "https://wiki.jenkins.io/x/cwchB"
+    },
+    "assembla-oauth": {
+      "url": "https://groups.google.com/d/msg/jenkinsci-dev/TVz-D5etsUM/Knx9zXtEnSwJ"
+    },
+    "autocomplete-parameter": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "aws-java-sdk-core": {
+      "url": "https://github.com/jenkinsci/aws-java-sdk-plugin/pull/540"
+    },
+    "aws-java-sdk-jmespath": {
+      "url": "https://github.com/jenkinsci/aws-java-sdk-plugin/pull/540"
+    },
+    "aws-java-sdk-kms": {
+      "url": "https://github.com/jenkinsci/aws-java-sdk-plugin/pull/540"
+    },
+    "aws-java-sdk-s3": {
+      "url": "https://github.com/jenkinsci/aws-java-sdk-plugin/pull/540"
+    },
+    "aws-java-sdk-sts": {
+      "url": "https://github.com/jenkinsci/aws-java-sdk-plugin/pull/540"
+    },
+    "azure-iot-edge": {
+      "url": "https://github.com/jenkinsci/azure-iot-edge-plugin/blob/master/Readme.md"
+    },
+    "batch-task": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "blackduck-hub": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/261"
+    },
+    "blackduck-installer": {
+      "url": "https://wiki.jenkins.io/x/nYHHB"
+    },
+    "blitz_io-jenkins": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/521"
+    },
+    "blueocean-executor-info": {
+      "url": "https://issues.jenkins.io/browse/JENKINS-56773"
+    },
+    "bmc-rpd": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/597"
+    },
+    "brakeman": {
+      "url": "https://github.com/jenkinsci/brakeman-plugin/issues/23"
+    },
+    "buddycloud": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "build-configurator": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "build-flow-extensions-plugin": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "build-flow-plugin": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "build-flow-test-aggregator": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "build-flow-toolbox-plugin": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "build-node-column": {
+      "url": "https://wiki.jenkins.io/x/1QiMAw"
+    },
+    "buildcoin-plugin": {
+      "url": "https://wiki.jenkins.io/x/KoyhAw"
+    },
+    "buildheroes": {
+      "url": "https://wiki.jenkins.io/x/_AD8Aw"
+    },
+    "capitomcat": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "caroline": {
+      "url": "https://wiki.jenkins.io/x/AwOMAw"
+    },
+    "castecho": {
+      "url": "https://github.com/jenkins-infra/repository-permissions-updater/pull/1461"
+    },
+    "ccm": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "checkstyle": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "chef": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "chrome-frame-plugin": {
+      "url": "https://www.chromium.org/developers/how-tos/chrome-frame-getting-started"
+    },
+    "ci-game": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "ci-skip": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "cifs": {
+      "url": "https://wiki.jenkins.io/x/lwC2Ag"
+    },
+    "clang-scanbuild-plugin": {
+      "url": "https://github.com/jenkinsci/clang-scanbuild-plugin/commit/a6d57b67f6fbd0a9893ecf6436c54ecb670d5829"
+    },
+    "cloudbees-deployer-plugin": {
+      "url": "https://wiki.jenkins.io/x/24RoAw"
+    },
+    "cloudbees-disk-usage-simple-plugin": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/179"
+    },
+    "cloudbees-enterprise-plugins": {
+      "url": "https://wiki.jenkins.io/x/3gX8Aw"
+    },
+    "cloudbees-registration": {
+      "url": "https://wiki.jenkins.io/x/z4FLB"
+    },
+    "cloverphp": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "cmvc": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "codeclimate-plugin": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "codescan": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/299"
+    },
+    "codescanner": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "coding-webhook": {
+      "url": "https://github.com/jenkinsci/coding-webhook-plugin/commit/20e1449513628ad24476b47331ea7bd6a2e82583"
+    },
+    "commit-message-trigger-plugin": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "config-rotator": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "configuration-as-code-support": {
+      "url": "https://github.com/jenkinsci/configuration-as-code-plugin/releases/tag/configuration-as-code-1.18"
+    },
+    "copy-to-slave": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "copyarchiver": {
+      "url": "https://wiki.jenkins.io/x/ywJAAg"
+    },
+    "cpptest": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "cppunit": {
+      "url": "https://wiki.jenkins.io/x/6oE5Ag"
+    },
+    "cucumber": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "debian-package-builder": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "devstack": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "discobit-autoconfig": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/587"
+    },
+    "dockerhub": {
+      "url": "https://github.com/jenkins-infra/update-center2/commit/e5a138873113d0e2d6af59d5699215a1835c15b7"
+    },
+    "dry": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "dynamicparameter": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "dynatrace-dashboard": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/531/"
+    },
+    "eggplant-plugin": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/578#issuecomment-1073702439"
+    },
+    "elastest": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "emma": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "emotional-hudson": {
+      "url": "https://wiki.jenkins.io/x/C4DX"
+    },
+    "external-scheduler": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/257"
+    },
+    "externalresource-dispatcher": {
+      "url": "https://groups.google.com/d/msg/jenkinsci-dev/YKfydxnpvyE/mMN7LNBoBgAJ"
+    },
+    "extreme-feedback": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "fabric-beta-publisher": {
+      "url": "https://github.com/jenkinsci/fabric-beta-publisher-plugin#deprecation-notice"
+    },
+    "findbugs": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "fortify-cloudscan-jenkins-plugin": {
+      "url": "https://github.com/jenkinsci/fortify-cloudscan-plugin#deprecation-notice"
+    },
+    "gerrit": {
+      "url": "https://wiki.jenkins.io/x/9ICVAg"
+    },
+    "girls": {
+      "url": "https://wiki.jenkins.io/x/OAWbAg"
+    },
+    "git-notes": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "gitlab-hook": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "gitorious": {
+      "url": "https://wiki.jenkins.io/x/ngDiAw"
+    },
+    "google-cloud-health-check": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "google-desktop-gadget": {
+      "url": "https://wiki.jenkins.io/x/E4A3AQ"
+    },
+    "googlecode": {
+      "url": "https://wiki.jenkins.io/x/DQC7"
+    },
+    "grails": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "hall-jenkins": {
+      "url": "https://wiki.jenkins.io/x/qQghB"
+    },
+    "harvest": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "hockeyapp": {
+      "url": "https://wiki.jenkins.io/x/7oPPAw"
+    },
+    "hpe-network-virtualization": {
+      "url": "https://support.microfocus.com/kb/kmdoc.php?id=KM03806543"
+    },
+    "ikachan": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "incapptic-connect-uploader": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/574"
+    },
+    "installshield": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "ion-deployer-plugin": {
+      "url": "https://wiki.jenkins.io/x/FhOMAw"
+    },
+    "itms-junit-report-publisher": {
+      "url": "https://github.com/jenkins-infra/repository-permissions-updater/pull/1379"
+    },
+    "javanet": {
+      "url": "https://wiki.jenkins.io/x/AgDL"
+    },
+    "javanet-uploader": {
+      "url": "https://wiki.jenkins.io/x/ZoAL"
+    },
+    "javatest-report": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "jenkins-tracker": {
+      "url": "https://issues.jenkins.io/browse/INFRA-1531"
+    },
+    "jenkinspider": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "jenkow-activiti-designer": {
+      "url": "https://wiki.jenkins.io/x/ngnqAw"
+    },
+    "jenkow-activiti-explorer": {
+      "url": "https://wiki.jenkins.io/x/yQH8Aw"
+    },
+    "jenkow-plugin": {
+      "url": "https://wiki.jenkins.io/x/WIuhAw"
+    },
+    "jshint-checkstyle": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/21"
+    },
+    "jx-pipelines": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/590"
+    },
+    "jx-resources": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/590"
+    },
+    "kanboard-publisher": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/94"
+    },
+    "kmap-jenkins": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/587"
+    },
+    "kubernetes-ci": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "kubernetes-pipeline-aggregator": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "kubernetes-pipeline-arquillian-steps": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "kubernetes-pipeline-steps": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "lsf-cloud": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "m2-extra-steps": {
+      "url": "https://wiki.jenkins.io/x/FIc5Ag"
+    },
+    "mansion-cloud": {
+      "url": "https://wiki.jenkins.io/x/YwdRB"
+    },
+    "maven-repo-cleaner": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/6323"
+    },
+    "mcap-eas-plugin": {
+      "url": "https://github.com/mwaylabs/jenkins-mcap-eas-plugin"
+    },
+    "monkit-plugin": {
+      "url": "https://groups.google.com/g/jenkinsci-dev/c/1bIdZr8P_Ms"
+    },
+    "mypeople": {
+      "url": "https://wiki.jenkins.io/x/xQRCB"
+    },
+    "mysql-job-databases": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "nabaztag": {
+      "url": "https://wiki.jenkins.io/x/dIEuAg"
+    },
+    "netio-plugin": {
+      "url": "https://wiki.jenkins.io/x/7gMHB"
+    },
+    "nis-notification-lamp": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5521"
+    },
+    "nodeofflinenotification": {
+      "url": "https://wiki.jenkins.io/x/0IKhAw"
+    },
+    "notifo": {
+      "url": "https://wiki.jenkins.io/x/0ADDAg"
+    },
+    "openshift-deployer": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "origo-issue-notifier": {
+      "url": "https://wiki.jenkins.io/x/qgabAg"
+    },
+    "paranoia": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/291"
+    },
+    "pathignore": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "perfectomobile": {
+      "url": "https://developers.perfectomobile.com/display/PD/Legacy+%7C+Jenkins+plugin"
+    },
+    "perforce": {
+      "url": "https://www.jenkins.io/security/advisory/2018-03-26/#SECURITY-373"
+    },
+    "performance-signature-dynatrace": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/531"
+    },
+    "perl": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "perl-smoke-test": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "persona": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "phoenix-autotest": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "php": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "pipeline-classpath": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "pipeline-editor": {
+      "url": "https://github.com/jenkinsci/pipeline-editor-plugin"
+    },
+    "play-autotest-plugin": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/384"
+    },
+    "pmd": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "poll-mailbox-trigger": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/42"
+    },
+    "pretest-commit": {
+      "url": "https://wiki.jenkins.io/x/5gB-B"
+    },
+    "pry": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "pyenv": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "python-wrapper": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "rbenv": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "relution-publisher": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "reviewboard": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "rtc": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/13"
+    },
+    "ruby-runtime": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "rvm": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "schedule-failed-builds": {
+      "url": "https://wiki.jenkins.io/x/roM5Ag"
+    },
+    "scis-ad": {
+      "url": "https://github.com/jenkins-infra/update-center2/commit/5f3f5ae66ea0e819c27d6d1fed9fdb00781f636c"
+    },
+    "scm-branch-pr-filter": {
+      "url": "https://issues.jenkins.io/browse/INFRA-1358"
+    },
+    "scm-httpclient": {
+      "url": "https://www.jenkins.io/blog/2021/11/09/guava-upgrade/"
+    },
+    "scripttrigger": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "secret": {
+      "url": "https://wiki.jenkins.io/x/9ghSAg"
+    },
+    "setenv": {
+      "url": "https://wiki.jenkins.io/x/YAtSAg"
+    },
+    "sge-cloud-plugin": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "sicci_for_xcode": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5560"
+    },
+    "sinatra-chef-builder": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "singleuseslave": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "slave-prerequisites": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5526"
+    },
+    "sonargraph-plugin": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/405"
+    },
+    "sonatype-ci": {
+      "url": "https://wiki.jenkins.io/x/iYDPAw"
+    },
+    "starteam": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/571"
+    },
+    "storable-configs-plugin": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "svn-tag": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "swamp": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "synergy": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "tasks": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "team-views": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "tepco": {
+      "url": "https://wiki.jenkins.io/x/zoBoAw"
+    },
+    "tepco-epuw": {
+      "url": "https://wiki.jenkins.io/x/vohoAw"
+    },
+    "testflight": {
+      "url": "https://wiki.jenkins.io/x/pwZ1Aw"
+    },
+    "tfs": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2751"
+    },
+    "tmpcleaner": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5560"
+    },
+    "travis-yml": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "ui-samples-plugin": {
+      "url": "https://groups.google.com/g/jenkinsci-dev/c/2vGn3t9gZ0Y"
+    },
+    "url-change-trigger": {
+      "url": "https://wiki.jenkins.io/x/BQBJ"
+    },
+    "veracode-scanner": {
+      "url": "https://github.com/jenkins-infra/update-center2/pull/302"
+    },
+    "vertx": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5526"
+    },
+    "vessel": {
+      "url": "https://groups.google.com/d/msg/jenkinsci-dev/L34eAMMWA5o/-AxtRdGsAAAJ"
+    },
+    "vs-code-metrics": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "vss": {
+      "url": "https://github.com/jenkinsci/jenkins/pull/5320"
+    },
+    "warnings": {
+      "url": "https://issues.jenkins.io/browse/INFRA-2487"
+    },
+    "xltest-plugin": {
+      "url": "https://github.com/jenkinsci/xltestview-plugin/commit/ea034f9929b520e63b9ce15aed9bdb62354146cf"
+    },
+    "xtrigger": {
+      "url": "https://www.jenkins.io/security/plugins/#suspensions"
+    },
+    "yammer": {
+      "url": "https://www.jenkins.io/blog/2021/12/22/deprecated-ruby-runtime/"
+    },
+    "zaproxy": {
+      "url": "https://wiki.jenkins.io/x/JgCsB"
+    }
+  },
+  "plugins": {
+    "42crunch-security-audit": {
+      "name": "42crunch-security-audit",
+      "scm": "https://github.com/jenkinsci/42crunch-security-audit-plugin",
+      "releaseTimestamp": "2022-03-21T15:22:02.00Z"
+    },
+    "AnchorChain": {
+      "name": "AnchorChain",
+      "scm": "https://github.com/jenkinsci/anchor-chain-plugin",
+      "releaseTimestamp": "2012-03-11T14:59:11.00Z"
+    },
+    "ApicaLoadtest": {
+      "name": "ApicaLoadtest",
+      "scm": null,
+      "releaseTimestamp": "2016-02-15T14:55:26.00Z"
+    },
+    "BlameSubversion": {
+      "name": "BlameSubversion",
+      "scm": "https://github.com/jenkinsci/BlameSubversion-plugin",
+      "releaseTimestamp": "2013-01-04T16:34:43.00Z"
+    },
+    "BlazeMeterJenkinsPlugin": {
+      "name": "BlazeMeterJenkinsPlugin",
+      "scm": "https://github.com/jenkinsci/blazemeter-plugin",
+      "releaseTimestamp": "2022-05-12T12:22:07.00Z"
+    },
+    "ColumnsPlugin": {
+      "name": "ColumnsPlugin",
+      "scm": null,
+      "releaseTimestamp": "2012-12-21T14:34:42.00Z"
+    },
+    "CustomHistory": {
+      "name": "CustomHistory",
+      "scm": "https://github.com/jenkinsci/custom-history-plugin",
+      "releaseTimestamp": "2013-07-01T19:01:40.00Z"
+    },
+    "DotCi": {
+      "name": "DotCi",
+      "scm": "https://github.com/jenkinsci/DotCi",
+      "releaseTimestamp": "2018-02-05T22:20:22.00Z"
+    },
+    "DotCi-DockerPublish": {
+      "name": "DotCi-DockerPublish",
+      "scm": null,
+      "releaseTimestamp": "2016-04-29T18:48:14.00Z"
+    },
+    "DotCi-Fig-template": {
+      "name": "DotCi-Fig-template",
+      "scm": null,
+      "releaseTimestamp": "2015-12-24T05:12:55.00Z"
+    },
+    "DotCi-InstallPackages": {
+      "name": "DotCi-InstallPackages",
+      "scm": null,
+      "releaseTimestamp": "2016-08-10T13:47:43.00Z"
+    },
+    "DotCiInstallPackages": {
+      "name": "DotCiInstallPackages",
+      "scm": null,
+      "releaseTimestamp": "2015-12-22T20:48:02.00Z"
+    },
+    "Exclusion": {
+      "name": "Exclusion",
+      "scm": "https://github.com/jenkinsci/exclusion-plugin",
+      "releaseTimestamp": "2022-01-10T17:47:32.00Z"
+    },
+    "GatekeeperPlugin": {
+      "name": "GatekeeperPlugin",
+      "scm": "https://github.com/jenkinsci/gatekeeper-plugin",
+      "releaseTimestamp": "2015-08-20T21:07:04.00Z"
+    },
+    "JDK_Parameter_Plugin": {
+      "name": "JDK_Parameter_Plugin",
+      "scm": "https://github.com/jenkinsci/JDK_Parameter_Choice",
+      "releaseTimestamp": "2013-08-19T16:12:24.00Z"
+    },
+    "JiraTestResultReporter": {
+      "name": "JiraTestResultReporter",
+      "scm": "https://github.com/jenkinsci/JiraTestResultReporter-plugin",
+      "releaseTimestamp": "2022-07-14T08:29:15.00Z"
+    },
+    "Matrix-sorter-plugin": {
+      "name": "Matrix-sorter-plugin",
+      "scm": "https://github.com/jenkinsci/Matrix-sorter-plugin",
+      "releaseTimestamp": "2017-05-31T13:44:03.00Z"
+    },
+    "NegotiateSSO": {
+      "name": "NegotiateSSO",
+      "scm": "https://github.com/jenkinsci/negotiatesso-plugin",
+      "releaseTimestamp": "2019-11-07T22:30:05.00Z"
+    },
+    "Office-365-Connector": {
+      "name": "Office-365-Connector",
+      "scm": "https://github.com/jenkinsci/office-365-connector",
+      "releaseTimestamp": "2022-05-15T22:10:24.00Z"
+    },
+    "Parameterized-Remote-Trigger": {
+      "name": "Parameterized-Remote-Trigger",
+      "scm": "https://github.com/jenkinsci/parameterized-remote-trigger-plugin",
+      "releaseTimestamp": "2022-06-13T16:18:39.00Z"
+    },
+    "PrioritySorter": {
+      "name": "PrioritySorter",
+      "scm": "https://github.com/jenkinsci/priority-sorter-plugin",
+      "releaseTimestamp": "2022-01-03T23:20:11.00Z"
+    },
+    "SBuild": {
+      "name": "SBuild",
+      "scm": "https://github.com/jenkinsci/sbuild-plugin",
+      "releaseTimestamp": "2014-03-20T23:28:47.00Z"
+    },
+    "SSSCM": {
+      "name": "SSSCM",
+      "scm": "https://github.com/jenkinsci/shell-script-scm-plugin",
+      "releaseTimestamp": "2011-09-15T21:14:36.00Z"
+    },
+    "StashBranchParameter": {
+      "name": "StashBranchParameter",
+      "scm": null,
+      "releaseTimestamp": "2017-02-11T14:45:23.00Z"
+    },
+    "Surround-SCM-plugin": {
+      "name": "Surround-SCM-plugin",
+      "scm": "https://github.com/jenkinsci/Surround-SCM-plugin",
+      "releaseTimestamp": "2018-07-13T19:23:40.00Z"
+    }
+  }
+}

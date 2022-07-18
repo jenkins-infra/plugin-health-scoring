@@ -55,12 +55,22 @@ public class UpdateCenterService {
             }
         }
 
-        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
+        record UpdateCenterDeprecations(String url) {
+        }
+
+        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins, Map<String, UpdateCenterDeprecations> deprecations) {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
         return updateCenter.plugins().values().stream()
             .map(UpdateCenterPlugin::toPlugin)
+            .map(plugin -> {
+                if (updateCenter.deprecations().containsKey(plugin.getName())) {
+                    return plugin.addDetails("deprecation_reason", updateCenter.deprecations().get(plugin.getName()).url());
+                }
+                else
+                    return plugin;
+            })
             .collect(Collectors.toList());
     }
 

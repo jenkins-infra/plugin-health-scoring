@@ -25,6 +25,8 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,8 +35,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 @Entity
 @Table(name = "plugins")
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class Plugin {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -48,6 +55,10 @@ public class Plugin {
 
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
+
+    @Type(type = "json")
+    @Column(columnDefinition = "jsonb")
+    private final Map<String, String> details = new HashMap<>();
 
     public Plugin() {
 
@@ -86,6 +97,15 @@ public class Plugin {
 
     public Plugin setReleaseTimestamp(ZonedDateTime releaseTimestamp) {
         this.releaseTimestamp = releaseTimestamp;
+        return this;
+    }
+
+    public Map<String, String> getDetails() {
+        return Map.copyOf(details);
+    }
+
+    public Plugin addDetails(String key, String value) {
+        details.put(key, value);
         return this;
     }
 

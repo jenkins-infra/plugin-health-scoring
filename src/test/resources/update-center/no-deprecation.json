@@ -1,0 +1,130 @@
+{
+  "deprecations": {},
+  "plugins": {
+    "42crunch-security-audit": {
+      "name": "42crunch-security-audit",
+      "scm": "https://github.com/jenkinsci/42crunch-security-audit-plugin",
+      "releaseTimestamp": "2022-03-21T15:22:02.00Z"
+    },
+    "AnchorChain": {
+      "name": "AnchorChain",
+      "scm": "https://github.com/jenkinsci/anchor-chain-plugin",
+      "releaseTimestamp": "2012-03-11T14:59:11.00Z"
+    },
+    "ApicaLoadtest": {
+      "name": "ApicaLoadtest",
+      "scm": null,
+      "releaseTimestamp": "2016-02-15T14:55:26.00Z"
+    },
+    "BlameSubversion": {
+      "name": "BlameSubversion",
+      "scm": "https://github.com/jenkinsci/BlameSubversion-plugin",
+      "releaseTimestamp": "2013-01-04T16:34:43.00Z"
+    },
+    "BlazeMeterJenkinsPlugin": {
+      "name": "BlazeMeterJenkinsPlugin",
+      "scm": "https://github.com/jenkinsci/blazemeter-plugin",
+      "releaseTimestamp": "2022-05-12T12:22:07.00Z"
+    },
+    "ColumnsPlugin": {
+      "name": "ColumnsPlugin",
+      "scm": null,
+      "releaseTimestamp": "2012-12-21T14:34:42.00Z"
+    },
+    "CustomHistory": {
+      "name": "CustomHistory",
+      "scm": "https://github.com/jenkinsci/custom-history-plugin",
+      "releaseTimestamp": "2013-07-01T19:01:40.00Z"
+    },
+    "DotCi": {
+      "name": "DotCi",
+      "scm": "https://github.com/jenkinsci/DotCi",
+      "releaseTimestamp": "2018-02-05T22:20:22.00Z"
+    },
+    "DotCi-DockerPublish": {
+      "name": "DotCi-DockerPublish",
+      "scm": null,
+      "releaseTimestamp": "2016-04-29T18:48:14.00Z"
+    },
+    "DotCi-Fig-template": {
+      "name": "DotCi-Fig-template",
+      "scm": null,
+      "releaseTimestamp": "2015-12-24T05:12:55.00Z"
+    },
+    "DotCi-InstallPackages": {
+      "name": "DotCi-InstallPackages",
+      "scm": null,
+      "releaseTimestamp": "2016-08-10T13:47:43.00Z"
+    },
+    "DotCiInstallPackages": {
+      "name": "DotCiInstallPackages",
+      "scm": null,
+      "releaseTimestamp": "2015-12-22T20:48:02.00Z"
+    },
+    "Exclusion": {
+      "name": "Exclusion",
+      "scm": "https://github.com/jenkinsci/exclusion-plugin",
+      "releaseTimestamp": "2022-01-10T17:47:32.00Z"
+    },
+    "GatekeeperPlugin": {
+      "name": "GatekeeperPlugin",
+      "scm": "https://github.com/jenkinsci/gatekeeper-plugin",
+      "releaseTimestamp": "2015-08-20T21:07:04.00Z"
+    },
+    "JDK_Parameter_Plugin": {
+      "name": "JDK_Parameter_Plugin",
+      "scm": "https://github.com/jenkinsci/JDK_Parameter_Choice",
+      "releaseTimestamp": "2013-08-19T16:12:24.00Z"
+    },
+    "JiraTestResultReporter": {
+      "name": "JiraTestResultReporter",
+      "scm": "https://github.com/jenkinsci/JiraTestResultReporter-plugin",
+      "releaseTimestamp": "2022-07-14T08:29:15.00Z"
+    },
+    "Matrix-sorter-plugin": {
+      "name": "Matrix-sorter-plugin",
+      "scm": "https://github.com/jenkinsci/Matrix-sorter-plugin",
+      "releaseTimestamp": "2017-05-31T13:44:03.00Z"
+    },
+    "NegotiateSSO": {
+      "name": "NegotiateSSO",
+      "scm": "https://github.com/jenkinsci/negotiatesso-plugin",
+      "releaseTimestamp": "2019-11-07T22:30:05.00Z"
+    },
+    "Office-365-Connector": {
+      "name": "Office-365-Connector",
+      "scm": "https://github.com/jenkinsci/office-365-connector",
+      "releaseTimestamp": "2022-05-15T22:10:24.00Z"
+    },
+    "Parameterized-Remote-Trigger": {
+      "name": "Parameterized-Remote-Trigger",
+      "scm": "https://github.com/jenkinsci/parameterized-remote-trigger-plugin",
+      "releaseTimestamp": "2022-06-13T16:18:39.00Z"
+    },
+    "PrioritySorter": {
+      "name": "PrioritySorter",
+      "scm": "https://github.com/jenkinsci/priority-sorter-plugin",
+      "releaseTimestamp": "2022-01-03T23:20:11.00Z"
+    },
+    "SBuild": {
+      "name": "SBuild",
+      "scm": "https://github.com/jenkinsci/sbuild-plugin",
+      "releaseTimestamp": "2014-03-20T23:28:47.00Z"
+    },
+    "SSSCM": {
+      "name": "SSSCM",
+      "scm": "https://github.com/jenkinsci/shell-script-scm-plugin",
+      "releaseTimestamp": "2011-09-15T21:14:36.00Z"
+    },
+    "StashBranchParameter": {
+      "name": "StashBranchParameter",
+      "scm": null,
+      "releaseTimestamp": "2017-02-11T14:45:23.00Z"
+    },
+    "Surround-SCM-plugin": {
+      "name": "Surround-SCM-plugin",
+      "scm": "https://github.com/jenkinsci/Surround-SCM-plugin",
+      "releaseTimestamp": "2018-07-13T19:23:40.00Z"
+    }
+  }
+}
