@@ -35,6 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,15 +43,15 @@ public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
-    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update.center}") String updateCenterURL) {
-        this.objectMapper = objectMapper;
+    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL) {
+        this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
         this.updateCenterURL = updateCenterURL;
     }
 
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
-                return new Plugin(this.name, this.scm, this.releaseTimestamp);
+                return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
             }
         }
 
@@ -61,7 +62,7 @@ public class UpdateCenterService {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-        return updateCenter.plugins.values().stream()
+        return updateCenter.plugins().values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .map(plugin -> {
                 if (updateCenter.deprecations.containsKey(plugin.getName())) {
