@@ -65,8 +65,8 @@ public class UpdateCenterService {
         return updateCenter.plugins().values().stream()
             .map(UpdateCenterPlugin::toPlugin)
             .map(plugin -> {
-                if (updateCenter.deprecations.containsKey(plugin.getName())) {
-                    return plugin.addDetails("deprecation_reason", updateCenter.deprecations.get(plugin.getName()).url);
+                if (updateCenter.deprecations().containsKey(plugin.getName())) {
+                    return plugin.addDetails("deprecation_reason", updateCenter.deprecations().get(plugin.getName()).url());
                 }
                 else
                     return plugin;
