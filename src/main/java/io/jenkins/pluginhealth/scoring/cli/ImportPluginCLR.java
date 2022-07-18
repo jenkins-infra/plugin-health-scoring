@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.cli;
 
+import java.io.IOException;
+
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
@@ -41,7 +43,7 @@ public class ImportPluginCLR implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) throws IOException {
         updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
     }
 }
