@@ -22,34 +22,32 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
-
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
+package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.springframework.stereotype.Service;
+/**
+ * Represents the analyze which can be performed on a plugin
+ */
+public abstract class Probe {
 
-@Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
-
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+    /**
+     * Starts the analyze on a plugin.
+     * Should only be called by the {@link ProbeEngine#run()} method.
+     *
+     * @param plugin the plugin on which to perform the analyze
+     * @return the result of the analyze in a {@link ProbeResult}
+     */
+    public final ProbeResult apply(Plugin plugin) {
+        return doApply(plugin);
     }
 
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
-    }
-
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
-    }
+    /**
+     * Perform the analyze on a plugin
+     *
+     * @param plugin the plugin on which the analyze is done
+     * @return a ProbeResult representing the result of the analyze
+     */
+    protected abstract ProbeResult doApply(Plugin plugin);
 }
