@@ -63,7 +63,7 @@ public final class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.error(key(), "No SCM link");
+            return ProbeResult.failure(key(), "No SCM link");
         }
         return fromSCMLink(plugin.getScm())
             .map(repo -> ProbeResult.success(key(), "SCM link is valid"))
