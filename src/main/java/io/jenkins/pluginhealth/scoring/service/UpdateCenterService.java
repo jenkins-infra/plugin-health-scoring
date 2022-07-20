@@ -41,6 +41,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UpdateCenterService {
+    public static final String DEPRECATION_KEY = "deprecation";
+
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
@@ -69,7 +71,7 @@ public class UpdateCenterService {
             .map(plugin -> {
                 if (updateCenter.deprecations().containsKey(plugin.getName())) {
                     return plugin.addDetails(
-                        ProbeResult.failure("deprecation", updateCenter.deprecations().get(plugin.getName()).url())
+                        ProbeResult.failure(DEPRECATION_KEY, updateCenter.deprecations().get(plugin.getName()).url())
                     );
                 } else {
                     return plugin;
