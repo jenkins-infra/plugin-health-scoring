@@ -1,0 +1,20 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+        username: ${POSTGRES_USER}
+        password: ${POSTGRES_PASSWORD}
+        driverClassName: org.postgresql.Driver
+    jpa.properties.hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.lob.non_contextual_creation: true
+    jpa.hibernate:
+        ddl-auto: update
+
+jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
+github.oauth: ${GITHUB_OAUTH}
+
+---
+
+spring.config.activate.on-profile: dev
+logging.level:
+    io.jenkins.pluginhealth: DEBUG

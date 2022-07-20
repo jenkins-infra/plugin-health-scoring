@@ -24,9 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring;
 
+import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+@EnableConfigurationProperties(value = {
+    GithubConfiguration.class,
+})
 @SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
 public class PluginHealthScoring {
     public static void main(String[] args) {
