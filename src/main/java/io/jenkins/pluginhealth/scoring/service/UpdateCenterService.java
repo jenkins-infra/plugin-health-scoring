@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,7 @@ public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
-    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL) {
+    public UpdateCenterService(@Value("${jenkins.update-center}") String updateCenterURL) {
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
         this.updateCenterURL = updateCenterURL;
     }
@@ -58,7 +59,8 @@ public class UpdateCenterService {
         record UpdateCenterDeprecations(String url) {
         }
 
-        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins, Map<String, UpdateCenterDeprecations> deprecations) {
+        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins,
+                            Map<String, UpdateCenterDeprecations> deprecations) {
         }
 
         UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
@@ -66,10 +68,12 @@ public class UpdateCenterService {
             .map(UpdateCenterPlugin::toPlugin)
             .map(plugin -> {
                 if (updateCenter.deprecations().containsKey(plugin.getName())) {
-                    return plugin.addDetails("deprecation_reason", updateCenter.deprecations().get(plugin.getName()).url());
-                }
-                else
+                    return plugin.addDetails(
+                        ProbeResult.failure("deprecation", updateCenter.deprecations().get(plugin.getName()).url())
+                    );
+                } else {
                     return plugin;
+                }
             })
             .collect(Collectors.toList());
     }

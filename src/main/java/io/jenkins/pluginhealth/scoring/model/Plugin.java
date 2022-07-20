@@ -58,10 +58,9 @@ public class Plugin {
 
     @Type(type = "json")
     @Column(columnDefinition = "jsonb")
-    private final Map<String, String> details = new HashMap<>();
+    private final Map<String, ProbeResult> details = new HashMap<>();
 
     public Plugin() {
-
     }
 
     public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
@@ -70,16 +69,8 @@ public class Plugin {
         this.scm = scm;
     }
 
-    public long getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getScm() {
@@ -100,12 +91,12 @@ public class Plugin {
         return this;
     }
 
-    public Map<String, String> getDetails() {
+    public Map<String, ProbeResult> getDetails() {
         return Map.copyOf(details);
     }
 
-    public Plugin addDetails(String key, String value) {
-        details.put(key, value);
+    public Plugin addDetails(ProbeResult result) {
+        details.put(result.id(), result);
         return this;
     }
 
