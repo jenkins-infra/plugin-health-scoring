@@ -50,4 +50,6 @@ public abstract class Probe {
      * @return a ProbeResult representing the result of the analyze
      */
     protected abstract ProbeResult doApply(Plugin plugin);
+
+    protected abstract String key();
 }

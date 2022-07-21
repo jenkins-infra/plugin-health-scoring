@@ -24,8 +24,11 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 
 import org.slf4j.Logger;
@@ -43,10 +46,10 @@ import org.springframework.stereotype.Component;
 public class ProbeEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProbeEngine.class);
 
-    private final LinkedList<Probe> probes;
+    private final List<Probe> probes;
     private final PluginService pluginService;
 
-    public ProbeEngine(LinkedList<Probe> probes, PluginService pluginService) {
+    public ProbeEngine(List<Probe> probes, PluginService pluginService) {
         this.probes = probes;
         this.pluginService = pluginService;
     }
@@ -55,10 +58,26 @@ public class ProbeEngine {
      * Starts to apply all the {@link Probe} implementations on all the plugins registered in the database.
      */
     public void run() {
-        LOGGER.info("Start running probes on all plugins.");
-        pluginService.streamAll()
-            .peek(plugin -> probes.stream().map(probe -> probe.apply(plugin)).forEach(plugin::addDetails))
+        LOGGER.info("Start running probes on all plugins");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Registered probes: {}", probes.stream().map(Probe::key).collect(Collectors.joining(", ")));
+        }
+        pluginService.streamAll().parallel()
+            .peek(plugin -> probes.stream()
+                .map(probe -> {
+                    try {
+                        if(LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Running {} on {}", probe.key(), plugin.getName());
+                        }
+                        return probe.apply(plugin);
+                    } catch (Throwable t) {
+                        LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
+                        return ProbeResult.error(probe.key(), "Could not run probe " + probe.key());
+                    }
+                })
+                .filter(result -> result.status() != ResultStatus.ERROR)
+                .forEach(plugin::addDetails))
             .forEach(pluginService::saveOrUpdate);
-        LOGGER.info("Probe engine has finished.");
+        LOGGER.info("Probe engine has finished");
     }
 }

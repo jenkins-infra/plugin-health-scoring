@@ -70,6 +70,7 @@ public final class SCMLinkValidationProbe extends Probe {
             .orElseGet(() -> ProbeResult.failure(key(), "SCM link is invalid"));
     }
 
+    @Override
     public String key() {
         return "scm";
     }
