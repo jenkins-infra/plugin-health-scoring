@@ -28,5 +28,5 @@ package io.jenkins.pluginhealth.scoring.model;
  * Represents the state of the analyze performed by any {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation
  */
 public enum ResultStatus {
-    SUCCESS, FAILURE, ERROR;
+    SUCCESS, FAILURE, ERROR
 }

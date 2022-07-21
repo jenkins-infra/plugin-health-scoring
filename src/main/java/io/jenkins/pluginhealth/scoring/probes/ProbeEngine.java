@@ -66,7 +66,7 @@ public class ProbeEngine {
             .peek(plugin -> probes.stream()
                 .map(probe -> {
                     try {
-                        if(LOGGER.isDebugEnabled()) {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("Running {} on {}", probe.key(), plugin.getName());
                         }
                         return probe.apply(plugin);
