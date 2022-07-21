@@ -50,7 +50,7 @@ public class ProbeEngine {
     private final PluginService pluginService;
 
     public ProbeEngine(List<Probe> probes, PluginService pluginService) {
-        this.probes = probes;
+        this.probes = List.copyOf(probes);
         this.pluginService = pluginService;
     }
 

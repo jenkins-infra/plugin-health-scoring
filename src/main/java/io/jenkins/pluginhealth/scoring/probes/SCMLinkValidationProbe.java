@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
@@ -53,10 +54,10 @@ public final class SCMLinkValidationProbe extends Probe {
 
     public static final int ORDER = 1;
 
-    private final GitHub gitHub;
+    private final GithubConfiguration githubConfiguration;
 
-    public SCMLinkValidationProbe(GitHub gitHub) {
-        this.gitHub = gitHub;
+    public SCMLinkValidationProbe(GithubConfiguration githubConfiguration) {
+        this.githubConfiguration = githubConfiguration;
     }
 
     @Override
@@ -82,7 +83,7 @@ public final class SCMLinkValidationProbe extends Probe {
             return Optional.empty();
         }
         try {
-            GHOrganization org = this.gitHub.getOrganization(matcher.group("org"));
+            GHOrganization org = this.getGitHub().getOrganization(matcher.group("org"));
             GHRepository repo = org.getRepository(matcher.group("repo"));
             if (repo == null) {
                 return Optional.empty();
@@ -95,5 +96,9 @@ public final class SCMLinkValidationProbe extends Probe {
         } catch (IOException ex) {
             return Optional.empty();
         }
+    }
+
+    private GitHub getGitHub() throws IOException {
+        return GitHub.connectUsingOAuth(githubConfiguration.getGitAccessToken());
     }
 }
