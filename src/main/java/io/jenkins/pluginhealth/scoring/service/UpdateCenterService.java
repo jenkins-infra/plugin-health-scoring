@@ -36,6 +36,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,6 +49,7 @@ public class UpdateCenterService {
         this.updateCenterURL = updateCenterURL;
     }
 
+    @Scheduled(cron = "0 0 0 * * Mon", zone = "UTC")
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
