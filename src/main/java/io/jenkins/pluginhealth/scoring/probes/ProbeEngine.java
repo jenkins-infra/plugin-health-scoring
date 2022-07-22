@@ -66,8 +66,17 @@ public class ProbeEngine {
             .peek(plugin -> probes.stream()
                 .map(probe -> {
                     try {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Running {} on {}", probe.key(), plugin.getName());
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
+                        }
+                        if (probe.requiresRelease() && plugin.getDetails().containsKey(probe.key())) {
+                            ProbeResult probeResult = plugin.getDetails().get(probe.key());
+                            if (probeResult.timestamp() != null && plugin.getReleaseTimestamp().isBefore(probeResult.timestamp())) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
+                                }
+                                return probeResult;
+                            }
                         }
                         return probe.apply(plugin);
                     } catch (Throwable t) {

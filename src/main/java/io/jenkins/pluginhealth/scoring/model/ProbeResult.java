@@ -24,23 +24,29 @@
 
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.time.ZonedDateTime;
+
 /**
  * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
  *
- * @param id represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
+ * @param id      represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
  * @param message represents a summary of the result
- * @param status represents the state of the analyze performed
+ * @param status  represents the state of the analyze performed
  */
-public record ProbeResult(String id, String message, ResultStatus status) {
-    public static  ProbeResult success(String id, String message) {
+public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
+    public ProbeResult(String id, String message, ResultStatus status) {
+        this(id, message, status, ZonedDateTime.now());
+    }
+
+    public static ProbeResult success(String id, String message) {
         return new ProbeResult(id, message, ResultStatus.SUCCESS);
     }
 
-    public static  ProbeResult failure(String id, String message) {
+    public static ProbeResult failure(String id, String message) {
         return new ProbeResult(id, message, ResultStatus.FAILURE);
     }
 
-    public static  ProbeResult error(String id, String message) {
+    public static ProbeResult error(String id, String message) {
         return new ProbeResult(id, message, ResultStatus.ERROR);
     }
 }

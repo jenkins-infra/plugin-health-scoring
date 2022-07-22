@@ -35,6 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import com.sun.istack.NotNull;
 import org.kohsuke.github.GHOrganization;
+import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
@@ -76,15 +77,31 @@ public final class SCMLinkValidationProbe extends Probe {
         return "scm";
     }
 
+    @Override
+    protected boolean requiresRelease() {
+        return true;
+    }
+
     private Optional<GHRepository> fromSCMLink(@NotNull String scm) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
-            LOGGER.debug("{} is not respecting the SCM URL Template", scm);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("{} is not respecting the SCM URL Template", scm);
+            }
             return Optional.empty();
         }
         try {
-            GHOrganization org = this.getGitHub().getOrganization(matcher.group("org"));
-            GHRepository repo = org.getRepository(matcher.group("repo"));
+            final GitHub gitHub = this.getGitHub();
+            if (LOGGER.isTraceEnabled()) {
+                GHRateLimit rateLimit = gitHub.getRateLimit();
+                LOGGER.trace("GitHub rate: {}/{}, reset: {}", rateLimit.getRemaining(), rateLimit.getLimit(), rateLimit.getResetDate());
+            }
+            final GHOrganization org = gitHub.getOrganization(matcher.group("org"));
+            if (!"jenkinsci".equals(org.getLogin())) {
+                LOGGER.warn("{} not in {} organization", scm, "jenkinsci");
+                return Optional.empty();
+            }
+            final GHRepository repo = org.getRepository(matcher.group("repo"));
             if (repo == null) {
                 return Optional.empty();
             }

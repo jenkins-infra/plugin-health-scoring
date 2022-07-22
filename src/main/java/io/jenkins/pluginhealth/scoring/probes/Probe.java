@@ -52,4 +52,8 @@ public abstract class Probe {
     protected abstract ProbeResult doApply(Plugin plugin);
 
     protected abstract String key();
+
+    protected boolean requiresRelease() {
+        return false;
+    }
 }
