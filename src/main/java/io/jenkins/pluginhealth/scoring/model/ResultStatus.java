@@ -22,34 +22,11 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.model;
 
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
-
-import org.springframework.stereotype.Service;
-
-@Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
-
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
-    }
-
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
-    }
-
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
-    }
+/**
+ * Represents the state of the analyze performed by any {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation
+ */
+public enum ResultStatus {
+    SUCCESS, FAILURE, ERROR
 }

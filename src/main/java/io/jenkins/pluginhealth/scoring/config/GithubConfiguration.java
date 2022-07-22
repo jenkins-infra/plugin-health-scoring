@@ -22,34 +22,25 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.config;
 
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
+import javax.validation.constraints.NotBlank;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.validation.annotation.Validated;
 
-import org.springframework.stereotype.Service;
+@ConfigurationProperties(prefix = "github")
+@ConstructorBinding
+@Validated
+public final class GithubConfiguration {
+    @NotBlank private final String oauth;
 
-@Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
-
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+    public GithubConfiguration(String oauth) {
+        this.oauth = oauth;
     }
 
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
-    }
-
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
+    public String getGitAccessToken() {
+        return oauth;
     }
 }

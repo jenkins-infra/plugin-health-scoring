@@ -22,34 +22,32 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.model;
 
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
+import java.time.ZonedDateTime;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
-
-import org.springframework.stereotype.Service;
-
-@Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
-
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+/**
+ * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
+ *
+ * @param id      represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
+ * @param message represents a summary of the result
+ * @param status  represents the state of the analyze performed
+ */
+public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
+    public ProbeResult(String id, String message, ResultStatus status) {
+        this(id, message, status, ZonedDateTime.now());
     }
 
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+    public static ProbeResult success(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.SUCCESS);
     }
 
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
+    public static ProbeResult failure(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.FAILURE);
+    }
+
+    public static ProbeResult error(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.ERROR);
     }
 }
+

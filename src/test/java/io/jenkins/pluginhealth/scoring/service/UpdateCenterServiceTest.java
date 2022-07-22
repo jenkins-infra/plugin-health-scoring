@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import static io.jenkins.pluginhealth.scoring.service.UpdateCenterService.DEPRECATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
@@ -52,7 +53,7 @@ class UpdateCenterServiceTest {
         assertThat(plugins).hasSize(25);
         assertThat(
             plugins.stream()
-                .filter(plugin -> plugin.getDetails().containsKey("deprecation_reason"))
+                .filter(plugin -> plugin.getDetails().containsKey(DEPRECATION_KEY))
                 .collect(Collectors.toList())
         )
             .hasSize(0);
@@ -69,7 +70,7 @@ class UpdateCenterServiceTest {
         assertThat(plugins).hasSize(25);
         assertThat(
             plugins.stream()
-                .filter(plugin -> plugin.getDetails().containsKey("deprecation_reason"))
+                .filter(plugin -> plugin.getDetails().containsKey(DEPRECATION_KEY))
                 .collect(Collectors.toList())
         )
             .hasSize(1)
