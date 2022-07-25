@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.cli;
 
 import java.io.IOException;
 
-import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.springframework.boot.CommandLineRunner;
@@ -35,15 +34,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ImportPluginCLR implements CommandLineRunner {
     private final UpdateCenterService updateCenterService;
-    private final PluginService pluginService;
 
-    public ImportPluginCLR(UpdateCenterService updateCenterService, PluginService pluginService) {
+    public ImportPluginCLR(UpdateCenterService updateCenterService) {
         this.updateCenterService = updateCenterService;
-        this.pluginService = pluginService;
     }
 
     @Override
     public void run(String... args) throws IOException {
-        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+        updateCenterService.updateDatabase();
     }
 }

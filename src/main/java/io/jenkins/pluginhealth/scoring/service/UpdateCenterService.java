@@ -43,13 +43,19 @@ import org.springframework.stereotype.Service;
 public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
+    private final PluginService pluginService;
 
-    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL) {
+    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL, PluginService pluginService) {
+        this.pluginService = pluginService;
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
         this.updateCenterURL = updateCenterURL;
     }
 
     @Scheduled(cron = "${cronexpression}", zone = "UTC")
+    public void updateDatabase() throws IOException {
+        readUpdateCenter().forEach(pluginService::saveOrUpdate);
+    }
+
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
