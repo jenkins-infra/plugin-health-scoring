@@ -49,7 +49,7 @@ public class UpdateCenterService {
         this.updateCenterURL = updateCenterURL;
     }
 
-    @Scheduled(cron = "0 0 0 * * Mon", zone = "UTC")
+    @Scheduled(cron = "${cronexpression}", zone = "UTC")
     public List<Plugin> readUpdateCenter() throws IOException {
         record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
             Plugin toPlugin() {
