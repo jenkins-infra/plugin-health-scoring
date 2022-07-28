@@ -30,28 +30,22 @@ import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
-class UpdateCenterServiceTest extends AbstractDBContainerTest {
-    @Autowired
-    private PluginService pluginService;
+@JsonTest
+@RunWith(SpringRunner.class)
+class UpdateCenterServiceTest {
 
     @Test
     public void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
         URL updateCenter = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
         assertThat(updateCenter).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenter.toString(), pluginService);
+        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenter.toString());
 
         List<Plugin> plugins = updateCenterService.readUpdateCenter();
 
@@ -68,7 +62,7 @@ class UpdateCenterServiceTest extends AbstractDBContainerTest {
     public void shouldBeAbleToParseUpdateCenterWithDeprecations() throws Exception {
         URL updateCenter = UpdateCenterServiceTest.class.getResource("/update-center/with-deprecations.json");
         assertThat(updateCenter).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenter.toString(), pluginService);
+        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenter.toString());
 
         List<Plugin> plugins = updateCenterService.readUpdateCenter();
 

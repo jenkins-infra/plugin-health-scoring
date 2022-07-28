@@ -36,24 +36,16 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
-    private final PluginService pluginService;
 
-    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL, PluginService pluginService) {
-        this.pluginService = pluginService;
+    public UpdateCenterService(@Value("${jenkins.update.center}") String updateCenterURL) {
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
         this.updateCenterURL = updateCenterURL;
-    }
-
-    @Scheduled(cron = "${cronexpression}", zone = "UTC")
-    public void updateDatabase() throws IOException {
-        readUpdateCenter().forEach(pluginService::saveOrUpdate);
     }
 
     public List<Plugin> readUpdateCenter() throws IOException {
