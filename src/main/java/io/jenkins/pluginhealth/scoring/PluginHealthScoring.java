@@ -24,14 +24,30 @@
 
 package io.jenkins.pluginhealth.scoring;
 
+import java.io.IOException;
+
+import io.jenkins.pluginhealth.scoring.cli.ImportPluginCLR;
+
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
 @EnableScheduling
-public class PluginHealthScoring {
+public class PluginHealthScoring implements CommandLineRunner {
+    private final ImportPluginCLR importPluginCLR;
+
+    public PluginHealthScoring(ImportPluginCLR importPluginCLR) {
+        this.importPluginCLR = importPluginCLR;
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(PluginHealthScoring.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws IOException {
+        importPluginCLR.updateDatabase();
     }
 }
