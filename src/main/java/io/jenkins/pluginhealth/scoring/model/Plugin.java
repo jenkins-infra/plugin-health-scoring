@@ -65,8 +65,8 @@ public class Plugin {
 
     public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
         this.name = name;
-        this.releaseTimestamp = releaseTimestamp;
         this.scm = scm;
+        this.releaseTimestamp = releaseTimestamp;
     }
 
     public String getName() {
