@@ -30,6 +30,7 @@ import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,6 +45,11 @@ public class ImportPluginCLR implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws IOException {
+        updateDatabase();
+    }
+
+    @Scheduled(cron = "${cronexpression}", zone = "UTC")
+    public void updateDatabase() throws IOException {
         updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
     }
 }
