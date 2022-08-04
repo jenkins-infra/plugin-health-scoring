@@ -50,7 +50,7 @@ import org.springframework.stereotype.Component;
 @Order(value = SCMLinkValidationProbe.ORDER)
 public final class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<org>[^/]*)/(?<repo>[^/]*)(?:/(?<folder>.*))??";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/.*)??";
     private static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     public static final int ORDER = 1;
@@ -96,18 +96,9 @@ public final class SCMLinkValidationProbe extends Probe {
                 GHRateLimit rateLimit = gitHub.getRateLimit();
                 LOGGER.trace("GitHub rate: {}/{}, reset: {}", rateLimit.getRemaining(), rateLimit.getLimit(), rateLimit.getResetDate());
             }
-            final GHOrganization org = gitHub.getOrganization(matcher.group("org"));
-            if (!"jenkinsci".equals(org.getLogin())) {
-                LOGGER.warn("{} not in {} organization", scm, "jenkinsci");
-                return Optional.empty();
-            }
-            final GHRepository repo = org.getRepository(matcher.group("repo"));
+            final GHRepository repo = gitHub.getRepository(matcher.group("repo"));
             if (repo == null) {
                 return Optional.empty();
-            }
-            if (matcher.group("folder") != null) {
-                LOGGER.debug("{}", matcher.group("folder"));
-                // TODO
             }
             return Optional.of(repo);
         } catch (IOException ex) {
