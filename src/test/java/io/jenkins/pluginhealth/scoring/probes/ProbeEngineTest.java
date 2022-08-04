@@ -25,7 +25,10 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +53,7 @@ class ProbeEngineTest {
 
     @Test
     public void shouldBeAbleToRunSimpleProbe() {
-        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now());
+        final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
         final ProbeResult expectedResult = ProbeResult.success("foo", "bar");
@@ -60,7 +63,35 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe).doApply(plugin);
-        verify(pluginService).saveOrUpdate(plugin);
-        assertThat(plugin.getDetails()).containsEntry(expectedResult.id(), expectedResult);
+        verify(plugin, atMostOnce()).addDetails(expectedResult);
+        verify(pluginService, atMostOnce()).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void shouldNotAccessPluginWithPastResultAndReleaseRequirement() {
+        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().minusDays(1))
+            .addDetails(ProbeResult.success("wiz", "This is good"));
+        final Probe probe = mock(Probe.class);
+        final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
+
+        when(probe.requiresRelease()).thenReturn(Boolean.TRUE);
+        when(probe.key()).thenReturn("wiz");
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+        probeEngine.run();
+
+        verify(probe, never()).doApply(plugin);
+    }
+
+    @Test
+    public void shouldNotSaveErrors() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final Probe probe = mock(Probe.class);
+        final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
+
+        when(probe.doApply(any(Plugin.class))).thenReturn(ProbeResult.error("foo", "bar"));
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+        probeEngine.run();
+
+        verify(plugin, never()).addDetails(any());
     }
 }
