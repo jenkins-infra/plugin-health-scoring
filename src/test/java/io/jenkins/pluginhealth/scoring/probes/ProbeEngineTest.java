@@ -63,8 +63,8 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe).doApply(plugin);
-        verify(plugin, atMostOnce()).addDetails(expectedResult);
-        verify(pluginService, atMostOnce()).saveOrUpdate(plugin);
+        verify(plugin).addDetails(expectedResult);
+        verify(pluginService).saveOrUpdate(plugin);
     }
 
     @Test
