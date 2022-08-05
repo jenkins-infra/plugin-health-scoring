@@ -49,7 +49,8 @@ public abstract class AbstractDBContainerTest {
             TestPropertyValues.of(
                 "spring.datasource.url=" + POSTGRES_SQL_CONTAINER.getJdbcUrl(),
                 "spring.datasource.username=" + POSTGRES_SQL_CONTAINER.getUsername(),
-                "spring.datasource.password=" + POSTGRES_SQL_CONTAINER.getPassword()
+                "spring.datasource.password=" + POSTGRES_SQL_CONTAINER.getPassword(),
+                "cronexpression=0 0 */2 * * *"
             ).applyTo(applicationContext);
         }
     }
