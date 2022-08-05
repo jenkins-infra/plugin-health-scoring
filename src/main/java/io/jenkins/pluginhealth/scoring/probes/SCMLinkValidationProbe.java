@@ -25,7 +25,11 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,10 +38,6 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import com.sun.istack.NotNull;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHRateLimit;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -55,9 +55,11 @@ public final class SCMLinkValidationProbe extends Probe {
 
     public static final int ORDER = 1;
 
+    private final HttpClient httpClient;
     private final GithubConfiguration githubConfiguration;
 
-    public SCMLinkValidationProbe(GithubConfiguration githubConfiguration) {
+    public SCMLinkValidationProbe(HttpClient httpClient, GithubConfiguration githubConfiguration) {
+        this.httpClient = httpClient;
         this.githubConfiguration = githubConfiguration;
     }
 
@@ -65,11 +67,9 @@ public final class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.failure(key(), "No SCM link");
+            return ProbeResult.failure(key(), "The plugin SCM link is empty");
         }
-        return fromSCMLink(plugin.getScm())
-            .map(repo -> ProbeResult.success(key(), "SCM link is valid"))
-            .orElseGet(() -> ProbeResult.failure(key(), "SCM link is invalid"));
+        return fromSCMLink(plugin.getScm());
     }
 
     @Override
@@ -82,31 +82,32 @@ public final class SCMLinkValidationProbe extends Probe {
         return true;
     }
 
-    private Optional<GHRepository> fromSCMLink(@NotNull String scm) {
+    private ProbeResult fromSCMLink(@NotNull String scm) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} is not respecting the SCM URL Template", scm);
             }
-            return Optional.empty();
+            return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
         }
-        try {
-            final GitHub gitHub = this.getGitHub();
-            if (LOGGER.isTraceEnabled()) {
-                GHRateLimit rateLimit = gitHub.getRateLimit();
-                LOGGER.trace("GitHub rate: {}/{}, reset: {}", rateLimit.getRemaining(), rateLimit.getLimit(), rateLimit.getResetDate());
-            }
-            final GHRepository repo = gitHub.getRepository(matcher.group("repo"));
-            if (repo == null) {
-                return Optional.empty();
-            }
-            return Optional.of(repo);
-        } catch (IOException ex) {
-            return Optional.empty();
-        }
-    }
 
-    private GitHub getGitHub() throws IOException {
-        return GitHub.connectUsingOAuth(githubConfiguration.getGitAccessToken());
+        try {
+            final HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.github.com/repos/%s".formatted(matcher.group("repo"))))
+                .timeout(Duration.ofSeconds(2))
+                .header("Authorization", "token %s".formatted(githubConfiguration.getGitAccessToken()))
+                .header("User-Agent", "Plugin-Health-Scoring")
+                .GET()
+                .build();
+            final HttpResponse<String> response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                return ProbeResult.success(key(), "The plugin SCM link is valid");
+            } else {
+                return ProbeResult.failure(key(), "The plugin SCM link is invalid");
+            }
+        } catch (IOException | InterruptedException ex) {
+            return ProbeResult.failure(key(), "The plugin SCM cannot be validated");
+        }
     }
 }

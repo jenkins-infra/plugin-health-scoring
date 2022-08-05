@@ -24,10 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.config;
 
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.http.HttpClient;
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "github")
@@ -42,5 +46,14 @@ public final class GithubConfiguration {
 
     public String getGitAccessToken() {
         return oauth;
+    }
+
+    @Bean
+    public HttpClient getHttpClient() {
+        return HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
+            .build();
     }
 }

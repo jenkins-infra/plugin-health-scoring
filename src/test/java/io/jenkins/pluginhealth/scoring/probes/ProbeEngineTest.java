@@ -81,7 +81,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotSaveErrors() throws Exception {
+    public void shouldNotSaveErrors() {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
