@@ -24,6 +24,9 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.stream.Stream;
+import javax.transaction.Transactional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
@@ -37,10 +40,16 @@ public class PluginService {
         this.pluginRepository = pluginRepository;
     }
 
+    @Transactional
     public Plugin saveOrUpdate(Plugin plugin) {
         return pluginRepository.findByName(plugin.getName())
             .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
             .map(pluginRepository::save)
             .orElseGet(() -> pluginRepository.save(plugin));
+    }
+
+    @Transactional
+    public Stream<Plugin> streamAll() {
+        return pluginRepository.findAll().stream();
     }
 }

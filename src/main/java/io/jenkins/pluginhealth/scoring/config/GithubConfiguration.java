@@ -22,20 +22,38 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.config;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.http.HttpClient;
+import javax.validation.constraints.NotBlank;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.context.annotation.Bean;
+import org.springframework.validation.annotation.Validated;
 
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-@EnableScheduling
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
+@ConfigurationProperties(prefix = "github")
+@ConstructorBinding
+@Validated
+public final class GithubConfiguration {
+    @NotBlank private final String oauth;
+
+    public GithubConfiguration(String oauth) {
+        this.oauth = oauth;
+    }
+
+    public String getGitAccessToken() {
+        return oauth;
+    }
+
+    @Bean
+    public HttpClient getHttpClient() {
+        return HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
+            .build();
     }
 }

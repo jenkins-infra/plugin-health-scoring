@@ -22,20 +22,38 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.probes;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.scheduling.annotation.EnableScheduling;
+/**
+ * Represents the analyze which can be performed on a plugin
+ */
+public abstract class Probe {
 
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-@EnableScheduling
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
+    /**
+     * Starts the analyze on a plugin.
+     * Should only be called by the {@link ProbeEngine#run()} method.
+     *
+     * @param plugin the plugin on which to perform the analyze
+     * @return the result of the analyze in a {@link ProbeResult}
+     */
+    public final ProbeResult apply(Plugin plugin) {
+        return doApply(plugin);
+    }
+
+    /**
+     * Perform the analyze on a plugin
+     *
+     * @param plugin the plugin on which the analyze is done
+     * @return a ProbeResult representing the result of the analyze
+     */
+    protected abstract ProbeResult doApply(Plugin plugin);
+
+    protected abstract String key();
+
+    protected boolean requiresRelease() {
+        return false;
     }
 }
