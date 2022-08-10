@@ -22,20 +22,32 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.model;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+import java.time.ZonedDateTime;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.scheduling.annotation.EnableScheduling;
+/**
+ * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
+ *
+ * @param id      represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
+ * @param message represents a summary of the result
+ * @param status  represents the state of the analyze performed
+ */
+public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
+    public ProbeResult(String id, String message, ResultStatus status) {
+        this(id, message, status, ZonedDateTime.now());
+    }
 
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-@EnableScheduling
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
+    public static ProbeResult success(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.SUCCESS);
+    }
+
+    public static ProbeResult failure(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.FAILURE);
+    }
+
+    public static ProbeResult error(String id, String message) {
+        return new ProbeResult(id, message, ResultStatus.ERROR);
     }
 }
+

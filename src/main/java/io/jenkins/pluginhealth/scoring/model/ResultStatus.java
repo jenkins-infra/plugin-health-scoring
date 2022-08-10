@@ -22,20 +22,11 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.model;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-@EnableScheduling
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
-    }
+/**
+ * Represents the state of the analyze performed by any {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation
+ */
+public enum ResultStatus {
+    SUCCESS, FAILURE, ERROR
 }

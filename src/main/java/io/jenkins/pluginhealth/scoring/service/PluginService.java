@@ -25,7 +25,8 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
+import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
@@ -40,6 +41,7 @@ public class PluginService {
         this.pluginRepository = pluginRepository;
     }
 
+    @Transactional
     public Plugin saveOrUpdate(Plugin plugin) {
         return pluginRepository.findByName(plugin.getName())
             .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
@@ -47,15 +49,15 @@ public class PluginService {
             .orElseGet(() -> pluginRepository.save(plugin));
     }
 
+    @Transactional
+    public Stream<Plugin> streamAll() {
+        return pluginRepository.findAll().stream();
+    }
+
     public List<Plugin> batchUpdate(List<Plugin> pluginList) {
-        for (int i = 0; i < pluginList.size(); i++) {
-            Optional<Plugin> pluginFromDatabase = pluginRepository.findByName(pluginList.get(i).getName());
-
-            if (pluginFromDatabase.isPresent()) {
-                pluginList.set(i, pluginFromDatabase.get().setScm(pluginList.get(i).getScm()).setReleaseTimestamp(pluginList.get(i).getReleaseTimestamp()));
-            }
-        }
-
-        return pluginRepository.saveAll(pluginList);
+        return pluginRepository.saveAll(pluginList.stream()
+            .map(plugin -> pluginRepository.findByName(plugin.getName())
+                .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+                .orElseGet(() -> plugin)).toList());
     }
 }
