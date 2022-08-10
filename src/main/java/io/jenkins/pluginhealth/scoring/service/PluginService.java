@@ -24,6 +24,9 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
@@ -42,5 +45,9 @@ public class PluginService {
             .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
             .map(pluginRepository::save)
             .orElseGet(() -> pluginRepository.save(plugin));
+    }
+
+    public List<Plugin> batchUpdate(List<Plugin> pluginList) {
+        return pluginRepository.saveAll(pluginList);
     }
 }

@@ -50,6 +50,7 @@ public class ImportPluginCLR implements CommandLineRunner {
 
     @Scheduled(cron = "${cronexpression}", zone = "UTC")
     public void updateDatabase() throws IOException {
-        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+        //updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+        pluginService.batchUpdate(updateCenterService.readUpdateCenter());
     }
 }
