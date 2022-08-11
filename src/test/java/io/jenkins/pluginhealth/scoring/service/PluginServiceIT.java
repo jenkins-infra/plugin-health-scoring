@@ -1,8 +1,5 @@
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
@@ -38,70 +35,5 @@ public class PluginServiceIT extends AbstractDBContainerTest {
         assertThat(pluginRepository.findAll())
             .hasSize(1)
             .contains(plugin);
-    }
-
-    @Test
-    public void testBatchUpdates() {
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-        pluginRepository.save(new Plugin());
-
-//        List<Plugin> pluginList = new ArrayList<>();
-//
-//        for (int i = 0; i < 50; i++) {
-//            pluginList.add(new Plugin());
-//        }
-//
-
-        List<Plugin> pluginList = pluginRepository.findAll();
-        pluginRepository.saveAll(pluginList);
     }
 }
