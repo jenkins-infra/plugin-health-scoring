@@ -7,6 +7,9 @@ spring:
     jpa.properties.hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc.lob.non_contextual_creation: true
+        jdbc.batch_size: ${BATCH_SIZE}
+        order_inserts: true
+        order_updates: true
     jpa.hibernate:
         ddl-auto: update
 

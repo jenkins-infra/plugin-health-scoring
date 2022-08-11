@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.List;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
 
@@ -51,5 +52,12 @@ public class PluginService {
     @Transactional
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
+    }
+
+    public List<Plugin> batchUpdate(List<Plugin> pluginList) {
+        return pluginRepository.saveAll(pluginList.stream()
+            .map(plugin -> pluginRepository.findByName(plugin.getName())
+                .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+                .orElseGet(() -> plugin)).toList());
     }
 }
