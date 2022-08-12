@@ -22,40 +22,38 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.http;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Represents the analyze which can be performed on a plugin
- */
-public abstract class Probe {
+import io.jenkins.pluginhealth.scoring.probes.Probe;
 
-    /**
-     * Starts the analyze on a plugin.
-     * Should only be called by the {@link ProbeEngine#run()} method.
-     *
-     * @param plugin the plugin on which to perform the analyze
-     * @return the result of the analyze in a {@link ProbeResult}
-     */
-    public final ProbeResult apply(Plugin plugin) {
-        return doApply(plugin);
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+@RequestMapping(path = "/probes")
+public class ProbesController {
+    private final List<Probe> probes;
+
+    public ProbesController(List<Probe> probes) {
+        this.probes = probes;
     }
 
-    /**
-     * Perform the analyze on a plugin
-     *
-     * @param plugin the plugin on which the analyze is done
-     * @return a ProbeResult representing the result of the analyze
-     */
-    protected abstract ProbeResult doApply(Plugin plugin);
+    @GetMapping(path = "")
+    public ModelAndView list() {
+        final ModelAndView modelAndView = new ModelAndView("probes/listing");
+        record ProbeDetails(String name, String id, String description) {}
+        modelAndView.addObject(
+            "probes",
+            probes.stream()
+                .map(probe -> new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription()))
+                .collect(Collectors.toList())
+        );
 
-    public abstract String key();
-
-    public abstract String getDescription();
-
-    protected boolean requiresRelease() {
-        return false;
+        return modelAndView;
     }
 }

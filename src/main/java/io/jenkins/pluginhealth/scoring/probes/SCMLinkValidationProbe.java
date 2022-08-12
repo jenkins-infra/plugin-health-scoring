@@ -78,6 +78,11 @@ public final class SCMLinkValidationProbe extends Probe {
     }
 
     @Override
+    public String getDescription() {
+        return "The SCMLinkValidation probe validates with GitHub API if the known SCM link of a plugin is correct or not. ";
+    }
+
+    @Override
     protected boolean requiresRelease() {
         return true;
     }

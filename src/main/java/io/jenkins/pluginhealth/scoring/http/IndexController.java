@@ -22,40 +22,17 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.http;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Represents the analyze which can be performed on a plugin
- */
-public abstract class Probe {
-
-    /**
-     * Starts the analyze on a plugin.
-     * Should only be called by the {@link ProbeEngine#run()} method.
-     *
-     * @param plugin the plugin on which to perform the analyze
-     * @return the result of the analyze in a {@link ProbeResult}
-     */
-    public final ProbeResult apply(Plugin plugin) {
-        return doApply(plugin);
-    }
-
-    /**
-     * Perform the analyze on a plugin
-     *
-     * @param plugin the plugin on which the analyze is done
-     * @return a ProbeResult representing the result of the analyze
-     */
-    protected abstract ProbeResult doApply(Plugin plugin);
-
-    public abstract String key();
-
-    public abstract String getDescription();
-
-    protected boolean requiresRelease() {
-        return false;
+@Controller
+@RequestMapping(path = "/")
+public class IndexController {
+    @GetMapping
+    public String index() {
+        return "redirect:/probes";
     }
 }

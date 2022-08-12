@@ -1,0 +1,71 @@
+@import 'variables.css';
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+
+    font-family: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Noto Sans", oxygen, ubuntu, cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: .875rem;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+div#app {
+    width: 100vw;
+    height: 100vh;
+
+    display: grid;
+    grid-template-rows: var(--header-height) auto;
+    grid-template-areas:
+        "header"
+        "main";
+    row-gap: .75rem;
+}
+
+div#app header {
+    grid-area: header;
+
+    background-color: var(--primary);
+    line-height: var(--header-height);
+}
+
+div#app header span.app--title {
+    color: var(--white);
+    font-weight: 700;
+    margin-left: 1rem;
+    font-size: 1.5rem;
+}
+
+div#app main {
+    grid-area: main;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+}
+
+div#app main div.probes-listing--table {
+    width: 80%;
+    display: grid;
+    grid-template-rows: 2rem;
+    row-gap: .5rem;
+}
+
+div#app main div.probes-listing--header {
+    color: var(--black);
+    font-weight: 700;
+}
+
+div#app main div.probes-listing--header,
+div#app main div.probes-listing--row {
+    display: grid;
+    grid-template-columns: 1fr 3fr 6fr;
+    column-gap: .5rem;
+}
+
+div#app main div.probes-listing--header span.probes-listing--cell,
+div#app main div.probes-listing--row span.probes-listing--cell {
+}
