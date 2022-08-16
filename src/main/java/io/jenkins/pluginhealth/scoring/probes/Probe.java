@@ -53,7 +53,11 @@ public abstract class Probe {
 
     public abstract String key();
 
-    public abstract String getDescription();
+    public String getDescription() {
+        return """
+            No description available for this probe.
+            """;
+    }
 
     protected boolean requiresRelease() {
         return false;
