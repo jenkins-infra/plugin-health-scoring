@@ -26,14 +26,15 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.List;
 import java.util.stream.Stream;
-import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class PluginService {
     private final PluginRepository pluginRepository;
 
@@ -49,11 +50,11 @@ public class PluginService {
             .orElseGet(() -> pluginRepository.save(plugin));
     }
 
-    @Transactional
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
     }
 
+    @Transactional
     public List<Plugin> batchUpdate(List<Plugin> pluginList) {
         return pluginRepository.saveAll(pluginList.stream()
             .map(plugin -> pluginRepository.findByName(plugin.getName())
