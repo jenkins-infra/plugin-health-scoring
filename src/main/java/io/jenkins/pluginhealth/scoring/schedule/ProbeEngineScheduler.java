@@ -22,18 +22,23 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.schedule;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
+@Component
+public class ProbeEngineScheduler {
+    private final ProbeEngine probeEngine;
+
+    public ProbeEngineScheduler(ProbeEngine probeEngine) {
+        this.probeEngine = probeEngine;
+    }
+
+    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
+    public void run() {
+        probeEngine.run();
     }
 }

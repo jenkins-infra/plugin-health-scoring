@@ -12,7 +12,9 @@ spring:
 
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
 github.oauth: ${GITHUB_OAUTH}
-cronexpression: ${SCHEDULE_CRONEXPRESSION}
+cron:
+    update-center: ${UPDATE_CENTER_CRON}
+    probe-engine: ${PROBE_ENGINE_CRON}
 
 ---
 
