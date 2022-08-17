@@ -22,34 +22,23 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.cli;
+package io.jenkins.pluginhealth.scoring.schedule;
 
-import java.io.IOException;
+import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 
-import io.jenkins.pluginhealth.scoring.service.PluginService;
-import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
-
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ImportPluginCLR implements CommandLineRunner {
-    private final UpdateCenterService updateCenterService;
-    private final PluginService pluginService;
+public class ProbeEngineScheduler {
+    private final ProbeEngine probeEngine;
 
-    public ImportPluginCLR(UpdateCenterService updateCenterService, PluginService pluginService) {
-        this.updateCenterService = updateCenterService;
-        this.pluginService = pluginService;
+    public ProbeEngineScheduler(ProbeEngine probeEngine) {
+        this.probeEngine = probeEngine;
     }
 
-    @Override
-    public void run(String... args) throws IOException {
-        updateDatabase();
-    }
-
-    @Scheduled(cron = "${cronexpression}", zone = "UTC")
-    public void updateDatabase() throws IOException {
-        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+    @Scheduled(cron = "${cron.probe_engine}", zone = "UTC")
+    public void run() {
+        probeEngine.run();
     }
 }

@@ -22,18 +22,12 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.config;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-
-@EnableConfigurationProperties(value = GithubConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
-public class PluginHealthScoring {
-    public static void main(String[] args) {
-        SpringApplication.run(PluginHealthScoring.class, args);
-    }
+@Configuration
+@EnableScheduling
+public class ScheduleConfiguration {
 }
