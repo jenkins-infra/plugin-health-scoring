@@ -37,7 +37,7 @@ public class ProbeEngineScheduler {
         this.probeEngine = probeEngine;
     }
 
-    @Scheduled(cron = "${cron.probe_engine}", zone = "UTC")
+    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
     public void run() {
         probeEngine.run();
     }
