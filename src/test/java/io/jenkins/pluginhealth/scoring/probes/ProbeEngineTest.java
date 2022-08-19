@@ -24,9 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -91,5 +94,41 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(plugin, never()).addDetails(any());
+    }
+
+    @Test
+    public void shouldBeAbleToGetPreviousContextResultInExecution() throws Exception {
+        final Plugin plugin = spy(Plugin.class);
+        var probeOne = new Probe() {
+            @Override
+            protected ProbeResult doApply(Plugin plugin) {
+                return ProbeResult.success(key(), "This is ok");
+            }
+
+            @Override
+            protected String key() {
+                return "foo";
+            }
+        };
+        var probeTwo = new Probe() {
+            @Override
+            protected ProbeResult doApply(Plugin plugin) {
+                return plugin.getDetails().get("foo") != null ?
+                    ProbeResult.success(key(), "This is also ok") :
+                    ProbeResult.error(key(), "This cannot be validated");
+            }
+
+            @Override
+            protected String key() {
+                return "bar";
+            }
+        };
+        final ProbeEngine probeEngine = new ProbeEngine(List.of(probeOne, probeTwo), pluginService);
+
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+        probeEngine.run();
+
+        verify(plugin, times(2)).addDetails(any(ProbeResult.class));
+        assertThat(plugin.getDetails().keySet()).containsExactlyInAnyOrder("foo", "bar");
     }
 }
