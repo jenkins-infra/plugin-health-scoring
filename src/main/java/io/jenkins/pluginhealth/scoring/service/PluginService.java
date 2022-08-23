@@ -24,10 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.Map;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
@@ -44,6 +46,12 @@ public class PluginService {
     public Plugin saveOrUpdate(Plugin plugin) {
         return pluginRepository.findByName(plugin.getName())
             .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+            .map(pluginFromDatabase -> {
+                for (Map.Entry<String, ProbeResult> freshlyReadProbe : plugin.getDetails().entrySet()) {
+                    pluginFromDatabase.addDetails(freshlyReadProbe.getValue());
+                }
+                return pluginFromDatabase;
+            })
             .map(pluginRepository::save)
             .orElseGet(() -> pluginRepository.save(plugin));
     }
