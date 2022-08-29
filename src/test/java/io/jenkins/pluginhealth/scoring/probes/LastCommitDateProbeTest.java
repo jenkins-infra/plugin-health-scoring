@@ -26,6 +26,26 @@ class LastCommitDateProbeTest {
     }
 
     @Test
+    public void shouldHaveValidDescription() {
+        assertThat(new LastCommitDateProbe().getDescription()).isNotEqualTo(new Probe() {
+            @Override
+            protected ProbeResult doApply(Plugin plugin) {
+                return null;
+            }
+
+            @Override
+            public String key() {
+                return null;
+            }
+        }.getDescription());
+    }
+
+    @Test
+    public void shouldBeExecutedAfterSCMLinkValidation() {
+        assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
+    }
+
+    @Test
     public void shouldReturnSuccessStatusOnValidSCM() {
         final Plugin plugin = new Plugin("parameterized-trigger", "https://github.com/jenkinsci/parameterized-trigger-plugin.git", ZonedDateTime.now())
             .addDetails(ProbeResult.success("scm", "The plugin SCM link is valid"));

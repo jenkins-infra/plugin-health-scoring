@@ -54,6 +54,7 @@ public final class SCMLinkValidationProbe extends Probe {
     private static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     public static final int ORDER = 1;
+    public static final String KEY = "scm";
 
     private final HttpClient httpClient;
     private final GithubConfiguration githubConfiguration;
@@ -74,7 +75,7 @@ public final class SCMLinkValidationProbe extends Probe {
 
     @Override
     public String key() {
-        return "scm";
+        return KEY;
     }
 
     @Override
