@@ -62,7 +62,7 @@ public class ProbeEngine {
             .peek(plugin -> {
                 probes.forEach(probe -> {
                     try {
-                        var previousResult = plugin.getDetails().get(probe.key());
+                        final ProbeResult previousResult = plugin.getDetails().get(probe.key());
                         if (previousResult == null ||
                             (probe.requiresRelease()
                                 && previousResult.timestamp() != null

@@ -99,7 +99,7 @@ class ProbeEngineTest {
     @Test
     public void shouldBeAbleToGetPreviousContextResultInExecution() throws Exception {
         final Plugin plugin = spy(Plugin.class);
-        var probeOne = new Probe() {
+        final Probe probeOne = new Probe() {
             @Override
             protected ProbeResult doApply(Plugin plugin) {
                 return ProbeResult.success(key(), "This is ok");
@@ -110,7 +110,7 @@ class ProbeEngineTest {
                 return "foo";
             }
         };
-        var probeTwo = new Probe() {
+        final Probe probeTwo = new Probe() {
             @Override
             protected ProbeResult doApply(Plugin plugin) {
                 return plugin.getDetails().get("foo") != null ?
