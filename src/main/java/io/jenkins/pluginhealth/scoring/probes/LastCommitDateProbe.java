@@ -69,4 +69,9 @@ public class LastCommitDateProbe extends Probe {
     public String key() {
         return "last-commit-date";
     }
+
+    @Override
+    public String getDescription() {
+        return "Register the last commit date on the official plugin repository";
+    }
 }
