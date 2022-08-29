@@ -1,14 +1,15 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.time.ZonedDateTime;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,10 +48,11 @@ class LastCommitDateProbeTest {
 
     @Test
     public void shouldReturnSuccessStatusOnValidSCM() {
-        final Plugin plugin = new Plugin("parameterized-trigger", "https://github.com/jenkinsci/parameterized-trigger-plugin.git", ZonedDateTime.now())
-            .addDetails(ProbeResult.success("scm", "The plugin SCM link is valid"));
+        final Plugin plugin = mock(Plugin.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/parameterized-trigger-plugin.git");
         final ProbeResult r = probe.apply(plugin);
 
         assertThat(r.id()).isEqualTo("last-commit-date");
@@ -58,11 +60,11 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldReturnFailureOnInvalidSCM() throws GitAPIException {
-        final Plugin plugin = new Plugin("parameterized-trigger", "https://github.com/jenkinsci/random-repo.git", ZonedDateTime.now())
-            .addDetails(ProbeResult.failure("scm", "The plugin SCM link is invalid"));
+    public void shouldReturnFailureOnInvalidSCM() {
+        final Plugin plugin = mock(Plugin.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid")));
         final ProbeResult r = probe.apply(plugin);
 
         assertThat(r.status()).isEqualTo(ResultStatus.FAILURE);
@@ -70,12 +72,12 @@ class LastCommitDateProbeTest {
 
     @Test
     public void shouldFailToRunAsFirstProbe() {
-        final Plugin plugin = new Plugin("parameterized-trigger", "https://github.com/jenkinsci/random-repo.git", ZonedDateTime.now());
+        final Plugin plugin = mock(Plugin.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of());
         final ProbeResult r = probe.apply(plugin);
 
         assertThat(r.status()).isEqualTo(ResultStatus.ERROR);
     }
-
 }
