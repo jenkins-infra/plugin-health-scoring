@@ -1,20 +1,23 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.File;
-import java.time.ZoneId;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
-import org.slf4j.Logger;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 /**
  * Using the analysis done by {@link SCMLinkValidationProbe#}, this probe determines the last commit date of the plugin's repository.
@@ -34,21 +37,23 @@ public class LastCommitDateProbe extends Probe {
                 return ProbeResult.error(key(), "SCM link has not been probed yet");
             }
 
-            if (plugin.getDetails().get(scmLinkValidationProbeKey).status().equals(ResultStatus.SUCCESS)) {
-                File dir = new File(System.getProperty("java.io.tmpdir") + "/" + plugin.getName());
-
-                Git git = Git.cloneRepository()
-                    .setURI(plugin.getScm())
-                    .setDirectory(dir)
-                    .call();
-
-                final RevCommit lastCommit = git.log().setMaxCount(1).call().iterator().next();
-                final ZonedDateTime lastCommitDateTime = ZonedDateTime.ofInstant(lastCommit.getAuthorIdent().getWhen().toInstant(), ZoneId.systemDefault());
-
-                deleteDirectory(dir);
-                return ProbeResult.success(key(), String.valueOf(lastCommitDateTime));
-            }
-            else {
+            if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status().equals(ResultStatus.SUCCESS)) {
+                try {
+                    final Path tempDirectory = Files.createTempDirectory(plugin.getName());
+                    try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
+                        final RevCommit head = new RevWalk(git.getRepository()).parseCommit(ObjectId.fromString("HEAD"));
+                        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                            head.getAuthorIdent().getWhenAsInstant(),
+                            head.getAuthorIdent().getZoneId()
+                        );
+                        return ProbeResult.success(key(), zonedDateTime.toString());
+                    } finally {
+                        Files.delete(tempDirectory);
+                    }
+                } catch (IOException ex) {
+                    return ProbeResult.failure(key(), "Error during probe execution on " + plugin.getName());
+                }
+            } else {
                 return ProbeResult.failure(key(), "Due to invalid SCM, latest commit date cannot be found");
             }
         }
@@ -58,15 +63,6 @@ public class LastCommitDateProbe extends Probe {
             }
             return ProbeResult.failure(key(), "Due to invalid SCM, latest commit date cannot be found");
         }
-    }
-
-    public void deleteDirectory(File dir) {
-        for (File file: dir.listFiles()) {
-            if (file.isDirectory())
-                deleteDirectory(file);
-            file.delete();
-        }
-        dir.delete();
     }
 
     @Override
