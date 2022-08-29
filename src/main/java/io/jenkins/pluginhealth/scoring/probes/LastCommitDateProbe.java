@@ -37,7 +37,7 @@ public class LastCommitDateProbe extends Probe {
                 return ProbeResult.error(key(), "SCM link has not been probed yet");
             }
 
-            if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status().equals(ResultStatus.SUCCESS)) {
+            if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
                 try {
                     final Path tempDirectory = Files.createTempDirectory(plugin.getName());
                     try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
