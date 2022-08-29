@@ -106,7 +106,7 @@ class ProbeEngineTest {
             }
 
             @Override
-            protected String key() {
+            public String key() {
                 return "foo";
             }
         };
@@ -119,7 +119,7 @@ class ProbeEngineTest {
             }
 
             @Override
-            protected String key() {
+            public String key() {
                 return "bar";
             }
         };
