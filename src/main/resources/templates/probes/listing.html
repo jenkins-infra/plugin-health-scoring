@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Foo</title>
+</head>
+<body>
+
+<main data-layout-fragment="content">
+    <div class="probes-listing--table">
+        <div class="probes-listing--header">
+            <span>ID</span>
+            <span>Name</span>
+            <span>Description</span>
+        </div>
+        <div data-th-each="probe : ${probes}" class="probes-listing--row">
+            <span class="probes-listing--cell"><code data-th-text="${probe.id}"></code></span>
+            <span class="probes-listing--cell" data-th-text="${probe.name}"></span>
+            <span class="probes-listing--cell" data-th-text="${probe.description}"></span>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
