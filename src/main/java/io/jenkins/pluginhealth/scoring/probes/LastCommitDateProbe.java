@@ -53,7 +53,11 @@ public class LastCommitDateProbe extends Probe {
                         );
                         return ProbeResult.success(key(), zonedDateTime.toString());
                     } finally {
-                        Files.delete(tempDirectory);
+                        try (Stream<Path> paths = Files.walk(tempDirectory)) {
+                            paths.sorted(Comparator.reverseOrder())
+                                .map(Path::toFile)
+                                .forEach(File::delete);
+                        }
                     }
                 } catch (IOException ex) {
                     return ProbeResult.failure(key(), "Error during probe execution on " + plugin.getName());
