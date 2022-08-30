@@ -1,9 +1,12 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -11,6 +14,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -41,10 +45,11 @@ public class LastCommitDateProbe extends Probe {
                 try {
                     final Path tempDirectory = Files.createTempDirectory(plugin.getName());
                     try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
-                        final RevCommit head = new RevWalk(git.getRepository()).parseCommit(ObjectId.fromString("HEAD"));
+                        final ObjectId head = git.getRepository().resolve(Constants.HEAD);
+                        final RevCommit commit = new RevWalk(git.getRepository()).parseCommit(head);
                         final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
-                            head.getAuthorIdent().getWhenAsInstant(),
-                            head.getAuthorIdent().getZoneId()
+                            commit.getAuthorIdent().getWhenAsInstant(),
+                            commit.getAuthorIdent().getZoneId()
                         );
                         return ProbeResult.success(key(), zonedDateTime.toString());
                     } finally {
