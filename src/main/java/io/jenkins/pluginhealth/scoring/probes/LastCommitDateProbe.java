@@ -35,41 +35,39 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin) {
-        try {
-            if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-                LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-                return ProbeResult.error(key(), "SCM link has not been probed yet");
-            }
-
-            if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
-                try {
-                    final Path tempDirectory = Files.createTempDirectory(plugin.getName());
-                    try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
-                        final ObjectId head = git.getRepository().resolve(Constants.HEAD);
-                        final RevCommit commit = new RevWalk(git.getRepository()).parseCommit(head);
-                        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
-                            commit.getAuthorIdent().getWhenAsInstant(),
-                            commit.getAuthorIdent().getZoneId()
-                        );
-                        return ProbeResult.success(key(), zonedDateTime.toString());
-                    } finally {
-                        try (Stream<Path> paths = Files.walk(tempDirectory)) {
-                            paths.sorted(Comparator.reverseOrder())
-                                .map(Path::toFile)
-                                .forEach(File::delete);
-                        }
-                    }
-                } catch (IOException ex) {
-                    return ProbeResult.failure(key(), "Error during probe execution on " + plugin.getName());
-                }
-            } else {
-                return ProbeResult.failure(key(), "Due to invalid SCM, latest commit date cannot be found");
-            }
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
+            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
+            return ProbeResult.error(key(), "SCM link has not been probed yet");
         }
-        catch (GitAPIException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Invalid SCM link", e);
+
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
+            try {
+                final Path tempDirectory = Files.createTempDirectory(plugin.getName());
+                try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
+                    final ObjectId head = git.getRepository().resolve(Constants.HEAD);
+                    final RevCommit commit = new RevWalk(git.getRepository()).parseCommit(head);
+                    final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                        commit.getAuthorIdent().getWhenAsInstant(),
+                        commit.getAuthorIdent().getZoneId()
+                    );
+                    return ProbeResult.success(key(), zonedDateTime.toString());
+                } catch (GitAPIException ex)  {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("There was an issue while cloning the plugin repository", ex);
+                    }
+                    return ProbeResult.failure(key(), "Could not clone the plugin repository");
+                }
+                finally {
+                    try (Stream<Path> paths = Files.walk(tempDirectory)) {
+                        paths.sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                    }
+                }
+            } catch (IOException ex) {
+                return ProbeResult.failure(key(), "Error during probe execution on " + plugin.getName());
             }
+        } else {
             return ProbeResult.failure(key(), "Due to invalid SCM, latest commit date cannot be found");
         }
     }
