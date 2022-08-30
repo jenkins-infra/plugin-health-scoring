@@ -24,7 +24,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Using the analysis done by {@link SCMLinkValidationProbe#}, this probe determines the last commit date of the plugin's repository.
+ * Using the analysis done by {@link SCMLinkValidationProbe}, this probe determines the last commit date of the plugin's repository.
  */
 @Component
 @Order(value = LastCommitDateProbe.ORDER)

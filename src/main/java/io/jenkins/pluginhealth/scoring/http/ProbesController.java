@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,11 +47,13 @@ public class ProbesController {
     @GetMapping(path = "")
     public ModelAndView list() {
         final ModelAndView modelAndView = new ModelAndView("probes/listing");
-        record ProbeDetails(String name, String id, String description) {}
+        record ProbeDetails(String name, String id, String description) {
+        }
         modelAndView.addObject(
             "probes",
             probes.stream()
                 .map(probe -> new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription()))
+                .sorted(Comparator.comparing(ProbeDetails::name))
                 .collect(Collectors.toList())
         );
 
