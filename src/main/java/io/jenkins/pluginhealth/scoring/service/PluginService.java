@@ -24,12 +24,10 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.util.Map;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
