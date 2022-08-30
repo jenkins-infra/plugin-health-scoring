@@ -49,6 +49,7 @@ public class ProbesController {
         final ModelAndView modelAndView = new ModelAndView("probes/listing");
         record ProbeDetails(String name, String id, String description) {
         }
+
         modelAndView.addObject(
             "probes",
             probes.stream()
