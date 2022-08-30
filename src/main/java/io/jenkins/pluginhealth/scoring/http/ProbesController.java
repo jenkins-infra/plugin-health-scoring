@@ -41,7 +41,7 @@ public class ProbesController {
     private final List<Probe> probes;
 
     public ProbesController(List<Probe> probes) {
-        this.probes = probes;
+        this.probes = List.copyOf(probes);
     }
 
     @GetMapping(path = "")
