@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -13,9 +14,8 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.slf4j.Logger;
@@ -37,23 +37,35 @@ public class LastCommitDateProbe extends Probe {
     public ProbeResult doApply(Plugin plugin) {
         if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
             LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been probed yet");
+            return ProbeResult.error(key(), "SCM link has not been validated yet");
         }
 
         if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
             try {
                 Path tempDirectory = Files.createTempDirectory(plugin.getName());
-                try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
-                    try (final RevWalk revWalk = new RevWalk(git.getRepository())) {
-                        final ObjectId head = git.getRepository().resolve(Constants.HEAD);
-                        final RevCommit commit = revWalk.parseCommit(head);
-                        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
-                            commit.getAuthorIdent().getWhenAsInstant(),
-                            commit.getAuthorIdent().getZoneId()
-                        );
-                        return ProbeResult.success(key(), zonedDateTime.toString());
+                final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
+                if (!matcher.find()) {
+                    return ProbeResult.failure(key(), "The SCM link is not valid");
+                }
+                final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
+                final String folder = matcher.group("folder");
+
+                try (final Git git = Git.cloneRepository().setURI(repo).setDirectory(tempDirectory.toFile()).call();
+                     final RevWalk revWalk = new RevWalk(git.getRepository())) {
+                    final LogCommand logCommand = git.log().setMaxCount(1);
+                    if (folder != null) {
+                        logCommand.addPath(folder);
                     }
-                } catch (GitAPIException ex)  {
+                    final RevCommit commit = logCommand.call().iterator().next();
+                    if (commit == null) {
+                        return ProbeResult.failure(key(), "Last commit cannot be found");
+                    }
+                    final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                        commit.getAuthorIdent().getWhenAsInstant(),
+                        commit.getAuthorIdent().getZoneId()
+                    );
+                    return ProbeResult.success(key(), zonedDateTime.toString());
+                } catch (GitAPIException ex) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("There was an issue while cloning the plugin repository", ex);
                     }
