@@ -44,13 +44,15 @@ public class LastCommitDateProbe extends Probe {
             try {
                 Path tempDirectory = Files.createTempDirectory(plugin.getName());
                 try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
-                    final ObjectId head = git.getRepository().resolve(Constants.HEAD);
-                    final RevCommit commit = new RevWalk(git.getRepository()).parseCommit(head);
-                    final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
-                        commit.getAuthorIdent().getWhenAsInstant(),
-                        commit.getAuthorIdent().getZoneId()
-                    );
-                    return ProbeResult.success(key(), zonedDateTime.toString());
+                    try (final RevWalk revWalk = new RevWalk(git.getRepository())) {
+                        final ObjectId head = git.getRepository().resolve(Constants.HEAD);
+                        final RevCommit commit = revWalk.parseCommit(head);
+                        final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                            commit.getAuthorIdent().getWhenAsInstant(),
+                            commit.getAuthorIdent().getZoneId()
+                        );
+                        return ProbeResult.success(key(), zonedDateTime.toString());
+                    }
                 } catch (GitAPIException ex)  {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("There was an issue while cloning the plugin repository", ex);
