@@ -32,7 +32,6 @@ public class LastCommitDateProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
-    public Path tempDirectory;
 
     @Override
     public ProbeResult doApply(Plugin plugin) {
@@ -43,7 +42,7 @@ public class LastCommitDateProbe extends Probe {
 
         if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
             try {
-                tempDirectory = Files.createTempDirectory(plugin.getName());
+                Path tempDirectory = Files.createTempDirectory(plugin.getName());
                 try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(tempDirectory.toFile()).call()) {
                     final ObjectId head = git.getRepository().resolve(Constants.HEAD);
                     final RevCommit commit = new RevWalk(git.getRepository()).parseCommit(head);
@@ -57,8 +56,7 @@ public class LastCommitDateProbe extends Probe {
                         LOGGER.debug("There was an issue while cloning the plugin repository", ex);
                     }
                     return ProbeResult.failure(key(), "Could not clone the plugin repository");
-                }
-                finally {
+                } finally {
                     try (Stream<Path> paths = Files.walk(tempDirectory)) {
                         paths.sorted(Comparator.reverseOrder())
                             .map(Path::toFile)

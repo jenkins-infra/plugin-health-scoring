@@ -54,15 +54,12 @@ class LastCommitDateProbeTest {
     public void shouldReturnSuccessStatusOnValidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
-        assertNull(probe.tempDirectory);
 
         when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/parameterized-trigger-plugin.git");
         when(plugin.getName()).thenReturn("parameterized-trigger");
         final ProbeResult r = probe.apply(plugin);
 
-        assertNotNull(probe.tempDirectory);
-        assertFalse(Files.exists(probe.tempDirectory));
         assertThat(r.id()).isEqualTo("last-commit-date");
         assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
     }
