@@ -61,6 +61,20 @@ class LastCommitDateProbeTest {
     }
 
     @Test
+    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder () {
+        final Plugin plugin = mock(Plugin.class);
+        final LastCommitDateProbe probe = new LastCommitDateProbe();
+
+        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/aws-java-sdk-plugin/aws-java-sdk-logs");
+        when(plugin.getName()).thenReturn("aws-java-sdk-logs");
+        final ProbeResult r = probe.apply(plugin);
+
+        assertThat(r.id()).isEqualTo("last-commit-date");
+        assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
     public void shouldReturnFailureOnInvalidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
