@@ -17,7 +17,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -50,8 +49,7 @@ public class LastCommitDateProbe extends Probe {
                 final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
                 final String folder = matcher.group("folder");
 
-                try (final Git git = Git.cloneRepository().setURI(repo).setDirectory(tempDirectory.toFile()).call();
-                     final RevWalk revWalk = new RevWalk(git.getRepository())) {
+                try (Git git = Git.cloneRepository().setURI(repo).setDirectory(tempDirectory.toFile()).call()) {
                     final LogCommand logCommand = git.log().setMaxCount(1);
                     if (folder != null) {
                         logCommand.addPath(folder);
