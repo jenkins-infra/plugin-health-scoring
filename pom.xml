@@ -158,6 +158,11 @@
 			<version>1.17.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>6.2.0.202206071550-r</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>

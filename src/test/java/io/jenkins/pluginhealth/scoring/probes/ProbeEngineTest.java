@@ -90,6 +90,6 @@ class ProbeEngineTest {
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
 
-        verify(plugin, never()).addDetails(any());
+        verify(plugin, never()).addDetails(any(ProbeResult.class));
     }
 }
