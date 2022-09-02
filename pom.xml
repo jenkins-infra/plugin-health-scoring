@@ -88,6 +88,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>6.2.0.202206071550-r</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -157,11 +163,6 @@
 			<artifactId>postgresql</artifactId>
 			<version>1.17.2</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jgit</groupId>
-			<artifactId>org.eclipse.jgit</artifactId>
-			<version>6.2.0.202206071550-r</version>
 		</dependency>
 	</dependencies>
 
