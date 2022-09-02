@@ -84,6 +84,36 @@ class ProbeEngineTest {
     }
 
     @Test
+    public void shouldAccessPluginWithNewReleaseAndPastResultAndReleaseRequirement() {
+        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().plusDays(1))
+            .addDetails(ProbeResult.success("wiz", "This is good"));
+        final Probe probe = mock(Probe.class);
+        final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
+
+        when(probe.requiresRelease()).thenReturn(Boolean.TRUE);
+        when(probe.key()).thenReturn("wiz");
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+        probeEngine.run();
+
+        verify(probe, times(1)).doApply(plugin);
+    }
+
+    @Test
+    public void shouldNotAccessPluginWithPastResultAndNoReleaseRequirement() {
+        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now())
+            .addDetails(ProbeResult.success("wiz", "This is good"));
+        final Probe probe = mock(Probe.class);
+        final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
+
+        when(probe.requiresRelease()).thenReturn(Boolean.FALSE);
+        when(probe.key()).thenReturn("wiz");
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+        probeEngine.run();
+
+        verify(probe, never()).doApply(plugin);
+    }
+
+    @Test
     public void shouldNotSaveErrors() {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
