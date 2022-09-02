@@ -1,16 +1,17 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent {
-    label 'docker && linux'
-  }
+  agent none
   options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
+    buildDiscarder(logRotator(numToKeepStr: '10'))
     timestamps()
   }
 
   stages {
     stage('Build') {
+      agent {
+        label 'linux'
+      }
       environment {
         JAVA_HOME = '/opt/jdk-17/'
       }
@@ -33,6 +34,24 @@ pipeline {
           recordIssues enabledForFailure: true, tool: checkStyle()
           recordIssues enabledForFailure: true, tool: spotBugs()
         }
+        success {
+            stash name: 'binary', includes: 'target/plugin-health-scoring.jar,src/main/docker/Dockerfile'
+        }
+      }
+    }
+
+    stage('Docker image') {
+      /* when {
+          branch 'main' // TODO for now, activated for the PR
+      } */
+      steps {
+        unstash 'binary'
+        buildDockerAndPublishImage(
+          imageShortName: 'plugin-health-scoring',
+          userConfig: [
+            dockerfile: 'src/main/docker/Dockerfile',
+          ]
+        )
       }
     }
   }
