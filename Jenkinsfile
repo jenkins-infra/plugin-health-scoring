@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent none
+  agent {
+    label 'docker && linux'
+  }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
     timestamps()
@@ -9,9 +11,6 @@ pipeline {
 
   stages {
     stage('Build') {
-      agent {
-        label 'linux'
-      }
       environment {
         JAVA_HOME = '/opt/jdk-17/'
       }
