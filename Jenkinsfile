@@ -45,8 +45,7 @@ pipeline {
           branch 'main' // TODO for now, activated for the PR
       } */
       steps {
-        unstash 'binary'
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', skipCheckout: true])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
       }
     }
   }
