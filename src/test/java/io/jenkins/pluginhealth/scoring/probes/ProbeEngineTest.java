@@ -75,7 +75,7 @@ class ProbeEngineTest {
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
-        when(probe.requiresRelease()).thenReturn(Boolean.TRUE);
+        when(probe.requiresRelease()).thenReturn(true);
         when(probe.key()).thenReturn("wiz");
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
@@ -91,7 +91,7 @@ class ProbeEngineTest {
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
-        when(probe.requiresRelease()).thenReturn(Boolean.TRUE);
+        when(probe.requiresRelease()).thenReturn(true);
         when(probe.key()).thenReturn("wiz");
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
