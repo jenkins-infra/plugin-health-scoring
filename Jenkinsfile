@@ -45,12 +45,7 @@ pipeline {
       } */
       steps {
         unstash 'binary'
-        buildDockerAndPublishImage(
-          imageShortName: 'plugin-health-scoring',
-          userConfig: [
-            dockerfile: 'src/main/docker/Dockerfile',
-          ]
-        )
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile'])
       }
     }
   }
