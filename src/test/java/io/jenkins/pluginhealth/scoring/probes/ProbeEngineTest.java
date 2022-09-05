@@ -69,7 +69,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotAccessPluginWithPastResultAndReleaseRequirement() {
+    public void shouldNotAccessPluginWithNoNewReleaseWithPastResultAndReleaseRequirement() {
         final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().minusDays(1))
             .addDetails(ProbeResult.success("wiz", "This is good"));
         final Probe probe = mock(Probe.class);
@@ -81,6 +81,7 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe, never()).doApply(plugin);
+        verify(pluginService, times(1)).saveOrUpdate(plugin);
     }
 
     @Test
@@ -96,6 +97,7 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe, times(1)).doApply(plugin);
+        verify(pluginService, times(1)).saveOrUpdate(plugin);
     }
 
     @Test
@@ -111,6 +113,7 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe, never()).doApply(plugin);
+        verify(pluginService, times(1)).saveOrUpdate(plugin);
     }
 
     @Test
