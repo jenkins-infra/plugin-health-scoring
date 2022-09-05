@@ -81,7 +81,7 @@ class ProbeEngineTest {
         probeEngine.run();
 
         verify(probe, never()).doApply(plugin);
-        verify(pluginService, times(1)).saveOrUpdate(plugin);
+        verify(pluginService).saveOrUpdate(plugin);
     }
 
     @Test
@@ -96,8 +96,8 @@ class ProbeEngineTest {
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
 
-        verify(probe, times(1)).doApply(plugin);
-        verify(pluginService, times(1)).saveOrUpdate(plugin);
+        verify(probe).doApply(plugin);
+        verify(pluginService).saveOrUpdate(plugin);
     }
 
     @Test
