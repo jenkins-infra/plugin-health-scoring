@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+@Library('pipeline-library@pull/465/head') _
 
 pipeline {
   agent {
@@ -45,7 +46,7 @@ pipeline {
       } */
       steps {
         unstash 'binary'
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile'])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', skipCheckout: true])
       }
     }
   }
