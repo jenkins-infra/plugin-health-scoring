@@ -63,7 +63,7 @@ public class ProbeEngine {
                 probes.forEach(probe -> {
                     try {
                         final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                        if (previousResult == null ||
+                        if (previousResult == null || !probe.requiresRelease() ||
                             (probe.requiresRelease()
                                 && previousResult.timestamp() != null
                                 && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
