@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -95,6 +94,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
         when(probe.requiresRelease()).thenReturn(true);
+        when(probe.apply(plugin)).thenReturn(new ProbeResult(probeKey, "this is also ok", ResultStatus.SUCCESS, ZonedDateTime.now()));
         when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
@@ -112,6 +112,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
         when(probe.requiresRelease()).thenReturn(false);
+        when(probe.apply(plugin)).thenReturn(new ProbeResult(probeKey, "this is also ok", ResultStatus.SUCCESS, ZonedDateTime.now()));
         when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
