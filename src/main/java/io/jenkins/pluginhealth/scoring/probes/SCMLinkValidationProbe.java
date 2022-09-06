@@ -50,10 +50,11 @@ import org.springframework.stereotype.Component;
 @Order(value = SCMLinkValidationProbe.ORDER)
 public final class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/.*)??";
-    private static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
+    public static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
+    public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     public static final int ORDER = 1;
+    public static final String KEY = "scm";
 
     private final HttpClient httpClient;
     private final GithubConfiguration githubConfiguration;
@@ -74,7 +75,7 @@ public final class SCMLinkValidationProbe extends Probe {
 
     @Override
     public String key() {
-        return "scm";
+        return KEY;
     }
 
     @Override

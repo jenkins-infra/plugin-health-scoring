@@ -100,6 +100,11 @@ public class Plugin {
         return this;
     }
 
+    public Plugin addDetails(Map<String, ProbeResult> details) {
+        this.details.putAll(details);
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

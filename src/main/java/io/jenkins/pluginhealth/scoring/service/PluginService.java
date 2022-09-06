@@ -43,7 +43,10 @@ public class PluginService {
     @Transactional
     public Plugin saveOrUpdate(Plugin plugin) {
         return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase.setScm(plugin.getScm()).setReleaseTimestamp(plugin.getReleaseTimestamp()))
+            .map(pluginFromDatabase -> pluginFromDatabase
+                .setScm(plugin.getScm())
+                .setReleaseTimestamp(plugin.getReleaseTimestamp())
+                .addDetails(plugin.getDetails()))
             .map(pluginRepository::save)
             .orElseGet(() -> pluginRepository.save(plugin));
     }

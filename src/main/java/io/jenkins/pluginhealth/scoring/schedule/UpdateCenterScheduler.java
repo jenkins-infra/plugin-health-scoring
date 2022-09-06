@@ -30,12 +30,11 @@ import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateCenterScheduler implements CommandLineRunner {
+public class UpdateCenterScheduler {
     private final UpdateCenterService updateCenterService;
     private final PluginService pluginService;
     private final ProbeEngine probeEngine;
@@ -45,11 +44,6 @@ public class UpdateCenterScheduler implements CommandLineRunner {
         this.updateCenterService = updateCenterService;
         this.pluginService = pluginService;
         this.probeEngine = probeEngine;
-    }
-
-    @Override
-    public void run(String... args) throws IOException {
-        updateDatabase();
     }
 
     @Scheduled(cron = "${cron.update-center}", zone = "UTC")
