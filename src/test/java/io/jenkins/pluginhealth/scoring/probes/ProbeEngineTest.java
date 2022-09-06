@@ -94,7 +94,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
         when(probe.requiresRelease()).thenReturn(true);
-        when(probe.apply(plugin)).thenReturn(new ProbeResult(probeKey, "this is also ok", ResultStatus.SUCCESS, ZonedDateTime.now()));
+        when(probe.apply(plugin)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
         when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
@@ -112,7 +112,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
         when(probe.requiresRelease()).thenReturn(false);
-        when(probe.apply(plugin)).thenReturn(new ProbeResult(probeKey, "this is also ok", ResultStatus.SUCCESS, ZonedDateTime.now()));
+        when(probe.apply(plugin)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
         when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
