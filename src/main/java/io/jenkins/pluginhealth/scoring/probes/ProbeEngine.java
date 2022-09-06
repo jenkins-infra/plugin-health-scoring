@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
@@ -59,33 +58,33 @@ public class ProbeEngine {
      */
     public void run() {
         LOGGER.info("Start running probes on all plugins");
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Registered probes: {}", probes.stream().map(Probe::key).collect(Collectors.joining(", ")));
-        }
         pluginService.streamAll().parallel()
-            .peek(plugin -> probes.stream()
-                .map(probe -> {
+            .peek(plugin -> {
+                probes.forEach(probe -> {
                     try {
-                        if (probe.requiresRelease() && plugin.getDetails().containsKey(probe.key())) {
-                            ProbeResult probeResult = plugin.getDetails().get(probe.key());
-                            if (probeResult.timestamp() != null && plugin.getReleaseTimestamp().isBefore(probeResult.timestamp())) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
-                                }
-                                return probeResult;
+                        final ProbeResult previousResult = plugin.getDetails().get(probe.key());
+                        if (previousResult == null ||
+                            (probe.requiresRelease()
+                                && previousResult.timestamp() != null
+                                && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
+                        ) {
+                            if (LOGGER.isTraceEnabled()) {
+                                LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
+                            }
+                            final ProbeResult result = probe.apply(plugin);
+                            if (result.status() != ResultStatus.ERROR) {
+                                plugin.addDetails(result);
+                            }
+                        } else {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
                             }
                         }
-                        if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
-                        }
-                        return probe.apply(plugin);
                     } catch (Throwable t) {
                         LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
-                        return ProbeResult.error(probe.key(), "Could not run probe " + probe.key());
                     }
-                })
-                .filter(result -> result.status() != ResultStatus.ERROR)
-                .forEach(plugin::addDetails))
+                });
+            })
             .forEach(pluginService::saveOrUpdate);
         LOGGER.info("Probe engine has finished");
     }
