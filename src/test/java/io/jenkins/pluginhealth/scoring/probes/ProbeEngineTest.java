@@ -35,10 +35,12 @@ import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 
 import org.junit.jupiter.api.Test;
@@ -69,7 +71,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotAccessPluginWithNoNewReleaseWithPastResultAndReleaseRequirement() {
+    public void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() {
         final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().minusDays(1))
             .addDetails(ProbeResult.success("wiz", "This is good"));
         final Probe probe = mock(Probe.class);
@@ -85,14 +87,15 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldAccessPluginWithNewReleaseAndPastResultAndReleaseRequirement() {
-        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().plusDays(1))
-            .addDetails(ProbeResult.success("wiz", "This is good"));
+    public void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() {
+        final String probeKey = "wiz";
+        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now())
+            .addDetails(new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1)));
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
         when(probe.requiresRelease()).thenReturn(true);
-        when(probe.key()).thenReturn("wiz");
+        when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
 
@@ -101,19 +104,20 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotAccessPluginWithPastResultAndNoReleaseRequirement() {
+    public void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() {
+        final String probeKey = "wiz";
         final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now())
-            .addDetails(ProbeResult.success("wiz", "This is good"));
+            .addDetails(new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1)));
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService);
 
-        when(probe.requiresRelease()).thenReturn(Boolean.FALSE);
-        when(probe.key()).thenReturn("wiz");
+        when(probe.requiresRelease()).thenReturn(false);
+        when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
 
-        verify(probe, never()).doApply(plugin);
-        verify(pluginService, times(1)).saveOrUpdate(plugin);
+        verify(probe).doApply(plugin);
+        verify(pluginService).saveOrUpdate(plugin);
     }
 
     @Test
@@ -130,7 +134,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldBeAbleToGetPreviousContextResultInExecution() throws Exception {
+    public void shouldBeAbleToGetPreviousContextResultInExecution() {
         final Plugin plugin = spy(Plugin.class);
         final Probe probeOne = new Probe() {
             @Override
