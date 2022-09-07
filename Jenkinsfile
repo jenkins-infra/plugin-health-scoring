@@ -35,7 +35,7 @@ pipeline {
           recordIssues enabledForFailure: true, tool: spotBugs()
         }
         success {
-            stash name: 'binary', includes: 'target/plugin-health-scoring.jar,src/main/docker/Dockerfile'
+            stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
         }
       }
     }
