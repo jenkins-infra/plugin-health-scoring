@@ -1,5 +1,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -17,27 +18,16 @@ public class CompoundUpdateCenterProbes extends Probe implements UpdateCenterPro
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
-    public CompoundUpdateCenterProbes(List<UpdateCenterProbe> updateCenterProbeList, ObjectMapper objectMapper,@Value("${jenkins.update-center}") String updateCenterURL) {
+    public CompoundUpdateCenterProbes(List<UpdateCenterProbe> updateCenterProbeList,@Value("${jenkins.update-center}") String updateCenterURL) {
         this.updateCenterProbeList = List.copyOf(updateCenterProbeList);
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();;
         this.updateCenterURL = updateCenterURL;
     }
 
-    record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
-        Plugin toPlugin() {
-            return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
-        }
-    }
-
-    record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
-    }
-
-    UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-
     @Override
     public void runProbe(Plugin plugin) {
         for (UpdateCenterProbe updateCenterProbe : updateCenterProbeList) {
-            updateCenterProbe.runProbe(plugin);
+                updateCenterProbe.runProbe(plugin);
         }
     }
 
