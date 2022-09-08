@@ -2,6 +2,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -14,25 +15,23 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = DeprecatedPluginProbe.ORDER)
-public class DeprecatedPluginProbe extends Probe implements UpdateCenterProbe {
+@Order(value = UpForAdoptionProbe.ORDER)
+public class UpForAdoptionProbe extends Probe implements UpdateCenterProbe {
     public static final int ORDER = CompoundUpdateCenterProbes.ORDER + 1;
-
-    public static final String DEPRECATION_KEY = "deprecation";
 
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
     private UpdateCenter updateCenter;
 
-    public DeprecatedPluginProbe(@Value("${jenkins.update-center}") String updateCenterURL) {
+    public UpForAdoptionProbe(@Value("${jenkins.update-center}") String updateCenterURL) {
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
         this.updateCenterURL = updateCenterURL;
     }
 
-    record UpdateCenterDeprecations(String url) {
+    record UpdateCenterPlugin(List<String> labels) {
     }
 
-    record UpdateCenter(Map<String, UpdateCenterDeprecations> deprecations) {
+    record UpdateCenter(Map<String, UpdateCenterPlugin> plugins) {
     }
 
     @Override
@@ -42,14 +41,14 @@ public class DeprecatedPluginProbe extends Probe implements UpdateCenterProbe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin) {
-        if (updateCenter.deprecations().containsKey(plugin.getName())) {
-            return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
-        }
-        return ProbeResult.success(key(), "This plugin is NOT deprecated");
+        if (updateCenter.plugins().get(plugin.getName()).labels().contains("adopt-this-plugin"))
+            return ProbeResult.success(key(), "This plugin is up for adoption");
+
+        return ProbeResult.failure(key(), "This plugin is NOT up for adoption");
     }
 
     @Override
     public String key() {
-        return DEPRECATION_KEY;
+        return "up-for-adoption";
     }
 }
