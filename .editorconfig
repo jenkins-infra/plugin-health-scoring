@@ -10,3 +10,9 @@ tab_width = 2
 [pom.xml]
 indent_style = tab
 indent_size = 2
+
+[Jenkinsfile]
+indent_size = 2
+
+[compose.yml]
+indent_size = 2
