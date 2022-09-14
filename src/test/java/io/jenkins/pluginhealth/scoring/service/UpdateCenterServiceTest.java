@@ -31,12 +31,12 @@ import java.net.URL;
 import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @JsonTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 class UpdateCenterServiceTest {
     @Test
     public void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {

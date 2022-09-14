@@ -52,7 +52,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SCMLinkValidationProbeTest {
     @Mock private HttpClient httpClient;
-    private final GithubConfiguration githubConfiguration = new GithubConfiguration("foo-bar");
+    @Mock private GithubConfiguration githubConfiguration;
 
     @Test
     public void shouldKeepScmAsKey() {

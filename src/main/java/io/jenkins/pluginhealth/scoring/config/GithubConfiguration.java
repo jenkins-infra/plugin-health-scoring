@@ -37,7 +37,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "github")
 @ConstructorBinding
 @Validated
-public final class GithubConfiguration {
+public class GithubConfiguration {
     @NotBlank private final String oauth;
 
     public GithubConfiguration(String oauth) {
