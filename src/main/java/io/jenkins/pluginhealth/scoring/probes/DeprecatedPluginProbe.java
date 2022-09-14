@@ -7,11 +7,13 @@ import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe detects if a specified plugin is deprecated from the update-center.
+ */
 @Component
 @Order(DeprecatedPluginProbe.ORDER)
 public class DeprecatedPluginProbe extends Probe {
     public static final int ORDER = 1;
-    public static final String DEPRECATION_KEY = "deprecation";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
@@ -24,6 +26,11 @@ public class DeprecatedPluginProbe extends Probe {
 
     @Override
     public String key() {
-        return DEPRECATION_KEY;
+        return "deprecation";
+    }
+
+    @Override
+    public String getDescription() {
+        return "This probe detects if a specified plugin is deprecated from the update-center.";
     }
 }

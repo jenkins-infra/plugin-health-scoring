@@ -27,21 +27,6 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldHaveValidDescription() {
-        assertThat(new LastCommitDateProbe().getDescription()).isNotEqualTo(new Probe() {
-            @Override
-            protected ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
-                return null;
-            }
-
-            @Override
-            public String key() {
-                return null;
-            }
-        }.getDescription());
-    }
-
-    @Test
     public void shouldBeExecutedAfterSCMLinkValidation() {
         assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
     }
