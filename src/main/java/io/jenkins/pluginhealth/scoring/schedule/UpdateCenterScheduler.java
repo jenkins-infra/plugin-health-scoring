@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
 
+import io.jenkins.pluginhealth.scoring.model.UpdateCenterPlugin;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -48,7 +49,10 @@ public class UpdateCenterScheduler {
 
     @Scheduled(cron = "${cron.update-center}", zone = "UTC")
     public void updateDatabase() throws IOException {
-        updateCenterService.readUpdateCenter().forEach(pluginService::saveOrUpdate);
+        updateCenterService.fetchUpdateCenter()
+            .plugins().values().stream()
+            .map(UpdateCenterPlugin::toPlugin)
+            .forEach(pluginService::saveOrUpdate);
         probeEngine.run();
     }
 }

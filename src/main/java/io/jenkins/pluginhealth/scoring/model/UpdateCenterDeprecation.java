@@ -22,29 +22,7 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.net.URL;
-
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
-
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-@JsonTest
-@RunWith(SpringRunner.class)
-class UpdateCenterServiceTest {
-    @Test
-    public void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
-        URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
-        assertThat(updateCenterURL).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenterURL.toString());
-
-        UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
-        assertThat(updateCenter.plugins()).hasSize(25);
-    }
+public record UpdateCenterDeprecation(String url) {
 }
