@@ -22,25 +22,22 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.schedule;
+package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
+import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 
-import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
+/*default*/ class ProbeContext {
+    private final UpdateCenter updateCenter;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-@Component
-public class ProbeEngineScheduler {
-    private final ProbeEngine probeEngine;
-
-    public ProbeEngineScheduler(ProbeEngine probeEngine) {
-        this.probeEngine = probeEngine;
+    private ProbeContext(UpdateCenter updateCenter) {
+        this.updateCenter = updateCenter;
     }
 
-    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
-    public void run() throws IOException {
-        probeEngine.run();
+    /* default */ static ProbeContext withUpdateCenter(UpdateCenter updateCenter) {
+        return new ProbeContext(updateCenter);
+    }
+
+    public UpdateCenter getUpdateCenter() {
+        return updateCenter;
     }
 }

@@ -53,7 +53,7 @@ public final class SCMLinkValidationProbe extends Probe {
     public static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
-    public static final int ORDER = 1;
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 20;
     public static final String KEY = "scm";
 
     private final HttpClient httpClient;
@@ -65,7 +65,7 @@ public final class SCMLinkValidationProbe extends Probe {
     }
 
     @Override
-    public ProbeResult doApply(Plugin plugin) {
+    public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.failure(key(), "The plugin SCM link is empty");

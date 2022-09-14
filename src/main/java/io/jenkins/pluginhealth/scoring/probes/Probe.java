@@ -37,19 +37,21 @@ public abstract class Probe {
      * Should only be called by the {@link ProbeEngine#run()} method.
      *
      * @param plugin the plugin on which to perform the analyze
+     * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
-    public final ProbeResult apply(Plugin plugin) {
-        return doApply(plugin);
+    public final ProbeResult apply(Plugin plugin, ProbeContext context) {
+        return doApply(plugin, context);
     }
 
     /**
      * Perform the analyze on a plugin
      *
      * @param plugin the plugin on which the analyze is done
+     * @param context holder of information passed across the probes executed on a single plugin
      * @return a ProbeResult representing the result of the analyze
      */
-    protected abstract ProbeResult doApply(Plugin plugin);
+    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
     public abstract String key();
 

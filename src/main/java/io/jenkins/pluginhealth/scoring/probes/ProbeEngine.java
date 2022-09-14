@@ -24,11 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,19 +50,23 @@ public class ProbeEngine {
 
     private final List<Probe> probes;
     private final PluginService pluginService;
+    private final UpdateCenterService updateCenterService;
 
-    public ProbeEngine(List<Probe> probes, PluginService pluginService) {
+    public ProbeEngine(List<Probe> probes, PluginService pluginService, UpdateCenterService updateCenterService) {
         this.probes = List.copyOf(probes);
         this.pluginService = pluginService;
+        this.updateCenterService = updateCenterService;
     }
 
     /**
      * Starts to apply all the {@link Probe} implementations on all the plugins registered in the database.
      */
-    public void run() {
+    public void run() throws IOException {
         LOGGER.info("Start running probes on all plugins");
+        final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         pluginService.streamAll().parallel()
             .peek(plugin -> {
+                final ProbeContext probeContext = ProbeContext.withUpdateCenter(updateCenter);
                 probes.forEach(probe -> {
                     try {
                         final ProbeResult previousResult = plugin.getDetails().get(probe.key());
@@ -71,7 +78,7 @@ public class ProbeEngine {
                             if (LOGGER.isTraceEnabled()) {
                                 LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
                             }
-                            final ProbeResult result = probe.apply(plugin);
+                            final ProbeResult result = probe.apply(plugin, probeContext);
                             if (result.status() != ResultStatus.ERROR) {
                                 plugin.addDetails(result);
                             }
