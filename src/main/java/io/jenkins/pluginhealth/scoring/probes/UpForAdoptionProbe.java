@@ -7,6 +7,9 @@ import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe aims to see if a specified plugin is declared as up for adoption.
+ */
 @Component
 @Order(value = UpForAdoptionProbe.ORDER)
 public class UpForAdoptionProbe extends Probe {
@@ -25,5 +28,10 @@ public class UpForAdoptionProbe extends Probe {
     @Override
     public String key() {
         return "up-for-adoption";
+    }
+
+    @Override
+    public String getDescription() {
+        return "This probe detects if a specified plugin is declared as up for adoption.";
     }
 }
