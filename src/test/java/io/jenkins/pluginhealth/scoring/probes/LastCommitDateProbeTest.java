@@ -62,7 +62,7 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder () {
+    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
