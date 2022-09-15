@@ -41,9 +41,6 @@ pipeline {
     }
 
     stage('Docker image') {
-      /* when {
-          branch 'main' // TODO for now, activated for the PR
-      } */
       steps {
         buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
       }
