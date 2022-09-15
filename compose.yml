@@ -11,8 +11,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - db_data:/var/lib/postgresql/data
     ports:
       - "8080:8080"
 
@@ -26,6 +24,8 @@ services:
       interval: 5s
       timeout: 2s
       retries: 5
+    volumes:
+      - db_data:/var/lib/postgresql/data
     ports:
       - "${POSTGRES_PORT}:5432"
 
