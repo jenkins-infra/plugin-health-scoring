@@ -1,11 +1,12 @@
 #!/usr/bin/env groovy
+@Library('pipeline-library@pull/465/head') _
 
 pipeline {
   agent {
     label 'docker && linux'
   }
   options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
+    buildDiscarder(logRotator(numToKeepStr: '10'))
     timestamps()
   }
 
@@ -33,6 +34,15 @@ pipeline {
           recordIssues enabledForFailure: true, tool: checkStyle()
           recordIssues enabledForFailure: true, tool: spotBugs()
         }
+        success {
+            stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
+        }
+      }
+    }
+
+    stage('Docker image') {
+      steps {
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
       }
     }
   }
