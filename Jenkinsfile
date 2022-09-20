@@ -3,7 +3,7 @@
 
 pipeline {
   agent {
-    label 'docker && linux'
+    label 'linux-amd64-docker'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
