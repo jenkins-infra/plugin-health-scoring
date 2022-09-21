@@ -3,6 +3,10 @@ src
 !src/main/docker/Dockerfile
 target
 !target/plugin-health-scoring.jar
+!target/application
+!target/dependencies
+!target/snapshot-dependencies
+!target/spring-boot-loader
 
 .idea
 .mvn
