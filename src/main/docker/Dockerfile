@@ -5,9 +5,9 @@ USER phs:phs
 
 WORKDIR /app
 
-COPY target/application ./
+COPY target/application/ ./
 COPY target/dependencies/ ./
-COPY target/snapshot-dependencies ./
+COPY target/snapshot-dependencies/ ./
 COPY target/spring-boot-loader/ ./
 
 ENTRYPOINT ["java","org.springframework.boot.loader.JarLauncher"]
