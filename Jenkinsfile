@@ -38,7 +38,7 @@ pipeline {
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
-            stash name: 'extractedBinaries', includes: 'target/application/**', 'target/dependencies/**', 'target/snapshot-dependencies/**', 'target/spring-boot-loader/**'
+            stash name: 'extractedBinaries', includes: 'target/application/**, target/dependencies/**, target/snapshot-dependencies/**, target/spring-boot-loader/**'
         }
       }
     }
