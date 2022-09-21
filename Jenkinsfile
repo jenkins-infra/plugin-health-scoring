@@ -18,7 +18,6 @@ pipeline {
       }
       steps {
         sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
-        sh 'cd target && java -Djarmode=layertools -jar plugin-health-scoring.jar extract && echo "--------- LS -------------" && ls .'
       }
 
       post {
@@ -38,14 +37,13 @@ pipeline {
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
-            stash name: 'extractedBinaries', includes: 'target/application/**, target/dependencies/**, target/snapshot-dependencies/**, target/spring-boot-loader/**'
         }
       }
     }
 
     stage('Docker image') {
       steps {
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'extractedBinaries'])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
       }
     }
   }

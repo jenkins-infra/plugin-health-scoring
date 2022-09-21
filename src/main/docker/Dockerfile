@@ -5,9 +5,6 @@ USER phs:phs
 
 WORKDIR /app
 
-COPY target/application/ ./
-COPY target/dependencies/ ./
-COPY target/snapshot-dependencies/ ./
-COPY target/spring-boot-loader/ ./
+COPY target/plugin-health-scoring.jar /app/plugin-health-scoring.jar
 
-ENTRYPOINT ["java","org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "-jar", "/app/plugin-health-scoring.jar"]
