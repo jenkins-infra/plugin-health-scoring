@@ -18,7 +18,7 @@ pipeline {
       }
       steps {
         sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
-        sh 'cd target && java -Djarmode=layertools -jar plugin-health-scoring.jar extract'
+        sh 'cd target && java -Djarmode=layertools -jar plugin-health-scoring.jar extract && echo "--------- LS -------------" && ls .'
       }
 
       post {
