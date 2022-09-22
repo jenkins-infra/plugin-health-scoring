@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-@Library('pipeline-library@pull/465/head') _
 
 pipeline {
   agent {
