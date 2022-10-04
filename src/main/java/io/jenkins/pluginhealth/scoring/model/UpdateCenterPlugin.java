@@ -22,19 +22,13 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring;
+package io.jenkins.pluginhealth.scoring.model;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import java.time.ZonedDateTime;
+import java.util.List;
 
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public final class PluginHealthScoringIT extends AbstractDBContainerTest {
-    @Test
-    void contextLoads() {
+public record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp, List<String> labels) {
+    public Plugin toPlugin() {
+        return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
     }
 }

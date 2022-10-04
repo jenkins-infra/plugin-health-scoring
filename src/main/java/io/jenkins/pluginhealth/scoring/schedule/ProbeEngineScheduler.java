@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.schedule;
 
+import java.io.IOException;
+
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -38,7 +40,7 @@ public class ProbeEngineScheduler {
     }
 
     @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
-    public void run() {
+    public void run() throws IOException {
         probeEngine.run();
     }
 }

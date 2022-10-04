@@ -27,21 +27,6 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldHaveValidDescription() {
-        assertThat(new LastCommitDateProbe().getDescription()).isNotEqualTo(new Probe() {
-            @Override
-            protected ProbeResult doApply(Plugin plugin) {
-                return null;
-            }
-
-            @Override
-            public String key() {
-                return null;
-            }
-        }.getDescription());
-    }
-
-    @Test
     public void shouldBeExecutedAfterSCMLinkValidation() {
         assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
     }
@@ -49,26 +34,28 @@ class LastCommitDateProbeTest {
     @Test
     public void shouldReturnSuccessStatusOnValidSCM() {
         final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/parameterized-trigger-plugin.git");
         when(plugin.getName()).thenReturn("parameterized-trigger");
-        final ProbeResult r = probe.apply(plugin);
+        final ProbeResult r = probe.apply(plugin, ctx);
 
         assertThat(r.id()).isEqualTo("last-commit-date");
         assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
     }
 
     @Test
-    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder () {
+    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder() {
         final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/aws-java-sdk-plugin/aws-java-sdk-logs");
         when(plugin.getName()).thenReturn("aws-java-sdk-logs");
-        final ProbeResult r = probe.apply(plugin);
+        final ProbeResult r = probe.apply(plugin, ctx);
 
         assertThat(r.id()).isEqualTo("last-commit-date");
         assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
@@ -77,10 +64,11 @@ class LastCommitDateProbeTest {
     @Test
     public void shouldReturnFailureOnInvalidSCM() {
         final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid")));
-        final ProbeResult r = probe.apply(plugin);
+        final ProbeResult r = probe.apply(plugin, ctx);
 
         assertThat(r.status()).isEqualTo(ResultStatus.FAILURE);
     }
@@ -88,10 +76,11 @@ class LastCommitDateProbeTest {
     @Test
     public void shouldFailToRunAsFirstProbe() {
         final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of());
-        final ProbeResult r = probe.apply(plugin);
+        final ProbeResult r = probe.apply(plugin, ctx);
 
         assertThat(r.status()).isEqualTo(ResultStatus.ERROR);
     }

@@ -26,13 +26,8 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,8 +36,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UpdateCenterService {
-    public static final String DEPRECATION_KEY = "deprecation";
-
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
@@ -51,33 +44,7 @@ public class UpdateCenterService {
         this.updateCenterURL = updateCenterURL;
     }
 
-    public List<Plugin> readUpdateCenter() throws IOException {
-        record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp) {
-            Plugin toPlugin() {
-                return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
-            }
-        }
-
-        record UpdateCenterDeprecations(String url) {
-        }
-
-        record UpdateCenter(Map<String, UpdateCenterPlugin> plugins,
-                            Map<String, UpdateCenterDeprecations> deprecations) {
-        }
-
-        UpdateCenter updateCenter = objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
-        return updateCenter.plugins().values().stream()
-            .map(UpdateCenterPlugin::toPlugin)
-            .map(plugin -> {
-                if (updateCenter.deprecations().containsKey(plugin.getName())) {
-                    return plugin.addDetails(
-                        ProbeResult.failure(DEPRECATION_KEY, updateCenter.deprecations().get(plugin.getName()).url())
-                    );
-                } else {
-                    return plugin;
-                }
-            })
-            .collect(Collectors.toList());
+    public UpdateCenter fetchUpdateCenter() throws IOException {
+        return objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
     }
-
 }

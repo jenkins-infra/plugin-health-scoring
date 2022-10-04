@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SCMLinkValidationProbeTest {
     @Mock private HttpClient httpClient;
-    private final GithubConfiguration githubConfiguration = new GithubConfiguration("foo-bar");
+    @Mock private GithubConfiguration githubConfiguration;
 
     @Test
     public void shouldKeepScmAsKey() {
@@ -66,11 +67,13 @@ class SCMLinkValidationProbeTest {
     @Test
     public void shouldNotAcceptNullNorEmptyScm() {
         final Plugin p1 = new Plugin("foo", null, ZonedDateTime.now());
+        final ProbeContext ctxP1 = mock(ProbeContext.class);
         final Plugin p2 = new Plugin("bar", "", ZonedDateTime.now());
+        final ProbeContext ctxP2 = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
-        final ProbeResult r1 = probe.apply(p1);
-        final ProbeResult r2 = probe.apply(p2);
+        final ProbeResult r1 = probe.apply(p1, ctxP1);
+        final ProbeResult r2 = probe.apply(p2, ctxP2);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(r2.status()).isEqualTo(ResultStatus.FAILURE);
@@ -80,9 +83,10 @@ class SCMLinkValidationProbeTest {
     @Test
     public void shouldRecognizeIncorrectSCMUrl() {
         final Plugin p1 = new Plugin("foo", "this-is-not-correct", ZonedDateTime.now());
+        final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
-        final ProbeResult r1 = probe.apply(p1);
+        final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(r1.message()).isEqualTo("SCM link doesn't match GitHub plugin repositories");
@@ -91,6 +95,7 @@ class SCMLinkValidationProbeTest {
     @Test
     public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
         final Plugin p1 = new Plugin("foo", "https://github.com/jenkinsci/mailer-plugin", ZonedDateTime.now());
+        final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
         when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
@@ -136,7 +141,7 @@ class SCMLinkValidationProbeTest {
                 }
             }
         );
-        final ProbeResult r1 = probe.apply(p1);
+        final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
@@ -145,6 +150,7 @@ class SCMLinkValidationProbeTest {
     @Test
     public void shouldRecognizeInvalidGitHubUrl() throws Exception {
         final Plugin p1 = new Plugin("foo", "https://github.com/jenkinsci/this-is-not-going-to-work", ZonedDateTime.now());
+        final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
         when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
@@ -190,7 +196,7 @@ class SCMLinkValidationProbeTest {
                 }
             }
         );
-        final ProbeResult r1 = probe.apply(p1);
+        final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is invalid");

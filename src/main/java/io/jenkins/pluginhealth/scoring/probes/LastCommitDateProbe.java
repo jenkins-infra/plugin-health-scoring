@@ -33,7 +33,7 @@ public class LastCommitDateProbe extends Probe {
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
 
     @Override
-    public ProbeResult doApply(Plugin plugin) {
+    public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
             LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
             return ProbeResult.error(key(), "SCM link has not been validated yet");

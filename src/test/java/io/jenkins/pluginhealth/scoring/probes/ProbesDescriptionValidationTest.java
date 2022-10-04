@@ -22,29 +22,44 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.probes;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
 
-import java.net.URL;
+import java.net.http.HttpClient;
+import java.util.List;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-@JsonTest
-@ExtendWith(SpringExtension.class)
-class UpdateCenterServiceTest {
+@ExtendWith(MockitoExtension.class)
+public class ProbesDescriptionValidationTest {
+    @MockBean HttpClient httpClient;
+    @MockBean GithubConfiguration githubConfiguration;
+
+    // TODO improve this listing
+    private final List<Probe> probes = List.of(
+        new DeprecatedPluginProbe(),
+        new LastCommitDateProbe(),
+        new SCMLinkValidationProbe(httpClient, githubConfiguration),
+        new UpForAdoptionProbe()
+    );
+
     @Test
-    public void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
-        URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
-        assertThat(updateCenterURL).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenterURL.toString());
+    public void shouldValidateAllProbeImplementationsHaveProperDescription() {
+        final Probe unexpectedProbe = spy(Probe.class);
 
-        UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
-        assertThat(updateCenter.plugins()).hasSize(25);
+        assertThat(probes).isNotEmpty();
+        assertThat(probes).allSatisfy(probe ->
+            assertThat(probe.getDescription())
+                .as("Checks %s's description", probe.getClass().getSimpleName())
+                .isNotEqualTo(unexpectedProbe.getDescription())
+        );
     }
 }
