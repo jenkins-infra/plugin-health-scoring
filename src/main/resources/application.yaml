@@ -4,11 +4,19 @@ spring:
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
         driverClassName: org.postgresql.Driver
-    jpa.properties.hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc.lob.non_contextual_creation: true
-    jpa.hibernate:
-        ddl-auto: update
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties.hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            jdbc.lob.non_contextual_creation: true
+        open-in-view: false
+
+management:
+    endpoints.web.exposure.include: health,info
+    info:
+        git.enabled: true
+        build.enabled: true
 
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
 github.oauth: ${GITHUB_OAUTH}

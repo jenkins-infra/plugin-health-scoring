@@ -16,10 +16,16 @@
 
 <div id="app">
     <header>
-        <span class="app--title">Plugin Health Scoring</span>
+        <span class="app--title">
+            <a data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
+        </span>
     </header>
     <main data-layout-fragment="content">
     </main>
+    <footer>
+        <span data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"
+              class="app--version" data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
+    </footer>
 </div>
 
 </body>

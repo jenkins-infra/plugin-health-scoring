@@ -138,6 +138,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
 
@@ -281,6 +282,29 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>build-info</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<excludeInfoProperties>
+						<excludeInfoProperty>time</excludeInfoProperty>
+						<excludeInfoProperty>group</excludeInfoProperty>
+						<excludeInfoProperty>artifact</excludeInfoProperty>
+					</excludeInfoProperties>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<configuration>
+					<includeOnlyProperties>
+						<includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
+					</includeOnlyProperties>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
