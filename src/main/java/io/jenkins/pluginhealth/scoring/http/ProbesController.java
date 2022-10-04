@@ -47,17 +47,21 @@ public class ProbesController {
     @GetMapping(path = "")
     public ModelAndView list() {
         final ModelAndView modelAndView = new ModelAndView("probes/listing");
-        record ProbeDetails(String name, String id, String description) {
-        }
 
         modelAndView.addObject(
             "probes",
             probes.stream()
-                .map(probe -> new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription()))
+                .map(ProbeDetails::map)
                 .sorted(Comparator.comparing(ProbeDetails::name))
                 .collect(Collectors.toList())
         );
 
         return modelAndView;
+    }
+
+    record ProbeDetails(String name, String id, String description) {
+        static ProbeDetails map(Probe probe) {
+            return new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription());
+        }
     }
 }
