@@ -71,9 +71,6 @@ div#app main {
 
 div#app main div.probes-listing--table {
     width: 80%;
-    display: grid;
-    grid-template-rows: 2rem;
-    row-gap: .5rem;
 }
 
 div#app main div.probes-listing--header {
@@ -86,8 +83,9 @@ div#app main div.probes-listing--row {
     display: grid;
     grid-template-columns: 1fr 3fr 6fr;
     column-gap: .5rem;
+    padding: .5rem;
 }
 
-div#app main div.probes-listing--header span.probes-listing--cell,
-div#app main div.probes-listing--row span.probes-listing--cell {
+div.probes-listing--row:not(.probes-listing--header):nth-child(even) {
+    background-color: var(--light-grey);
 }
