@@ -220,6 +220,9 @@
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
 					<version>3.0.0-M7</version>
+					<configuration>
+						<classesDirectory>${project.build.outputDirectory}</classesDirectory>
+					</configuration>
 					<executions>
 						<execution>
 							<goals>
