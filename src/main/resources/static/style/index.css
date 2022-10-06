@@ -19,10 +19,11 @@ div#app {
     height: 100vh;
 
     display: grid;
-    grid-template-rows: var(--header-height) auto;
+    grid-template-rows: var(--header-height) auto var(--footer-height);
     grid-template-areas:
         "header"
-        "main";
+        "main"
+        "footer";
     row-gap: .75rem;
 }
 
@@ -33,11 +34,32 @@ div#app header {
     line-height: var(--header-height);
 }
 
+div#app footer {
+    grid-area: footer;
+    display:flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+
+    background-color: var(--light-grey);
+    line-height: var(--footer-height);
+}
+
 div#app header span.app--title {
     color: var(--white);
     font-weight: 700;
     margin-left: 1rem;
     font-size: 1.5rem;
+}
+
+span.app--title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+div#app footer span.app--version {
+    color: var(--medium-grey);
+    margin-right: 1rem;
+    font-size: 0.7rem;
 }
 
 div#app main {
@@ -49,9 +71,6 @@ div#app main {
 
 div#app main div.probes-listing--table {
     width: 80%;
-    display: grid;
-    grid-template-rows: 2rem;
-    row-gap: .5rem;
 }
 
 div#app main div.probes-listing--header {
@@ -64,8 +83,9 @@ div#app main div.probes-listing--row {
     display: grid;
     grid-template-columns: 1fr 3fr 6fr;
     column-gap: .5rem;
+    padding: .5rem;
 }
 
-div#app main div.probes-listing--header span.probes-listing--cell,
-div#app main div.probes-listing--row span.probes-listing--cell {
+div.probes-listing--row:not(.probes-listing--header):nth-child(even) {
+    background-color: var(--light-grey);
 }

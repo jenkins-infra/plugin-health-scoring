@@ -6,6 +6,7 @@
 
     <title data-layout-title-pattern="$LAYOUT_TITLE :: $CONTENT_TITLE">Plugin Health Scoring</title>
 
+    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
     <link data-th-href="@{/style/index.css}" rel="stylesheet"/>
 
     <script src="http://localhost:35729/livereload.js"
@@ -15,10 +16,16 @@
 
 <div id="app">
     <header>
-        <span class="app--title">Plugin Health Scoring</span>
+        <span class="app--title">
+            <a data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
+        </span>
     </header>
     <main data-layout-fragment="content">
     </main>
+    <footer>
+        <span data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"
+              class="app--version" data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
+    </footer>
 </div>
 
 </body>
