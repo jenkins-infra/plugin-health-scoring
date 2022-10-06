@@ -36,8 +36,7 @@ import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*default*/ final class ProbeContext {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProbeContext.class);
+/*default*/ class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
 
