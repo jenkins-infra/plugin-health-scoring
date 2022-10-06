@@ -10,7 +10,7 @@ concurrency: "release-drafter"
 
 jobs:
   update_release_draft:
-    runs-on: ubuntu-22.10
+    runs-on: ubuntu-22.04
     steps:
       - uses: release-drafter/release-drafter@v5.21.0
         env:
