@@ -28,7 +28,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 
 	<name>Plugin Health Scoring</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
@@ -63,7 +63,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>v0.0.3</tag>
 		<url>https://github.com/jenkins-infra/plugin-health-scoring</url>
 	</scm>
 	<distributionManagement>
