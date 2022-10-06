@@ -340,10 +340,20 @@
 				<artifactId>git-commit-id-plugin</artifactId>
 				<version>4.9.10</version>
 				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 					<includeOnlyProperties>
 						<includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
 					</includeOnlyProperties>
 				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>generate-resources</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
