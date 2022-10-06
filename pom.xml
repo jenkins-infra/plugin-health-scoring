@@ -60,6 +60,12 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/jenkins-infra/plugin-health-scoring</url>
+	</scm>
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
