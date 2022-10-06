@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
