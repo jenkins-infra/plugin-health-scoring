@@ -240,6 +240,15 @@
 					</executions>
 				</plugin>
 				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>3.0.0-M6</version>
+					<configuration>
+						<pushChanges>false</pushChanges>
+						<signTag>true</signTag>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+					</configuration>
+				</plugin>
+				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M7</version>
 				</plugin>
