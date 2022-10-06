@@ -28,7 +28,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 	<name>Plugin Health Scoring</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
@@ -60,6 +60,12 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/jenkins-infra/plugin-health-scoring</url>
+	</scm>
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
@@ -234,6 +240,15 @@
 					</executions>
 				</plugin>
 				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>3.0.0-M6</version>
+					<configuration>
+						<pushChanges>false</pushChanges>
+						<signTag>true</signTag>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+					</configuration>
+				</plugin>
+				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M7</version>
 				</plugin>
@@ -323,6 +338,7 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.9.10</version>
 				<configuration>
 					<includeOnlyProperties>
 						<includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
