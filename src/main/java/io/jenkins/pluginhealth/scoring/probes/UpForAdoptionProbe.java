@@ -2,7 +2,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

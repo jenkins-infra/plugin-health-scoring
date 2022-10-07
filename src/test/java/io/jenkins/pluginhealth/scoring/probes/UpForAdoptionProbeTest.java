@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenterPlugin;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
 
+import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 public class UpForAdoptionProbeTest {
@@ -54,14 +54,15 @@ public class UpForAdoptionProbeTest {
 
     @Test
     public void shouldBeAbleToDetectPluginForAdoption() {
-        final Plugin plugin = mock(Plugin.class);
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new UpdateCenterPlugin("foo", "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"))),
-            Collections.emptyMap()
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"))),
+            Collections.emptyMap(),
+            Collections.emptyList()
         ));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
@@ -71,14 +72,15 @@ public class UpForAdoptionProbeTest {
 
     @Test
     public void shouldBeAbleToDetectPluginNotForAdoption() {
-        final Plugin plugin = mock(Plugin.class);
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new UpdateCenterPlugin("foo", "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"))),
-            Collections.emptyMap()
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"))),
+            Collections.emptyMap(),
+            Collections.emptyList()
         ));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);

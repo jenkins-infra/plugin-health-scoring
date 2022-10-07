@@ -46,6 +46,7 @@ public class PluginService {
             .map(pluginFromDatabase -> pluginFromDatabase
                 .setScm(plugin.getScm())
                 .setReleaseTimestamp(plugin.getReleaseTimestamp())
+                .setVersion(plugin.getVersion())
                 .addDetails(plugin.getDetails()))
             .map(pluginRepository::save)
             .orElseGet(() -> pluginRepository.save(plugin));

@@ -66,11 +66,14 @@ class SCMLinkValidationProbeTest {
 
     @Test
     public void shouldNotAcceptNullNorEmptyScm() {
-        final Plugin p1 = new Plugin("foo", null, ZonedDateTime.now());
+        final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctxP1 = mock(ProbeContext.class);
-        final Plugin p2 = new Plugin("bar", "", ZonedDateTime.now());
+        final Plugin p2 = mock(Plugin.class);
         final ProbeContext ctxP2 = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
+
+        when(p1.getScm()).thenReturn(null);
+        when(p2.getScm()).thenReturn("");
 
         final ProbeResult r1 = probe.apply(p1, ctxP1);
         final ProbeResult r2 = probe.apply(p2, ctxP2);
@@ -82,10 +85,11 @@ class SCMLinkValidationProbeTest {
 
     @Test
     public void shouldRecognizeIncorrectSCMUrl() {
-        final Plugin p1 = new Plugin("foo", "this-is-not-correct", ZonedDateTime.now());
+        final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
+        when(p1.getScm()).thenReturn("this-is-not-correct");
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
@@ -94,10 +98,11 @@ class SCMLinkValidationProbeTest {
 
     @Test
     public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
-        final Plugin p1 = new Plugin("foo", "https://github.com/jenkinsci/mailer-plugin", ZonedDateTime.now());
+        final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
+        when(p1.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
         when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
             new HttpResponse<>() {
                 @Override
@@ -149,10 +154,11 @@ class SCMLinkValidationProbeTest {
 
     @Test
     public void shouldRecognizeInvalidGitHubUrl() throws Exception {
-        final Plugin p1 = new Plugin("foo", "https://github.com/jenkinsci/this-is-not-going-to-work", ZonedDateTime.now());
+        final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
 
+        when(p1.getScm()).thenReturn("https://github.com/jenkinsci/this-is-not-going-to-work");
         when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
             new HttpResponse<>() {
                 @Override

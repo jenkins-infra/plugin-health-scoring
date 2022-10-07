@@ -26,7 +26,7 @@ package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenterPlugin;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -51,7 +51,7 @@ public class UpdateCenterScheduler {
     public void updateDatabase() throws IOException {
         updateCenterService.fetchUpdateCenter()
             .plugins().values().stream()
-            .map(UpdateCenterPlugin::toPlugin)
+            .map(Plugin::toPlugin)
             .forEach(pluginService::saveOrUpdate);
         probeEngine.run();
     }

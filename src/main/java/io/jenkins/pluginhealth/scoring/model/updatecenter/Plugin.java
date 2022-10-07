@@ -22,9 +22,15 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
-import java.util.Map;
+import java.time.ZonedDateTime;
+import java.util.List;
 
-public record UpdateCenter(Map<String, UpdateCenterPlugin> plugins, Map<String, UpdateCenterDeprecation> deprecations) {
+import hudson.util.VersionNumber;
+
+public record Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp, List<String> labels) {
+    public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
+        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
+    }
 }

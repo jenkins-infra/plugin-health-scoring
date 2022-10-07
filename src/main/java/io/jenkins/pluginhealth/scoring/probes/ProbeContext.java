@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 /*default*/ class ProbeContext {
     private final UpdateCenter updateCenter;

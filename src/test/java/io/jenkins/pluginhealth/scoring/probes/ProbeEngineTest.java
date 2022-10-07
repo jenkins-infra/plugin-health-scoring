@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -77,14 +78,16 @@ class ProbeEngineTest {
 
     @Test
     public void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() throws IOException {
-        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now().minusDays(1))
-            .addDetails(ProbeResult.success("wiz", "This is good"));
+        final Plugin plugin = mock(Plugin.class);
+        final String probeKey = "wiz";
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService, updateCenterService);
 
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusDays(1));
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good")));
         when(probe.requiresRelease()).thenReturn(true);
-        when(probe.key()).thenReturn("wiz");
+        when(probe.key()).thenReturn(probeKey);
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
         probeEngine.run();
 
@@ -95,11 +98,12 @@ class ProbeEngineTest {
     @Test
     public void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() throws IOException {
         final String probeKey = "wiz";
-        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now())
-            .addDetails(new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1)));
+        final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService, updateCenterService);
 
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))));
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.apply(any(Plugin.class), any(ProbeContext.class)))
             .thenReturn(ProbeResult.success(probeKey, "This is also ok"));
@@ -114,11 +118,11 @@ class ProbeEngineTest {
     @Test
     public void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() throws IOException {
         final String probeKey = "wiz";
-        final Plugin plugin = new Plugin("foo", "bar", ZonedDateTime.now())
-            .addDetails(new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1)));
+        final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probe), pluginService, updateCenterService);
 
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))));
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.apply(eq(plugin), any(ProbeContext.class))).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
         when(probe.key()).thenReturn(probeKey);

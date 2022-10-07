@@ -114,6 +114,11 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>6.2.0.202206071550-r</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jenkins-ci</groupId>
+			<artifactId>version-number</artifactId>
+			<version>1.10</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

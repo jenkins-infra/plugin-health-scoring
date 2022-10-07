@@ -27,7 +27,7 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.net.URL;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
