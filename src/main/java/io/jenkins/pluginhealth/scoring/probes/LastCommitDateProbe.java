@@ -1,13 +1,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.Comparator;
 import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;

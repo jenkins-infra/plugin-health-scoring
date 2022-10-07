@@ -33,9 +33,6 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /*default*/ class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
