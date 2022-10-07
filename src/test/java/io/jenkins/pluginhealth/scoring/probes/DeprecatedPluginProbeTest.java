@@ -34,9 +34,9 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.Deprecation;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
