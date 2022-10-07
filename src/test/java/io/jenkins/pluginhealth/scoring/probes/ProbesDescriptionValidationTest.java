@@ -48,7 +48,8 @@ public class ProbesDescriptionValidationTest {
         new DeprecatedPluginProbe(),
         new LastCommitDateProbe(),
         new SCMLinkValidationProbe(httpClient, githubConfiguration),
-        new UpForAdoptionProbe()
+        new UpForAdoptionProbe(),
+        new KnownSecurityVulnerabilityProbe()
     );
 
     @Test
