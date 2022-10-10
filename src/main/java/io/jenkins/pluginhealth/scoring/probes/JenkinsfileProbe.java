@@ -38,8 +38,8 @@ public class JenkinsfileProbe extends Probe {
     @Override
     public String getDescription() {
         return """
-    Validates the existence of a `Jenkinsfile` file on the repository.
-    This is used to configure the CI of the plugin on ci.jenkins.io.
+    Validates the existence of a `Jenkinsfile` file in the repository.
+    This file is used to configure the plugin Continuous Integration on ci.jenkins.io.
     """;
     }
 }
