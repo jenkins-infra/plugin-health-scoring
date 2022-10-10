@@ -66,31 +66,36 @@ public class ProbeEngine {
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         pluginService.streamAll().parallel()
             .peek(plugin -> {
-                final ProbeContext probeContext = ProbeContext.withUpdateCenter(updateCenter);
-                probes.forEach(probe -> {
-                    try {
-                        final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                        if (previousResult == null || !probe.requiresRelease() ||
-                            (probe.requiresRelease()
-                                && previousResult.timestamp() != null
-                                && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
-                        ) {
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
+                try {
+                    final ProbeContext probeContext = new ProbeContext(plugin.getName(), updateCenter);
+                    probes.forEach(probe -> {
+                        try {
+                            final ProbeResult previousResult = plugin.getDetails().get(probe.key());
+                            if (previousResult == null || !probe.requiresRelease() ||
+                                (probe.requiresRelease()
+                                    && previousResult.timestamp() != null
+                                    && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
+                            ) {
+                                if (LOGGER.isTraceEnabled()) {
+                                    LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
+                                }
+                                final ProbeResult result = probe.apply(plugin, probeContext);
+                                if (result.status() != ResultStatus.ERROR) {
+                                    plugin.addDetails(result);
+                                }
+                            } else {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
+                                }
                             }
-                            final ProbeResult result = probe.apply(plugin, probeContext);
-                            if (result.status() != ResultStatus.ERROR) {
-                                plugin.addDetails(result);
-                            }
-                        } else {
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
-                            }
+                        } catch (Throwable t) {
+                            LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
                         }
-                    } catch (Throwable t) {
-                        LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
-                    }
-                });
+                    });
+                    probeContext.cleanUp();
+                } catch (IOException ex) {
+                    // TODO
+                }
             })
             .forEach(pluginService::saveOrUpdate);
         LOGGER.info("Probe engine has finished");
