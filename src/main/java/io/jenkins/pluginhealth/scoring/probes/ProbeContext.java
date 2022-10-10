@@ -24,20 +24,37 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.stream.Stream;
+
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 /*default*/ class ProbeContext {
     private final UpdateCenter updateCenter;
+    private final Path scmRepository;
 
-    private ProbeContext(UpdateCenter updateCenter) {
+    /*default*/ ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
-    }
-
-    /* default */ static ProbeContext withUpdateCenter(UpdateCenter updateCenter) {
-        return new ProbeContext(updateCenter);
+        this.scmRepository = Files.createTempDirectory(pluginName);
     }
 
     public UpdateCenter getUpdateCenter() {
         return updateCenter;
+    }
+
+    public Path getScmRepository() {
+        return scmRepository;
+    }
+
+    public void cleanUp() throws IOException {
+        try (Stream<Path> paths = Files.walk(this.scmRepository)) {
+            paths.sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        }
     }
 }

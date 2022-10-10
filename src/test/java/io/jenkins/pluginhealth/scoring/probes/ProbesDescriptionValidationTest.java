@@ -29,38 +29,39 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 
 import java.net.http.HttpClient;
-import java.util.List;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ExtendWith(MockitoExtension.class)
 public class ProbesDescriptionValidationTest {
-    @MockBean HttpClient httpClient;
-    @MockBean GithubConfiguration githubConfiguration;
+    @MockBean private static HttpClient httpClient;
+    @MockBean private static GithubConfiguration githubConfiguration;
 
-    // TODO improve this listing
-    private final List<Probe> probes = List.of(
-        new DeprecatedPluginProbe(),
-        new LastCommitDateProbe(),
-        new SCMLinkValidationProbe(httpClient, githubConfiguration),
-        new UpForAdoptionProbe(),
-        new KnownSecurityVulnerabilityProbe()
-    );
+    private static Stream<Arguments> probes() {
+        return Stream.of(
+            new DeprecatedPluginProbe(),
+            new LastCommitDateProbe(),
+            new SCMLinkValidationProbe(httpClient, githubConfiguration),
+            new UpForAdoptionProbe(),
+            new JenkinsfileProbe(),
+            new KnownSecurityVulnerabilityProbe()
+        ).map(probe -> Arguments.of(probe.getClass().getSimpleName(), probe));
+    }
 
-    @Test
-    public void shouldValidateAllProbeImplementationsHaveProperDescription() {
+    @DisplayName(value = "Probes should have a custom description")
+    @ParameterizedTest(name = "{0} description validation")
+    @MethodSource(value = "probes")
+    public void shouldValidateAllProbeImplementationsHaveProperDescription(String probeClassName, Probe probe) {
         final Probe unexpectedProbe = spy(Probe.class);
-
-        assertThat(probes).isNotEmpty();
-        assertThat(probes).allSatisfy(probe ->
-            assertThat(probe.getDescription())
-                .as("Checks %s's description", probe.getClass().getSimpleName())
-                .isNotEqualTo(unexpectedProbe.getDescription())
-        );
+        assertThat(probe.getDescription()).isNotEqualTo(unexpectedProbe.getDescription());
     }
 }
