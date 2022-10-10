@@ -162,6 +162,11 @@ class ProbeEngineTest {
             public String key() {
                 return "bar";
             }
+
+            @Override
+            public String getDescription() {
+                return null;
+            }
         };
         final ProbeEngine probeEngine = new ProbeEngine(List.of(probeOne, probeTwo), pluginService, updateCenterService);
 
