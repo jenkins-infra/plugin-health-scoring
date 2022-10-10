@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
-import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
-public record UpdateCenterPlugin(String name, String scm, ZonedDateTime releaseTimestamp, List<String> labels) {
-    public Plugin toPlugin() {
-        return new Plugin(this.name(), this.scm(), this.releaseTimestamp());
-    }
+public record UpdateCenter(Map<String, Plugin> plugins,
+                           Map<String, Deprecation> deprecations,
+                           List<SecurityWarning> warnings
+) {
 }

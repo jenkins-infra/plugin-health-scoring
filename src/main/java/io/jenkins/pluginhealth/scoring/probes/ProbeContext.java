@@ -31,7 +31,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 /*default*/ class ProbeContext {
     private final UpdateCenter updateCenter;

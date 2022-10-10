@@ -6,6 +6,7 @@ import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
+import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -23,14 +24,14 @@ public class PluginServiceIT extends AbstractDBContainerTest {
 
     @Test
     public void shouldNotDuplicatePluginWhenNameIsTheSame() {
-        Plugin plugin = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
+        Plugin plugin = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
 
         pluginService.saveOrUpdate(plugin);
         assertThat(pluginRepository.findAll())
             .hasSize(1)
             .contains(plugin);
 
-        Plugin copy = new Plugin("myPlugin", "https://github.com/jenkinsci/my-plugin", null);
+        Plugin copy = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
         pluginService.saveOrUpdate(copy);
         assertThat(pluginRepository.findAll())
             .hasSize(1)

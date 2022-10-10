@@ -35,13 +35,17 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
+
 import com.vladmihalcea.hibernate.type.json.JsonType;
+import hudson.util.VersionNumber;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 @Entity
 @Table(name = "plugins")
 @TypeDef(name = "json", typeClass = JsonType.class)
+@TypeDef(name = "version", typeClass = VersionNumberType.class)
 public class Plugin {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,6 +53,10 @@ public class Plugin {
 
     @Column(name = "name", unique = true)
     private String name;
+
+    @Type(type = "version")
+    @Column(name = "version")
+    private VersionNumber version;
 
     @Column(name = "scm")
     private String scm;
@@ -63,14 +71,24 @@ public class Plugin {
     public Plugin() {
     }
 
-    public Plugin(String name, String scm, ZonedDateTime releaseTimestamp) {
+    public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp) {
         this.name = name;
+        this.version = version;
         this.scm = scm;
         this.releaseTimestamp = releaseTimestamp;
     }
 
     public String getName() {
         return name;
+    }
+
+    public VersionNumber getVersion() {
+        return version;
+    }
+
+    public Plugin setVersion(VersionNumber version) {
+        this.version = version;
+        return this;
     }
 
     public String getScm() {

@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

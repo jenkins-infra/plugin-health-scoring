@@ -52,7 +52,8 @@ public class ProbesDescriptionValidationTest {
             new LastCommitDateProbe(),
             new SCMLinkValidationProbe(httpClient, githubConfiguration),
             new UpForAdoptionProbe(),
-            new JenkinsfileProbe()
+            new JenkinsfileProbe(),
+            new KnownSecurityVulnerabilityProbe()
         ).map(probe -> Arguments.of(probe.getClass().getSimpleName(), probe));
     }
 

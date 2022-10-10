@@ -32,13 +32,13 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenter;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenterDeprecation;
-import io.jenkins.pluginhealth.scoring.model.UpdateCenterPlugin;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Deprecation;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 public class DeprecatedPluginProbeTest {
@@ -54,14 +54,15 @@ public class DeprecatedPluginProbeTest {
 
     @Test
     public void shouldBeAbleToDetectNonDeprecatedPlugin() {
-        final Plugin plugin = mock(Plugin.class);
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new UpdateCenterPlugin("foo", "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList())),
-            Map.of("bar", new UpdateCenterDeprecation("find-the-reason-here"))
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList())),
+            Map.of("bar", new Deprecation("find-the-reason-here")),
+            Collections.emptyList()
         ));
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -71,14 +72,15 @@ public class DeprecatedPluginProbeTest {
 
     @Test
     public void shouldBeAbleToDetectDeprecatedPlugin() {
-        final Plugin plugin = mock(Plugin.class);
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new UpdateCenterPlugin("foo", "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList())),
-            Map.of("bar", new UpdateCenterDeprecation("find-the-reason-here"), "foo", new UpdateCenterDeprecation("this-is-the-reason"))
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList())),
+            Map.of("bar", new Deprecation("find-the-reason-here"), "foo", new Deprecation("this-is-the-reason")),
+            Collections.emptyList()
         ));
 
         final ProbeResult result = probe.apply(plugin, ctx);

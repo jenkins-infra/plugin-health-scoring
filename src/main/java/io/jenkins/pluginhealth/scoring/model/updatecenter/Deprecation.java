@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
-public record UpdateCenterDeprecation(String url) {
+public record Deprecation(String url) {
 }
