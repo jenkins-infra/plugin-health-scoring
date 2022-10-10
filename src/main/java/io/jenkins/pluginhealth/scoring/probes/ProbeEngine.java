@@ -85,7 +85,7 @@ public class ProbeEngine {
                                 }
                             } else {
                                 if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("{} requires a release of {} to process it again.", probe.key(), plugin.getName());
+                                    LOGGER.debug("{} requires a release of {} to be processed.", probe.key(), plugin.getName());
                                 }
                             }
                         } catch (Throwable t) {
