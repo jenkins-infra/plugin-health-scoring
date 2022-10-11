@@ -96,7 +96,7 @@ class DocumentationLocationProbeTest {
         Files.createFile(repository.resolve("README.md"));
         final Path build = Files.createFile(repository.resolve("build.gradle"));
         Files.write(build, List.of(
-            "jenkinsPlugins {", "url: ", pluginRepositoryUrl, "}"
+            "jenkinsPlugin {", "url: ", pluginRepositoryUrl, "}"
         ), StandardCharsets.UTF_8);
 
         when(ctx.getScmRepository()).thenReturn(repository);
