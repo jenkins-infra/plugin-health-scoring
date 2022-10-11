@@ -34,6 +34,9 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -81,7 +84,14 @@ public class DocumentationLocationProbe extends Probe {
 
     // TODO how to get the `project.url` in Maven or `jenkinsPlugin.url` in Gradle?
     private String getBuildConfigSCM(Path buildConfig) {
-        return "";
+        try {
+            final MavenXpp3Reader maven = new MavenXpp3Reader();
+            final Model pom = maven.read(Files.newInputStream(buildConfig));
+            return pom.getUrl();
+        } catch (IOException | XmlPullParserException e) {
+            LOGGER.warn("Error parsing Maven pom.xml in {}", buildConfig, e);
+            return "";
+        }
     }
 
     @Override
