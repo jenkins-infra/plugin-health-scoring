@@ -75,7 +75,7 @@ class DocumentationLocationProbeTest {
         Files.createFile(repository.resolve("README.md"));
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
         Files.write(pom, List.of(
-            "<project>","<url>",pluginRepositoryUrl, "</url>", "</project>"
+            "<project>", "<url>", pluginRepositoryUrl, "</url>", "</project>"
         ), StandardCharsets.UTF_8);
 
         when(ctx.getScmRepository()).thenReturn(repository);
@@ -95,7 +95,7 @@ class DocumentationLocationProbeTest {
         final Path repository = Files.createTempDirectory("boo");
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
         Files.write(pom, List.of(
-            "<project>","<url>",pluginRepositoryUrl, "</url>", "</project>"
+            "<project>", "<url>", pluginRepositoryUrl, "</url>", "</project>"
         ), StandardCharsets.UTF_8);
 
         when(ctx.getScmRepository()).thenReturn(repository);
