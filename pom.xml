@@ -21,7 +21,6 @@
   ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
-  ~
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -33,6 +32,10 @@
 	<name>Plugin Health Scoring</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
 	<inceptionYear>2022</inceptionYear>
+	<organization>
+		<name>Jenkins Infra</name>
+		<url>https://github.com/jenkins-infra</url>
+	</organization>
 	<licenses>
 		<license>
 			<name>The MIT license</name>
