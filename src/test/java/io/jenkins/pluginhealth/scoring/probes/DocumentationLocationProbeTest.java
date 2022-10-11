@@ -62,7 +62,6 @@ class DocumentationLocationProbeTest {
         assertThat(probe.getDescription()).isNotBlank();
     }
 
-    // TODO same for gradle
     @Test
     public void shouldValidateCompletedMigrationOnMaven() throws Exception {
         final Plugin plugin = mock(Plugin.class);
@@ -76,6 +75,28 @@ class DocumentationLocationProbeTest {
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
         Files.write(pom, List.of(
             "<project>", "<url>", pluginRepositoryUrl, "</url>", "</project>"
+        ), StandardCharsets.UTF_8);
+
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    public void shouldValidateCompletedMigrationOnGradle() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DocumentationLocationProbe probe = new DocumentationLocationProbe();
+
+        final String pluginRepositoryUrl = "this-is-the-url";
+        when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
+        final Path repository = Files.createTempDirectory("boo");
+        Files.createFile(repository.resolve("README.md"));
+        final Path build = Files.createFile(repository.resolve("build.gradle"));
+        Files.write(build, List.of(
+            "jenkinsPlugins {", "url: ", pluginRepositoryUrl, "}"
         ), StandardCharsets.UTF_8);
 
         when(ctx.getScmRepository()).thenReturn(repository);
