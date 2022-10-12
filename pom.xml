@@ -27,7 +27,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring</artifactId>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.2.0-SNAPSHOT</version>
 
 	<name>Plugin Health Scoring</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
