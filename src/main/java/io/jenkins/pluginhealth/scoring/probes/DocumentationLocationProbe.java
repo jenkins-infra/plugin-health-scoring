@@ -37,6 +37,11 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.GradleTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -82,8 +87,18 @@ public class DocumentationLocationProbe extends Probe {
             Files.isReadable(path) && (Arrays.stream(fileNames).anyMatch(name -> name.equals(path.getFileName().toString()))));
     }
 
-    // TODO how to get the `project.url` in Maven or `jenkinsPlugin.url` in Gradle?
     private String getBuildConfigSCM(Path buildConfig) {
+        if ("pom.xml".equals(buildConfig.getFileName().toString())) {
+            return getURLFromMaven(buildConfig);
+        } else if ("build.gradle".equals(buildConfig.getFileName().toString())) {
+            return getURLFromGradle(buildConfig);
+        } else {
+            LOGGER.warn("Unknown build to for {}", buildConfig.getFileName());
+            return "";
+        }
+    }
+
+    private String getURLFromMaven(Path buildConfig) {
         try {
             final MavenXpp3Reader maven = new MavenXpp3Reader();
             final Model pom = maven.read(Files.newInputStream(buildConfig));
@@ -92,6 +107,17 @@ public class DocumentationLocationProbe extends Probe {
             LOGGER.warn("Error parsing Maven pom.xml in {}", buildConfig, e);
             return "";
         }
+    }
+
+    private String getURLFromGradle(Path buildConfig) {
+        try (ProjectConnection connect = GradleConnector.newConnector()
+            .forProjectDirectory(buildConfig.getParent().toFile()).connect()) {
+            final GradleProject model = connect.model(GradleProject.class).get();
+            // TODO find the extension from gradle-jpi-plugin and parse its URL
+            final DomainObjectSet<? extends GradleTask> tasks = model.getTasks();
+            // JpiExtension.class;
+        }
+        return "";
     }
 
     @Override
