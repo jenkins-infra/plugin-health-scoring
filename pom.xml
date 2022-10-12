@@ -90,7 +90,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<spring-boot.version>2.7.3</spring-boot.version>
-		<testcontainers.version>1.17.4</testcontainers.version>
+		<testcontainers.version>1.17.5</testcontainers.version>
 	</properties>
 
 	<dependencyManagement>
