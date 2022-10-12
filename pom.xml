@@ -224,7 +224,7 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>3.1.2</version>
+					<version>3.2.0</version>
 					<configuration>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
 						<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
@@ -317,7 +317,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>tidy-maven-plugin</artifactId>
-				<version>1.1.0</version>
+				<version>1.2.0</version>
 				<executions>
 					<execution>
 						<id>tidy-pom</id>
