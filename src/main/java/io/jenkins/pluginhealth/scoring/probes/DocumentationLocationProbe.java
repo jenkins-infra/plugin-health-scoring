@@ -88,12 +88,16 @@ public class DocumentationLocationProbe extends Probe {
     }
 
     private String getBuildConfigSCM(Path buildConfig) {
-        if ("pom.xml".equals(buildConfig.getFileName().toString())) {
+        final Path fileName = buildConfig.getFileName();
+        if (fileName == null) {
+            return "";
+        }
+        if ("pom.xml".equals(fileName.toString())) {
             return getURLFromMaven(buildConfig);
-        } else if ("build.gradle".equals(buildConfig.getFileName().toString())) {
+        } else if ("build.gradle".equals(fileName.toString())) {
             return getURLFromGradle(buildConfig);
         } else {
-            LOGGER.warn("Unknown build to for {}", buildConfig.getFileName());
+            LOGGER.warn("Unknown build to for {}", fileName);
             return "";
         }
     }
