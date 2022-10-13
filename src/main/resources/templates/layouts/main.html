@@ -6,8 +6,8 @@
 
     <title data-layout-title-pattern="$LAYOUT_TITLE :: $CONTENT_TITLE">Plugin Health Scoring</title>
 
-    <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
-    <link data-th-href="@{/style/index.css}" rel="stylesheet"/>
+    <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
+    <link data-th-href="@{/style.css}" rel="stylesheet"/>
 
     <script src="http://localhost:35729/livereload.js"
             data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"></script>
@@ -16,15 +16,18 @@
 
 <div id="app">
     <header>
-        <span class="app--title">
-            <a data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
-        </span>
+        <nav class="navbar">
+            <img class="navbar-logo" data-th-src="@{/images/logo.svg}"/>
+            <a class="navbar-brand" data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
+        </nav>
     </header>
-    <main data-layout-fragment="content">
+    <main>
+        <section data-layout-fragment="content"></section>
     </main>
     <footer>
         <span data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"
-              class="app--version" data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
+              class="app--version"
+              data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
     </footer>
 </div>
 
