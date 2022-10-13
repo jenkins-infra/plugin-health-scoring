@@ -7,6 +7,10 @@ target
 ### Application
 .env
 
+### Node
+node/
+node_modules/
+
 ### Yarn
 .pnp.*
 .yarn/*

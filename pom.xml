@@ -22,7 +22,7 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
@@ -88,6 +88,12 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<node.version>18.10.0</node.version>
+		<yarn.version>1.22.19</yarn.version>
+		<yarn.lint.skip>false</yarn.lint.skip>
+		<yarn-berry.version>3.2.4</yarn-berry.version>
+		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
 
 		<spring-boot.version>2.7.3</spring-boot.version>
 		<testcontainers.version>1.17.5</testcontainers.version>
@@ -281,6 +287,67 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.12.1</version>
+				<executions>
+					<execution>
+						<id>install node and yarn</id>
+						<goals>
+							<goal>install-node-and-yarn</goal>
+						</goals>
+						<phase>initialize</phase>
+						<configuration>
+							<nodeVersion>v${node.version}</nodeVersion>
+							<yarnVersion>v${yarn.version}</yarnVersion>
+							<nodeDownloadRoot>https://repo.jenkins-ci.org/nodejs-dist/</nodeDownloadRoot>
+						</configuration>
+					</execution>
+					<execution>
+						<id>yarn install</id>
+						<goals>
+							<goal>yarn</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+					<execution>
+						<id>yarn build</id>
+						<goals>
+							<goal>yarn</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<arguments>build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>download-yarn</id>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>initialize</phase>
+						<configuration>
+							<tasks>
+								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs" />
+								<dirname file="${yarn.dest}" property="yarn.dest.dir" />
+								<mkdir dir="${yarn.dest.dir}" />
+								<get dest="${yarn.dest}" src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js" usetimestamp="true" />
+								<checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}" verifyProperty="yarn.checksum.matches" />
+								<condition property="yarn.checksum.matches.fail">
+									<equals arg1="${yarn.checksum.matches}" arg2="false" />
+								</condition>
+								<fail if="yarn.checksum.matches.fail">Checksum error</fail>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
