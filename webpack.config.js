@@ -52,7 +52,7 @@ module.exports = (env, argv) => ({
     new CopyPlugin({
       patterns: [
         {
-          context: 'src/main/resources/images',
+          context: 'src/main/images',
           from: '**/*',
           to: path.join(__dirname, 'target/classes/static/images'),
         }
