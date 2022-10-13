@@ -12,24 +12,21 @@
     <script src="http://localhost:35729/livereload.js"
             data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"></script>
 </head>
-<body>
+<body id="app">
 
-<div id="app">
-    <header>
-        <nav class="navbar">
-            <img class="navbar-logo" data-th-src="@{/images/logo.svg}"/>
-            <a class="navbar-brand" data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
-        </nav>
-    </header>
-    <main>
-        <section data-layout-fragment="content"></section>
-    </main>
-    <footer>
+<header id="page-header" class="page-header">
+    <div class="page-header__brand">
+        <a href="" id="app-home-link" data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
+    </div>
+</header>
+<main id="page-content">
+    <section data-layout-fragment="content"></section>
+</main>
+<footer class="page-footer">
         <span data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"
               class="app--version"
               data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
-    </footer>
-</div>
+</footer>
 
 </body>
 </html>

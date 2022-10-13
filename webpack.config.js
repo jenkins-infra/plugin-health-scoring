@@ -33,7 +33,7 @@ const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
 module.exports = (env, argv) => ({
   mode: 'development',
   entry: {
-    style: [
+    'style': [
       path.join(__dirname, 'src/main/less/index.less'),
     ],
   },
@@ -76,8 +76,6 @@ module.exports = (env, argv) => ({
             loader: 'css-loader',
             options: {
               sourceMap: true,
-              // ignore the URLS on the base styles as they are picked
-              // from the src/main/webapp/images dir
               url: {
                 filter: (url, resourcePath) => {
                   return !resourcePath.includes('index.less');

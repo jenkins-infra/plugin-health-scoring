@@ -1,103 +1,13 @@
-@import "variables";
+@import './abstracts/colors';
 
-* {
-    box-sizing: border-box;
-}
+@import './base/layout-commons';
+@import './base/typography';
 
-body {
-    padding: 0;
-    margin: 0;
+@import './modules/page-header';
+@import './modules/page-footer';
+@import './modules/table';
 
-    font-family: -apple-system, blinkmacsystemfont, "Segoe UI",
-        roboto, "Noto Sans", oxygen, ubuntu, cantarell, "Fira Sans",
-        "Droid Sans", "Helvetica Neue", arial, sans-serif, "Apple Color Emoji",
-        "Segoe UI Emoji", "Segoe UI Symbol";
-    font-size: .875rem;
-    line-height: 1.5;
-    color: @text-color;
-}
-
-div#app {
-    width: 100vw;
-    height: 100vh;
-
-    display: grid;
-    grid-template-rows: @header-height auto @footer-height;
-    grid-template-areas:
-        "header"
-        "main"
-        "footer";
-}
-
-header {
-    grid-area: header;
-    background-color: @primary;
-    line-height: @header-height;
-
-    nav.navbar {
-        color: @white;
-        font-weight: 700;
-        margin-left: 1rem;
-        font-size: 1.5rem;
-
-        display: flex;
-        align-items: center;
-
-        a.navbar-brand {
-            color: inherit;
-            text-decoration: none;
-            margin-left: 1rem;
-        }
-
-        img.navbar-logo {
-            height: @header-height - 1rem;
-        }
-    }
-}
-
-footer {
-    grid-area: footer;
-    display:flex;
-    flex-direction: row-reverse;
-    flex-wrap: nowrap;
-
-    background-color: @light-grey;
-    line-height: @footer-height;
-
-    span.app--version {
-        color: @medium-grey;
-        margin-right: 1rem;
-        font-size: 0.7rem;
-    }
-}
-
-main {
-    grid-area: main;
-    display: flex;
-    overflow: auto;
-
-    section {
-        padding: .75rem 0;
-        display: flex;
-        align-items: start;
-        justify-content: center;
-    }
-}
-
-div.probes-listing--table {
-    width: 80%;
-    div.probes-listing--header {
-        color: @black;
-        font-weight: 700;
-    }
-    div.probes-listing--header,
-    div.probes-listing--row {
-        display: grid;
-        grid-template-columns: 1fr 3fr 6fr;
-        column-gap: .5rem;
-        padding: .5rem;
-    }
-    div.probes-listing--row:not(.probes-listing--header):nth-child(even) {
-        background-color: @light-grey;
-    }
+html {
+  font-size: 16px !important;
+  letter-spacing: -0.016em;
 }
