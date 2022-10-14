@@ -90,4 +90,4 @@ To submit a pull request:
 . Fill in the pull request description.
 . Click the _Create pull request_ button.
 
-The pull request will be built in https://ci.jenkins.io[ci.jenkins.io].
+The pull request will be built in link:https://ci.jenkins.io[ci.jenkins.io].
