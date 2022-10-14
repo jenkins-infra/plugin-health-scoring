@@ -14,11 +14,11 @@
 </head>
 <body id="app">
 
-<header id="page-header" class="page-header">
-    <div class="page-header__brand">
-        <a href="" id="app-home-link" data-th-href="@{/}" data-th-text="${@buildProperties.name}"></a>
-    </div>
-</header>
+<nav id="page-navbar" class="navbar">
+    <a href="" data-th-href="@{/}" class="page-navbar__item">
+        <ion-icon name="home"></ion-icon>
+    </a>
+</nav>
 <main id="page-content">
     <section data-layout-fragment="content"></section>
 </main>
@@ -27,6 +27,9 @@
               class="app--version"
               data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}"></span>
 </footer>
+
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
 </body>
 </html>

@@ -25,14 +25,15 @@ body {
   height: 100vh;
 
   display: grid;
+  grid-template-columns: 64px auto;
   grid-template-rows: var(--header-height) auto var(--footer-height);
   grid-template-areas:
-        "header"
-        "main"
-        "footer";
+        "nav main"
+        "nav main"
+        "nav footer";
 
-  header {
-    grid-area: header;
+  nav {
+    grid-area: nav;
   }
   main {
     grid-area: main;
