@@ -1,21 +1,21 @@
 = Contributing to Plugin Health Scoring
 
-This page provides information about contributing to Plugin Health Scoring code base.
+This page provides information about contributing to the Plugin Health Scoring code base.
 
 == Getting started
 
 The project is using Maven with Java 17 and Yarn to be built.
 The entire build process can be handled by Maven.
-Yarn build will bundle the front-end files only.
+When building, Yarn will bundle the front-end files only.
 
-. Clone the repository
+. Clone the repository.
 . Install tools
 .. Java 17.
 .. Maven 3.8.6.
 Optionally, you can use the wrapper in the repository.
 In that case, replace the `mvn` command by `./mvnw` in the command listed bellow.
 .. Node 18.10.0 and Yarn 3.2.4
-. Open the project in your favorite IDE
+. Open the project in your favorite IDE.
 
 == Building
 
@@ -86,7 +86,7 @@ To submit a pull request:
 . Create a branch prefixed with `feature/` for a new enhancement, `fix/` for a bugfix.
 . Commit your changes to this new branch.
 . Push the branch to your fork of the repository.
-. In GitHub Web UI, click the _New pull request_ button.
+. In the GitHub Web UI, select the *New pull request* option.
 . Fill in the pull request description.
 . Click the _Create pull request_ button.
 

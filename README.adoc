@@ -1,6 +1,6 @@
 = Plugin Health Scoring system
 
-This project aims to introduce a metric system to calculate the health score of each plugin within the Jenkins ecosystem and reflect the final scores on [the Plugin Site](https://plugins.jenkins.io/) for the plugin maintainers and users.
+This project aims to introduce a metric system to calculate the health score of each plugin within the Jenkins ecosystem, and reflect the final scores on link:https://plugins.jenkins.io/[the Plugin Site] for both maintainers and users.
 
 '''
 
