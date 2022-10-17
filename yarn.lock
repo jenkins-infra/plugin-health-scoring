@@ -148,6 +148,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stencil/core@npm:~2.16.0":
+  version: 2.16.1
+  resolution: "@stencil/core@npm:2.16.1"
+  bin:
+    stencil: bin/stencil
+  checksum: 78618d427bc1b3e9f1a459e1f9880f72a17e4dd48a28f3690a8aba0ec6e82fcaa2785c0c47cc9f53612bb9a7b4c49b00968fdb16d4b59c5c5f7528be4486c21d
+  languageName: node
+  linkType: hard
+
 "@trysound/sax@npm:0.2.0":
   version: 0.2.0
   resolution: "@trysound/sax@npm:0.2.0"
@@ -1444,6 +1453,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ionicons@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "ionicons@npm:6.0.3"
+  dependencies:
+    "@stencil/core": ~2.16.0
+  checksum: 60b4a517134a904f242d44fe0752758d75e8e79827cab49316ae4125510398bf643c238be5015b00fac60353432a36f84af357977a5228b677fea40bbecce362
+  languageName: node
+  linkType: hard
+
 "is-arrayish@npm:^0.2.1":
   version: 0.2.1
   resolution: "is-arrayish@npm:0.2.1"
@@ -2058,6 +2076,7 @@ __metadata:
     copy-webpack-plugin: ^11.0.0
     css-loader: ^6.7.1
     css-minimizer-webpack-plugin: ^4.2.1
+    ionicons: ^6.0.3
     less: ^4.1.3
     less-loader: ^11.1.0
     mini-css-extract-plugin: ^2.6.1

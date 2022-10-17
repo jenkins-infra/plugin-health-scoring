@@ -6,8 +6,10 @@
 
     <title data-layout-title-pattern="$LAYOUT_TITLE :: $CONTENT_TITLE">Plugin Health Scoring</title>
 
-    <link rel="icon" data-th-href="@{/images/logo.svg}" type="image/svg+xml">
+    <link rel="icon" data-th-href="@{/svg/logo.svg}" type="image/svg+xml">
     <link href="" data-th-href="@{/style.css}" rel="stylesheet"/>
+    <script src="" data-th-src="@{/index.js}" type="text/javascript"></script>
+    <script src="" data-th-src="@{/vendors.js}" async type="text/javascript"></script>
 
     <script src="http://localhost:35729/livereload.js"
             data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"></script>
@@ -16,7 +18,7 @@
 
 <nav id="page-navbar" class="navbar">
     <a href="" data-th-href="@{/}" class="page-navbar__item">
-        Home
+        <ion-icon name="home"></ion-icon>
     </a>
 </nav>
 <main id="page-content">

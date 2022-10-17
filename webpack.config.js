@@ -33,6 +33,9 @@ const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
 module.exports = (env, argv) => ({
   mode: 'development',
   entry: {
+    'index': [
+      path.join(__dirname, 'src/main/js/index.js'),
+    ],
     'style': [
       path.join(__dirname, 'src/main/less/index.less'),
     ],
@@ -52,10 +55,10 @@ module.exports = (env, argv) => ({
     new CopyPlugin({
       patterns: [
         {
-          context: 'src/main/images',
+          context: 'src/main/resources/svg',
           from: '**/*',
-          to: path.join(__dirname, 'target/classes/static/images'),
-        }
+          to: path.join(__dirname, 'target/classes/static/svg'),
+        },
       ],
     }),
     new CleanPlugin(),
@@ -107,6 +110,16 @@ module.exports = (env, argv) => ({
     ],
   },
   optimization: {
+    splitChunks: {
+      chunks: "async",
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+        },
+      },
+    },
     minimizer: [
       new CssMinimizerPlugin({
         minimizerOptions: {
