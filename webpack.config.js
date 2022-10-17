@@ -55,7 +55,7 @@ module.exports = (env, argv) => ({
     new CopyPlugin({
       patterns: [
         {
-          context: 'src/main/resources/svg',
+          context: 'src/main/svg',
           from: '**/*',
           to: path.join(__dirname, 'target/classes/static/svg'),
         },
