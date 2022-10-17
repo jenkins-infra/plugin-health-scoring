@@ -95,7 +95,7 @@
 		<yarn-berry.version>3.2.4</yarn-berry.version>
 		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
 
-		<spring-boot.version>2.7.3</spring-boot.version>
+		<spring-boot.version>2.7.4</spring-boot.version>
 		<testcontainers.version>1.17.5</testcontainers.version>
 	</properties>
 
