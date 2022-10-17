@@ -10,8 +10,8 @@ When building, Yarn will bundle the front-end files only.
 
 . Clone the repository.
 . Install tools
-.. Java 17.
-.. Maven 3.8.6.
+.. Java 17
+.. Maven 3.8.6
 Optionally, you can use the wrapper in the repository.
 In that case, replace the `mvn` command by `./mvnw` in the command listed bellow.
 .. Node 18.10.0 and Yarn 3.2.4
@@ -64,7 +64,7 @@ mvn package -Dmaven.test.skip
 docker compose up
 ----
 
-NOTE: the environment variable required must be set in a file named `.env`.
+NOTE: the required environment variables must be set in your local environment or in a file named `.env`.
 
 == Testing change
 
