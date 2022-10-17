@@ -33,7 +33,7 @@ const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
 module.exports = (env, argv) => ({
   mode: 'development',
   entry: {
-    'index': [
+    'js/index': [
       path.join(__dirname, 'src/main/js/index.js'),
     ],
     'style': [
@@ -115,7 +115,7 @@ module.exports = (env, argv) => ({
       cacheGroups: {
         commons: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
+          name: "js/vendors",
           chunks: "all",
         },
       },
