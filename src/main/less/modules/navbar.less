@@ -1,6 +1,5 @@
 nav#page-navbar {
-  background-color: var(--header-bg-classic);
-
+  background-color: var(--nav-bg-color);
   display: flex;
   flex-direction: column;
 
@@ -22,8 +21,12 @@ nav#page-navbar {
     transition: .2s ease;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 5);
-      color: var(--black);
+      background-color: var(--nav-item-selected-bg-color);
     }
+  }
+
+  .page-navbar__item-selected {
+    opacity: 1;
+    background-color: var(--nav-item-selected-bg-color);
   }
 }
