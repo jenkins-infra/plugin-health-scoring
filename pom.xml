@@ -89,7 +89,7 @@
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<spring-boot.version>2.7.3</spring-boot.version>
+		<spring-boot.version>2.7.4</spring-boot.version>
 		<testcontainers.version>1.17.5</testcontainers.version>
 	</properties>
 
