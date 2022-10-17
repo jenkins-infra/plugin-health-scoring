@@ -29,10 +29,7 @@ pipeline {
             allowEmptyResults: false,
             testResults: '**/target/failsafe-reports/*.xml'
           )
-          publishCoverage adapters: [
-            jacocoAdapter(mergeToOneReport: true, path: '**/target/site/jacoco/jacoco.xml'),
-            jacocoAdapter(mergeToOneReport: true, path: '**/target/site/jacoco-it/jacoco.xml')
-          ]
+          publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
           recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true, tool: checkStyle()
           recordIssues enabledForFailure: true, tool: spotBugs()
