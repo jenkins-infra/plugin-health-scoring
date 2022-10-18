@@ -1,0 +1,107 @@
+.table {
+  --table-padding: 0.55rem;
+
+  width: 100%;
+  background-color: var(--table-background);
+  border-radius: calc(var(--table-border-radius) + 2px);
+  border: 5px solid var(--table-background);
+  border-bottom-width: 3px;
+  border-spacing: 0 2px;
+  margin-bottom: var(--section-padding);
+
+  * {
+    -webkit-border-horizontal-spacing: 0;
+    -webkit-border-vertical-spacing: 0;
+  }
+
+  & > thead {
+    & > tr {
+      & > th {
+        color: var(--table-header-foreground);
+        text-align: left;
+        padding-top: calc((var(--table-padding) * 1.7) - 7.5px);
+        padding-bottom: calc((var(--table-padding) * 1.7) - 2.5px);
+        padding-left: var(--table-padding);
+        font-weight: 600;
+        font-size: 0.85rem;
+
+        &[align="center"] {
+          text-align: center;
+        }
+
+        &[align="right"] {
+          text-align: right;
+        }
+
+        &:first-of-type {
+          padding-left: calc(var(--table-padding) * 2);
+        }
+
+        &:last-of-type {
+          padding-right: var(--table-padding);
+        }
+
+        a {
+          color: var(--table-header-foreground);
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  & > tbody {
+    & > tr {
+      background: var(--table-body-background);
+      color: var(--table-body-foreground);
+
+      & > td {
+        vertical-align: middle;
+        padding: var(--table-padding) 0 var(--table-padding)
+        var(--table-padding);
+        font-weight: 500;
+        height: 50px;
+
+        &:first-of-type {
+          padding-left: calc(var(--table-padding) * 2);
+        }
+
+        &:last-of-type {
+          padding-right: var(--table-padding);
+        }
+      }
+
+      // Style the rows so that the first and last have a larger border radius
+      & > td:first-of-type {
+        border-top-left-radius: var(--table-row-border-radius);
+        border-bottom-left-radius: var(--table-row-border-radius);
+      }
+
+      & > td:last-of-type {
+        border-top-right-radius: var(--table-row-border-radius);
+        border-bottom-right-radius: var(--table-row-border-radius);
+      }
+
+      // First row
+      &:first-of-type {
+        & > td:first-of-type {
+          border-top-left-radius: var(--table-border-radius);
+        }
+
+        & > td:last-of-type {
+          border-top-right-radius: var(--table-border-radius);
+        }
+      }
+
+      // Last row
+      &:last-of-type {
+        & > td:first-of-type {
+          border-bottom-left-radius: var(--table-border-radius);
+        }
+
+        & > td:last-of-type {
+          border-bottom-right-radius: var(--table-border-radius);
+        }
+      }
+    }
+  }
+}
