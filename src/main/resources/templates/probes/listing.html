@@ -5,20 +5,26 @@
 </head>
 <body>
 
-<main data-layout-fragment="content">
-    <div class="probes-listing--table">
-        <div class="probes-listing--header">
-            <span>ID</span>
-            <span>Name</span>
-            <span>Description</span>
-        </div>
-        <div data-th-each="probe : ${probes}" class="probes-listing--row">
-            <span class="probes-listing--cell"><code data-th-text="${probe.id}"></code></span>
-            <span class="probes-listing--cell" data-th-text="${probe.name}"></span>
-            <span class="probes-listing--cell" data-th-text="${probe.description}"></span>
-        </div>
-    </div>
-</main>
+<section data-layout-fragment="content">
+    <h1>Probes</h1>
+    <p>This is the list of probes currently implemented.</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="probe: ${probes}">
+            <td><code data-th-text="${probe.id}"></code></td>
+            <td data-th-text="${probe.name}"></td>
+            <td data-th-text="${probe.description}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
 
 </body>
 </html>

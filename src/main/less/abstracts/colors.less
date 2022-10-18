@@ -1,0 +1,23 @@
+@import './theme';
+
+each(@colors, {
+  .health-\!-color-light-@{key} {
+    --color: ~"var(--light-@{key})";
+    color: ~"var(--light-@{key})" !important;
+  }
+  .health-\!-color-@{key} {
+    --color: ~"var(--@{key})";
+    color: ~"var(--@{key})" !important;
+  }
+  .health-\!-color-dark-@{key} {
+    --color: ~"var(--dark-@{key})";
+    color: ~"var(--dark-@{key})" !important;
+  }
+});
+
+each(@semantics, {
+  .health-\!-@{key}-color {
+    --color: @value;
+    color: @value !important;
+  }
+});
