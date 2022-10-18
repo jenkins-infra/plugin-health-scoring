@@ -60,12 +60,11 @@ class ContinuousDeploymentProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
 
-        when(plugin.getName()).thenReturn("foo");
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
 
         final ProbeResult result = probe.apply(plugin, ctx);
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("Could not find GHA workflows definitions directory");
+        assertThat(result.message()).isEqualTo("Plugin has no GitHub Action configured");
     }
 
     @Test
