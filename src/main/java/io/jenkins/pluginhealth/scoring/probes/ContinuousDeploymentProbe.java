@@ -47,13 +47,16 @@ public class ContinuousDeploymentProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repo = context.getScmRepository();
         final Path githubWorkflow = repo.resolve(".github/workflows");
+        if (Files.notExists(githubWorkflow)) {
+            return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
+        }
         try (Stream<Path> files = Files.find(githubWorkflow, 1, (path, basicFileAttributes) -> Files.isRegularFile(path) && "cd.yml".equals(path.getFileName().toString()))) {
             return files.findFirst().isPresent() ?
                 ProbeResult.success(key(), "JEP-229 workflow definition found") :
                 ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
         } catch (IOException ex) {
             LOGGER.warn("Could not walk {} Git clone in {}", plugin.getName(), repo, ex);
-            return ProbeResult.failure(key(), "Could not find GHA workflows definitions directory");
+            return ProbeResult.error(key(), "Could not work plugin repository");
         }
     }
 
