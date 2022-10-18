@@ -334,13 +334,16 @@
 						<phase>initialize</phase>
 						<configuration>
 							<tasks>
-								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs" />
-								<dirname file="${yarn.dest}" property="yarn.dest.dir" />
-								<mkdir dir="${yarn.dest.dir}" />
-								<get dest="${yarn.dest}" src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js" usetimestamp="true" />
-								<checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}" verifyProperty="yarn.checksum.matches" />
+								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs"/>
+								<dirname file="${yarn.dest}" property="yarn.dest.dir"/>
+								<mkdir dir="${yarn.dest.dir}"/>
+								<get dest="${yarn.dest}"
+										 src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js"
+										 usetimestamp="true"/>
+								<checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}"
+													verifyProperty="yarn.checksum.matches"/>
 								<condition property="yarn.checksum.matches.fail">
-									<equals arg1="${yarn.checksum.matches}" arg2="false" />
+									<equals arg1="${yarn.checksum.matches}" arg2="false"/>
 								</condition>
 								<fail if="yarn.checksum.matches.fail">Checksum error</fail>
 							</tasks>
