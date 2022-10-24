@@ -12,7 +12,7 @@ jobs:
   update_release_draft:
     runs-on: ubuntu-22.04
     steps:
-      - uses: release-drafter/release-drafter@v5.21.0
+      - uses: release-drafter/release-drafter@v5.21.1
         env:
           # This token is generated automatically by default in GitHub Actions: no need to create it manually
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
