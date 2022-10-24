@@ -49,7 +49,7 @@ class ContinuousDeploymentProbeTest {
     }
 
     @Test
-    public void shouldKeepUsingJEP229Key() throws Exception {
+    public void shouldKeepUsingJEP229Key() {
         final ContinuousDeploymentProbe probe = spy(ContinuousDeploymentProbe.class);
         assertThat(probe.key()).isEqualTo("jep-229");
     }
@@ -91,6 +91,22 @@ class ContinuousDeploymentProbeTest {
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         Files.createFile(workflows.resolve("cd.yml"));
+        when(ctx.getScmRepository()).thenReturn(repo);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(result.message()).isEqualTo("JEP-229 workflow definition found");
+    }
+
+    @Test
+    public void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+
+        final Path repo = Files.createTempDirectory("foo");
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        Files.createFile(workflows.resolve("cd.yaml"));
         when(ctx.getScmRepository()).thenReturn(repo);
 
         final ProbeResult result = probe.apply(plugin, ctx);

@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -50,7 +51,9 @@ public class ContinuousDeploymentProbe extends Probe {
         if (Files.notExists(githubWorkflow)) {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
-        try (Stream<Path> files = Files.find(githubWorkflow, 1, (path, basicFileAttributes) -> Files.isRegularFile(path) && "cd.yml".equals(path.getFileName().toString()))) {
+        try (Stream<Path> files = Files.find(githubWorkflow, 1,
+            (path, basicFileAttributes) -> Files.isRegularFile(path) && List.of("cd.yml", "cd.yaml").contains(path.getFileName().toString())
+        )) {
             return files.findFirst().isPresent() ?
                 ProbeResult.success(key(), "JEP-229 workflow definition found") :
                 ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
