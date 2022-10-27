@@ -1,6 +1,6 @@
 footer {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   flex-wrap: nowrap;
 
   background-color: var(--footer-bg);
@@ -8,10 +8,11 @@ footer {
   color: var(--footer-text-color);
   font-size: var(--font-size-xs);
 
-  .app--version {
-    margin-right: 1rem;
+  padding: 0 1rem;
 
+  .app--version {
     display:flex;
     align-items: center;
+    cursor: default;
   }
 }
