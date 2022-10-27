@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.schedule;
 import java.io.IOException;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
-import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
@@ -38,13 +37,10 @@ import org.springframework.stereotype.Component;
 public class UpdateCenterScheduler {
     private final UpdateCenterService updateCenterService;
     private final PluginService pluginService;
-    private final ProbeEngine probeEngine;
 
-    public UpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService,
-                                 ProbeEngine probeEngine) {
+    public UpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService) {
         this.updateCenterService = updateCenterService;
         this.pluginService = pluginService;
-        this.probeEngine = probeEngine;
     }
 
     @Scheduled(cron = "${cron.update-center}", zone = "UTC")
@@ -53,6 +49,5 @@ public class UpdateCenterScheduler {
             .plugins().values().stream()
             .map(Plugin::toPlugin)
             .forEach(pluginService::saveOrUpdate);
-        probeEngine.run();
     }
 }
