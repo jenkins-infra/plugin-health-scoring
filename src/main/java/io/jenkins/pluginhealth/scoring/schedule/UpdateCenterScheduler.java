@@ -30,11 +30,14 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UpdateCenterScheduler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCenterScheduler.class);
     private final UpdateCenterService updateCenterService;
     private final PluginService pluginService;
 
@@ -45,9 +48,13 @@ public class UpdateCenterScheduler {
 
     @Scheduled(cron = "${cron.update-center}", zone = "UTC")
     public void updateDatabase() throws IOException {
+        LOGGER.info("Updating plugins from update-center");
         updateCenterService.fetchUpdateCenter()
             .plugins().values().stream()
             .map(Plugin::toPlugin)
             .forEach(pluginService::saveOrUpdate);
+        if(LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Plugins updated from update-center");
+        }
     }
 }
