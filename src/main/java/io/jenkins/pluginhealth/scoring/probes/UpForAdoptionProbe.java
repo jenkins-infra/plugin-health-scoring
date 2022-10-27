@@ -28,6 +28,8 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -37,15 +39,20 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = UpForAdoptionProbe.ORDER)
 public class UpForAdoptionProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpForAdoptionProbe.class);
     public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
-        if (updateCenter.plugins().get(plugin.getName()).labels().contains("adopt-this-plugin")) {
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
+        if (pl == null) {
+            LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
+            return ProbeResult.failure(key(), "Plugin is not in the update-center");
+        }
+        if (pl.labels().contains("adopt-this-plugin")) {
             return ProbeResult.failure(key(), "This plugin is up for adoption");
         }
-
         return ProbeResult.success(key(), "This plugin is NOT up for adoption");
     }
 
