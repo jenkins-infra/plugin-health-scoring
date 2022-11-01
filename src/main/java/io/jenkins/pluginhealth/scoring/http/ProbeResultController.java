@@ -1,6 +1,5 @@
 package io.jenkins.pluginhealth.scoring.http;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +33,6 @@ public class ProbeResultController {
         return modelAndView;
     }
 
-    @Transactional
     public Map<String, Integer> getProbeResultsData() {
         Map<String, Integer> probeResultsMap = new HashMap<>();
 
