@@ -56,4 +56,9 @@ public class PluginService {
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
     }
+
+    @Transactional
+    public int getPluginsCount() {
+        return pluginRepository.findAll().size();
+    }
 }
