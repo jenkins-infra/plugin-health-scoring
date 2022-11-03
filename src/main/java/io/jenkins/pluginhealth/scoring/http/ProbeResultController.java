@@ -1,7 +1,7 @@
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -34,18 +34,16 @@ public class ProbeResultController {
     }
 
     public Map<String, Integer> getProbeResultsData() {
-        Map<String, Integer> probeResultsMap = new HashMap<>();
+        Map<String, Integer> probeResultsMap;
 
-        pluginService.streamAll().forEach(
-            plugin -> {
-                plugin.getDetails().values().forEach(probeResult -> {
-                    if (probeResult.status() == ResultStatus.SUCCESS) {
-                        probeResultsMap.put(probeResult.id(), probeResultsMap
-                            .containsKey(probeResult.id()) ? probeResultsMap
-                            .get(probeResult.id()) + 1 : 1);
-                    }
-                });
-            });
+        probeResultsMap = pluginService.streamAll()
+            .map(plugin ->
+                plugin.getDetails().values().stream().filter(probeResult -> probeResult.status() == ResultStatus.SUCCESS)
+                .collect(Collectors.toMap(probeResult -> probeResult.id(), probeResult -> 1)))
+            .flatMap(m -> m.entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (currentProbeData, latestProbeData) -> currentProbeData + 1));
+
+        probeResultsMap.put("size", (int) pluginService.streamAll().count());
 
         return probeResultsMap;
     }
