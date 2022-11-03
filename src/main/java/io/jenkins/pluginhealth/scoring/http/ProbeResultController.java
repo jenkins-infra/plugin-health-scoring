@@ -20,7 +20,7 @@ public class ProbeResultController {
     private final PluginService pluginService;
 
     public ProbeResultController(List<Probe> probes, PluginService pluginService) {
-        this.probes = probes;
+        this.probes = List.of(probes);
         this.pluginService = pluginService;
     }
 
