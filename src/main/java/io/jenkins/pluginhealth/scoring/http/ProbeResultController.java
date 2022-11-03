@@ -44,7 +44,7 @@ public class ProbeResultController {
     private final PluginService pluginService;
 
     public ProbeResultController(List<Probe> probes, PluginService pluginService) {
-        this.probes = List.of(probes);
+        this.probes = List.copyOf(probes);
         this.pluginService = pluginService;
     }
 
