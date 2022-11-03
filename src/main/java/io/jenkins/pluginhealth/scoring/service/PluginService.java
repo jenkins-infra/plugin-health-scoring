@@ -61,4 +61,28 @@ public class PluginService {
     public int getPluginsCount() {
         return pluginRepository.findAll().size();
     }
+
+    @Transactional
+    public int getProbeRawData(String probeID) {
+        switch (probeID) {
+            case "scm":
+                return pluginRepository.getProbeRawData("scm", "SUCCESS");
+            case "last-commit-date":
+                return pluginRepository.getProbeRawData("last-commit-date", "SUCCESS");
+            case "up-for-adoption":
+                return pluginRepository.getProbeRawData("up-for-adoption", "FAILURE");
+            case "security":
+                return pluginRepository.getProbeRawData("security", "FAILURE");
+            case "deprecation":
+                return pluginRepository.getProbeRawData("deprecation", "FAILURE");
+            case "dependabot":
+                return pluginRepository.getProbeRawData("dependabot", "SUCCESS");
+            case "jep-229":
+                return pluginRepository.getProbeRawData("jep-229", "SUCCESS");
+            case "jenkinsfile":
+                return pluginRepository.getProbeRawData("jenkinsfile", "SUCCESS");
+            default:
+                return 0;
+        }
+    }
 }

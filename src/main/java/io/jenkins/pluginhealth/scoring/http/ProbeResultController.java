@@ -1,9 +1,10 @@
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 
 import org.springframework.stereotype.Controller;
@@ -15,9 +16,11 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/results")
 public class ProbeResultController {
 
+    private final List<Probe> probes;
     private final PluginService pluginService;
 
-    public ProbeResultController(PluginService pluginService) {
+    public ProbeResultController(List<Probe> probes, PluginService pluginService) {
+        this.probes = probes;
         this.pluginService = pluginService;
     }
 
@@ -34,17 +37,7 @@ public class ProbeResultController {
     }
 
     public Map<String, Integer> getProbeResultsData() {
-        Map<String, Integer> probeResultsMap;
-
-        probeResultsMap = pluginService.streamAll()
-            .map(plugin ->
-                plugin.getDetails().values().stream().filter(probeResult -> probeResult.status() == ResultStatus.SUCCESS)
-                .collect(Collectors.toMap(probeResult -> probeResult.id(), probeResult -> 1)))
-            .flatMap(m -> m.entrySet().stream())
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (currentProbeData, latestProbeData) -> currentProbeData + 1));
-
-        probeResultsMap.put("size", (int) pluginService.streamAll().count());
-
-        return probeResultsMap;
+        return probes.stream()
+            .collect(Collectors.toMap(probe -> probe.key(), probe -> pluginService.getProbeRawData(probe.key())));
     }
 }
