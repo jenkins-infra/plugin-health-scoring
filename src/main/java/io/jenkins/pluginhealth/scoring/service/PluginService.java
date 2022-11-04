@@ -63,7 +63,7 @@ public class PluginService {
     }
 
     @Transactional
-    public int getProbeRawData(String probeID) {
+    public long getProbeRawData(String probeID) {
         switch (probeID) {
             case "up-for-adoption":
             case "security":
