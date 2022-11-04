@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class ProbesController {
     private final PluginService pluginService;
 
     public ProbesController(List<Probe> probes, PluginService pluginService) {
-        this.probes = new ArrayList<>(probes);
+        this.probes = List.copyOf(probes);
         this.pluginService = pluginService;
     }
 
@@ -80,10 +79,12 @@ public class ProbesController {
     }
 
     public Map<String, Long> getProbeResultsData() {
-        probes.removeIf(probe -> probe.key() == "last-commit-date");
-
-        return probes.stream()
+        Map<String, Long> probeResultsMap = probes.stream()
             .collect(Collectors.toMap(Probe::key, probe -> pluginService.getProbeRawData(probe.key())));
+
+        probeResultsMap.remove("last-commit-date");
+
+        return probeResultsMap;
     }
 
     record ProbeDetails(String name, String id, String description) {
