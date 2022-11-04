@@ -63,7 +63,7 @@ public class ProbeResultController {
         return modelAndView;
     }
 
-    public Map<String, Integer> getProbeResultsData() {
+    public Map<String, Long> getProbeResultsData() {
         return probes.stream()
             .collect(Collectors.toMap(Probe::key, probe -> pluginService.getProbeRawData(probe.key())));
     }
