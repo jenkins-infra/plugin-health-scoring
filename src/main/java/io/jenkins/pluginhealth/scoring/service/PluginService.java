@@ -58,8 +58,8 @@ public class PluginService {
     }
 
     @Transactional
-    public int getPluginsCount() {
-        return pluginRepository.findAll().size();
+    public long getPluginsCount() {
+        return pluginRepository.count();
     }
 
     @Transactional
