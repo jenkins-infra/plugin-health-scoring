@@ -26,9 +26,11 @@ package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.probes.Probe;
+import io.jenkins.pluginhealth.scoring.service.PluginService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,9 +41,11 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/probes")
 public class ProbesController {
     private final List<Probe> probes;
+    private final PluginService pluginService;
 
-    public ProbesController(List<Probe> probes) {
+    public ProbesController(List<Probe> probes, PluginService pluginService) {
         this.probes = List.copyOf(probes);
+        this.pluginService = pluginService;
     }
 
     @GetMapping(path = "")
@@ -57,6 +61,26 @@ public class ProbesController {
         );
 
         return modelAndView;
+    }
+
+    @GetMapping(path = "/results")
+    public ModelAndView listProbeResults() {
+        final ModelAndView modelAndView = new ModelAndView("probes/results");
+
+        modelAndView.addObject(
+            "probeResults",
+            getProbeResultsData()
+        ).addObject(
+            "pluginsCount",
+            pluginService.getPluginsCount()
+        );
+
+        return modelAndView;
+    }
+
+    public Map<String, Long> getProbeResultsData() {
+        return probes.stream()
+            .collect(Collectors.toMap(Probe::key, probe -> pluginService.getProbeRawData(probe.key())));
     }
 
     record ProbeDetails(String name, String id, String description) {
