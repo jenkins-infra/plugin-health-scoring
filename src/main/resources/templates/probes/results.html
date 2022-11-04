@@ -18,7 +18,7 @@
         <tbody>
         <tr data-th-each="probeResult: ${probeResults}">
             <td><code data-th-text="${probeResult.key}"></code></td>
-            <td data-th-text="${probeResult.value} + ' / ' + ${@pluginService.getPluginsCount()}"></td>
+            <td data-th-text="${probeResult.value} + ' / ' + ${pluginsCount}"></td>
         </tr>
         </tbody>
     </table>

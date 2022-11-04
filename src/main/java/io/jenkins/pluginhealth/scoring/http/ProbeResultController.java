@@ -55,6 +55,9 @@ public class ProbeResultController {
         modelAndView.addObject(
             "probeResults",
             getProbeResultsData()
+        ).addObject(
+            "pluginsCount",
+            pluginService.getPluginsCount()
         );
 
         return modelAndView;
