@@ -65,18 +65,12 @@ public class PluginService {
     @Transactional
     public int getProbeRawData(String probeID) {
         switch (probeID) {
-            case "scm":
-            case "last-commit-date":
-            case "dependabot":
-            case "jep-229":
-            case "jenkinsfile":
-                return pluginRepository.getProbeRawData(probeID, "SUCCESS");
             case "up-for-adoption":
             case "security":
             case "deprecation":
                 return pluginRepository.getProbeRawData(probeID, "FAILURE");
             default:
-                return 0;
+                return pluginRepository.getProbeRawData(probeID, "SUCCESS");
         }
     }
 }
