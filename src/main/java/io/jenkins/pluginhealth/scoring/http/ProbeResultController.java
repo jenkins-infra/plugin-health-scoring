@@ -65,6 +65,6 @@ public class ProbeResultController {
 
     public Map<String, Integer> getProbeResultsData() {
         return probes.stream()
-            .collect(Collectors.toMap(probe -> probe.key(), probe -> pluginService.getProbeRawData(probe.key())));
+            .collect(Collectors.toMap(Probe::key, probe -> pluginService.getProbeRawData(probe.key())));
     }
 }
