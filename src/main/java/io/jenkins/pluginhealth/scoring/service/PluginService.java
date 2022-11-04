@@ -64,13 +64,11 @@ public class PluginService {
 
     @Transactional
     public long getProbeRawData(String probeID) {
-        switch (probeID) {
-            case "up-for-adoption":
-            case "security":
-            case "deprecation":
-                return pluginRepository.getProbeRawData(probeID, "FAILURE");
-            default:
-                return pluginRepository.getProbeRawData(probeID, "SUCCESS");
-        }
+        return switch (probeID) {
+            case "up-for-adoption", "security", "deprecation" ->
+                pluginRepository.getProbeRawData(probeID, "FAILURE");
+            default ->
+                pluginRepository.getProbeRawData(probeID, "SUCCESS");
+        };
     }
 }
