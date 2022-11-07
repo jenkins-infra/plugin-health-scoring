@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 public class UpForAdoptionProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpForAdoptionProbe.class);
     public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final String KEY = "up-for-adoption";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -58,7 +59,7 @@ public class UpForAdoptionProbe extends Probe {
 
     @Override
     public String key() {
-        return "up-for-adoption";
+        return KEY;
     }
 
     @Override
