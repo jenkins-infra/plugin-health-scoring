@@ -25,10 +25,8 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
-import java.time.Period;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
