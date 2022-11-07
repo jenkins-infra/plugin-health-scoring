@@ -26,11 +26,11 @@ package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.ProbeService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,10 +42,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class ProbesController {
     private final List<Probe> probes;
     private final PluginService pluginService;
+    private final ProbeService probeService;
 
-    public ProbesController(List<Probe> probes, PluginService pluginService) {
+    public ProbesController(List<Probe> probes, PluginService pluginService, ProbeService probeService) {
         this.probes = List.copyOf(probes);
         this.pluginService = pluginService;
+        this.probeService = probeService;
     }
 
     @GetMapping(path = "")
@@ -69,22 +71,13 @@ public class ProbesController {
 
         modelAndView.addObject(
             "probeResults",
-            getProbeResultsData()
+            probeService.getProbesFinalResults()
         ).addObject(
             "pluginsCount",
             pluginService.getPluginsCount()
         );
 
         return modelAndView;
-    }
-
-    public Map<String, Long> getProbeResultsData() {
-        Map<String, Long> probeResultsMap = probes.stream()
-            .collect(Collectors.toMap(Probe::key, probe -> pluginService.getProbeRawData(probe.key())));
-
-        probeResultsMap.remove("last-commit-date");
-
-        return probeResultsMap;
     }
 
     record ProbeDetails(String name, String id, String description) {

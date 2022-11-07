@@ -61,14 +61,4 @@ public class PluginService {
     public long getPluginsCount() {
         return pluginRepository.count();
     }
-
-    @Transactional
-    public long getProbeRawData(String probeID) {
-        return switch (probeID) {
-            case "up-for-adoption", "security", "deprecation" ->
-                pluginRepository.getProbeRawData(probeID, "FAILURE");
-            default ->
-                pluginRepository.getProbeRawData(probeID, "SUCCESS");
-        };
-    }
 }
