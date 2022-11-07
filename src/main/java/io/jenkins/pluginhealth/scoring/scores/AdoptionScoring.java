@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AdoptionScoring extends Scoring {
-    private final static float COEFFICIENT = 0.5f;
+    private final static float COEFFICIENT = 0.8f;
     private final static String KEY = "adoption";
 
     @Override

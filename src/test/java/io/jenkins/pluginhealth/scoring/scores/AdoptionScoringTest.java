@@ -56,7 +56,7 @@ public class AdoptionScoringTest {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
-        assertThat(result.coefficient()).isEqualTo(.5f);
+        assertThat(result.coefficient()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
     }
 
