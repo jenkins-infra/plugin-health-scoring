@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Score</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Score</h1>
+    <h2 data-th-text="'Plugin: ' + ${score.getPlugin().getName()}"></h2>
+    <div class="card score" data-th-text="${score.value}"></div>
+
+    <h3>Details</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Coefficient</th>
+            <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="detail: ${score.details}">
+            <td><code data-th-text="${detail.key}"></code></td>
+            <td data-th-text="${detail.coefficient}"></td>
+            <td data-th-text="${detail.value}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>

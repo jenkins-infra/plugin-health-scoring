@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.transaction.Transactional;
 
@@ -55,5 +56,9 @@ public class PluginService {
     @Transactional
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
+    }
+
+    public Optional<Plugin> findByName(String pluginName) {
+        return pluginRepository.findByName(pluginName);
     }
 }

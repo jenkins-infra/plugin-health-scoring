@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
@@ -32,12 +34,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class ScoreService {
     private final ScoreRepository repository;
+    private final PluginService pluginService;
 
-    public ScoreService(ScoreRepository repository) {
+    public ScoreService(ScoreRepository repository, PluginService pluginService) {
         this.repository = repository;
+        this.pluginService = pluginService;
     }
 
     public Score save(Score score) {
         return repository.save(score);
+    }
+
+    public Optional<Score> latestScoreFor(String pluginName) {
+        return pluginService.findByName(pluginName)
+            .flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
     }
 }

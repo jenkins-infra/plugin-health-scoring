@@ -22,17 +22,31 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.repository;
+package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.Optional;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.Score;
+import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-@Repository
-public interface ScoreRepository extends JpaRepository<Score, Long> {
-    Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
+@Controller
+@RequestMapping(path = "/scores")
+public class ScoreController {
+    private final ScoreService scoreService;
+
+    public ScoreController(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
+
+    @GetMapping(path = "/{pluginName}")
+    public ModelAndView forPlugin(@PathVariable String pluginName) {
+        return scoreService.latestScoreFor(pluginName)
+            .map(score -> new ModelAndView("scores/details", Map.of("score", score)))
+            .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName)));
+    }
 }
