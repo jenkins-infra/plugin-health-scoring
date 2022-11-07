@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 @Order(DependabotProbe.ORDER)
 public class DependabotProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final String KEY = "dependabot";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -57,7 +58,7 @@ public class DependabotProbe extends Probe {
 
     @Override
     public String key() {
-        return "dependabot";
+        return KEY;
     }
 
     @Override
