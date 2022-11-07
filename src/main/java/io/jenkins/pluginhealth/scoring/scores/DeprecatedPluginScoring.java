@@ -22,40 +22,27 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.scores;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * This probe detects if a specified plugin is deprecated from the update-center.
- */
 @Component
-@Order(DeprecatedPluginProbe.ORDER)
-public class DeprecatedPluginProbe extends Probe {
-    public static final int ORDER = 1;
-    public static final String KEY = "deprecation";
+public class DeprecatedPluginScoring extends Scoring {
+    private final static float COEFFICIENT = .8f;
+    private final static String KEY = "deprecation";
 
     @Override
-    public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
-        final UpdateCenter updateCenter = ctx.getUpdateCenter();
-        if (updateCenter.deprecations().containsKey(plugin.getName())) {
-            return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
+    protected ScoreResult doApply(Plugin plugin) {
+        final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
+        if (deprecatedPluginProbeResult != null && deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE)) {
+            return new ScoreResult(KEY, 0, COEFFICIENT);
         }
-        return ProbeResult.success(key(), "This plugin is NOT deprecated");
-    }
-
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "This probe detects if a specified plugin is deprecated from the update-center.";
+        return new ScoreResult(KEY, 1, COEFFICIENT);
     }
 }
