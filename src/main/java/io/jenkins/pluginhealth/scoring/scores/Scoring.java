@@ -22,22 +22,15 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.scores;
 
-import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
-import org.springframework.stereotype.Service;
-
-@Service
-public class ScoreService {
-    private final ScoreRepository repository;
-
-    public ScoreService(ScoreRepository repository) {
-        this.repository = repository;
+public abstract class Scoring {
+    public final ScoreResult apply(Plugin plugin) {
+        return doApply(plugin);
     }
 
-    public Score save(Score score) {
-        return repository.save(score);
-    }
+    protected abstract ScoreResult doApply(Plugin plugin);
 }
