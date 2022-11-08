@@ -35,7 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,7 +49,7 @@ class DeprecatedPluginScoringTest {
         final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS)
+            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.SUCCESS)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -79,7 +79,7 @@ class DeprecatedPluginScoringTest {
         final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.FAILURE)
+            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.FAILURE)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
