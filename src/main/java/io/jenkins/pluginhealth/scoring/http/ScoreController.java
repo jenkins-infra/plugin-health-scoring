@@ -24,9 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Score;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
@@ -53,15 +56,30 @@ public class ScoreController {
     }
 
     @GetMapping(path = "/{pluginName}")
-    public ModelAndView forPlugin(@PathVariable String pluginName) {
+    public ModelAndView getScoreOf(@PathVariable String pluginName) {
         return scoreService.latestScoreFor(pluginName)
-            .map(score -> new ModelAndView("scores/details", Map.of("score", score)))
+            .map(score -> {
+                final List<ScoreView> details = score.getDetails().stream()
+                    .map(ScoreView::fromScoreResult)
+                    .map(view -> view.withDescription(scoringsMap.get(view.key()).description()))
+                    .toList();
+                return new ModelAndView("scores/details", Map.of("score", score, "details", details));
+            })
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName)));
     }
 
     record ScoringView(String key, String name, float coefficient, String description) {
         public static ScoringView fromScoring(Scoring scoring) {
             return new ScoringView(scoring.key(), scoring.name(), scoring.coefficient(), scoring.description());
+        }
+    }
+
+    record ScoreView(String key, float value, float coefficient, String description) {
+        public ScoreView withDescription(String description) {
+            return new ScoreView(this.key, this.value, this.coefficient, description);
+        }
+        public static ScoreView fromScoreResult(ScoreResult scoreResult) {
+            return new ScoreView(scoreResult.key(), scoreResult.value(), scoreResult.coefficient(), null);
         }
     }
 }

@@ -14,16 +14,18 @@
     <table class="table">
         <thead>
         <tr>
-            <th>ID</th>
+            <th>Key</th>
             <th>Coefficient</th>
             <th>Value</th>
+            <th>Description</th>
         </tr>
         </thead>
         <tbody>
-        <tr data-th-each="detail: ${score.details}">
+        <tr data-th-each="detail: ${details}">
             <td><code data-th-text="${detail.key}"></code></td>
-            <td data-th-text="${detail.coefficient}"></td>
-            <td data-th-text="${detail.value}"></td>
+            <td align="center" data-th-text="${detail.coefficient}"></td>
+            <td align="center" data-th-text="${detail.value}"></td>
+            <td data-th-text="${detail.description}"></td>
         </tr>
         </tbody>
     </table>
