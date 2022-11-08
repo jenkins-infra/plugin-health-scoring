@@ -33,14 +33,14 @@ import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SecurityWarningScore extends Scoring {
+public class SecurityWarningScoring extends Scoring {
     private static final float COEFFICIENT = 1f;
     private static final String KEY = "security";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult securityProbeResult = plugin.getDetails().get(KnownSecurityVulnerabilityProbe.KEY);
-        if (securityProbeResult != null && securityProbeResult.status().equals(ResultStatus.FAILURE)) {
+        if (securityProbeResult == null || securityProbeResult.status().equals(ResultStatus.FAILURE)) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
         }
 
