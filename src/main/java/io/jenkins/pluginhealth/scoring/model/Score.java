@@ -57,7 +57,8 @@ public class Score {
     @Column(name = "computed_at")
     private ZonedDateTime computedAt;
 
-    private transient long value = -1;
+    @Column(name = "value")
+    private long value = 0;
 
     @Type(type = "json")
     @Column(columnDefinition = "jsonb")
@@ -80,9 +81,6 @@ public class Score {
     }
 
     public long getValue() {
-        if (value == -1) {
-            computeValue();
-        }
         return value;
     }
 
