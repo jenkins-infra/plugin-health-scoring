@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.model;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 

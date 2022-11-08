@@ -49,7 +49,7 @@ public final class ScoreEngine {
     private final ScoreService scoreService;
 
     public ScoreEngine(List<Scoring> scorings, PluginService pluginService, ScoreService scoreService) {
-        this.scorings = List.copyOf (scorings);
+        this.scorings = List.copyOf(scorings);
         this.pluginService = pluginService;
         this.scoreService = scoreService;
     }
@@ -76,7 +76,7 @@ public final class ScoreEngine {
                 @Override
                 public BinaryOperator<Score> combiner() {
                     return (score1, score2) -> {
-                        for(ScoreResult res : score2.getDetails()) {
+                        for (ScoreResult res : score2.getDetails()) {
                             score1.addDetail(res);
                         }
                         return score1;
