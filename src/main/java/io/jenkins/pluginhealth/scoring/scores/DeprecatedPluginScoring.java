@@ -34,8 +34,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DeprecatedPluginScoring extends Scoring {
-    private final static float COEFFICIENT = .8f;
-    private final static String KEY = "deprecation";
+    private static final float COEFFICIENT = .8f;
+    private static final String KEY = "deprecation";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {

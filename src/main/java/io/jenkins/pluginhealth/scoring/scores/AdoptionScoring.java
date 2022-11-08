@@ -39,8 +39,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AdoptionScoring extends Scoring {
-    private final static float COEFFICIENT = 0.8f;
-    private final static String KEY = "adoption";
+    private static final float COEFFICIENT = 0.8f;
+    private static final String KEY = "adoption";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {

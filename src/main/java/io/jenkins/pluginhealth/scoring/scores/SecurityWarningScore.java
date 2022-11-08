@@ -34,8 +34,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityWarningScore extends Scoring {
-    private final static float COEFFICIENT = 1f;
-    private final static String KEY = "security";
+    private static final float COEFFICIENT = 1f;
+    private static final String KEY = "security";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {

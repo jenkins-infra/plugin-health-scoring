@@ -36,8 +36,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PluginMaintenanceScoring extends Scoring {
-    private final static float COEFFICIENT = .5f;
-    private final static String KEY = "repository-configuration";
+    private static final float COEFFICIENT = .5f;
+    private static final String KEY = "repository-configuration";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {
