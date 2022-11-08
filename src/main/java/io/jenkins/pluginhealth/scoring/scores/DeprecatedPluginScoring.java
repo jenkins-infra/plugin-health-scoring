@@ -40,7 +40,7 @@ public class DeprecatedPluginScoring extends Scoring {
     @Override
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-        if (deprecatedPluginProbeResult != null && deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE)) {
+        if (deprecatedPluginProbeResult == null || deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE)) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
         }
         return new ScoreResult(KEY, 1, COEFFICIENT);
