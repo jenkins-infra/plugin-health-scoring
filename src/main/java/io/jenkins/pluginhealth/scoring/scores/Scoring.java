@@ -33,4 +33,14 @@ public abstract class Scoring {
     }
 
     protected abstract ScoreResult doApply(Plugin plugin);
+
+    public abstract String key();
+
+    public abstract float coefficient();
+
+    public abstract String description();
+
+    public String name() {
+        return getClass().getSimpleName();
+    }
 }

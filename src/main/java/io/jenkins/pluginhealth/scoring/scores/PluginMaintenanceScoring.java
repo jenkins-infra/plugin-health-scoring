@@ -59,4 +59,19 @@ public class PluginMaintenanceScoring extends Scoring {
 
         return new ScoreResult(KEY, 1, COEFFICIENT);
     }
+
+    @Override
+    public String key() {
+        return KEY;
+    }
+
+    @Override
+    public float coefficient() {
+        return COEFFICIENT;
+    }
+
+    @Override
+    public String description() {
+        return "Scores plugin based on Jenkinsfile presence, dependabot and JEP-229 configuration.";
+    }
 }

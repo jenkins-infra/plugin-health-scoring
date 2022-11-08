@@ -68,4 +68,19 @@ public class AdoptionScoring extends Scoring {
 
         return new ScoreResult(KEY, 0, COEFFICIENT);
     }
+
+    @Override
+    public String key() {
+        return KEY;
+    }
+
+    @Override
+    public float coefficient() {
+        return COEFFICIENT;
+    }
+
+    @Override
+    public String description() {
+        return "Scores plugin based on the time between the last commit and the last release.";
+    }
 }

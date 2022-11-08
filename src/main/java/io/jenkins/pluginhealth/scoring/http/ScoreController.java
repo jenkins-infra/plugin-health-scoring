@@ -25,7 +25,9 @@
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
 import org.springframework.stereotype.Controller;
@@ -38,9 +40,16 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/scores")
 public class ScoreController {
     private final ScoreService scoreService;
+    private final Map<String, ScoringView> scoringsMap;
 
-    public ScoreController(ScoreService scoreService) {
+    public ScoreController(ScoreService scoreService, List<Scoring> scorings) {
         this.scoreService = scoreService;
+        this.scoringsMap = scorings.stream().map(ScoringView::fromScoring).collect(Collectors.toUnmodifiableMap(ScoringView::key, scoring -> scoring));
+    }
+
+    @GetMapping(path = "")
+    public ModelAndView list() {
+        return new ModelAndView("scores/listing", Map.of("scorings", scoringsMap.values()));
     }
 
     @GetMapping(path = "/{pluginName}")
@@ -48,5 +57,11 @@ public class ScoreController {
         return scoreService.latestScoreFor(pluginName)
             .map(score -> new ModelAndView("scores/details", Map.of("score", score)))
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName)));
+    }
+
+    record ScoringView(String key, String name, float coefficient, String description) {
+        public static ScoringView fromScoring(Scoring scoring) {
+            return new ScoringView(scoring.key(), scoring.name(), scoring.coefficient(), scoring.description());
+        }
     }
 }

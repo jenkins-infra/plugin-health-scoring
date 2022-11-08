@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Score listing</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Scores</h1>
+    <p>This is the list of elements participating to the global score of a plugin.</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Key</th>
+            <th>Name</th>
+            <th>Coefficient</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="scoring: ${scorings}">
+            <td><code data-th-text="${scoring.key}"></code></td>
+            <td data-th-text="${scoring.name}"></td>
+            <td align="center" data-th-text="${scoring.coefficient}"></td>
+            <td data-th-text="${scoring.description}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>
