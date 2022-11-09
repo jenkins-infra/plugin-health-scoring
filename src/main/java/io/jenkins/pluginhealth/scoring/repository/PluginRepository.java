@@ -29,9 +29,16 @@ import java.util.Optional;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PluginRepository extends JpaRepository<Plugin, Long> {
     Optional<Plugin> findByName(String name);
+
+    @Query(
+        value = "SELECT count(id) FROM plugins WHERE scm IS NOT NULL AND details -> ?1 ->> 'status' = ?2",
+        nativeQuery = true
+    )
+    long getProbeRawResult(String probeID, String status);
 }
