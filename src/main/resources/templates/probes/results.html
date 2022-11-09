@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Probe Results</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Probe Results</h1>
+    <p>This is the result of currently implemented probes.</p>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Result</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="probeResult: ${probeResults}">
+            <td><code data-th-text="${probeResult.key}"></code></td>
+            <td data-th-text="${probeResult.value} + ' / ' + ${pluginsCount}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>

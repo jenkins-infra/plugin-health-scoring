@@ -24,46 +24,45 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
 
 @Service
-public class PluginService {
+public class ProbeService {
+    private final List<Probe> probes;
+    private final PluginService pluginService;
     private final PluginRepository pluginRepository;
 
-    public PluginService(PluginRepository pluginRepository) {
+    public ProbeService(List<Probe> probes, PluginService pluginService, PluginRepository pluginRepository) {
+        this.probes = List.copyOf(probes);
+        this.pluginService = pluginService;
         this.pluginRepository = pluginRepository;
     }
 
     @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase
-                .setScm(plugin.getScm())
-                .setReleaseTimestamp(plugin.getReleaseTimestamp())
-                .setVersion(plugin.getVersion())
-                .addDetails(plugin.getDetails()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+    public Map<String, Long> getProbesFinalResults() {
+        Map<String, Long> probeResultsMap = probes.stream()
+            .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
+
+        probeResultsMap.remove("last-commit-date");
+
+        return probeResultsMap;
     }
 
     @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
-    }
-
-    @Transactional
-    public long getPluginsCount() {
-        return pluginRepository.count();
-    }
-
-    public Optional<Plugin> findByName(String pluginName) {
-        return pluginRepository.findByName(pluginName);
+    public long getProbesRawResultsFromDatabase(String probeID) {
+        return switch (probeID) {
+            case "up-for-adoption", "security", "deprecation" ->
+                pluginRepository.getProbeRawResult(probeID, "FAILURE");
+            default ->
+                pluginRepository.getProbeRawResult(probeID, "SUCCESS");
+        };
     }
 }
