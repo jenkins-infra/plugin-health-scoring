@@ -239,7 +239,7 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.3.4</version>
+							<version>10.4</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -260,7 +260,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>3.0.0-M6</version>
+					<version>3.0.0-M7</version>
 					<configuration>
 						<goals>verify</goals>
 						<signTag>true</signTag>
@@ -274,7 +274,7 @@
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.7.2.1</version>
+					<version>4.7.2.2</version>
 					<configuration>
 						<effort>Max</effort>
 					</configuration>
