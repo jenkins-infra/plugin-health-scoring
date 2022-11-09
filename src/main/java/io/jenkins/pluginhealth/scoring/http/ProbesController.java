@@ -69,13 +69,9 @@ public class ProbesController {
     public ModelAndView listProbeResults() {
         final ModelAndView modelAndView = new ModelAndView("probes/results");
 
-        modelAndView.addObject(
-            "probeResults",
-            probeService.getProbesFinalResults()
-        ).addObject(
-            "pluginsCount",
-            pluginService.getPluginsCount()
-        );
+        modelAndView
+            .addObject("probeResults", probeService.getProbesFinalResults())
+            .addObject("pluginsCount", pluginService.getPluginsCount());
 
         return modelAndView;
     }
