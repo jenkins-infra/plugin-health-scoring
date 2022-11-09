@@ -11,20 +11,23 @@
     <div class="card score" data-th-text="${score.value}"></div>
 
     <h3>Details</h3>
+    <p>
+        Those details were computed at <span data-th-text="${#temporals.format(score.computedAt)}"></span>
+    </p>
     <table class="table">
         <thead>
         <tr>
             <th>Key</th>
-            <th>Coefficient</th>
             <th>Value</th>
+            <th>Coefficient</th>
             <th>Description</th>
         </tr>
         </thead>
         <tbody>
         <tr data-th-each="detail: ${details}">
             <td><code data-th-text="${detail.key}"></code></td>
-            <td align="center" data-th-text="${detail.coefficient}"></td>
             <td align="center" data-th-text="${detail.value}"></td>
+            <td align="center" data-th-text="${detail.coefficient}"></td>
             <td data-th-text="${detail.description}"></td>
         </tr>
         </tbody>
