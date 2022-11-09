@@ -25,8 +25,10 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -35,15 +37,20 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public final class ScoreEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScoreEngine.class);
+
     private final List<Scoring> scorings;
     private final PluginService pluginService;
     private final ScoreService scoreService;
@@ -56,10 +63,20 @@ public final class ScoreEngine {
 
     public void run() {
         pluginService.streamAll()
+            .filter(plugin -> {
+                final Optional<ZonedDateTime> latestProbeResult = plugin.getDetails().values().stream()
+                    .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
+                final Optional<Score> score = scoreService.latestScoreFor(plugin.getName());
+                return score.isEmpty() ||
+                    (latestProbeResult.isPresent() && score.get().getComputedAt().isBefore(latestProbeResult.get()));
+            })
             .forEach(this::runOn);
     }
 
     public Score runOn(Plugin plugin) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Scoring {}", plugin.getName());
+        }
         Score score = this.scorings.stream()
             .map(scoring -> scoring.apply(plugin))
             .collect(new Collector<ScoreResult, Score, Score>() {
