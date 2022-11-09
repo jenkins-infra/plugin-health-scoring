@@ -42,6 +42,7 @@ import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
+import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,12 +52,12 @@ import org.springframework.stereotype.Component;
 public final class ScoreEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreEngine.class);
 
-    private final List<Scoring> scorings;
+    private final ScoringService scoringService;
     private final PluginService pluginService;
     private final ScoreService scoreService;
 
-    public ScoreEngine(List<Scoring> scorings, PluginService pluginService, ScoreService scoreService) {
-        this.scorings = List.copyOf(scorings);
+    public ScoreEngine(ScoringService scoringService, PluginService pluginService, ScoreService scoreService) {
+        this.scoringService = scoringService;
         this.pluginService = pluginService;
         this.scoreService = scoreService;
     }
@@ -77,7 +78,7 @@ public final class ScoreEngine {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scoring {}", plugin.getName());
         }
-        Score score = this.scorings.stream()
+        Score score = this.scoringService.getScoringList().stream()
             .map(scoring -> scoring.apply(plugin))
             .collect(new Collector<ScoreResult, Score, Score>() {
                 @Override

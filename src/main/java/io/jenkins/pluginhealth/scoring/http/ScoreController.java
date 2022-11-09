@@ -26,12 +26,15 @@ package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
+import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,16 +45,16 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping(path = "/scores")
 public class ScoreController {
     private final ScoreService scoreService;
-    private final Map<String, ScoringView> scoringsMap;
+    private final ScoringService scoringService;
 
-    public ScoreController(ScoreService scoreService, List<Scoring> scorings) {
+    public ScoreController(ScoreService scoreService, ScoringService scoringService) {
         this.scoreService = scoreService;
-        this.scoringsMap = scorings.stream().map(ScoringView::fromScoring).collect(Collectors.toUnmodifiableMap(ScoringView::key, scoring -> scoring));
+        this.scoringService = scoringService;
     }
 
     @GetMapping(path = "")
     public ModelAndView list() {
-        return new ModelAndView("scores/listing", Map.of("scorings", scoringsMap.values()));
+        return new ModelAndView("scores/listing", Map.of("scorings", scoringService.getScoringList()));
     }
 
     @GetMapping(path = "/{pluginName}")
@@ -60,11 +63,14 @@ public class ScoreController {
             .map(score -> {
                 final List<ScoreView> details = score.getDetails().stream()
                     .map(ScoreView::fromScoreResult)
-                    .map(view -> view.withDescription(scoringsMap.get(view.key()).description()))
+                    .map(view -> {
+                        final Optional<Scoring> scoring = scoringService.get(view.key());
+                        return scoring.map(value -> view.withDescription(value.description())).orElse(view);
+                    })
                     .toList();
                 return new ModelAndView("scores/details", Map.of("score", score, "details", details));
             })
-            .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName)));
+            .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 
     record ScoringView(String key, String name, float coefficient, String description) {
