@@ -43,22 +43,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DocumentationLocationProbeTest {
+class DocumentationMigrationProbeTest {
     @Test
     public void shouldRequireRelease() {
-        final DocumentationLocationProbe probe = spy(DocumentationLocationProbe.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
         assertThat(probe.requiresRelease()).isTrue();
     }
 
     @Test
     public void shouldUseDocumentationKey() {
-        final DocumentationLocationProbe probe = spy(DocumentationLocationProbe.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
         assertThat(probe.key()).isEqualTo("documentation");
     }
 
     @Test
     public void shouldHaveDescription() {
-        final DocumentationLocationProbe probe = spy(DocumentationLocationProbe.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
         assertThat(probe.getDescription()).isNotBlank();
     }
 
@@ -66,7 +66,7 @@ class DocumentationLocationProbeTest {
     public void shouldValidateCompletedMigrationOnMaven() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DocumentationLocationProbe probe = new DocumentationLocationProbe();
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
         final String pluginRepositoryUrl = "this-is-the-url";
         when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
@@ -88,7 +88,7 @@ class DocumentationLocationProbeTest {
     public void shouldValidateCompletedMigrationOnGradle() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DocumentationLocationProbe probe = new DocumentationLocationProbe();
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
         final String pluginRepositoryUrl = "this-is-the-url";
         when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
@@ -110,7 +110,7 @@ class DocumentationLocationProbeTest {
     public void shouldInvalidateRepositoryWithMissingREADME() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DocumentationLocationProbe probe = new DocumentationLocationProbe();
+        final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
 
         final String pluginRepositoryUrl = "this-is-the-url";
         final Path repository = Files.createTempDirectory("boo");
@@ -131,17 +131,17 @@ class DocumentationLocationProbeTest {
     public void shouldInvalidateRepositoryWithMissingUrl() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DocumentationLocationProbe probe = new DocumentationLocationProbe();
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
         final String pluginRepositoryUrl = "this-is-the-url";
         when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
+
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
         Files.write(pom, List.of(
             "<project>", "</project>"
         ), StandardCharsets.UTF_8);
-
         when(ctx.getScmRepository()).thenReturn(repository);
 
         final ProbeResult result = probe.apply(plugin, ctx);

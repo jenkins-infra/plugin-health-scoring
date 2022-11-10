@@ -37,21 +37,16 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.gradle.tooling.GradleConnector;
-import org.gradle.tooling.ProjectConnection;
-import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.GradleProject;
-import org.gradle.tooling.model.GradleTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(DocumentationLocationProbe.ORDER)
-public class DocumentationLocationProbe extends Probe {
+@Order(DocumentationMigrationProbe.ORDER)
+public class DocumentationMigrationProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 1;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationLocationProbe.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationMigrationProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -114,13 +109,6 @@ public class DocumentationLocationProbe extends Probe {
     }
 
     private String getURLFromGradle(Path buildConfig) {
-        try (ProjectConnection connect = GradleConnector.newConnector()
-            .forProjectDirectory(buildConfig.getParent().toFile()).connect()) {
-            final GradleProject model = connect.model(GradleProject.class).get();
-            // TODO find the extension from gradle-jpi-plugin and parse its URL
-            final DomainObjectSet<? extends GradleTask> tasks = model.getTasks();
-            // JpiExtension.class;
-        }
         return "";
     }
 
