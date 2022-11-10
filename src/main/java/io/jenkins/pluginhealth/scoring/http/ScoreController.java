@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.http;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
@@ -83,6 +82,7 @@ public class ScoreController {
         public ScoreView withDescription(String description) {
             return new ScoreView(this.key, this.value, this.coefficient, description);
         }
+
         public static ScoreView fromScoreResult(ScoreResult scoreResult) {
             return new ScoreView(scoreResult.key(), scoreResult.value(), scoreResult.coefficient(), null);
         }
