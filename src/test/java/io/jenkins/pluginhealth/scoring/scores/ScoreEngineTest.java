@@ -145,8 +145,7 @@ class ScoreEngineTest {
         final ScoreEngine scoreEngine = new ScoreEngine(scoringService, pluginService, scoreService);
         final Score score = scoreEngine.runOn(pluginA);
 
-        final ArgumentCaptor<Plugin> pluginArgument = ArgumentCaptor.forClass(Plugin.class);
-        verify(scoringA, times(0)).apply(pluginArgument.capture());
+        verify(scoringA, times(0)).apply(any(Plugin.class));
 
         verify(scoreService, never()).save(any(Score.class));
         assertThat(score).isEqualTo(oldPluginAScore);

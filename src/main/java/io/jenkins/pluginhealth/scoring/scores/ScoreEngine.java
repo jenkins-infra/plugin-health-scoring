@@ -74,6 +74,7 @@ public final class ScoreEngine {
             .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
         final Optional<Score> latestScore = scoreService.latestScoreFor(plugin.getName());
         if (latestScore.isPresent() && (latestProbeResult.isEmpty() || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
+            LOGGER.debug("Previous score, computed at {} is still valid.", latestScore.get().getComputedAt());
             return latestScore.get();
         }
 
