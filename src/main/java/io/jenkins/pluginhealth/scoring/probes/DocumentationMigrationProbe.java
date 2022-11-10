@@ -68,7 +68,8 @@ public class DocumentationMigrationProbe extends Probe {
                 return ProbeResult.failure(key(), "Could not find plugin build configuration file");
             }
 
-            return scm.equals(getBuildConfigSCM(buildConfig.get())) ?
+            final Optional<String> buildConfigSCM = getBuildConfigSCM(buildConfig.get());
+            return buildConfigSCM.isPresent() && buildConfigSCM.get().startsWith(scm) ?
                 ProbeResult.success(key(), "The plugin documentation was migrated") :
                 ProbeResult.failure(key(), "The plugin documentation was not migrated");
         } catch (IOException e) {
@@ -82,18 +83,18 @@ public class DocumentationMigrationProbe extends Probe {
             Files.isReadable(path) && (Arrays.stream(fileNames).anyMatch(name -> name.equals(path.getFileName().toString()))));
     }
 
-    private String getBuildConfigSCM(Path buildConfig) {
+    private Optional<String> getBuildConfigSCM(Path buildConfig) {
         final Path fileName = buildConfig.getFileName();
         if (fileName == null) {
-            return "";
+            return Optional.empty();
         }
         if ("pom.xml".equals(fileName.toString())) {
-            return getURLFromMaven(buildConfig);
+            return Optional.ofNullable(getURLFromMaven(buildConfig));
         } else if ("build.gradle".equals(fileName.toString())) {
-            return getURLFromGradle(buildConfig);
+            return Optional.of(getURLFromGradle(buildConfig));
         } else {
             LOGGER.warn("Unknown build to for {}", fileName);
-            return "";
+            return Optional.empty();
         }
     }
 

@@ -149,4 +149,46 @@ class DocumentationMigrationProbeTest {
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(result.message()).isEqualTo("The plugin documentation was not migrated");
     }
+
+    @Test
+    public void shouldValidateRepositoryWithURLDirectedToBranch() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
+
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/one-plugin");
+
+        final Path repository = Files.createTempDirectory("one-plugin");
+        Files.createFile(repository.resolve("README.md"));
+        final Path pom = Files.createFile(repository.resolve("pom.xml"));
+        Files.write(pom, List.of(
+            "<project>", "<url>", "https://github.com/jenkinsci/one-plugin/tree/main", "</url>", "</project>"
+        ), StandardCharsets.UTF_8);
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    public void shouldValidateRepositoryWithURLDirectedToReadmeFile() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
+
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/one-plugin");
+
+        final Path repository = Files.createTempDirectory("one-plugin");
+        Files.createFile(repository.resolve("README.md"));
+        final Path pom = Files.createFile(repository.resolve("pom.xml"));
+        Files.write(pom, List.of(
+            "<project>", "<url>", "https://github.com/jenkinsci/one-plugin/blob/main/README.md", "</url>", "</project>"
+        ), StandardCharsets.UTF_8);
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
 }
