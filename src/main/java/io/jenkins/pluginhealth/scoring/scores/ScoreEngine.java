@@ -63,13 +63,6 @@ public final class ScoreEngine {
 
     public void run() {
         pluginService.streamAll()
-            .filter(plugin -> {
-                final Optional<ZonedDateTime> latestProbeResult = plugin.getDetails().values().stream()
-                    .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
-                final Optional<Score> score = scoreService.latestScoreFor(plugin.getName());
-                return score.isEmpty() ||
-                    (latestProbeResult.isPresent() && score.get().getComputedAt().isBefore(latestProbeResult.get()));
-            })
             .forEach(this::runOn);
     }
 
@@ -77,6 +70,13 @@ public final class ScoreEngine {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Scoring {}", plugin.getName());
         }
+        final Optional<ZonedDateTime> latestProbeResult = plugin.getDetails().values().stream()
+            .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
+        final Optional<Score> latestScore = scoreService.latestScoreFor(plugin.getName());
+        if (latestScore.isPresent() && (latestProbeResult.isEmpty() || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
+            return latestScore.get();
+        }
+
         Score score = this.scoringService.getScoringList().stream()
             .map(scoring -> scoring.apply(plugin))
             .collect(new Collector<ScoreResult, Score, Score>() {
