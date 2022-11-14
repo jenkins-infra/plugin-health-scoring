@@ -24,7 +24,11 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -48,6 +52,8 @@ public class DocumentationMigrationProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationMigrationProbe.class);
 
+    private static final String GRADLE_PLUGINS_LISTING = "/probes/DocumentationMigrationProbe/gradle-migrated-plugins.txt";
+
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repository = context.getScmRepository();
@@ -55,11 +61,10 @@ public class DocumentationMigrationProbe extends Probe {
             return ProbeResult.error(key(), "Cannot find plugin repository");
         }
 
-        try (Stream<Path> buildConfigs = getFiles(repository, "pom.xml", "build.gradle");
+        try (Stream<Path> buildConfigs = getFiles(repository, "pom.xml", "build.gradle", "build.gradle.kts");
              Stream<Path> readmes = getFiles(repository, "README.md", "README.adoc")) {
             final Optional<Path> buildConfig = buildConfigs.findFirst();
             final Optional<Path> readme = readmes.findFirst();
-            final String scm = plugin.getScm();
 
             if (readme.isEmpty()) {
                 return ProbeResult.failure(key(), "The plugin has no README");
@@ -68,8 +73,7 @@ public class DocumentationMigrationProbe extends Probe {
                 return ProbeResult.failure(key(), "Could not find plugin build configuration file");
             }
 
-            final Optional<String> buildConfigSCM = getBuildConfigSCM(buildConfig.get());
-            return buildConfigSCM.isPresent() && buildConfigSCM.get().startsWith(scm) ?
+            return isCorrectlyConfigured(plugin, buildConfig.get()) ?
                 ProbeResult.success(key(), "The plugin documentation was migrated") :
                 ProbeResult.failure(key(), "The plugin documentation was not migrated");
         } catch (IOException e) {
@@ -83,19 +87,31 @@ public class DocumentationMigrationProbe extends Probe {
             Files.isReadable(path) && (Arrays.stream(fileNames).anyMatch(name -> name.equals(path.getFileName().toString()))));
     }
 
-    private Optional<String> getBuildConfigSCM(Path buildConfig) {
+    private boolean isCorrectlyConfigured(Plugin plugin, Path buildConfig) {
         final Path fileName = buildConfig.getFileName();
         if (fileName == null) {
-            return Optional.empty();
+            return false;
         }
         if ("pom.xml".equals(fileName.toString())) {
-            return Optional.ofNullable(getURLFromMaven(buildConfig));
-        } else if ("build.gradle".equals(fileName.toString())) {
-            return Optional.of(getURLFromGradle(buildConfig));
-        } else {
-            LOGGER.warn("Unknown build to for {}", fileName);
-            return Optional.empty();
+            final String urlFromMaven = getURLFromMaven(buildConfig);
+            return urlFromMaven != null && urlFromMaven.startsWith(plugin.getScm());
+        } else if (fileName.toString().startsWith("build.gradle")) {
+            try (InputStream is = getClass().getResourceAsStream(GRADLE_PLUGINS_LISTING)) {
+                if (is == null) {
+                    return false;
+                }
+                try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+                     BufferedReader br = new BufferedReader(isr)) {
+                    return br.lines()
+                        .filter(line -> line.equals(plugin.getName()))
+                        .anyMatch(line -> plugin.getName().equals(line));
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Problem while testing {} for documentation migration", plugin.getName(), e);
+                return false;
+            }
         }
+        return false;
     }
 
     private String getURLFromMaven(Path buildConfig) {
@@ -107,10 +123,6 @@ public class DocumentationMigrationProbe extends Probe {
             LOGGER.warn("Error parsing Maven pom.xml in {}", buildConfig, e);
             return "";
         }
-    }
-
-    private String getURLFromGradle(Path buildConfig) {
-        return "";
     }
 
     @Override

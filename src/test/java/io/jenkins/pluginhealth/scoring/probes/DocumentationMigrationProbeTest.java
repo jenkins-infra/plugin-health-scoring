@@ -90,14 +90,28 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
-        final String pluginRepositoryUrl = "this-is-the-url";
-        when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
+        when(plugin.getName()).thenReturn("gradle");
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
-        final Path build = Files.createFile(repository.resolve("build.gradle"));
-        Files.write(build, List.of(
-            "jenkinsPlugin {", "url: ", pluginRepositoryUrl, "}"
-        ), StandardCharsets.UTF_8);
+        Files.createFile(repository.resolve("build.gradle"));
+
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    public void shouldValidateCompletedMigrationOnGradleKTS() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
+
+        when(plugin.getName()).thenReturn("git-automerger");
+        final Path repository = Files.createTempDirectory("boo");
+        Files.createFile(repository.resolve("README.md"));
+        Files.createFile(repository.resolve("build.gradle.kts"));
 
         when(ctx.getScmRepository()).thenReturn(repository);
 
@@ -132,9 +146,6 @@ class DocumentationMigrationProbeTest {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
-
-        final String pluginRepositoryUrl = "this-is-the-url";
-        when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
 
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
