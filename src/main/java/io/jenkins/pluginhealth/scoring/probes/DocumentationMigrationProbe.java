@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -57,6 +58,13 @@ public class DocumentationMigrationProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repository = context.getScmRepository();
+        final ProbeResult scmLinkValidationProbe = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
+        if (scmLinkValidationProbe == null || scmLinkValidationProbe.status().equals(ResultStatus.FAILURE)) {
+            return ProbeResult.error(
+                key(),
+                "Cannot validate documentation for %s because the scm link was not validated".formatted(plugin.getName())
+            );
+        }
         if (Files.notExists(repository)) {
             return ProbeResult.error(key(), "Cannot find plugin repository");
         }
@@ -111,6 +119,7 @@ public class DocumentationMigrationProbe extends Probe {
                 return false;
             }
         }
+        LOGGER.warn("Unrecognizable build tool for {}", plugin.getName());
         return false;
     }
 
