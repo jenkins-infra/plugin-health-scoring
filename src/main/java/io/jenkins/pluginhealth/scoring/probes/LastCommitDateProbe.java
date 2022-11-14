@@ -95,6 +95,10 @@ public class LastCommitDateProbe extends Probe {
         return "last-commit-date";
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return "Register the last commit date on the official plugin repository";

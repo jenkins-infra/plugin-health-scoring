@@ -78,6 +78,10 @@ public final class SCMLinkValidationProbe extends Probe {
         return KEY;
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return """

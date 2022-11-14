@@ -2,18 +2,23 @@
 <html lang="en" data-layout-decorate="~{layouts/main}">
 <head>
     <title>Probes</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="" data-th-src="@{/js/index.js}" type="text/javascript"></script>
 </head>
 <body>
 
 <section data-layout-fragment="content">
     <h1>Probes</h1>
     <p>This is the list of probes currently implemented.</p>
-    <table class="table">
+    <table class="table" id="myTable">
         <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Execution Order</th>
         </tr>
         </thead>
         <tbody>
@@ -21,6 +26,7 @@
             <td><code data-th-text="${probe.id}"></code></td>
             <td data-th-text="${probe.name}"></td>
             <td data-th-text="${probe.description}"></td>
+            <td data-th-text="${probe.executionOrder}"></td>
         </tr>
         </tbody>
     </table>

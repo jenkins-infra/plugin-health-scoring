@@ -68,6 +68,10 @@ public class ContinuousDeploymentProbe extends Probe {
         return "jep-229";
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return "Checks if JEP-229 (Continuous Deployment) has been activated on the plugin";

@@ -53,6 +53,10 @@ public class DeprecatedPluginProbe extends Probe {
         return "deprecation";
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return "This probe detects if a specified plugin is deprecated from the update-center.";

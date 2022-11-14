@@ -76,9 +76,9 @@ public class ProbesController {
         return modelAndView;
     }
 
-    record ProbeDetails(String name, String id, String description) {
+    record ProbeDetails(String name, String id, String description, int executionOrder) {
         static ProbeDetails map(Probe probe) {
-            return new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription());
+            return new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription(), probe.getOrder());
         }
     }
 }

@@ -59,6 +59,10 @@ public class JenkinsfileProbe extends Probe {
         return "jenkinsfile";
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return """

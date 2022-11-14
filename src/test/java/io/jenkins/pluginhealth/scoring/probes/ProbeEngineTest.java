@@ -164,6 +164,11 @@ class ProbeEngineTest {
             }
 
             @Override
+            public int getOrder() {
+                return 0;
+            }
+
+            @Override
             public String getDescription() {
                 return null;
             }

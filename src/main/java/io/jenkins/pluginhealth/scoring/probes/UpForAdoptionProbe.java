@@ -61,6 +61,10 @@ public class UpForAdoptionProbe extends Probe {
         return "up-for-adoption";
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String getDescription() {
         return "This probe detects if a specified plugin is declared as up for adoption.";
