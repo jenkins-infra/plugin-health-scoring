@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -68,15 +69,19 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
         final String pluginRepositoryUrl = "this-is-the-url";
         when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
+
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
         Files.write(pom, List.of(
             "<project>", "<url>", pluginRepositoryUrl, "</url>", "</project>"
         ), StandardCharsets.UTF_8);
-
         when(ctx.getScmRepository()).thenReturn(repository);
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -90,11 +95,15 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
         when(plugin.getName()).thenReturn("gradle");
+
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
         Files.createFile(repository.resolve("build.gradle"));
-
         when(ctx.getScmRepository()).thenReturn(repository);
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -108,11 +117,15 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
         when(plugin.getName()).thenReturn("git-automerger");
+
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
         Files.createFile(repository.resolve("build.gradle.kts"));
-
         when(ctx.getScmRepository()).thenReturn(repository);
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -125,6 +138,11 @@ class DocumentationMigrationProbeTest {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
 
         final String pluginRepositoryUrl = "this-is-the-url";
         final Path repository = Files.createTempDirectory("boo");
@@ -147,6 +165,11 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
+
         final Path repository = Files.createTempDirectory("boo");
         Files.createFile(repository.resolve("README.md"));
         final Path pom = Files.createFile(repository.resolve("pom.xml"));
@@ -167,6 +190,10 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/one-plugin");
 
         final Path repository = Files.createTempDirectory("one-plugin");
@@ -188,6 +215,10 @@ class DocumentationMigrationProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/one-plugin");
 
         final Path repository = Files.createTempDirectory("one-plugin");
