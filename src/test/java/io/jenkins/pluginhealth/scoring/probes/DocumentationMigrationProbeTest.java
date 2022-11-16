@@ -90,6 +90,35 @@ class DocumentationMigrationProbeTest {
     }
 
     @Test
+    public void shouldValidateCompletedMigrationOnMavenWithInterpretation() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DocumentationMigrationProbe probe = spy(DocumentationMigrationProbe.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
+        final String pluginRepositoryUrl = "https://example.com/example";
+        when(plugin.getScm()).thenReturn(pluginRepositoryUrl);
+
+        final Path repository = Files.createTempDirectory("boo");
+        Files.createFile(repository.resolve("README.md"));
+        final Path pom = Files.createFile(repository.resolve("pom.xml"));
+        Files.write(pom, List.of(
+            "<project>",
+            "<artifactId>", "example", "</artifactId>",
+            "<url>", "https://example.com/${project.artifactId}-plugin", "</url>",
+            "</project>"
+        ), StandardCharsets.UTF_8);
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result).isNotNull();
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
     public void shouldValidateCompletedMigrationOnGradle() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
