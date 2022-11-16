@@ -41,6 +41,10 @@ pipeline {
     }
 
     stage('Docker image') {
+      when {
+        beforeAgent true
+        equals expected: 'SUCCESS', actual: currentBuild.status
+      }
       steps {
         buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
       }
