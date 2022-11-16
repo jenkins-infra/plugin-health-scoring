@@ -106,7 +106,6 @@ class ScoreEngineTest {
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));
-        when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
 
         final ScoreEngine scoreEngine = new ScoreEngine(scoringService, pluginService, scoreService);
         scoreEngine.run();
