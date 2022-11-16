@@ -106,7 +106,6 @@ class ScoreEngineTest {
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));
-        when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
 
         final ScoreEngine scoreEngine = new ScoreEngine(scoringService, pluginService, scoreService);
         scoreEngine.run();
@@ -147,6 +146,26 @@ class ScoreEngineTest {
 
         verify(scoringA, times(0)).apply(any(Plugin.class));
 
+        verify(scoreService, never()).save(any(Score.class));
+        assertThat(score).isEqualTo(oldPluginAScore);
+    }
+
+    @Test
+    public void shouldNotScorePluginsWithLatestScoreAndEmptyDetailsMap() {
+        final Plugin pluginA = mock(Plugin.class);
+        final String pluginName = "plugin-a";
+        when(pluginA.getName()).thenReturn(pluginName);
+        when(pluginA.getDetails()).thenReturn(Map.of());
+
+        final Scoring scoringA = mock(Scoring.class);
+        final Score oldPluginAScore = mock(Score.class);
+        when(oldPluginAScore.getComputedAt()).thenReturn(ZonedDateTime.now().minusMinutes(5));
+        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(oldPluginAScore));
+
+        final ScoreEngine scoreEngine = new ScoreEngine(scoringService, pluginService, scoreService);
+        final Score score = scoreEngine.runOn(pluginA);
+
+        verify(scoringA, times(0)).apply(any(Plugin.class));
         verify(scoreService, never()).save(any(Score.class));
         assertThat(score).isEqualTo(oldPluginAScore);
     }
