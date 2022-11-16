@@ -53,7 +53,7 @@ public class UpdateCenterScheduler {
             .plugins().values().stream()
             .map(Plugin::toPlugin)
             .forEach(pluginService::saveOrUpdate);
-        if(LOGGER.isDebugEnabled()) {
+        if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Plugins updated from update-center");
         }
     }

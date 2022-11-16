@@ -25,45 +25,28 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.Optional;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+import io.jenkins.pluginhealth.scoring.model.Score;
+import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
 import org.springframework.stereotype.Service;
 
 @Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
+public class ScoreService {
+    private final ScoreRepository repository;
+    private final PluginService pluginService;
 
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+    public ScoreService(ScoreRepository repository, PluginService pluginService) {
+        this.repository = repository;
+        this.pluginService = pluginService;
     }
 
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase
-                .setScm(plugin.getScm())
-                .setReleaseTimestamp(plugin.getReleaseTimestamp())
-                .setVersion(plugin.getVersion())
-                .addDetails(plugin.getDetails()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+    public Score save(Score score) {
+        return repository.save(score);
     }
 
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
-    }
-
-    @Transactional
-    public long getPluginsCount() {
-        return pluginRepository.count();
-    }
-
-    public Optional<Plugin> findByName(String pluginName) {
-        return pluginRepository.findByName(pluginName);
+    public Optional<Score> latestScoreFor(String pluginName) {
+        return pluginService.findByName(pluginName)
+            .flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
     }
 }

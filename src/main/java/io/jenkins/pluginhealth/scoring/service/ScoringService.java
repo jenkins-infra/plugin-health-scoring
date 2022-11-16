@@ -24,46 +24,26 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
-import javax.transaction.Transactional;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
 
 import org.springframework.stereotype.Service;
 
 @Service
-public class PluginService {
-    private final PluginRepository pluginRepository;
+public class ScoringService {
+    private final List<Scoring> scoringList;
 
-    public PluginService(PluginRepository pluginRepository) {
-        this.pluginRepository = pluginRepository;
+    public ScoringService(List<Scoring> scoringList) {
+        this.scoringList = List.copyOf(scoringList);
     }
 
-    @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase
-                .setScm(plugin.getScm())
-                .setReleaseTimestamp(plugin.getReleaseTimestamp())
-                .setVersion(plugin.getVersion())
-                .addDetails(plugin.getDetails()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+    public List<Scoring> getScoringList() {
+        return scoringList;
     }
 
-    @Transactional
-    public Stream<Plugin> streamAll() {
-        return pluginRepository.findAll().stream();
-    }
-
-    @Transactional
-    public long getPluginsCount() {
-        return pluginRepository.count();
-    }
-
-    public Optional<Plugin> findByName(String pluginName) {
-        return pluginRepository.findByName(pluginName);
+    public Optional<Scoring> get(String key) {
+        return scoringList.stream().filter(scoring -> scoring.key().equals(key)).findFirst();
     }
 }

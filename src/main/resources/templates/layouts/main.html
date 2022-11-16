@@ -17,11 +17,17 @@
 <body id="app">
 
 <nav id="page-navbar" class="navbar">
-    <a href="" data-th-href="@{/}" class="page-navbar__item" data-th-classappend="${#request.requestURI.equals('/probes') ? 'page-navbar__item-selected' : ''}">
+    <a href="" data-th-href="@{/probes}" class="page-navbar__item"
+       data-th-classappend="${#request.requestURI.equals('/probes') ? 'page-navbar__item-selected' : ''}">
         <ion-icon name="home"></ion-icon>
     </a>
-    <a href="" data-th-href="@{/probes/results}" class="page-navbar__item" th:classappend="${#request.requestURI == '/probes/results' ? 'page-navbar__item-selected' : ''}">
+    <a href="" data-th-href="@{/probes/results}" class="page-navbar__item"
+       data-th-classappend="${#request.requestURI.equals('/probes/results') ? 'page-navbar__item-selected' : ''}">
         <ion-icon name="results"></ion-icon>
+    </a>
+    <a href="" data-th-href="@{/scores}" class="page-navbar__item"
+       data-th-classappend="${#request.requestURI.equals('/scores') ? 'page-navbar__item-selected' : ''}">
+        <ion-icon name="pulse"></ion-icon>
     </a>
 </nav>
 <main id="page-content">

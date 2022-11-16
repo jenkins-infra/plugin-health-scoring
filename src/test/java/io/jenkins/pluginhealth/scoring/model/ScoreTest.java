@@ -22,29 +22,36 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.schedule;
+package io.jenkins.pluginhealth.scoring.model;
 
-import java.io.IOException;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.mock;
 
-import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
-import io.jenkins.pluginhealth.scoring.scores.ScoreEngine;
+import java.time.ZonedDateTime;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@Component
-public class ProbeEngineScheduler {
-    private final ProbeEngine probeEngine;
-    private final ScoreEngine scoreEngine;
+@ExtendWith(MockitoExtension.class)
+class ScoreTest {
+    @Test
+    public void shouldBeAbleToAdjustScoreValueWithNewDetails() {
+        final Plugin plugin = mock(Plugin.class);
+        final Score score = new Score(plugin, ZonedDateTime.now());
 
-    public ProbeEngineScheduler(ProbeEngine probeEngine, ScoreEngine scoreEngine) {
-        this.probeEngine = probeEngine;
-        this.scoreEngine = scoreEngine;
-    }
+        assertThat(score.getValue()).isEqualTo(0);
 
-    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
-    public void run() throws IOException {
-        probeEngine.run();
-        scoreEngine.run();
+        score.addDetail(new ScoreResult("foo", 1, .4f));
+        assertThat(score.getDetails().size()).isEqualTo(1);
+        assertThat(score.getValue()).isEqualTo(100);
+
+        score.addDetail(new ScoreResult("bar", 0, .2f));
+        assertThat(score.getDetails().size()).isEqualTo(2);
+        assertThat(score.getValue()).isEqualTo(67);
+
+        score.addDetail(new ScoreResult("wiz", 1, .3f));
+        assertThat(score.getDetails().size()).isEqualTo(3);
+        assertThat(score.getValue()).isEqualTo(78);
     }
 }

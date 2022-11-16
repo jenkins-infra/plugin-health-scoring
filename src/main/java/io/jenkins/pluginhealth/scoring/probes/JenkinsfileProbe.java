@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 @Order(value = JenkinsfileProbe.ORDER)
 public class JenkinsfileProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+    public static final String KEY = "jenkinsfile";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -56,7 +57,7 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     public String key() {
-        return "jenkinsfile";
+        return KEY;
     }
 
     @Override
