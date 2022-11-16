@@ -82,9 +82,6 @@ public final class ProbeEngine {
                                 final ProbeResult result = probe.apply(plugin, probeContext);
                                 if (result.status() != ResultStatus.ERROR) {
                                     plugin.addDetails(result);
-                                } else {
-                                    LOGGER.warn("Invalid execution of {} on {}", probe.key(), plugin.getName());
-                                    LOGGER.warn("{}", result.message());
                                 }
                             } else {
                                 if (LOGGER.isDebugEnabled()) {
