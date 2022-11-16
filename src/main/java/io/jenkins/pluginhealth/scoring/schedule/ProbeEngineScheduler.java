@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.schedule;
 import java.io.IOException;
 
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
+import io.jenkins.pluginhealth.scoring.scores.ScoreEngine;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -34,13 +35,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProbeEngineScheduler {
     private final ProbeEngine probeEngine;
+    private final ScoreEngine scoreEngine;
 
-    public ProbeEngineScheduler(ProbeEngine probeEngine) {
+    public ProbeEngineScheduler(ProbeEngine probeEngine, ScoreEngine scoreEngine) {
         this.probeEngine = probeEngine;
+        this.scoreEngine = scoreEngine;
     }
 
     @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
     public void run() throws IOException {
         probeEngine.run();
+        scoreEngine.run();
     }
 }
