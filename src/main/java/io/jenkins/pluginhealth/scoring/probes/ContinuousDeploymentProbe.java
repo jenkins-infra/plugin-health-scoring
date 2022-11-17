@@ -47,6 +47,10 @@ public class ContinuousDeploymentProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
+            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
+            return ProbeResult.error(key(), "SCM link has not been validated yet");
+        }
         final Path repo = context.getScmRepository();
         final Path githubWorkflow = repo.resolve(".github/workflows");
         if (Files.notExists(githubWorkflow)) {
