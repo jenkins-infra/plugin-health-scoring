@@ -6,7 +6,7 @@
 <body>
 
 <section data-layout-fragment="content">
-    <h1 data-th-text="'Score of `' + ${score.getPlugin().getName() + '` plugin: '}"></h1>
+    <h1 data-th-text="'Score of ' + ${score.plugin.name} + ' plugin'"></h1>
     <div class="card score" data-th-text="${score.value}"></div>
 
     <h3>Details</h3>
