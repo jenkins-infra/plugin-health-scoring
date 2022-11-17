@@ -72,12 +72,6 @@ public class ScoreController {
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 
-    record ScoringView(String key, String name, float coefficient, String description) {
-        public static ScoringView fromScoring(Scoring scoring) {
-            return new ScoringView(scoring.key(), scoring.name(), scoring.coefficient(), scoring.description());
-        }
-    }
-
     record ScoreView(String key, float value, float coefficient, String description) {
         public ScoreView withDescription(String description) {
             return new ScoreView(this.key, this.value, this.coefficient, description);
