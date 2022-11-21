@@ -34,7 +34,7 @@ pipeline {
           recordIssues enabledForFailure: true, tool: checkStyle()
           recordIssues enabledForFailure: true, tool: spotBugs()
         }
-        success {
+        always {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
         }
       }
