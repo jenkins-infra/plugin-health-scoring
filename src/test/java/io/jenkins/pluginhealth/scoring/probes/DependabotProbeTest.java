@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -60,6 +62,9 @@ public class DependabotProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = new DependabotProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(repo);
 
@@ -72,6 +77,9 @@ public class DependabotProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = new DependabotProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));
 

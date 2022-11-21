@@ -32,17 +32,24 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(value = JenkinsfileProbe.ORDER)
 public class JenkinsfileProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JenkinsfileProbe.class);
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jenkinsfile";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
+            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
+            return ProbeResult.error(key(), "SCM link has not been validated yet");
+        }
         final Path repository = context.getScmRepository();
         try (Stream<Path> paths = Files
             .find(repository, 1, (file, basicFileAttributes) -> Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))
@@ -63,8 +70,8 @@ public class JenkinsfileProbe extends Probe {
     @Override
     public String getDescription() {
         return """
-    Validates the existence of a `Jenkinsfile` file in the repository.
-    This file is used to configure the plugin Continuous Integration on ci.jenkins.io.
-    """;
+            Validates the existence of a `Jenkinsfile` file in the repository.
+            This file is used to configure the plugin Continuous Integration on ci.jenkins.io.
+            """;
     }
 }
