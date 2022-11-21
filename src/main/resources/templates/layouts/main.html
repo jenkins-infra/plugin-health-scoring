@@ -35,10 +35,8 @@
 </main>
 <footer class="page-footer">
     <span class="grow"></span>
-    <span data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"
-          class="app--version"
-          data-th-text="${@buildProperties.version} + ' - ' + ${@gitProperties.shortCommitId}">
-    </span>
+    <span class="app--version"
+          data-th-text="${@buildProperties.version} + ' (' + ${@gitProperties.shortCommitId} + ')'"></span>
 </footer>
 
 </body>
