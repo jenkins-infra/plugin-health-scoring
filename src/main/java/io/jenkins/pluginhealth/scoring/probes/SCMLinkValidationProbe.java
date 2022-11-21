@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import com.sun.istack.NotNull;
 import org.slf4j.Logger;
@@ -66,6 +67,10 @@ public final class SCMLinkValidationProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        final ProbeResult deprecatedProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
+        if (deprecatedProbeResult != null && deprecatedProbeResult.status().equals(ResultStatus.FAILURE)) {
+            return ProbeResult.failure(key(), "Plugin is deprecated");
+        }
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.failure(key(), "The plugin SCM link is empty");

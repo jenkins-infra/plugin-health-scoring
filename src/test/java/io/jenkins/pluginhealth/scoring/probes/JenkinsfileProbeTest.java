@@ -32,8 +32,11 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
@@ -60,7 +63,9 @@ public class JenkinsfileProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = new JenkinsfileProbe();
 
-
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         when(ctx.getScmRepository()).thenReturn(
             Files.createTempDirectory("foo")
         );
@@ -74,6 +79,9 @@ public class JenkinsfileProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = new JenkinsfileProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         when(ctx.getScmRepository()).thenReturn(
             Files.createFile(
                 Paths.get(Files.createTempDirectory("foo").toAbsolutePath().toString(), "Jenkinsfile")

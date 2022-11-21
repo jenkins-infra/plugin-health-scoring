@@ -22,40 +22,25 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.scores;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
-/**
- * This probe detects if a specified plugin is deprecated from the update-center.
- */
-@Component
-@Order(DeprecatedPluginProbe.ORDER)
-public class DeprecatedPluginProbe extends Probe {
-    public static final int ORDER = 1;
-    public static final String KEY = "deprecation";
-
-    @Override
-    public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
-        final UpdateCenter updateCenter = ctx.getUpdateCenter();
-        if (updateCenter.deprecations().containsKey(plugin.getName())) {
-            return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
-        }
-        return ProbeResult.success(key(), "This plugin is NOT deprecated");
+public abstract class Scoring {
+    public final ScoreResult apply(Plugin plugin) {
+        return doApply(plugin);
     }
 
-    @Override
-    public String key() {
-        return KEY;
-    }
+    protected abstract ScoreResult doApply(Plugin plugin);
 
-    @Override
-    public String getDescription() {
-        return "This probe detects if a specified plugin is deprecated from the update-center.";
+    public abstract String key();
+
+    public abstract float coefficient();
+
+    public abstract String description();
+
+    public String name() {
+        return getClass().getSimpleName();
     }
 }

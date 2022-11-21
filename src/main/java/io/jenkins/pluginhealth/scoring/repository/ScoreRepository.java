@@ -22,29 +22,17 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.schedule;
+package io.jenkins.pluginhealth.scoring.repository;
 
-import java.io.IOException;
+import java.util.Optional;
 
-import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
-import io.jenkins.pluginhealth.scoring.scores.ScoreEngine;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.Score;
 
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Component
-public class ProbeEngineScheduler {
-    private final ProbeEngine probeEngine;
-    private final ScoreEngine scoreEngine;
-
-    public ProbeEngineScheduler(ProbeEngine probeEngine, ScoreEngine scoreEngine) {
-        this.probeEngine = probeEngine;
-        this.scoreEngine = scoreEngine;
-    }
-
-    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
-    public void run() throws IOException {
-        probeEngine.run();
-        scoreEngine.run();
-    }
+@Repository
+public interface ScoreRepository extends JpaRepository<Score, Long> {
+    Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
 }

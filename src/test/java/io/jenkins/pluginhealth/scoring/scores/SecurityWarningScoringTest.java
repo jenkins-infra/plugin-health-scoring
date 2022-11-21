@@ -22,72 +22,70 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class DependabotProbeTest {
+class SecurityWarningScoringTest {
     @Test
-    public void shouldNotRequireRelease() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
-    }
-
-    @Test
-    public void shouldUseDependabotKey() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.key()).isEqualTo("dependabot");
-    }
-
-    @Test
-    public void shouldDetectMissingDependabotFile() throws Exception {
+    public void shouldBeAbleToDetectPluginWithSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.FAILURE)
         ));
-        final Path repo = Files.createTempDirectory("foo");
-        when(ctx.getScmRepository()).thenReturn(repo);
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("security");
+        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0f);
     }
 
     @Test
-    public void shouldDetectDependabotFile() throws Exception {
+    public void shouldBadlyScorePluginWithNoProbeResult() {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of());
+
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("security");
+        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0f);
+    }
+
+    @Test
+    public void shouldBeAbleToDetectPluginWithNoSecurityWarning() {
+        final Plugin plugin = mock(Plugin.class);
+        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.SUCCESS)
         ));
-        final Path repo = Files.createTempDirectory("foo");
-        final Path github = Files.createDirectories(repo.resolve(".github"));
 
-        Files.createFile(github.resolve("dependabot.yml"));
+        final ScoreResult result = scoring.apply(plugin);
 
-        when(ctx.getScmRepository()).thenReturn(repo);
-
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(result.key()).isEqualTo("security");
+        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(1f);
     }
 }

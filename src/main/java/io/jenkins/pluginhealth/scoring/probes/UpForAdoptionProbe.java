@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.slf4j.Logger;
@@ -41,10 +42,15 @@ import org.springframework.stereotype.Component;
 public class UpForAdoptionProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpForAdoptionProbe.class);
     public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final String KEY = "up-for-adoption";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
+        final ProbeResult deprecatedProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
+        if (deprecatedProbeResult != null && deprecatedProbeResult.status().equals(ResultStatus.FAILURE)) {
+            return ProbeResult.failure(key(), "Plugin is deprecated");
+        }
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
         if (pl == null) {
             LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
@@ -58,7 +64,7 @@ public class UpForAdoptionProbe extends Probe {
 
     @Override
     public String key() {
-        return "up-for-adoption";
+        return KEY;
     }
 
     @Override

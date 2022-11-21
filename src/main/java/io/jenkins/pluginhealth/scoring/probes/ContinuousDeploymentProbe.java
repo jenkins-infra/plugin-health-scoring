@@ -41,11 +41,16 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(ContinuousDeploymentProbe.ORDER)
 public class ContinuousDeploymentProbe extends Probe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeploymentProbe.class);
+    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final String KEY = "jep-229";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
+            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
+            return ProbeResult.error(key(), "SCM link has not been validated yet");
+        }
         final Path repo = context.getScmRepository();
         final Path githubWorkflow = repo.resolve(".github/workflows");
         if (Files.notExists(githubWorkflow)) {
@@ -65,7 +70,7 @@ public class ContinuousDeploymentProbe extends Probe {
 
     @Override
     public String key() {
-        return "jep-229";
+        return KEY;
     }
 
     @Override
