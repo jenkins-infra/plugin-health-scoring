@@ -7,6 +7,13 @@ updates:
       interval: "weekly"
       day: "sunday"
 
+  # Maintain Yarn dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+        interval: "weekly"
+        day: "sunday"
+
   # Maintain GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
