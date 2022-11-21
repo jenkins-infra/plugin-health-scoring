@@ -24,7 +24,7 @@
     "webpack-remove-empty-scripts": "^1.0.1"
   },
   "dependencies": {
-    "ionicons": "^6.0.3"
+    "ionicons": "^6.0.4"
   },
   "browserslist": [
     "defaults",
