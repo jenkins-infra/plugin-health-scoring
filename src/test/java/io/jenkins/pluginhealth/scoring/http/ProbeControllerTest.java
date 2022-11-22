@@ -80,15 +80,13 @@ public class ProbeControllerTest {
     @Test
     public void shouldDisplayRawResultOfProbes() throws Exception {
         when(pluginService.getPluginsCount()).thenReturn(1L);
-        when(probeService.getProbesFinalResults()).thenReturn(
-            Map.of()
-        );
 
         mockMvc.perform(get("/probes/results"))
             .andExpect(status().isOk())
             .andExpect(view().name("probes/results"))
             .andExpectAll(
-                model().attributeExists("probeResults", "pluginsCount")
+                model().attributeExists("probeResults", "pluginsCount"),
+                model().attribute("pluginsCount", 1L)
             );
 
         verify(pluginService).getPluginsCount();
