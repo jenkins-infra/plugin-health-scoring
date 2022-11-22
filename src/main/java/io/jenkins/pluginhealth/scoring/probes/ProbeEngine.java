@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.slf4j.Logger;
@@ -48,12 +49,12 @@ import org.springframework.stereotype.Component;
 public final class ProbeEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProbeEngine.class);
 
-    private final List<Probe> probes;
+    private final ProbeService probeService;
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
 
-    public ProbeEngine(List<Probe> probes, PluginService pluginService, UpdateCenterService updateCenterService) {
-        this.probes = List.copyOf(probes);
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService) {
+        this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
     }
@@ -68,7 +69,7 @@ public final class ProbeEngine {
             .peek(plugin -> {
                 try {
                     final ProbeContext probeContext = new ProbeContext(plugin.getName(), updateCenter);
-                    probes.forEach(probe -> {
+                    probeService.getProbes().forEach(probe -> {
                         try {
                             final ProbeResult previousResult = plugin.getDetails().get(probe.key());
                             if (previousResult == null || !probe.requiresRelease() ||
