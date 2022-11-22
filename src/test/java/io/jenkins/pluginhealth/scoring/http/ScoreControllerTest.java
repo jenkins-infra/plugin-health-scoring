@@ -58,10 +58,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
+@ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
 @WebMvcTest(
     controllers = ScoreController.class
 )
-@ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
 class ScoreControllerTest {
     @MockBean private ScoreService scoreService;
     @MockBean private ScoringService scoringService;
