@@ -25,12 +25,13 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
+import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.slf4j.Logger;
@@ -48,12 +49,12 @@ import org.springframework.stereotype.Component;
 public final class ProbeEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProbeEngine.class);
 
-    private final List<Probe> probes;
+    private final ProbeService probeService;
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
 
-    public ProbeEngine(List<Probe> probes, PluginService pluginService, UpdateCenterService updateCenterService) {
-        this.probes = List.copyOf(probes);
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService) {
+        this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
     }
@@ -65,39 +66,59 @@ public final class ProbeEngine {
         LOGGER.info("Start running probes on all plugins");
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         pluginService.streamAll().parallel()
-            .peek(plugin -> {
-                try {
-                    final ProbeContext probeContext = new ProbeContext(plugin.getName(), updateCenter);
-                    probes.forEach(probe -> {
-                        try {
-                            final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                            if (previousResult == null || !probe.requiresRelease() ||
-                                (probe.requiresRelease()
-                                    && previousResult.timestamp() != null
-                                    && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
-                            ) {
-                                if (LOGGER.isTraceEnabled()) {
-                                    LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
-                                }
-                                final ProbeResult result = probe.apply(plugin, probeContext);
-                                if (result.status() != ResultStatus.ERROR) {
-                                    plugin.addDetails(result);
-                                }
-                            } else {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("{} requires a release of {} to be processed.", probe.key(), plugin.getName());
-                                }
-                            }
-                        } catch (Throwable t) {
-                            LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
-                        }
-                    });
-                    probeContext.cleanUp();
-                } catch (IOException ex) {
-                    // TODO
-                }
-            })
-            .forEach(pluginService::saveOrUpdate);
+            .forEach(plugin -> this.runOn(plugin, updateCenter));
         LOGGER.info("Probe engine has finished");
+    }
+
+    /**
+     * Runs all the probes on a specific plugin
+     *
+     * @param plugin the selected plugin to run all probes on
+     * @throws IOException thrown when the update-center cannot be retrieved
+     */
+    public void runOn(Plugin plugin) throws IOException {
+        final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
+        runOn(plugin, updateCenter);
+    }
+
+    private void runOn(Plugin plugin, UpdateCenter updateCenter) {
+        final ProbeContext probeContext;
+        try {
+            probeContext = new ProbeContext(plugin.getName(), updateCenter);
+        } catch (IOException ex) {
+            LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
+            return;
+        }
+        probeService.getProbes().forEach(probe -> {
+            try {
+                final ProbeResult previousResult = plugin.getDetails().get(probe.key());
+                if (previousResult == null || !probe.requiresRelease() ||
+                    (probe.requiresRelease()
+                        && previousResult.timestamp() != null
+                        && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
+                ) {
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
+                    }
+                    final ProbeResult result = probe.apply(plugin, probeContext);
+                    if (result.status() != ResultStatus.ERROR) {
+                        plugin.addDetails(result);
+                    }
+                } else {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("{} requires a release of {} to be processed.", probe.key(), plugin.getName());
+                    }
+                }
+            } catch (Throwable t) {
+                LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
+            }
+        });
+        pluginService.saveOrUpdate(plugin);
+
+        try {
+            probeContext.cleanUp();
+        } catch (IOException ex) {
+            LOGGER.error("Failed to cleanup {} for {}", probeContext.getScmRepository(), plugin.getName(), ex);
+        }
     }
 }

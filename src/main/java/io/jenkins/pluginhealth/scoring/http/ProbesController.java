@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Comparator;
-import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -39,12 +38,10 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping(path = "/probes")
 public class ProbesController {
-    private final List<Probe> probes;
     private final PluginService pluginService;
     private final ProbeService probeService;
 
-    public ProbesController(List<Probe> probes, PluginService pluginService, ProbeService probeService) {
-        this.probes = List.copyOf(probes);
+    public ProbesController(PluginService pluginService, ProbeService probeService) {
         this.pluginService = pluginService;
         this.probeService = probeService;
     }
@@ -55,7 +52,7 @@ public class ProbesController {
 
         modelAndView.addObject(
             "probes",
-            probes.stream()
+            probeService.getProbes().stream()
                 .map(ProbeDetails::map)
                 .sorted(Comparator.comparing(ProbeDetails::name))
                 .toList()
