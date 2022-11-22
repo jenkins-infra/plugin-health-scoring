@@ -58,8 +58,7 @@ public class ProbeService {
         return probeResultsMap;
     }
 
-    @Transactional
-    public long getProbesRawResultsFromDatabase(String probeID) {
+    private long getProbesRawResultsFromDatabase(String probeID) {
         return switch (probeID) {
             case "up-for-adoption", "security", "deprecation" ->
                 pluginRepository.getProbeRawResult(probeID, "FAILURE");
