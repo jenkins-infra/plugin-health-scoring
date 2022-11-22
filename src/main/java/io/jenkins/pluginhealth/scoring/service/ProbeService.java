@@ -37,13 +37,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProbeService {
     private final List<Probe> probes;
-    private final PluginService pluginService;
     private final PluginRepository pluginRepository;
 
-    public ProbeService(List<Probe> probes, PluginService pluginService, PluginRepository pluginRepository) {
+    public ProbeService(List<Probe> probes, PluginRepository pluginRepository) {
         this.probes = List.copyOf(probes);
-        this.pluginService = pluginService;
         this.pluginRepository = pluginRepository;
+    }
+
+    public List<Probe> getProbes() {
+        return probes;
     }
 
     @Transactional
@@ -56,8 +58,7 @@ public class ProbeService {
         return probeResultsMap;
     }
 
-    @Transactional
-    public long getProbesRawResultsFromDatabase(String probeID) {
+    private long getProbesRawResultsFromDatabase(String probeID) {
         return switch (probeID) {
             case "up-for-adoption", "security", "deprecation" ->
                 pluginRepository.getProbeRawResult(probeID, "FAILURE");
