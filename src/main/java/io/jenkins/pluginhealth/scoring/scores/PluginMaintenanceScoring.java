@@ -30,6 +30,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeploymentProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
 import org.springframework.stereotype.Component;
@@ -44,9 +45,14 @@ public class PluginMaintenanceScoring extends Scoring {
         final ProbeResult jenkinsfileProbeResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
         final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
         final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeploymentProbe.KEY);
+        final ProbeResult documentationMigrationResult = plugin.getDetails().get(DocumentationMigrationProbe.KEY);
 
         if (jenkinsfileProbeResult == null || jenkinsfileProbeResult.status().equals(ResultStatus.FAILURE)) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
+        }
+
+        if (documentationMigrationResult == null || documentationMigrationResult.status().equals(ResultStatus.FAILURE)) {
+            return new ScoreResult(KEY, .5f, COEFFICIENT);
         }
 
         if (dependabotProbeResult == null || dependabotProbeResult.status().equals(ResultStatus.FAILURE)) {

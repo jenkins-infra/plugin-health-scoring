@@ -37,6 +37,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeploymentProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
 import org.junit.jupiter.api.Test;
@@ -77,12 +78,44 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreSeventyFiveForPluginsWithOnlyJenkinsfile() {
+    public void shouldScoreFiftyForPluginsWithOnlyJenkinsfile() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS)
+        ));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
+        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
+        assertThat(result.value()).isEqualTo(.5f);
+    }
+
+    @Test
+    public void shouldScoreFiftyForPluginsWithJenkinsfileAndNoDocumentation() {
+        final Plugin plugin = mock(Plugin.class);
+        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.FAILURE)
+        ));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
+        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
+        assertThat(result.value()).isEqualTo(.5f);
+    }
+
+    @Test
+    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndDocumentation() {
+        final Plugin plugin = mock(Plugin.class);
+        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.SUCCESS)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -98,6 +131,7 @@ class PluginMaintenanceScoringTest {
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.FAILURE)
         ));
 
@@ -108,12 +142,13 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabot() {
+    public void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabotAndDocumentation() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS)
         ));
 
@@ -124,12 +159,13 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreNinetyForPluginsWithJenkinsfileAndDependabotButNoJEP229() {
+    public void shouldScoreNinetyForPluginsWithJenkinsfileAndDocumentationAndDependabotButNoJEP229() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
             ContinuousDeploymentProbe.KEY, new ProbeResult(ContinuousDeploymentProbe.KEY, "", ResultStatus.FAILURE)
         ));
@@ -141,12 +177,13 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreHundredForPluginsWithJenkinsfileAndDependabotAndJEP229() {
+    public void shouldScoreHundredForPluginsWithJenkinsfileAndDocumentationAndDependabotAndJEP229() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DocumentationMigrationProbe.KEY, new ProbeResult(DocumentationMigrationProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
             ContinuousDeploymentProbe.KEY, new ProbeResult(ContinuousDeploymentProbe.KEY, "", ResultStatus.SUCCESS)
         ));

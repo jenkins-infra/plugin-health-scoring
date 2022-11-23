@@ -50,10 +50,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DocumentationMigrationProbe.ORDER)
 public class DocumentationMigrationProbe extends Probe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentationMigrationProbe.class);
-
     private static final String GRADLE_PLUGINS_LISTING = "/probes/DocumentationMigrationProbe/gradle-migrated-plugins.txt";
+
+    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final String KEY = "documentation";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -136,7 +137,7 @@ public class DocumentationMigrationProbe extends Probe {
 
     @Override
     public String key() {
-        return "documentation";
+        return KEY;
     }
 
     @Override
