@@ -31,6 +31,24 @@
         </tr>
         </tbody>
     </table>
+
+    <h3>Probes results</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr data-th-each="detail: ${score.plugin.details}">
+            <td><code data-th-text="${detail.key}"></code></td>
+            <td data-th-text="${detail.value.message}"></td>
+            <td data-th-text="${#temporals.format(detail.value.timestamp)}"></td>
+        </tr>
+        </tbody>
+    </table>
 </section>
 
 </body>
