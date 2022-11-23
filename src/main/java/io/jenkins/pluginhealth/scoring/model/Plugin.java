@@ -113,13 +113,15 @@ public class Plugin {
         return Map.copyOf(details);
     }
 
-    public Plugin addDetails(ProbeResult result) {
-        details.put(result.id(), result);
+    public Plugin addDetails(ProbeResult newProbeResult) {
+        this.details.compute(newProbeResult.id(), (s, previousProbeResult) -> {
+            return Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult;
+        });
         return this;
     }
 
     public Plugin addDetails(Map<String, ProbeResult> details) {
-        this.details.putAll(details);
+        details.values().forEach(this::addDetails);
         return this;
     }
 

@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 /**
  * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
@@ -36,6 +37,19 @@ import java.time.ZonedDateTime;
 public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
     public ProbeResult(String id, String message, ResultStatus status) {
         this(id, message, status, ZonedDateTime.now());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProbeResult that = (ProbeResult) o;
+        return id.equals(that.id) && message.equals(that.message) && status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, status);
     }
 
     public static ProbeResult success(String id, String message) {
