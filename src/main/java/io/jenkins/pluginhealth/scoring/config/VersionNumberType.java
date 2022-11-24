@@ -31,54 +31,48 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import hudson.util.VersionNumber;
-import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.StringType;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.usertype.UserType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class VersionNumberType implements UserType {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VersionNumberType.class);
-
+public class VersionNumberType implements UserType<VersionNumber> {
     @Override
-    public int[] sqlTypes() {
-        return new int[]{StringType.INSTANCE.sqlType()};
+    public int getSqlType() {
+        return SqlTypes.VARCHAR;
     }
 
     @Override
-    public Class<?> returnedClass() {
+    public Class<VersionNumber> returnedClass() {
         return VersionNumber.class;
     }
 
     @Override
-    public boolean equals(Object x, Object y) throws HibernateException {
+    public boolean equals(VersionNumber x, VersionNumber y) {
         return Objects.equals(x, y);
     }
 
     @Override
-    public int hashCode(Object x) throws HibernateException {
+    public int hashCode(VersionNumber x) {
         return Objects.hash(x);
     }
 
     @Override
-    public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor session, Object owner) throws HibernateException, SQLException {
-        String columnName = names[0];
-        final String columnValue = rs.getString(columnName);
-        return columnValue == null ? null : new VersionNumber(columnValue);
+    public VersionNumber nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner) throws SQLException {
+        return rs.wasNull() ?
+            null : new VersionNumber(rs.getString(position));
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor session) throws HibernateException, SQLException {
+    public void nullSafeSet(PreparedStatement st, VersionNumber value, int index, SharedSessionContractImplementor session) throws SQLException {
         if (value == null) {
-            st.setNull(index, StringType.INSTANCE.sqlType());
+            st.setNull(index, SqlTypes.VARCHAR);
         } else {
             st.setString(index, value.toString());
         }
     }
 
     @Override
-    public Object deepCopy(Object value) throws HibernateException {
+    public VersionNumber deepCopy(VersionNumber value) {
         return value;
     }
 
@@ -88,17 +82,17 @@ public class VersionNumberType implements UserType {
     }
 
     @Override
-    public Serializable disassemble(Object value) throws HibernateException {
+    public Serializable disassemble(VersionNumber value) {
         return value.toString();
     }
 
     @Override
-    public Object assemble(Serializable cached, Object owner) throws HibernateException {
-        return deepCopy(cached);
+    public VersionNumber assemble(Serializable cached, Object owner) {
+        return deepCopy((VersionNumber) cached);
     }
 
     @Override
-    public Object replace(Object original, Object target, Object owner) throws HibernateException {
-        return deepCopy(original);
+    public VersionNumber replace(VersionNumber detached, VersionNumber managed, Object owner) {
+        return deepCopy(detached);
     }
 }
