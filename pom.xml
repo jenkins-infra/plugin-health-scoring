@@ -216,6 +216,10 @@
 			<id>repo.jenkins-ci.org</id>
 			<url>https://repo.jenkins-ci.org/public/</url>
 		</repository>
+		<repository> <!-- TODO: to be removed once 3.0.0 is GA -->
+			<id>repo.spring.io</id>
+			<url>https://repo.spring.io/milestone</url>
+		</repository>
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
