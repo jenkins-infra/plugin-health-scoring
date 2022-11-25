@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.DoubleStream;
+
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,11 +39,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-
-import com.vladmihalcea.hibernate.type.json.JsonType;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "scores")
@@ -60,7 +58,7 @@ public class Score {
     @Column(name = "value")
     private long value = 0;
 
-    @Column
+    @Column(columnDefinition = "jsonb")
     @Type(JsonType.class)
     private final Set<ScoreResult> details = new HashSet<>();
 

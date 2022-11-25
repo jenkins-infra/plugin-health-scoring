@@ -31,7 +31,7 @@ import java.util.Objects;
 
 import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
 
-import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import hudson.util.VersionNumber;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,8 +61,8 @@ public class Plugin {
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
 
-    @Type(value = JsonNodeBinaryType.class)
-    @Column
+    @Column(columnDefinition = "jsonb")
+    @Type(value = JsonType.class)
     private final Map<String, ProbeResult> details = new HashMap<>();
 
     public Plugin() {
