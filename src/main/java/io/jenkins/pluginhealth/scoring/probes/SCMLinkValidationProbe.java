@@ -25,11 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,17 +47,15 @@ import org.springframework.stereotype.Component;
 @Order(value = SCMLinkValidationProbe.ORDER)
 public final class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
+
     public static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
-
     public static final int ORDER = DeprecatedPluginProbe.ORDER + 20;
     public static final String KEY = "scm";
 
-    private final HttpClient httpClient;
     private final GithubConfiguration githubConfiguration;
 
-    public SCMLinkValidationProbe(HttpClient httpClient, GithubConfiguration githubConfiguration) {
-        this.httpClient = httpClient;
+    public SCMLinkValidationProbe(GithubConfiguration githubConfiguration) {
         this.githubConfiguration = githubConfiguration;
     }
 
@@ -106,15 +100,8 @@ public final class SCMLinkValidationProbe extends Probe {
         }
 
         try {
-            final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.github.com/repos/%s".formatted(matcher.group("repo"))))
-                .timeout(Duration.ofSeconds(2))
-                .header("Authorization", "token %s".formatted(githubConfiguration.getGitAccessToken()))
-                .header("User-Agent", "Plugin-Health-Scoring")
-                .GET()
-                .build();
-            final HttpResponse<String> response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
+            final HttpResponse<String> response = this.githubConfiguration
+                .request("repos/%s".formatted(matcher.group("repo")));
             if (response.statusCode() == 200) {
                 return ProbeResult.success(key(), "The plugin SCM link is valid");
             } else {

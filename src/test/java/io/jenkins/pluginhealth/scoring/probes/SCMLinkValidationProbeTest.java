@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,12 +56,12 @@ class SCMLinkValidationProbeTest {
 
     @Test
     public void shouldKeepScmAsKey() {
-        assertThat(new SCMLinkValidationProbe(httpClient, githubConfiguration).key()).isEqualTo("scm");
+        assertThat(new SCMLinkValidationProbe(githubConfiguration).key()).isEqualTo("scm");
     }
 
     @Test
     public void shouldRequireRelease() {
-        assertThat(new SCMLinkValidationProbe(httpClient, githubConfiguration).requiresRelease()).isTrue();
+        assertThat(new SCMLinkValidationProbe(githubConfiguration).requiresRelease()).isTrue();
     }
 
     @Test
@@ -69,7 +70,7 @@ class SCMLinkValidationProbeTest {
         final ProbeContext ctxP1 = mock(ProbeContext.class);
         final Plugin p2 = mock(Plugin.class);
         final ProbeContext ctxP2 = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
+        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn(null);
         when(p2.getScm()).thenReturn("");
@@ -86,7 +87,7 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeIncorrectSCMUrl() {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
+        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn("this-is-not-correct");
         final ProbeResult r1 = probe.apply(p1, ctx);
@@ -99,10 +100,11 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
+        final HttpRequest httpRequest = mock(HttpRequest.class);
+        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
+        when(githubConfiguration.request(anyString())).thenReturn(
             new HttpResponse<>() {
                 @Override
                 public int statusCode() {
@@ -155,10 +157,11 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeInvalidGitHubUrl() throws Exception {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(httpClient, githubConfiguration);
+        final HttpRequest httpRequest = mock(HttpRequest.class);
+        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn("https://github.com/jenkinsci/this-is-not-going-to-work");
-        when(httpClient.<String>send(any(HttpRequest.class), any())).thenReturn(
+        when(githubConfiguration.request(anyString())).thenReturn(
             new HttpResponse<>() {
                 @Override
                 public int statusCode() {
