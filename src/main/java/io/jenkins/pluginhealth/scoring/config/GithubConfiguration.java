@@ -49,21 +49,6 @@ public class GithubConfiguration {
         this.oauth = oauth;
     }
 
-    public String getGitAccessToken() {
-        return oauth;
-    }
-
-    private HttpRequest generateRequest(String endpoint) {
-        return HttpRequest.newBuilder()
-            .uri(URI.create("https://api.github.com/%s".formatted(endpoint)))
-            .timeout(Duration.ofSeconds(2))
-            .header("Authorization", "token %s".formatted(this.getGitAccessToken()))
-            .header("Accept", "application/vnd.github+json")
-            .header("User-Agent", "Plugin-Health-Scoring")
-            .GET()
-            .build();
-    }
-
     public HttpResponse<String> request(String endpoint) throws IOException, InterruptedException {
         return this.request(endpoint, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }
@@ -79,5 +64,21 @@ public class GithubConfiguration {
             .followRedirects(HttpClient.Redirect.ALWAYS)
             .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
             .build();
+    }
+
+    private HttpRequest generateRequest(String endpoint) {
+        return HttpRequest.newBuilder()
+            .uri(URI.create("https://api.github.com/%s".formatted(endpoint)))
+            .timeout(Duration.ofSeconds(2))
+            .header("Authorization", this.getAuthorizationToken())
+            .header("Accept", "application/vnd.github+json")
+            .header("User-Agent", "Plugin-Health-Scoring")
+            .GET()
+            .build();
+    }
+
+    // TODO see for different implementation depending on the profile or what configuration elements are present
+    private String getAuthorizationToken() {
+        return "token %s".formatted(this.oauth);
     }
 }

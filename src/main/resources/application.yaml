@@ -13,10 +13,11 @@ spring:
     open-in-view: false
 
 management:
-  endpoints.web.exposure.include: health,info
-  info:
-    git.enabled: true
-    build.enabled: true
+  endpoints.web.exposure.include: health
+  health:
+    defaults.enabled: false
+    db.enabled: true
+    gitHub.enabled: true
 
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
 github.oauth: ${GITHUB_OAUTH}
