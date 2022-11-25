@@ -42,7 +42,7 @@ public class GitHubHealthIndicator implements HealthIndicator {
     @Override
     public Health health() {
         try {
-            final HttpResponse<String> response = githubConfiguration.request("orgs/jenkinsci");
+            final HttpResponse<String> response = githubConfiguration.request("user");
             return response != null && response.statusCode() == 200 ?
                 Health.up().build() :
                 Health.down()
