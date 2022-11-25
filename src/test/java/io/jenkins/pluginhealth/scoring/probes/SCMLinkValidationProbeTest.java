@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -51,7 +50,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SCMLinkValidationProbeTest {
-    @Mock private HttpClient httpClient;
     @Mock private GithubConfiguration githubConfiguration;
 
     @Test
@@ -100,7 +98,6 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final HttpRequest httpRequest = mock(HttpRequest.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
@@ -157,7 +154,6 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeInvalidGitHubUrl() throws Exception {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final HttpRequest httpRequest = mock(HttpRequest.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
 
         when(p1.getScm()).thenReturn("https://github.com/jenkinsci/this-is-not-going-to-work");
