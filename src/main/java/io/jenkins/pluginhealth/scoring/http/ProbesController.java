@@ -32,6 +32,7 @@ import io.jenkins.pluginhealth.scoring.service.ProbeService;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -44,6 +45,11 @@ public class ProbesController {
     public ProbesController(PluginService pluginService, ProbeService probeService) {
         this.pluginService = pluginService;
         this.probeService = probeService;
+    }
+
+    @ModelAttribute(name = "module")
+    /* default */ String module() {
+        return "probes";
     }
 
     @GetMapping(path = "")

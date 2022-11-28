@@ -27,11 +27,11 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service

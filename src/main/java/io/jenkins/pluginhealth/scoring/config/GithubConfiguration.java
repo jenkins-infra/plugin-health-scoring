@@ -33,18 +33,19 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import javax.validation.constraints.NotBlank;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "github")
-@ConstructorBinding
 @Validated
 public class GithubConfiguration {
-    @NotBlank private final String oauth;
+    @NotBlank
+    private final String oauth;
 
+    @ConstructorBinding
     public GithubConfiguration(String oauth) {
         this.oauth = oauth;
     }
