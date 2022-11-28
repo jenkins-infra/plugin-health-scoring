@@ -36,6 +36,7 @@ import io.jenkins.pluginhealth.scoring.service.ScoringService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -49,6 +50,11 @@ public class ScoreController {
     public ScoreController(ScoreService scoreService, ScoringService scoringService) {
         this.scoreService = scoreService;
         this.scoringService = scoringService;
+    }
+
+    @ModelAttribute(name = "module")
+        /* default */ String module() {
+        return "scores";
     }
 
     @GetMapping(path = "")

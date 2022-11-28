@@ -27,19 +27,20 @@ package io.jenkins.pluginhealth.scoring.config;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.http.HttpClient;
-import javax.validation.constraints.NotBlank;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "github")
-@ConstructorBinding
 @Validated
 public class GithubConfiguration {
-    @NotBlank private final String oauth;
+    @NotBlank
+    private final String oauth;
 
+    @ConstructorBinding
     public GithubConfiguration(String oauth) {
         this.oauth = oauth;
     }

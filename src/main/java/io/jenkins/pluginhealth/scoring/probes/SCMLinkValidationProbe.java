@@ -38,7 +38,6 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
-import com.sun.istack.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -96,7 +95,7 @@ public final class SCMLinkValidationProbe extends Probe {
         return true;
     }
 
-    private ProbeResult fromSCMLink(@NotNull String scm) {
+    private ProbeResult fromSCMLink(String scm) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             if (LOGGER.isDebugEnabled()) {
