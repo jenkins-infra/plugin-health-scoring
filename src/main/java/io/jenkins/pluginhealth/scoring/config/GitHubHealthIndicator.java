@@ -24,32 +24,29 @@
 
 package io.jenkins.pluginhealth.scoring.config;
 
-import java.io.IOException;
 import java.net.http.HttpResponse;
 
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GitHubHealthIndicator implements HealthIndicator {
+public class GitHubHealthIndicator extends AbstractHealthIndicator {
     private final GithubConfiguration githubConfiguration;
 
     public GitHubHealthIndicator(GithubConfiguration githubConfiguration) {
+        super();
         this.githubConfiguration = githubConfiguration;
     }
 
     @Override
-    public Health health() {
-        try {
-            final HttpResponse<String> response = githubConfiguration.request("user");
-            return response != null && response.statusCode() == 200 ?
-                Health.up().build() :
-                Health.down()
-                    .withDetail("Connectivity", "Couldn't not retrieve jenkinsci organization details")
-                    .build();
-        } catch (IOException | InterruptedException e) {
-            return Health.down(e).build();
+    protected void doHealthCheck(Health.Builder builder) throws Exception {
+        final HttpResponse<String> response = githubConfiguration.request("user");
+        if (response.statusCode() == 200) {
+            builder.up();
+        } else {
+            builder.down()
+                .withDetail("status", response.statusCode());
         }
     }
 }
