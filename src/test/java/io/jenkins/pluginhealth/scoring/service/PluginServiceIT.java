@@ -26,6 +26,9 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
@@ -60,5 +63,22 @@ public class PluginServiceIT extends AbstractDBContainerTest {
         assertThat(pluginRepository.findAll())
             .hasSize(1)
             .contains(plugin);
+    }
+
+    @Test
+    public void shouldBeAbleToSavePluginWithThreeDigitVersion() {
+        final Plugin plugin = new Plugin("foo-bar", new VersionNumber("1.0.1"), null, ZonedDateTime.now());
+
+        assertThat(pluginRepository.count()).isEqualTo(0);
+        pluginService.saveOrUpdate(plugin);
+        assertThat(pluginRepository.count()).isEqualTo(1);
+
+        final Optional<Plugin> saved = pluginRepository.findByName("foo-bar");
+        assertThat(saved)
+            .isPresent()
+            .get()
+            .extracting("version")
+            .isNotNull()
+            .isEqualTo(new VersionNumber("1.0.1"));
     }
 }
