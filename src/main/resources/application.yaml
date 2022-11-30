@@ -13,10 +13,11 @@ spring:
     open-in-view: false
 
 management:
-  endpoints.web.exposure.include: health,info
-  info:
-    git.enabled: true
-    build.enabled: true
+  endpoint:
+    health:
+      db.enabled: true
+      defaults.enabled: false
+      gitHub.enabled: true
 
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
 github.oauth: ${GITHUB_OAUTH}
@@ -29,3 +30,8 @@ cron:
 spring.config.activate.on-profile: dev
 logging.level:
   io.jenkins.pluginhealth: DEBUG
+
+management:
+  endpoint:
+    health:
+      show-components: always
