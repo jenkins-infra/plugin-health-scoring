@@ -58,13 +58,14 @@ public class VersionNumberType implements UserType<VersionNumber> {
 
     @Override
     public VersionNumber nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner) throws SQLException {
-        return rs.wasNull() ?
-            null : new VersionNumber(rs.getString(position));
+        final String value = rs.getString(position);
+        return rs.wasNull() || Objects.isNull(value) ?
+            null : new VersionNumber(value);
     }
 
     @Override
     public void nullSafeSet(PreparedStatement st, VersionNumber value, int index, SharedSessionContractImplementor session) throws SQLException {
-        if (value == null) {
+        if (Objects.isNull(value)) {
             st.setNull(index, SqlTypes.VARCHAR);
         } else {
             st.setString(index, value.toString());
@@ -73,17 +74,21 @@ public class VersionNumberType implements UserType<VersionNumber> {
 
     @Override
     public VersionNumber deepCopy(VersionNumber value) {
-        return value;
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        return new VersionNumber(value.toString());
     }
 
     @Override
     public boolean isMutable() {
-        return false;
+        return true;
     }
 
     @Override
     public Serializable disassemble(VersionNumber value) {
-        return value.toString();
+        final VersionNumber versionNumber = deepCopy(value);
+        return versionNumber == null ? null : versionNumber.toString();
     }
 
     @Override
