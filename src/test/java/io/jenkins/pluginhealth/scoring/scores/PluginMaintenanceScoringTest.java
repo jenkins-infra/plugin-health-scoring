@@ -35,7 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.ContinuousDeploymentProbe;
+import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
@@ -131,7 +131,7 @@ class PluginMaintenanceScoringTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            ContinuousDeploymentProbe.KEY, new ProbeResult(ContinuousDeploymentProbe.KEY, "", ResultStatus.FAILURE)
+            ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.FAILURE)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -148,7 +148,7 @@ class PluginMaintenanceScoringTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            ContinuousDeploymentProbe.KEY, new ProbeResult(ContinuousDeploymentProbe.KEY, "", ResultStatus.SUCCESS)
+            ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.SUCCESS)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
