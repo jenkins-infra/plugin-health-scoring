@@ -43,16 +43,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ContinuousDeploymentProbeTest {
+class ContinuousDeliveryProbeTest {
     @Test
     public void shouldNotRequireRelease() {
-        final ContinuousDeploymentProbe probe = spy(ContinuousDeploymentProbe.class);
+        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldKeepUsingJEP229Key() {
-        final ContinuousDeploymentProbe probe = spy(ContinuousDeploymentProbe.class);
+        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.key()).isEqualTo("jep-229");
     }
 
@@ -60,7 +60,7 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
@@ -76,7 +76,7 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
@@ -94,7 +94,7 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
@@ -113,7 +113,7 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))

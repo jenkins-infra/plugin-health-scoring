@@ -39,9 +39,9 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(ContinuousDeploymentProbe.ORDER)
-public class ContinuousDeploymentProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeploymentProbe.class);
+@Order(ContinuousDeliveryProbe.ORDER)
+public class ContinuousDeliveryProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
     public static final int ORDER = LastCommitDateProbe.ORDER + 1;
     public static final String KEY = "jep-229";
 
@@ -75,6 +75,6 @@ public class ContinuousDeploymentProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Checks if JEP-229 (Continuous Deployment) has been activated on the plugin";
+        return "Checks if JEP-229 (Continuous Delivery) has been activated on the plugin";
     }
 }

@@ -28,7 +28,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.ContinuousDeploymentProbe;
+import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
@@ -43,7 +43,7 @@ public class PluginMaintenanceScoring extends Scoring {
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult jenkinsfileProbeResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
         final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
-        final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeploymentProbe.KEY);
+        final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
 
         if (jenkinsfileProbeResult == null || jenkinsfileProbeResult.status().equals(ResultStatus.FAILURE)) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
