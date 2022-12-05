@@ -121,12 +121,12 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>6.3.0.2022009070944-r</version>
+			<version>6.4.0.202211300538-r</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci</groupId>
 			<artifactId>version-number</artifactId>
-			<version>1.10</version>
+			<version>1.11</version>
 		</dependency>
 
 		<dependency>
