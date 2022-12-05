@@ -75,11 +75,12 @@ public class LastCommitDateProbe extends Probe {
                 if (commit == null) {
                     return ProbeResult.failure(key(), "Last commit cannot be found");
                 }
-                final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                     commit.getAuthorIdent().getWhenAsInstant(),
                     commit.getAuthorIdent().getZoneId()
                 );
-                return ProbeResult.success(key(), zonedDateTime.toString());
+                context.setLastCommitDate(commitDate);
+                return ProbeResult.success(key(), commitDate.toString());
             } catch (GitAPIException ex) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("There was an issue while cloning the plugin repository", ex);
