@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -94,6 +96,46 @@ class ProbeEngineTest {
 
         verify(probe, never()).doApply(plugin, ctx);
         verify(pluginService).saveOrUpdate(plugin);
+    }
+
+    @Test
+    public void shouldNotApplyProbeRelatedToCodeWithNoNewCode() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final Probe probe = mock(Probe.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+        when(probe.requiresRelease()).thenReturn(false);
+        when(probe.isSourceCodeRelated()).thenReturn(true);
+        when(probeService.getProbes()).thenReturn(List.of(probe));
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService);
+        probeEngine.run();
+
+        verify(probe, never()).apply(plugin, ctx);
+    }
+
+    @Test
+    public void shouldApplyProbeRelatedToCodeWithNewCommit() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final Probe probe = mock(Probe.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final ProbeResult result = new ProbeResult("probe", "message", ResultStatus.SUCCESS);
+
+        when(plugin.getName()).thenReturn("foo");
+        when(probe.requiresRelease()).thenReturn(false);
+        when(probe.isSourceCodeRelated()).thenReturn(true);
+        when(probe.doApply(plugin, ctx)).thenReturn(result);
+
+        when(probeService.getProbes()).thenReturn(List.of(probe));
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService);
+        probeEngine.run();
+
+        verify(probe).apply(plugin, ctx);
+        verify(plugin).addDetails(result);
     }
 
     @Test
