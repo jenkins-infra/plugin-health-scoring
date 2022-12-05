@@ -60,4 +60,8 @@ public abstract class Probe {
     protected boolean requiresRelease() {
         return false;
     }
+
+    protected boolean isSourceCodeRelated() {
+        return false;
+    }
 }

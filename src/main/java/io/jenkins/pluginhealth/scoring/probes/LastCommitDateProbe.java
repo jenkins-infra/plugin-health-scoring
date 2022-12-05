@@ -100,4 +100,9 @@ public class LastCommitDateProbe extends Probe {
     public String getDescription() {
         return "Register the last commit date on the official plugin repository";
     }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
+    }
 }
