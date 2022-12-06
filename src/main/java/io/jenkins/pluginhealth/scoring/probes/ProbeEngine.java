@@ -81,25 +81,28 @@ public final class ProbeEngine {
         runOn(plugin, updateCenter);
     }
 
-    /* default */ ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
-        return new ProbeContext(pluginName, updateCenter);
-    }
-
     private boolean shouldExecuteProbe(Probe probe, ProbeResult previousResult, Plugin plugin, ProbeContext ctx) {
-        return previousResult == null || !probe.requiresRelease() ||
-            (probe.requiresRelease()
-                && previousResult.timestamp() != null
-                && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) ||
-            (probe.isSourceCodeRelated()
-            && ctx.getLastCommitDate().map(date ->
-                previousResult.timestamp() != null
-                    && previousResult.timestamp().isBefore(date)).orElse(false));
+        if (previousResult == null) {
+            return true;
+        }
+        if (probe.requiresRelease() && (previousResult.timestamp() != null)
+            && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) {
+            return true;
+        }
+        if (probe.isSourceCodeRelated() && ctx.getLastCommitDate().map(date -> previousResult.timestamp() != null
+            && previousResult.timestamp().isBefore(date)).orElse(false)) {
+            return true;
+        }
+        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
+            return true;
+        }
+        return false;
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
         final ProbeContext probeContext;
         try {
-            probeContext = getProbeContext(plugin.getName(), updateCenter);
+            probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
         } catch (IOException ex) {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;

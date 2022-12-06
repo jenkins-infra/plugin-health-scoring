@@ -35,12 +35,12 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-/*default*/ class ProbeContext {
+public class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
     private ZonedDateTime lastCommitDate;
 
-    /*default*/ ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+    public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
         this.scmRepository = Files.createTempDirectory(pluginName);
     }
@@ -61,7 +61,7 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
         this.lastCommitDate = lastCommitDate;
     }
 
-    public void cleanUp() throws IOException {
+    /* default */ void cleanUp() throws IOException {
         try (Stream<Path> paths = Files.walk(this.scmRepository)) {
             paths.sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
