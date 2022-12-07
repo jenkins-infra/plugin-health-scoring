@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
+import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
@@ -53,12 +55,12 @@ public class ProbeService {
 
     @Transactional
     public Map<String, Long> getProbesFinalResults() {
-        Map<String, Long> probeResultsMap = probes.stream()
+        return probes.stream()
+            .filter(probe ->
+                !probe.key().equals(LastCommitDateProbe.KEY)
+                && !probe.key().equals(InstallationStatProbe.KEY)
+            )
             .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
-
-        probeResultsMap.remove("last-commit-date");
-
-        return probeResultsMap;
     }
 
     private long getProbesRawResultsFromDatabase(String probeID) {
