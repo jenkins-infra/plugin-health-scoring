@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
+import io.jenkins.pluginhealth.scoring.probes.JenkinsCoreProbe;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
@@ -59,6 +60,7 @@ public class ProbeService {
             .filter(probe ->
                 !probe.key().equals(LastCommitDateProbe.KEY)
                 && !probe.key().equals(InstallationStatProbe.KEY)
+                && !probe.key().equals(JenkinsCoreProbe.KEY)
             )
             .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
     }

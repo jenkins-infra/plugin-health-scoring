@@ -60,7 +60,7 @@ public class DeprecatedPluginProbeTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0)),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "")),
             Map.of("bar", new Deprecation("find-the-reason-here")),
             Collections.emptyList()
         ));
@@ -78,7 +78,7 @@ public class DeprecatedPluginProbeTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0)),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "")),
             Map.of("bar", new Deprecation("find-the-reason-here"), "foo", new Deprecation("this-is-the-reason")),
             Collections.emptyList()
         ));

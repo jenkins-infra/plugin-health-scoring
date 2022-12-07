@@ -43,39 +43,37 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class InstallationStatProbeTest {
-
+class JenkinsCoreProbeTest {
     @Test
-    public void doesNotRequireRelease() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+    public void shouldBeUsingJenkinsVersionKey() {
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
+        assertThat(probe.key()).isEqualTo("jenkins-version");
     }
 
     @Test
-    public void doesNotRequireCodeModification() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
+    public void shouldRequireRelease() {
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
+        assertThat(probe.requiresRelease()).isTrue();
+    }
+
+    @Test
+    public void shouldNotRequireSourceCodeChange() {
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.isSourceCodeRelated()).isFalse();
     }
 
     @Test
-    public void shouldHaveStatAsKey() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.key()).isEqualTo("stat");
-    }
-
-    @Test
     public void shouldHaveDescription() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldFailWhenPluginIsNotInUpdateCenter() {
+    public void shouldFailIfPluginNotInUpdateCenter() {
+        final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
 
-        final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
@@ -83,37 +81,43 @@ class InstallationStatProbeTest {
             List.of()
         ));
 
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        SoftAssertions.assertSoftly(softly ->{
-            softly.assertThat(result).isNotNull();
+        assertThat(result).isNotNull();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(result).extracting("id").isEqualTo(probe.key());
             softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.FAILURE);
+            softly.assertThat(result).extracting("message").isEqualTo("Plugin is not in the update-center");
         });
     }
 
     @Test
-    public void shouldBeAbleToFindInstallationCountInUpdateCenter() {
+    public void shouldBeAbleToExtractJenkinsVersionFromUpdateCenter() {
+        final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
 
-        final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(pluginName, null, null, null, List.of(), 100, "")
+                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    pluginName, null, null, null, List.of(), 0, "2.361.1"
+                )
             ),
             Map.of(),
             List.of()
         ));
 
+        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        SoftAssertions.assertSoftly(softly ->{
-            softly.assertThat(result).isNotNull();
+        assertThat(result).isNotNull();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(result).extracting("id").isEqualTo(probe.key());
             softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.SUCCESS);
-            softly.assertThat(result).extracting("message").isEqualTo("100");
+            softly.assertThat(result).extracting("message").isEqualTo("2.361.1");
         });
     }
 }
