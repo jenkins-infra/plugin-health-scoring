@@ -24,11 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
+import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import jakarta.transaction.Transactional;
@@ -65,5 +68,9 @@ public class ProbeService {
             default ->
                 pluginRepository.getProbeRawResult(probeID, "SUCCESS");
         };
+    }
+
+    public ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+        return new ProbeContext(pluginName, updateCenter);
     }
 }

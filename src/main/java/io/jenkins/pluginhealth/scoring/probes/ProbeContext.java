@@ -28,16 +28,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-/*default*/ class ProbeContext {
+public class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
+    private ZonedDateTime lastCommitDate;
 
-    /*default*/ ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+    public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
         this.scmRepository = Files.createTempDirectory(pluginName);
     }
@@ -50,7 +53,15 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
         return scmRepository;
     }
 
-    public void cleanUp() throws IOException {
+    public Optional<ZonedDateTime> getLastCommitDate() {
+        return Optional.ofNullable(lastCommitDate);
+    }
+
+    public void setLastCommitDate(ZonedDateTime lastCommitDate) {
+        this.lastCommitDate = lastCommitDate;
+    }
+
+    /* default */ void cleanUp() throws IOException {
         try (Stream<Path> paths = Files.walk(this.scmRepository)) {
             paths.sorted(Comparator.reverseOrder())
                 .map(Path::toFile)

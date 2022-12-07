@@ -81,10 +81,28 @@ public final class ProbeEngine {
         runOn(plugin, updateCenter);
     }
 
+    private boolean shouldExecuteProbe(Probe probe, ProbeResult previousResult, Plugin plugin, ProbeContext ctx) {
+        if (previousResult == null) {
+            return true;
+        }
+        if (probe.requiresRelease() && (previousResult.timestamp() != null)
+            && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) {
+            return true;
+        }
+        if (probe.isSourceCodeRelated() && ctx.getLastCommitDate().map(date -> previousResult.timestamp() != null
+            && previousResult.timestamp().isBefore(date)).orElse(false)) {
+            return true;
+        }
+        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
+            return true;
+        }
+        return false;
+    }
+
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
         final ProbeContext probeContext;
         try {
-            probeContext = new ProbeContext(plugin.getName(), updateCenter);
+            probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
         } catch (IOException ex) {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;
@@ -92,11 +110,7 @@ public final class ProbeEngine {
         probeService.getProbes().forEach(probe -> {
             try {
                 final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                if (previousResult == null || !probe.requiresRelease() ||
-                    (probe.requiresRelease()
-                        && previousResult.timestamp() != null
-                        && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))
-                ) {
+                if (shouldExecuteProbe(probe, previousResult, plugin, probeContext)) {
                     if (LOGGER.isTraceEnabled()) {
                         LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
                     }

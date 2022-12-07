@@ -72,4 +72,9 @@ public class DependabotProbe extends Probe {
     public String getDescription() {
         return "Checks if dependabot is configured on a plugin.";
     }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
+    }
 }

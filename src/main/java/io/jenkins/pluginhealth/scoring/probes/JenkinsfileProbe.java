@@ -74,4 +74,9 @@ public class JenkinsfileProbe extends Probe {
             This file is used to configure the plugin Continuous Integration on ci.jenkins.io.
             """;
     }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
+    }
 }
