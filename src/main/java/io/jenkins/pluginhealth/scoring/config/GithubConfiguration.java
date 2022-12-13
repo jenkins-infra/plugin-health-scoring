@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
@@ -35,7 +37,8 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "github")
 @Validated
 public class GithubConfiguration {
-    private static final long DEFAULT_TTL = 5000;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
+    private static final long DEFAULT_TTL = 60 * 1000;
 
     private final String appId;
     private final long ttl;
@@ -43,7 +46,13 @@ public class GithubConfiguration {
     @ConstructorBinding
     public GithubConfiguration(String appId, long ttl) {
         this.appId = appId;
-        this.ttl = ttl == 0 ? DEFAULT_TTL : ttl;
+        if (ttl > 10 * 60 * 1000) { /* TTL must be less than 10min */
+            LOGGER.warn("GitHub App Token cannot have a TTL of more than 10min, using default value of {}ms", DEFAULT_TTL);
+            this.ttl = DEFAULT_TTL;
+        } else {
+            this.ttl = ttl == 0 ? DEFAULT_TTL : ttl;
+            LOGGER.info("GitHub JWT TTL: {}ms", this.ttl);
+        }
     }
 
     public GitHub getGitHub() throws IOException {
