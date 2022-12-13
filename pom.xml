@@ -97,6 +97,7 @@
 
 		<spring-boot.version>3.0.0</spring-boot.version>
 		<testcontainers.version>1.17.6</testcontainers.version>
+		<jjwt.version>0.11.5</jjwt.version>
 	</properties>
 
 	<dependencyManagement>
@@ -127,6 +128,16 @@
 			<groupId>org.jenkins-ci</groupId>
 			<artifactId>version-number</artifactId>
 			<version>1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>github-api</artifactId>
+			<version>1.313</version>
+		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.2.1</version>
 		</dependency>
 
 		<dependency>

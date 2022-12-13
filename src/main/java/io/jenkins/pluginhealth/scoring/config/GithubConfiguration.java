@@ -25,16 +25,9 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 
-import jakarta.validation.constraints.NotBlank;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
@@ -42,44 +35,25 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "github")
 @Validated
 public class GithubConfiguration {
-    @NotBlank
-    private final String oauth;
+    private static final long DEFAULT_TTL = 5000;
+
+    private final String appId;
+    private final long ttl;
 
     @ConstructorBinding
-    public GithubConfiguration(String oauth) {
-        this.oauth = oauth;
+    public GithubConfiguration(String appId, long ttl) {
+        this.appId = appId;
+        this.ttl = ttl == 0 ? DEFAULT_TTL : ttl;
     }
 
-    public HttpResponse<String> request(String endpoint) throws IOException, InterruptedException {
-        return this.request(endpoint, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-    }
-
-    public <T> HttpResponse<T> request(String endpoint, HttpResponse.BodyHandler<T> bodyHandler)
-        throws IOException, InterruptedException {
-        return this.getHttpClient().send(generateRequest(endpoint), bodyHandler);
-    }
-
-    private HttpClient getHttpClient() {
-        return HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .followRedirects(HttpClient.Redirect.ALWAYS)
-            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
+    public GitHub getGitHub() throws IOException {
+        return new GitHubBuilder()
+            .withJwtToken(createJWT())
             .build();
     }
 
-    private HttpRequest generateRequest(String endpoint) {
-        return HttpRequest.newBuilder()
-            .uri(URI.create("https://api.github.com/%s".formatted(endpoint)))
-            .timeout(Duration.ofSeconds(2))
-            .header("Authorization", this.getAuthorizationToken())
-            .header("Accept", "application/vnd.github+json")
-            .header("User-Agent", "Plugin-Health-Scoring")
-            .GET()
-            .build();
-    }
-
-    // TODO see for different implementation depending on the profile or what configuration elements are present
-    private String getAuthorizationToken() {
-        return "token %s".formatted(this.oauth);
+    // TODO
+    private String createJWT() {
+        return "";
     }
 }

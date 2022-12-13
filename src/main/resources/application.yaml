@@ -20,7 +20,8 @@ management:
       gitHub.enabled: true
 
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
-github.oauth: ${GITHUB_OAUTH}
+github:
+  app-id: ${GITHUB_APP_ID}
 cron:
   update-center: ${UPDATE_CENTER_CRON}
   probe-engine: ${PROBE_ENGINE_CRON}
