@@ -29,12 +29,20 @@ mvn package -Dmaven.test.skip
 === Running locally
 
 There are two ways to run the project locally.
-Either way, the application requires some environment variables to be configured.
+Either way, the application requires some environment variables to be configured and a GitHub App.
+
+* Environment variables:
 
 [source,bash]
 ----
 include::.env.example[]
 ----
+
+* To create the GitHub App, please see link:[]https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app
+
+The application requires the following permissions:
+
+* Repository content (read-only)
 
 ==== CLI
 
@@ -54,6 +62,8 @@ and in a second terminal run:
 mvn spring-boot:run -Dskip.yarn
 ----
 
+NOTE: Don't forget to set the required environment variables.
+
 ==== Docker Compose
 
 If you want to simply run the project locally, you can run:
@@ -64,7 +74,7 @@ mvn package -Dmaven.test.skip
 docker compose up
 ----
 
-NOTE: the required environment variables must be set in your local environment or in a file named `.env`.
+NOTE: the required environment variables must be set in a file named `.env`.
 
 == Testing change
 
