@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyFactory;
@@ -33,9 +34,11 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.kohsuke.github.GHApp;
 import org.kohsuke.github.GHAppInstallation;
 import org.kohsuke.github.GHAppInstallationToken;
@@ -90,9 +93,13 @@ public class GithubConfiguration {
 
     private RSAPrivateKey getKey() {
         try {
-            final byte[] content = Files.readAllBytes(privateKeyPath);
+            final String privateKeyPEM = Files.readAllLines(privateKeyPath, Charset.defaultCharset())
+                .stream()
+                .filter(line -> !line.startsWith("-----") && !line.endsWith("-----"))
+                .collect(Collectors.joining());
+            final byte[] encoded = Base64.decodeBase64(privateKeyPEM);
             final KeyFactory kf = KeyFactory.getInstance("RSA");
-            final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(content);
+            final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
             return (RSAPrivateKey) kf.generatePrivate(keySpec);
         } catch (IOException e) {
             throw new RuntimeException(e);

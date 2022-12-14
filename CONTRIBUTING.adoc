@@ -44,6 +44,15 @@ The application requires the following permissions:
 
 * Repository content (read-only)
 
+The private key needs to be converted with
+
+[source,bash]
+----
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in ORIGINAL_KEY.pem -out CONVERTED_KEY.pem -nocrypt
+----
+
+NOTE: You need to change `ORIGINAL_KEY` and `CONVERTED_KEY` with real values.
+
 ==== CLI
 
 This method is preferred if you intend to submit any modifications to the project.
