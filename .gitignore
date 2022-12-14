@@ -6,6 +6,8 @@ target
 
 ### Application
 .env
+*.der
+*.pem
 
 ### Node
 node/

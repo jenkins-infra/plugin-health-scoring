@@ -25,7 +25,20 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.kohsuke.github.GHApp;
+import org.kohsuke.github.GHAppInstallation;
+import org.kohsuke.github.GHAppInstallationToken;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.slf4j.Logger;
@@ -38,14 +51,18 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class GithubConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
-    private static final long DEFAULT_TTL = 60 * 1000;
+    private static final long DEFAULT_TTL = 60 * 1000 * 5;
 
     private final String appId;
+    private final Path privateKeyPath;
+    private final String appInstallationName;
     private final long ttl;
 
     @ConstructorBinding
-    public GithubConfiguration(String appId, long ttl) {
+    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName, long ttl) {
         this.appId = appId;
+        this.privateKeyPath = privateKeyPath;
+        this.appInstallationName = appInstallationName;
         if (ttl > 10 * 60 * 1000) { /* TTL must be less than 10min */
             LOGGER.warn("GitHub App Token cannot have a TTL of more than 10min, using default value of {}ms", DEFAULT_TTL);
             this.ttl = DEFAULT_TTL;
@@ -56,13 +73,43 @@ public class GithubConfiguration {
     }
 
     public GitHub getGitHub() throws IOException {
-        return new GitHubBuilder()
-            .withJwtToken(createJWT())
-            .build();
+        final GitHub ghApp = new GitHubBuilder().withJwtToken(createJWT()).build();
+        final GHAppInstallation ghAppInstall = getAppInstallation(ghApp);
+        final GHAppInstallationToken ghAppInstallationToken = ghAppInstall.createToken().create();
+        return new GitHubBuilder().withAppInstallationToken(ghAppInstallationToken.getToken()).build();
     }
 
-    // TODO
+    private GHAppInstallation getAppInstallation(GitHub ghApp) throws IOException {
+        final GHApp app = ghApp.getApp();
+        try {
+            return app.getInstallationByOrganization(appInstallationName);
+        } catch (IOException e) {
+            return app.getInstallationByUser(appInstallationName);
+        }
+    }
+
+    private RSAPrivateKey getKey() {
+        try {
+            final byte[] content = Files.readAllBytes(privateKeyPath);
+            final KeyFactory kf = KeyFactory.getInstance("RSA");
+            final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(content);
+            return (RSAPrivateKey) kf.generatePrivate(keySpec);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.error("Could not reconstruct the private key, the given algorithm could not be found");
+        } catch (InvalidKeySpecException e) {
+            LOGGER.error("Could not reconstruct the private key");
+        }
+        return null;
+    }
+
     private String createJWT() {
-        return "";
+        Algorithm algorithm = Algorithm.RSA256(getKey());
+        return JWT.create()
+            .withIssuedAt(Instant.now().minusMillis(60 * 1000))  /* 60sec in past for clock drift */
+            .withExpiresAt(Instant.now().plusMillis(ttl))
+            .withIssuer(appId)
+            .sign(algorithm);
     }
 }

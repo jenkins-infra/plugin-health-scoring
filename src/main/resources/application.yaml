@@ -22,6 +22,8 @@ management:
 jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
 github:
   app-id: ${GITHUB_APP_ID}
+  private-key-path: ${GITHUB_APP_PRIVATE_KEY}
+  app-installation-name: ${GITHUB_APP_INSTALLATION_NAME}
 cron:
   update-center: ${UPDATE_CENTER_CRON}
   probe-engine: ${PROBE_ENGINE_CRON}
