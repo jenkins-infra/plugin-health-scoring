@@ -34,6 +34,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
+import org.kohsuke.github.GHRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -99,15 +100,12 @@ public final class SCMLinkValidationProbe extends Probe {
         }
 
         try {
-            final HttpResponse<String> response = this.githubConfiguration
-                .request("repos/%s".formatted(matcher.group("repo")));
-            if (response.statusCode() == 200) {
+            this.githubConfiguration
+                .getGitHub()
+                .getRepository(matcher.group("repo"));
                 return ProbeResult.success(key(), "The plugin SCM link is valid");
-            } else {
-                return ProbeResult.failure(key(), "The plugin SCM link is invalid");
-            }
-        } catch (IOException | InterruptedException ex) {
-            return ProbeResult.failure(key(), "The plugin SCM cannot be validated");
+        } catch (IOException ex) {
+            return ProbeResult.failure(key(), "The plugin SCM link is invalid");
         }
     }
 }

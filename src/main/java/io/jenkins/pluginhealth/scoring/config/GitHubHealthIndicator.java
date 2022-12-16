@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.config;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
@@ -40,13 +41,13 @@ public class GitHubHealthIndicator extends AbstractHealthIndicator {
     }
 
     @Override
-    protected void doHealthCheck(Health.Builder builder) throws Exception {
-        final HttpResponse<String> response = githubConfiguration.request("user");
-        if (response.statusCode() == 200) {
+    protected void doHealthCheck(Health.Builder builder) {
+        try {
+            githubConfiguration.getGitHub().checkApiUrlValidity();
             builder.up();
-        } else {
+        } catch(IOException ex) {
             builder.down()
-                .withDetail("status", response.statusCode());
+                .withDetail("reason", ex.getMessage());
         }
     }
 }

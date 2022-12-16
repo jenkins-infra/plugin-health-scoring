@@ -25,16 +25,27 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
+import java.util.stream.Collectors;
 
-import jakarta.validation.constraints.NotBlank;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.kohsuke.github.GHApp;
+import org.kohsuke.github.GHAppInstallation;
+import org.kohsuke.github.GHAppInstallationToken;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
@@ -42,44 +53,70 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "github")
 @Validated
 public class GithubConfiguration {
-    @NotBlank
-    private final String oauth;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
+    private static final long DEFAULT_TTL = 60 * 1000 * 5;
+
+    private final String appId;
+    private final Path privateKeyPath;
+    private final String appInstallationName;
+    private final long ttl;
 
     @ConstructorBinding
-    public GithubConfiguration(String oauth) {
-        this.oauth = oauth;
+    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName, long ttl) {
+        this.appId = appId;
+        this.privateKeyPath = privateKeyPath;
+        this.appInstallationName = appInstallationName;
+        if (ttl > 10 * 60 * 1000) { /* TTL must be less than 10min */
+            LOGGER.warn("GitHub App Token cannot have a TTL of more than 10min, using default value of {}ms", DEFAULT_TTL);
+            this.ttl = DEFAULT_TTL;
+        } else {
+            this.ttl = ttl == 0 ? DEFAULT_TTL : ttl;
+            LOGGER.info("GitHub JWT TTL: {}ms", this.ttl);
+        }
     }
 
-    public HttpResponse<String> request(String endpoint) throws IOException, InterruptedException {
-        return this.request(endpoint, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    public GitHub getGitHub() throws IOException {
+        final GitHub ghApp = new GitHubBuilder().withJwtToken(createJWT()).build();
+        final GHAppInstallation ghAppInstall = getAppInstallation(ghApp);
+        final GHAppInstallationToken ghAppInstallationToken = ghAppInstall.createToken().create();
+        return new GitHubBuilder().withAppInstallationToken(ghAppInstallationToken.getToken()).build();
     }
 
-    public <T> HttpResponse<T> request(String endpoint, HttpResponse.BodyHandler<T> bodyHandler)
-        throws IOException, InterruptedException {
-        return this.getHttpClient().send(generateRequest(endpoint), bodyHandler);
+    private GHAppInstallation getAppInstallation(GitHub ghApp) throws IOException {
+        final GHApp app = ghApp.getApp();
+        try {
+            return app.getInstallationByOrganization(appInstallationName);
+        } catch (IOException e) {
+            return app.getInstallationByUser(appInstallationName);
+        }
     }
 
-    private HttpClient getHttpClient() {
-        return HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .followRedirects(HttpClient.Redirect.ALWAYS)
-            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_NONE))
-            .build();
+    private RSAPrivateKey getKey() {
+        try {
+            final String privateKeyPEM = Files.readAllLines(privateKeyPath, Charset.defaultCharset())
+                .stream()
+                .filter(line -> !line.startsWith("-----") && !line.endsWith("-----"))
+                .collect(Collectors.joining());
+            final byte[] encoded = Base64.decodeBase64(privateKeyPEM);
+            final KeyFactory kf = KeyFactory.getInstance("RSA");
+            final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+            return (RSAPrivateKey) kf.generatePrivate(keySpec);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.error("Could not reconstruct the private key, the given algorithm could not be found");
+        } catch (InvalidKeySpecException e) {
+            LOGGER.error("Could not reconstruct the private key");
+        }
+        return null;
     }
 
-    private HttpRequest generateRequest(String endpoint) {
-        return HttpRequest.newBuilder()
-            .uri(URI.create("https://api.github.com/%s".formatted(endpoint)))
-            .timeout(Duration.ofSeconds(2))
-            .header("Authorization", this.getAuthorizationToken())
-            .header("Accept", "application/vnd.github+json")
-            .header("User-Agent", "Plugin-Health-Scoring")
-            .GET()
-            .build();
-    }
-
-    // TODO see for different implementation depending on the profile or what configuration elements are present
-    private String getAuthorizationToken() {
-        return "token %s".formatted(this.oauth);
+    private String createJWT() {
+        Algorithm algorithm = Algorithm.RSA256(getKey());
+        return JWT.create()
+            .withIssuedAt(Instant.now().minusMillis(60 * 1000))  /* 60sec in past for clock drift */
+            .withExpiresAt(Instant.now().plusMillis(ttl))
+            .withIssuer(appId)
+            .sign(algorithm);
     }
 }

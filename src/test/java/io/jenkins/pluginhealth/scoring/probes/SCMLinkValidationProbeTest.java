@@ -25,18 +25,10 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.Optional;
-import javax.net.ssl.SSLSession;
 
 import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -45,6 +37,8 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -98,52 +92,14 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final GitHub gh = mock(GitHub.class);
+        final String repositoryName = "jenkinsci/mailer-plugin";
+
+        when(p1.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(githubConfiguration.getGitHub()).thenReturn(gh);
+        when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
+
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
-
-        when(p1.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(githubConfiguration.request(anyString())).thenReturn(
-            new HttpResponse<>() {
-                @Override
-                public int statusCode() {
-                    return 200;
-                }
-
-                @Override
-                public HttpRequest request() {
-                    return null;
-                }
-
-                @Override
-                public Optional<HttpResponse<String>> previousResponse() {
-                    return Optional.empty();
-                }
-
-                @Override
-                public HttpHeaders headers() {
-                    return null;
-                }
-
-                @Override
-                public String body() {
-                    return null;
-                }
-
-                @Override
-                public Optional<SSLSession> sslSession() {
-                    return Optional.empty();
-                }
-
-                @Override
-                public URI uri() {
-                    return null;
-                }
-
-                @Override
-                public HttpClient.Version version() {
-                    return null;
-                }
-            }
-        );
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
@@ -154,52 +110,14 @@ class SCMLinkValidationProbeTest {
     public void shouldRecognizeInvalidGitHubUrl() throws Exception {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final GitHub gh = mock(GitHub.class);
+        final String repositoryName = "jenkinsci/this-is-not-going-to-work";
+
+        when(p1.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(githubConfiguration.getGitHub()).thenReturn(gh);
+        when(gh.getRepository(repositoryName)).thenThrow(IOException.class);
+
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe(githubConfiguration);
-
-        when(p1.getScm()).thenReturn("https://github.com/jenkinsci/this-is-not-going-to-work");
-        when(githubConfiguration.request(anyString())).thenReturn(
-            new HttpResponse<>() {
-                @Override
-                public int statusCode() {
-                    return 404;
-                }
-
-                @Override
-                public HttpRequest request() {
-                    return null;
-                }
-
-                @Override
-                public Optional<HttpResponse<String>> previousResponse() {
-                    return Optional.empty();
-                }
-
-                @Override
-                public HttpHeaders headers() {
-                    return null;
-                }
-
-                @Override
-                public String body() {
-                    return null;
-                }
-
-                @Override
-                public Optional<SSLSession> sslSession() {
-                    return Optional.empty();
-                }
-
-                @Override
-                public URI uri() {
-                    return null;
-                }
-
-                @Override
-                public HttpClient.Version version() {
-                    return null;
-                }
-            }
-        );
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
