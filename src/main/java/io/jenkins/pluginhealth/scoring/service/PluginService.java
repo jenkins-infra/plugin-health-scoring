@@ -30,8 +30,8 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PluginService {
@@ -53,16 +53,17 @@ public class PluginService {
             .orElseGet(() -> pluginRepository.save(plugin));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public long getPluginsCount() {
         return pluginRepository.count();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Plugin> findByName(String pluginName) {
         return pluginRepository.findByName(pluginName);
     }
