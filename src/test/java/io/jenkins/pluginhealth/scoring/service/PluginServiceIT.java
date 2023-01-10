@@ -54,15 +54,17 @@ public class PluginServiceIT extends AbstractDBContainerTest {
         Plugin plugin = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
 
         pluginService.saveOrUpdate(plugin);
+        pluginRepository.flush();
         assertThat(pluginRepository.findAll())
             .hasSize(1)
             .contains(plugin);
 
-        Plugin copy = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
+        Plugin copy = new Plugin("myPlugin", new VersionNumber("1.1"), "https://github.com/jenkinsci/my-plugin", null);
         pluginService.saveOrUpdate(copy);
+        pluginRepository.flush();
         assertThat(pluginRepository.findAll())
             .hasSize(1)
-            .contains(plugin);
+            .contains(copy);
     }
 
     @Test
@@ -71,6 +73,7 @@ public class PluginServiceIT extends AbstractDBContainerTest {
 
         assertThat(pluginRepository.count()).isEqualTo(0);
         pluginService.saveOrUpdate(plugin);
+        pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1);
 
         final Optional<Plugin> saved = pluginRepository.findByName("foo-bar");
