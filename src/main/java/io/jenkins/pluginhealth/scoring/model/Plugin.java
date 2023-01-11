@@ -52,7 +52,7 @@ public class Plugin {
     private String name;
 
     @Type(VersionNumberType.class)
-    @Column(name = "version")
+    @Column(name = "version", updatable = false)
     private VersionNumber version;
 
     @Column(name = "scm")

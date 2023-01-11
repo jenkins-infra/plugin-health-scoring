@@ -33,23 +33,19 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-
 @ContextConfiguration(initializers = AbstractDBContainerTest.DockerPostgresDatasourceInitializer.class)
 @Testcontainers
 public abstract class AbstractDBContainerTest {
     @Container
-    private static final PostgreSQLContainer<?> POSTGRES_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:14.1")
-        .withDatabaseName("testdb")
-        .withUsername("sa")
-        .withPassword("sa");
+    private static final PostgreSQLContainer<?> DB_CONTAINER = PluginHealthScoringDatabaseContainer.getInstance();
 
-    public static class DockerPostgresDatasourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    static class DockerPostgresDatasourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
             TestPropertyValues.of(
-                "spring.datasource.url=" + POSTGRES_SQL_CONTAINER.getJdbcUrl(),
-                "spring.datasource.username=" + POSTGRES_SQL_CONTAINER.getUsername(),
-                "spring.datasource.password=" + POSTGRES_SQL_CONTAINER.getPassword(),
+                "spring.datasource.url=" + DB_CONTAINER.getJdbcUrl(),
+                "spring.datasource.username=" + DB_CONTAINER.getUsername(),
+                "spring.datasource.password=" + DB_CONTAINER.getPassword(),
                 "cron.update-center=0 0 */2 * * *",
                 "cron.probe-engine=0 0 */2 * * *"
             ).applyTo(applicationContext);
