@@ -34,20 +34,27 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import hudson.util.VersionNumber;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@DataJpaTest
 public class PluginServiceIT extends AbstractDBContainerTest {
-    @Autowired
-    private PluginRepository pluginRepository;
-    @Autowired
+    @Autowired private PluginRepository pluginRepository;
     private PluginService pluginService;
+
+    @BeforeEach
+    public void setup() {
+        this.pluginService = new PluginService(pluginRepository);
+    }
+
+    @Test
+    public void shouldBeEmpty() {
+        assertThat(pluginRepository.count()).isZero();
+    }
 
     @Test
     public void shouldNotDuplicatePluginWhenNameIsTheSame() {

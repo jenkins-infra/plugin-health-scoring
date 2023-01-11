@@ -41,17 +41,13 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-import org.springframework.stereotype.Service;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@DataJpaTest
 class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     @Autowired private PluginRepository pluginRepository;
-    @Autowired private PluginService pluginService;
     @Mock private UpdateCenterService ucService;
-
     private UpdateCenterScheduler upScheduler;
 
     @BeforeEach
@@ -60,7 +56,12 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
             .readValue(UpdateCenterSchedulerIT.class.getResourceAsStream("/update-center/update-center.actual.json"), UpdateCenter.class);
 
         when(ucService.fetchUpdateCenter()).thenReturn(updateCenter);
-        upScheduler = new UpdateCenterScheduler(ucService, pluginService);
+        upScheduler = new UpdateCenterScheduler(ucService, new PluginService(pluginRepository));
+    }
+
+    @Test
+    public void shouldBeEmpty() {
+        assertThat(pluginRepository.count()).isZero();
     }
 
     @Test

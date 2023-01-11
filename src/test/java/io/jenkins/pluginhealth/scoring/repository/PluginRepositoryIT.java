@@ -42,15 +42,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class PluginRepositoryIT extends AbstractDBContainerTest {
-    @Autowired
-    private PluginRepository repository;
-    @Autowired
-    private TestEntityManager entityManager;
+    @Autowired private PluginRepository repository;
+    @Autowired private TestEntityManager entityManager;
 
     @Test
     public void shouldBeEmpty() {
         assertThat(repository.count()).isZero();
-        assertThat(repository.findAll()).isEmpty();
     }
 
     @Test
