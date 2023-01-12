@@ -96,8 +96,8 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         assertThat(summary).hasSize(2)
             .extracting(ScoreDTO::getName, ScoreDTO::getValue)
             .contains(
-                tuple("plugin-1", 75),
-                tuple("plugin-2", 0)
+                tuple("plugin-1", 67L),
+                tuple("plugin-2", 0L)
             );
     }
 }
