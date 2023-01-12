@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,36 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.repository;
+package io.jenkins.pluginhealth.scoring.model;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.model.ScoreDTO;
+public class ScoreDTO {
+    private String name;
+    private String version;
+    private long value;
+    private Set<ScoreResult> details;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+    public ScoreDTO(String name, String version, long value, Set<ScoreResult> details) {
+        this.name = name;
+        this.version = version;
+        this.value = value;
+        this.details = details;
+    }
 
-@Repository
-public interface ScoreRepository extends JpaRepository<Score, Long> {
-    Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
+    public String getName() {
+        return name;
+    }
 
-    @Query(
-        value = """
-            SELECT DISTINCT
-                p.name as name,
-                p.version as version,
-                s.value as score,
-                s.details as details
-            FROM Score s
-            JOIN Plugin p on s.plugin = p
-            ORDER BY p.name ASC, s.computedAt DESC
-        """
-    )
-    List<ScoreDTO> getLatestScoreForPlugins();
+    public String getVersion() {
+        return version;
+    }
+
+    public long getValue() {
+        return value;
+    }
+
+    public Set<ScoreResult> getDetails() {
+        return details;
+    }
 }
