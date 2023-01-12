@@ -24,30 +24,33 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.model.ScoreDTO;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
+import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class ScoreServiceIT extends AbstractDBContainerTest {
     @Autowired private TestEntityManager entityManager;
     @Autowired private ScoreRepository scoreRepository;
+    @MockBean private PluginService pluginService;
 
     @Test
     public void shouldBeEmpty() {
@@ -76,10 +79,10 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     @Test
     public void shouldBeAbleToExtractScoreSummary() {
         final Plugin p1 = entityManager.persist(
-            new Plugin("plugin-1", null, null, ZonedDateTime.now().minusMinutes(5))
+            new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );
         final Plugin p2 = entityManager.persist(
-            new Plugin("plugin-2", null, "scm", ZonedDateTime.now().minusMinutes(10))
+            new Plugin("plugin-2", new VersionNumber("2.0"), "scm", ZonedDateTime.now().minusMinutes(10))
         );
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
@@ -92,12 +95,23 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         scoreRepository.saveAll(List.of(p1s, p2s));
         assertThat(scoreRepository.count()).isEqualTo(2);
 
-        final List<ScoreDTO> summary = scoreRepository.getLatestScoreForPlugins();
-        assertThat(summary).hasSize(2)
-            .extracting(ScoreDTO::getName, ScoreDTO::getValue)
-            .contains(
-                tuple("plugin-1", 67L),
-                tuple("plugin-2", 0L)
+        final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
+        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScores();
+
+        assertThat(summary)
+            .extractingFromEntries(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            )
+            .containsExactlyInAnyOrder(
+                tuple(
+                    p1.getName(),
+                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails())
+                ),
+                tuple(
+                    p2.getName(),
+                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails())
+                )
             );
     }
 }

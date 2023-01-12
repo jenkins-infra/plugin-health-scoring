@@ -29,16 +29,21 @@ import java.util.Set;
 import hudson.util.VersionNumber;
 
 public class ScoreDTO {
-    private String name;
-    private VersionNumber version;
-    private long value;
+    private final long id;
+    private final String name;
+    private final VersionNumber version;
+    private final long value;
     private Set<ScoreResult> details;
 
-    public ScoreDTO(String name, VersionNumber version, long value, Set<ScoreResult> details) {
+    public ScoreDTO(long id, String name, VersionNumber version, long value) {
+        this.id = id;
         this.name = name;
         this.version = version;
         this.value = value;
-        this.details = details;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getName() {
@@ -51,6 +56,11 @@ public class ScoreDTO {
 
     public long getValue() {
         return value;
+    }
+
+    public ScoreDTO withDetails(Set<ScoreResult> details) {
+        this.details = Set.copyOf(details);
+        return this;
     }
 
     public Set<ScoreResult> getDetails() {

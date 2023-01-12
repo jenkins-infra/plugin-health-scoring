@@ -27,11 +27,12 @@ package io.jenkins.pluginhealth.scoring.http;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
+import java.util.Set;
 
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,9 +60,14 @@ public class ScoreAPITest {
 
     @Test
     public void shouldBeAbleToProvideScoresSummary() throws Exception {
+        final ScoreResult p1sr1 = new ScoreResult("foo", 1, 1);
+        final ScoreResult p2sr1 = new ScoreResult("foo", 1, 1);
+        final ScoreResult p2sr2 = new ScoreResult("bar", 0, .69f);
+        final ScoreResult p2sr3 = new ScoreResult("wiz", 0, .69f);
+
         final Map<String, ScoreService.ScoreSummary> summary = Map.of(
-            "plugin-1", new ScoreService.ScoreSummary(100, "1.0"),
-            "plugin-2", new ScoreService.ScoreSummary(42, "2.0")
+            "plugin-1", new ScoreService.ScoreSummary(100, "1.0", Set.of(p1sr1)),
+            "plugin-2", new ScoreService.ScoreSummary(42, "2.0", Set.of(p2sr1, p2sr2, p2sr3))
         );
         when(scoreService.getLatestScores()).thenReturn(summary);
 
