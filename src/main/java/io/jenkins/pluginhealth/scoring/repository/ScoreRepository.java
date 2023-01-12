@@ -42,10 +42,12 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     @Query(
         value = """
             SELECT DISTINCT
-                p.name as name,
-                p.version as version,
-                s.value as score,
-                s.details as details
+                new io.jenkins.pluginhealth.scoring.model.ScoreDTO(
+                    p.name,
+                    p.version,
+                    s.value,
+                    s.details
+                )
             FROM Score s
             JOIN Plugin p on s.plugin = p
             ORDER BY p.name ASC, s.computedAt DESC
