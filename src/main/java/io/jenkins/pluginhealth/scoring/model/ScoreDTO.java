@@ -26,13 +26,15 @@ package io.jenkins.pluginhealth.scoring.model;
 
 import java.util.Set;
 
+import hudson.util.VersionNumber;
+
 public class ScoreDTO {
     private String name;
-    private String version;
+    private VersionNumber version;
     private long value;
     private Set<ScoreResult> details;
 
-    public ScoreDTO(String name, String version, long value, Set<ScoreResult> details) {
+    public ScoreDTO(String name, VersionNumber version, long value, Set<ScoreResult> details) {
         this.name = name;
         this.version = version;
         this.value = value;
@@ -44,7 +46,7 @@ public class ScoreDTO {
     }
 
     public String getVersion() {
-        return version;
+        return version.toString();
     }
 
     public long getValue() {
