@@ -44,6 +44,6 @@ public class ScoreAPI {
 
     @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, ScoreService.ScoreSummary> all() {
-        return scoreService.getLatestScores();
+        return scoreService.getLatestScoresSummaryMap();
     }
 }

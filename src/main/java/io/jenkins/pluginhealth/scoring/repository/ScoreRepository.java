@@ -24,47 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.repository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.model.ScoreDTO;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
     Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
-
-    @Query(
-        value = """
-                SELECT DISTINCT
-                    new io.jenkins.pluginhealth.scoring.model.ScoreDTO(
-                        s.id,
-                        p.name,
-                        p.version,
-                        s.value
-                    ),
-                    s.computedAt
-                FROM Score s
-                JOIN Plugin p on s.plugin = p
-                ORDER BY p.name ASC, s.computedAt DESC
-            """
-    )
-    List<ScoreDTO> getLatestScoreForPlugins();
-
-    @Query(
-        value = """
-                SELECT
-                    s.details
-                FROM Score s
-                WHERE s.id = :id
-            """
-    )
-    Set<ScoreResult> findDetailsById(long id);
 }

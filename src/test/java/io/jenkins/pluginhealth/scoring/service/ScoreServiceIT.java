@@ -96,7 +96,7 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         assertThat(scoreRepository.count()).isEqualTo(2);
 
         final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
-        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScores();
+        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
 
         assertThat(summary)
             .extractingFromEntries(
@@ -106,11 +106,59 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
             .containsExactlyInAnyOrder(
                 tuple(
                     p1.getName(),
-                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails())
+                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails(), p1s.getComputedAt())
                 ),
                 tuple(
                     p2.getName(),
-                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails())
+                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails(), p2s.getComputedAt())
+                )
+            );
+    }
+
+    @Test
+    public void shouldOnlyRetrieveLatestScoreForPlugins() {
+
+        final Plugin p1 = entityManager.persist(
+            new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
+        );
+        final Plugin p2 = entityManager.persist(
+            new Plugin("plugin-2", new VersionNumber("2.0"), "scm", ZonedDateTime.now().minusMinutes(10))
+        );
+
+
+        final Score p1s = new Score(p1, ZonedDateTime.now());
+        p1s.addDetail(new ScoreResult("foo", 1, 1));
+        p1s.addDetail(new ScoreResult("bar", 0, .5f));
+
+        final Score p2s = new Score(p2, ZonedDateTime.now());
+        p2s.addDetail(new ScoreResult("foo", 0, 1));
+
+        final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
+        p1sOld.addDetail(new ScoreResult("foo", 1, 1));
+        p1sOld.addDetail(new ScoreResult("bar", 0, .5f));
+
+        final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(10));
+        p2sOld.addDetail(new ScoreResult("foo", 0, 1));
+
+        scoreRepository.saveAll(List.of(p1s, p2s, p1sOld, p2sOld));
+        assertThat(scoreRepository.count()).isEqualTo(4);
+
+        final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
+        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
+
+        assertThat(summary)
+            .extractingFromEntries(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            )
+            .containsExactlyInAnyOrder(
+                tuple(
+                    p1.getName(),
+                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails(), p1s.getComputedAt())
+                ),
+                tuple(
+                    p2.getName(),
+                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails(), p2s.getComputedAt())
                 )
             );
     }

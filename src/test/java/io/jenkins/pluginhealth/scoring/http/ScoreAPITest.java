@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,10 +67,10 @@ public class ScoreAPITest {
         final ScoreResult p2sr3 = new ScoreResult("wiz", 0, .69f);
 
         final Map<String, ScoreService.ScoreSummary> summary = Map.of(
-            "plugin-1", new ScoreService.ScoreSummary(100, "1.0", Set.of(p1sr1)),
-            "plugin-2", new ScoreService.ScoreSummary(42, "2.0", Set.of(p2sr1, p2sr2, p2sr3))
+            "plugin-1", new ScoreService.ScoreSummary(100, "1.0", Set.of(p1sr1), ZonedDateTime.now().minusMinutes(2)),
+            "plugin-2", new ScoreService.ScoreSummary(42, "2.0", Set.of(p2sr1, p2sr2, p2sr3), ZonedDateTime.now().minusMinutes(2))
         );
-        when(scoreService.getLatestScores()).thenReturn(summary);
+        when(scoreService.getLatestScoresSummaryMap()).thenReturn(summary);
 
         mockMvc.perform(get("/api/scores"))
             .andExpect(status().isOk())

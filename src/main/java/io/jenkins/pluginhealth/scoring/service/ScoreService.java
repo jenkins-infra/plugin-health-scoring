@@ -24,16 +24,17 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.model.ScoreDTO;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,23 +59,15 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, ScoreSummary> getLatestScores() {
-        return repository.getLatestScoreForPlugins().stream()
-            .map(dto -> dto.withDetails(this.getDetailsOfScore(dto.getId())))
+    public Map<String, ScoreSummary> getLatestScoresSummaryMap() {
+        return repository.findAll(Sort.by(Sort.Direction.DESC, "computedAt")).stream()
             .collect(Collectors.toMap(
-                ScoreDTO::getName,
-                ScoreSummary::fromScoreDTO
+                score -> score.getPlugin().getName(),
+                score -> new ScoreSummary(score.getValue(), score.getPlugin().getVersion().toString(), score.getDetails(), score.getComputedAt()),
+                (s1, s2) -> s2.timestamp.isAfter(s1.timestamp) ? s2 : s1
             ));
     }
 
-    @Transactional(readOnly = true)
-    protected Set<ScoreResult> getDetailsOfScore(long id) {
-        return repository.findDetailsById(id);
-    }
-
-    public record ScoreSummary(long value, String version, Set<ScoreResult> details) {
-        public static ScoreSummary fromScoreDTO(ScoreDTO score) {
-            return new ScoreSummary(score.getValue(), score.getVersion(), score.getDetails());
-        }
+    public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
     }
 }
