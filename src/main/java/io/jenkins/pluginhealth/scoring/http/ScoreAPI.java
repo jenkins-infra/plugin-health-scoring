@@ -22,30 +22,28 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.repository;
+package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.Score;
+import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Repository
-public interface ScoreRepository extends JpaRepository<Score, Long> {
-    Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
+@RestController
+@RequestMapping("/api/scores")
+public class ScoreAPI {
+    private final ScoreService scoreService;
 
-    @Query(
-        value = """
-                SELECT DISTINCT ON (s.plugin_id)
-                    s.plugin_id, s.value, s.computed_at, s.details, s.id
-                FROM scores s JOIN plugins p on s.plugin_id = p.id
-                ORDER BY s.plugin_id, s.computed_at DESC;
-            """,
-        nativeQuery = true
-    )
-    List<Score> findLatestScoreForAllPlugins();
+    public ScoreAPI(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
+
+    @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, ScoreService.ScoreSummary> all() {
+        return scoreService.getLatestScoresSummaryMap();
+    }
 }
