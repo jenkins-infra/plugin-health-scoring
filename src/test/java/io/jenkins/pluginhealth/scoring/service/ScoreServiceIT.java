@@ -137,11 +137,15 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         p1sOld.addDetail(new ScoreResult("foo", 1, 1));
         p1sOld.addDetail(new ScoreResult("bar", 0, .5f));
 
+        final Score p1sOld2 = new Score(p1, ZonedDateTime.now().minusMinutes(15));
+        p1sOld2.addDetail(new ScoreResult("foo", 1, 1));
+        p1sOld2.addDetail(new ScoreResult("bar", 0, .5f));
+
         final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(10));
         p2sOld.addDetail(new ScoreResult("foo", 0, 1));
 
-        scoreRepository.saveAll(List.of(p1s, p2s, p1sOld, p2sOld));
-        assertThat(scoreRepository.count()).isEqualTo(4);
+        scoreRepository.saveAll(List.of(p1s, p2s, p1sOld, p2sOld, p1sOld2));
+        assertThat(scoreRepository.count()).isEqualTo(5);
 
         final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
         final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
