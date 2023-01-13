@@ -24,12 +24,18 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Score;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ScoreService {
@@ -45,8 +51,21 @@ public class ScoreService {
         return repository.save(score);
     }
 
+    @Transactional(readOnly = true)
     public Optional<Score> latestScoreFor(String pluginName) {
         return pluginService.findByName(pluginName)
             .flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, ScoreSummary> getLatestScoresSummaryMap() {
+        return repository.findLatestScoreForAllPlugins().stream()
+            .collect(Collectors.toMap(
+                score -> score.getPlugin().getName(),
+                score -> new ScoreSummary(score.getValue(), score.getPlugin().getVersion().toString(), score.getDetails(), score.getComputedAt())
+            ));
+    }
+
+    public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
     }
 }

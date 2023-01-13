@@ -42,8 +42,8 @@ public class PluginService {
     }
 
     @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
+    public void saveOrUpdate(Plugin plugin) {
+        pluginRepository.findByName(plugin.getName())
             .map(pluginFromDatabase -> pluginFromDatabase
                 .setScm(plugin.getScm())
                 .setReleaseTimestamp(plugin.getReleaseTimestamp())

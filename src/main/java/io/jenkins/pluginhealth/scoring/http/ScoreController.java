@@ -53,7 +53,7 @@ public class ScoreController {
     }
 
     @ModelAttribute(name = "module")
-        /* default */ String module() {
+    /* default */ String module() {
         return "scores";
     }
 
