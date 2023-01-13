@@ -34,7 +34,6 @@ import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,11 +59,10 @@ public class ScoreService {
 
     @Transactional(readOnly = true)
     public Map<String, ScoreSummary> getLatestScoresSummaryMap() {
-        return repository.findAll(Sort.by(Sort.Direction.DESC, "computedAt")).stream()
+        return repository.findLatestScoreForAllPlugins().stream()
             .collect(Collectors.toMap(
                 score -> score.getPlugin().getName(),
-                score -> new ScoreSummary(score.getValue(), score.getPlugin().getVersion().toString(), score.getDetails(), score.getComputedAt()),
-                (s1, s2) -> s2.timestamp.isAfter(s1.timestamp) ? s2 : s1
+                score -> new ScoreSummary(score.getValue(), score.getPlugin().getVersion().toString(), score.getDetails(), score.getComputedAt())
             ));
     }
 
