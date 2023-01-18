@@ -37,8 +37,8 @@ import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProbeService {
@@ -54,7 +54,7 @@ public class ProbeService {
         return probes;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Map<String, Long> getProbesFinalResults() {
         return probes.stream()
             .filter(probe ->
