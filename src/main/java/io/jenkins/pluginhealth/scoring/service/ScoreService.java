@@ -48,6 +48,7 @@ public class ScoreService {
         this.pluginService = pluginService;
     }
 
+    @Transactional
     public Score save(Score score) {
         return repository.save(score);
     }
