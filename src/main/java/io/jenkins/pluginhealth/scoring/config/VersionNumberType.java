@@ -59,8 +59,7 @@ public class VersionNumberType implements UserType<VersionNumber> {
     @Override
     public VersionNumber nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner) throws SQLException {
         final String value = rs.getString(position);
-        return rs.wasNull() || Objects.isNull(value) ?
-            null : new VersionNumber(value);
+        return Objects.isNull(value) ? null : new VersionNumber(value);
     }
 
     @Override
@@ -74,15 +73,12 @@ public class VersionNumberType implements UserType<VersionNumber> {
 
     @Override
     public VersionNumber deepCopy(VersionNumber value) {
-        if (Objects.isNull(value)) {
-            return null;
-        }
-        return new VersionNumber(value.toString());
+        return Objects.isNull(value) ? null : new VersionNumber(value.toString());
     }
 
     @Override
     public boolean isMutable() {
-        return true;
+        return false;
     }
 
     @Override
