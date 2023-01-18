@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
@@ -62,10 +63,19 @@ public class ScoreService {
         return repository.findLatestScoreForAllPlugins().stream()
             .collect(Collectors.toMap(
                 score -> score.getPlugin().getName(),
-                score -> new ScoreSummary(score.getValue(), score.getPlugin().getVersion().toString(), score.getDetails(), score.getComputedAt())
+                ScoreSummary::fromScore
             ));
     }
 
     public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
+        public static ScoreSummary fromScore(Score score) {
+            final Plugin plugin = score.getPlugin();
+            return new ScoreSummary(
+                score.getValue(),
+                plugin.getVersion() == null ? "" : plugin.getVersion().toString(),
+                score.getDetails(),
+                score.getComputedAt()
+            );
+        }
     }
 }
