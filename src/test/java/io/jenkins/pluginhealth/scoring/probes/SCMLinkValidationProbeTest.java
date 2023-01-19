@@ -44,8 +44,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SCMLinkValidationProbeTest {
-    @Mock private GithubConfiguration githubConfiguration;
-
     @Test
     public void shouldKeepScmAsKey() {
         assertThat(new SCMLinkValidationProbe().key()).isEqualTo("scm");
