@@ -35,9 +35,12 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import org.kohsuke.github.GitHub;
+
 public class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
+    private GitHub github;
     private ZonedDateTime lastCommitDate;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
@@ -59,6 +62,14 @@ public class ProbeContext {
 
     public void setLastCommitDate(ZonedDateTime lastCommitDate) {
         this.lastCommitDate = lastCommitDate;
+    }
+
+    public GitHub getGitHub() {
+        return github;
+    }
+
+    public void setGitHub(GitHub github) {
+        this.github = github;
     }
 
     /* default */ void cleanUp() throws IOException {
