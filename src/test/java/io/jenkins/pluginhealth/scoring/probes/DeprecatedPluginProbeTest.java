@@ -111,6 +111,27 @@ public class DeprecatedPluginProbeTest {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated."));
+            .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated"));
+    }
+    @Test
+    public void shouldSurviveIfPluginIsNotInUpdateCenter() {
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            Collections.emptyList()
+        ));
+
+        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is not in update-center"));
     }
 }
