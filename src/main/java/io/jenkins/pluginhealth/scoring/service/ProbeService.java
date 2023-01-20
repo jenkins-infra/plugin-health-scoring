@@ -30,12 +30,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsCoreProbe;
+import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
 import io.jenkins.pluginhealth.scoring.probes.PullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
@@ -71,10 +74,9 @@ public class ProbeService {
 
     private long getProbesRawResultsFromDatabase(String probeID) {
         return switch (probeID) {
-            case "up-for-adoption", "security", "deprecation" ->
+            case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
                 pluginRepository.getProbeRawResult(probeID, "FAILURE");
-            default ->
-                pluginRepository.getProbeRawResult(probeID, "SUCCESS");
+            default -> pluginRepository.getProbeRawResult(probeID, "SUCCESS");
         };
     }
 
