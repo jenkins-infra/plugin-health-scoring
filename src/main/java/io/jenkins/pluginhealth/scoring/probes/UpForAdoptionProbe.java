@@ -47,10 +47,6 @@ public class UpForAdoptionProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
-        final ProbeResult deprecatedProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-        if (deprecatedProbeResult != null && deprecatedProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.failure(key(), "Plugin is deprecated");
-        }
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
         if (pl == null) {
             LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
