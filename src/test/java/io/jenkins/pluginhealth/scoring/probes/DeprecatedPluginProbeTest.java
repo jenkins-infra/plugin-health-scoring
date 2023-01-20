@@ -113,6 +113,7 @@ public class DeprecatedPluginProbeTest {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated"));
     }
+
     @Test
     public void shouldSurviveIfPluginIsNotInUpdateCenter() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
