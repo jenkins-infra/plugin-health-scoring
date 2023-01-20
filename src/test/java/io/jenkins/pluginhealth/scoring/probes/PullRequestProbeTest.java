@@ -118,4 +118,30 @@ class PullRequestProbeTest {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size())));
     }
+
+    @Test
+    public void shouldFailIfCommunicationWithGitHubIsImpossible() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "valid")
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+        when(gh.getRepository(anyString())).thenThrow(IOException.class);
+
+        final PullRequestProbe probe = new PullRequestProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        verify(ctx).getGitHub();
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.failure(PullRequestProbe.KEY, ""));
+
+    }
 }
