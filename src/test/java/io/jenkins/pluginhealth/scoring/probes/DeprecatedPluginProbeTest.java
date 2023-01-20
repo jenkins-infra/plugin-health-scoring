@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -87,5 +88,51 @@ public class DeprecatedPluginProbeTest {
 
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(result.message()).isEqualTo("this-is-the-reason");
+    }
+
+    @Test
+    public void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(
+                pluginName, new Plugin(pluginName, new VersionNumber("1.0"), "", ZonedDateTime.now(), List.of("deprecated"), 0, "2.361")
+            ),
+            Map.of(),
+            Collections.emptyList()
+        ));
+
+        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated"));
+    }
+
+    @Test
+    public void shouldSurviveIfPluginIsNotInUpdateCenter() {
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            Collections.emptyList()
+        ));
+
+        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(DeprecatedPluginProbe.KEY, "This plugin is not in update-center"));
     }
 }
