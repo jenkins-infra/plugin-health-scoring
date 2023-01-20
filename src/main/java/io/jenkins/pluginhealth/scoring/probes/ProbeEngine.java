@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 
+import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
@@ -52,11 +53,13 @@ public final class ProbeEngine {
     private final ProbeService probeService;
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
+    private final GithubConfiguration githubConfiguration;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
+        this.githubConfiguration = githubConfiguration;
     }
 
     /**
@@ -105,6 +108,12 @@ public final class ProbeEngine {
             probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
         } catch (IOException ex) {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
+            return;
+        }
+        try {
+            probeContext.setGitHub(githubConfiguration.getGitHub());
+        } catch (IOException ex) {
+            LOGGER.error("Cannot create connection to GitHub", ex);
             return;
         }
         probeService.getProbes().forEach(probe -> {

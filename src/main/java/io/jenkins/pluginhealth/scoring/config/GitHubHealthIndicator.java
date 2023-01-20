@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
@@ -36,7 +35,6 @@ public class GitHubHealthIndicator extends AbstractHealthIndicator {
     private final GithubConfiguration githubConfiguration;
 
     public GitHubHealthIndicator(GithubConfiguration githubConfiguration) {
-        super();
         this.githubConfiguration = githubConfiguration;
     }
 
@@ -45,7 +43,7 @@ public class GitHubHealthIndicator extends AbstractHealthIndicator {
         try {
             githubConfiguration.getGitHub().checkApiUrlValidity();
             builder.up();
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             builder.down()
                 .withDetail("reason", ex.getMessage());
         }

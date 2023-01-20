@@ -25,16 +25,13 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
-import org.kohsuke.github.GHRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -48,16 +45,10 @@ import org.springframework.stereotype.Component;
 public final class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
-    public static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = DeprecatedPluginProbe.ORDER + 20;
     public static final String KEY = "scm";
-
-    private final GithubConfiguration githubConfiguration;
-
-    public SCMLinkValidationProbe(GithubConfiguration githubConfiguration) {
-        this.githubConfiguration = githubConfiguration;
-    }
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -69,7 +60,7 @@ public final class SCMLinkValidationProbe extends Probe {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.failure(key(), "The plugin SCM link is empty");
         }
-        return fromSCMLink(plugin.getScm());
+        return fromSCMLink(context, plugin.getScm());
     }
 
     @Override
@@ -90,7 +81,7 @@ public final class SCMLinkValidationProbe extends Probe {
         return true;
     }
 
-    private ProbeResult fromSCMLink(String scm) {
+    private ProbeResult fromSCMLink(ProbeContext context, String scm) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             if (LOGGER.isDebugEnabled()) {
@@ -100,10 +91,8 @@ public final class SCMLinkValidationProbe extends Probe {
         }
 
         try {
-            this.githubConfiguration
-                .getGitHub()
-                .getRepository(matcher.group("repo"));
-                return ProbeResult.success(key(), "The plugin SCM link is valid");
+            context.getGitHub().getRepository(matcher.group("repo"));
+            return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
         }

@@ -85,7 +85,7 @@ class InstallationStatProbeTest {
 
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        SoftAssertions.assertSoftly(softly ->{
+        SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result).isNotNull();
             softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.FAILURE);
         });
@@ -110,7 +110,7 @@ class InstallationStatProbeTest {
 
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        SoftAssertions.assertSoftly(softly ->{
+        SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result).isNotNull();
             softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.SUCCESS);
             softly.assertThat(result).extracting("message").isEqualTo("100");
