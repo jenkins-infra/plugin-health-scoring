@@ -30,11 +30,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsCoreProbe;
+import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
+import io.jenkins.pluginhealth.scoring.probes.PullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
@@ -54,23 +58,25 @@ public class ProbeService {
         return probes;
     }
 
+    private static final List<String> IGNORE_RAW_RESULT_PROBES = List.of(
+        InstallationStatProbe.KEY,
+        JenkinsCoreProbe.KEY,
+        LastCommitDateProbe.KEY,
+        PullRequestProbe.KEY
+    );
+
     @Transactional(readOnly = true)
     public Map<String, Long> getProbesFinalResults() {
         return probes.stream()
-            .filter(probe ->
-                !probe.key().equals(LastCommitDateProbe.KEY)
-                && !probe.key().equals(InstallationStatProbe.KEY)
-                && !probe.key().equals(JenkinsCoreProbe.KEY)
-            )
+            .filter(probe -> !IGNORE_RAW_RESULT_PROBES.contains(probe.key()))
             .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
     }
 
     private long getProbesRawResultsFromDatabase(String probeID) {
         return switch (probeID) {
-            case "up-for-adoption", "security", "deprecation" ->
+            case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
                 pluginRepository.getProbeRawResult(probeID, "FAILURE");
-            default ->
-                pluginRepository.getProbeRawResult(probeID, "SUCCESS");
+            default -> pluginRepository.getProbeRawResult(probeID, "SUCCESS");
         };
     }
 
