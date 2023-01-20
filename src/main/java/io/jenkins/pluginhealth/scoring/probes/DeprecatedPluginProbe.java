@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.util.List;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
@@ -45,6 +47,13 @@ public class DeprecatedPluginProbe extends Probe {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
         if (updateCenter.deprecations().containsKey(plugin.getName())) {
             return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
+        }
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
+        if (updateCenterPlugin == null) {
+            return ProbeResult.failure(key(), "This plugin is not in update-center");
+        }
+        if (updateCenterPlugin.labels().contains("deprecated")) {
+            return ProbeResult.failure(key(), "This plugin is marked as deprecated");
         }
         return ProbeResult.success(key(), "This plugin is NOT deprecated");
     }
