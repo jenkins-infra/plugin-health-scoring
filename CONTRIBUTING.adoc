@@ -61,6 +61,7 @@ In one terminal, run:
 
 [source,bash]
 ----
+yarn install
 yarn dev
 ----
 
