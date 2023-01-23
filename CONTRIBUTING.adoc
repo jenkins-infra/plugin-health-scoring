@@ -59,7 +59,7 @@ NOTE: You need to change `ORIGINAL_KEY` and `CONVERTED_KEY` with real values.
 This final file is the one to point to in `GITHUB_APP_PRIVATE_KEY_PATH` environment variable.
 
 Finally, you need to install the GitHub APP on your GitHub user.
-In the GitHub App configuration page, find the *Install App* like on the left side menu.
+In the GitHub App configuration page, find the *Install App* link on the left side menu.
 
 
 ==== CLI
