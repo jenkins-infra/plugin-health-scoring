@@ -44,7 +44,10 @@ The application requires the following permissions:
 
 * Repository content (read-only)
 
-The private key needs to be converted with
+Once the GitHub APP created, generate a private key.
+It will be downloaded automatically.
+
+Then you need to convert the downloaded key with this command:
 
 [source,bash]
 ----
@@ -52,6 +55,12 @@ openssl pkcs8 -topk8 -inform PEM -outform PEM -in ORIGINAL_KEY.pem -out CONVERTE
 ----
 
 NOTE: You need to change `ORIGINAL_KEY` and `CONVERTED_KEY` with real values.
+
+This final file is the one to point to in `GITHUB_APP_PRIVATE_KEY_PATH` environment variable.
+
+Finally, you need to install the GitHub APP on your GitHub user.
+In the GitHub App configuration page, find the *Install App* like on the left side menu.
+
 
 ==== CLI
 
