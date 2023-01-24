@@ -78,7 +78,7 @@ and in a second terminal run:
 
 [source,bash]
 ----
-mvn spring-boot:run -Dskip.yarn
+mvn spring-boot:run -Dskip.yarn -Dspring.profiles.active=dev
 ----
 
 NOTE: Don't forget to set the required environment variables.
