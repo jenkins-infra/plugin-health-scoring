@@ -62,8 +62,10 @@ public final class ScoreEngine {
     }
 
     public void run() {
+        LOGGER.info("Start scoring all plugins");
         pluginService.streamAll()
             .forEach(this::runOn);
+        LOGGER.info("Score engine has finished");
     }
 
     public Score runOn(Plugin plugin) {
