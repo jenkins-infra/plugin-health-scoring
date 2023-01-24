@@ -114,6 +114,11 @@ public final class ScoreEngine {
                 }
             });
 
-        return scoreService.save(score);
+        try {
+            return scoreService.save(score);
+        } catch (Throwable t) {
+            LOGGER.error("Something really bad", t);
+            return null;
+        }
     }
 }
