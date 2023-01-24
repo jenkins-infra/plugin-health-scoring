@@ -38,6 +38,7 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
 import hudson.util.VersionNumber;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -52,6 +53,13 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     @Autowired private ScoreRepository scoreRepository;
     @MockBean private PluginService pluginService;
 
+    private ScoreService scoreService;
+
+    @BeforeEach
+    public void setup() {
+        scoreService = new ScoreService(scoreRepository, pluginService);
+    }
+
     @Test
     public void shouldBeEmpty() {
         assertThat(scoreRepository.count()).isZero();
@@ -60,14 +68,14 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     @Test
     public void shouldBeAbleToSaveScoreForPlugin() {
         final Plugin p1 = entityManager.persist(
-            new Plugin("plugin-1", null, null, ZonedDateTime.now().minusMinutes(5))
+            new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );
 
         final Score score = new Score(p1, ZonedDateTime.now());
         final ScoreResult result = new ScoreResult("foo", 1, 1);
         score.addDetail(result);
 
-        final Score saved = scoreRepository.save(score);
+        final Score saved = scoreService.save(score);
         assertThat(saved)
             .extracting(Score::getPlugin, Score::getValue)
             .contains(p1, 100L);
@@ -92,10 +100,9 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         final Score p2s = new Score(p2, ZonedDateTime.now());
         p2s.addDetail(new ScoreResult("foo", 0, 1));
 
-        scoreRepository.saveAll(List.of(p1s, p2s));
+        List.of(p1s, p2s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(2);
 
-        final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
         final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
 
         assertThat(summary)
@@ -117,7 +124,6 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
 
     @Test
     public void shouldOnlyRetrieveLatestScoreForPlugins() {
-
         final Plugin p1 = entityManager.persist(
             new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );
@@ -144,10 +150,9 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
         final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(10));
         p2sOld.addDetail(new ScoreResult("foo", 0, 1));
 
-        scoreRepository.saveAll(List.of(p1s, p2s, p1sOld, p2sOld, p1sOld2));
+        List.of(p1s, p2s, p1sOld, p2sOld, p1sOld2).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(5);
 
-        final ScoreService scoreService = new ScoreService(scoreRepository, pluginService);
         final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
 
         assertThat(summary)
