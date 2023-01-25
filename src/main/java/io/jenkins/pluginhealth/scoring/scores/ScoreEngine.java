@@ -117,7 +117,7 @@ public final class ScoreEngine {
         try {
             return scoreService.save(score);
         } catch (Throwable t) {
-            LOGGER.error("Something really bad", t);
+            LOGGER.error("Could not save the score for {}", score.getPlugin().getName(), t);
             return null;
         }
     }
