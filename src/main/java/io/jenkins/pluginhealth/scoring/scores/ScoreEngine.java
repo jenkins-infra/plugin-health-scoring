@@ -62,8 +62,10 @@ public final class ScoreEngine {
     }
 
     public void run() {
+        LOGGER.info("Start scoring all plugins");
         pluginService.streamAll()
             .forEach(this::runOn);
+        LOGGER.info("Score engine has finished");
     }
 
     public Score runOn(Plugin plugin) {
@@ -112,6 +114,11 @@ public final class ScoreEngine {
                 }
             });
 
-        return scoreService.save(score);
+        try {
+            return scoreService.save(score);
+        } catch (Throwable t) {
+            LOGGER.error("Could not save the score for {}", score.getPlugin().getName(), t);
+            return null;
+        }
     }
 }
