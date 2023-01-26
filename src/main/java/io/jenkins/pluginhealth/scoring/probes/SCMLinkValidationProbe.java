@@ -72,6 +72,9 @@ public final class SCMLinkValidationProbe extends Probe {
         return fromSCMLink(plugin.getScm());
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
     @Override
     public String key() {
         return KEY;

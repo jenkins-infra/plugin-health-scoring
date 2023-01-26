@@ -60,7 +60,7 @@ public class ProbesController {
             "probes",
             probeService.getProbes().stream()
                 .map(ProbeDetails::map)
-                .sorted(Comparator.comparing(ProbeDetails::name))
+                .sorted(Comparator.comparing(ProbeDetails::executionOrder))
                 .toList()
         );
         return modelAndView;
@@ -77,9 +77,9 @@ public class ProbesController {
         return modelAndView;
     }
 
-    record ProbeDetails(String name, String id, String description) {
+    record ProbeDetails(String name, String id, String description, int executionOrder) {
         static ProbeDetails map(Probe probe) {
-            return new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription());
+            return new ProbeDetails(probe.getClass().getSimpleName(), probe.key(), probe.getDescription(), probe.getOrder());
         }
     }
 }

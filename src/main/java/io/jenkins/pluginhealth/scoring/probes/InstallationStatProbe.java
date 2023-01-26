@@ -48,6 +48,9 @@ public class InstallationStatProbe extends Probe {
         return ProbeResult.success(KEY, "%d".formatted(ucPlugin.popularity()));
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
     @Override
     public String key() {
         return KEY;

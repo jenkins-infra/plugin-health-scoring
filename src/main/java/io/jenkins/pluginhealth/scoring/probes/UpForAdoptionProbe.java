@@ -62,6 +62,9 @@ public class UpForAdoptionProbe extends Probe {
         return ProbeResult.success(key(), "This plugin is NOT up for adoption");
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
     @Override
     public String key() {
         return KEY;

@@ -77,6 +77,9 @@ public class ContinuousDeliveryProbe extends Probe {
     public String getDescription() {
         return "Checks if JEP-229 (Continuous Delivery) has been activated on the plugin";
     }
+    public int getOrder() {
+        return ORDER;
+    }
 
     @Override
     protected boolean isSourceCodeRelated() {

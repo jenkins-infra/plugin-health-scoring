@@ -63,6 +63,10 @@ public class DependabotProbe extends Probe {
         }
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
+
     @Override
     public String key() {
         return KEY;

@@ -49,6 +49,9 @@ public class DeprecatedPluginProbe extends Probe {
         return ProbeResult.success(key(), "This plugin is NOT deprecated");
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
     @Override
     public String key() {
         return KEY;

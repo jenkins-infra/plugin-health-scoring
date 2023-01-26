@@ -48,6 +48,9 @@ public class JenkinsCoreProbe extends Probe {
         return ProbeResult.success(KEY, ucPlugin.requiredCore());
     }
 
+    public int getOrder() {
+        return ORDER;
+    }
     @Override
     public String key() {
         return KEY;
