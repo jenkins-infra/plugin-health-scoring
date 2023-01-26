@@ -136,7 +136,12 @@ public final class ProbeEngine {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
             }
         });
-        pluginService.saveOrUpdate(plugin);
+
+        try {
+            pluginService.saveOrUpdate(plugin);
+        } catch (Throwable e) {
+            LOGGER.error("Could not save result of probe engine for plugin {}", plugin.getName(), e);
+        }
 
         try {
             probeContext.cleanUp();
