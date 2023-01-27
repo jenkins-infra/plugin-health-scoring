@@ -30,6 +30,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
 import org.springframework.stereotype.Component;
@@ -43,6 +44,7 @@ public class PluginMaintenanceScoring extends Scoring {
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult jenkinsfileProbeResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
         final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
+        final ProbeResult dependabotPullRequestResult = plugin.getDetails().get(DependabotPullRequestProbe.KEY);
         final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
 
         if (jenkinsfileProbeResult == null || jenkinsfileProbeResult.status().equals(ResultStatus.FAILURE)) {
@@ -50,6 +52,11 @@ public class PluginMaintenanceScoring extends Scoring {
         }
 
         if (dependabotProbeResult == null || dependabotProbeResult.status().equals(ResultStatus.FAILURE)) {
+            return new ScoreResult(KEY, .75f, COEFFICIENT);
+        }
+
+        if (dependabotPullRequestResult != null && dependabotPullRequestResult.status().equals(ResultStatus.SUCCESS)
+            && Integer.parseInt(dependabotPullRequestResult.message()) > 0) {
             return new ScoreResult(KEY, .75f, COEFFICIENT);
         }
 

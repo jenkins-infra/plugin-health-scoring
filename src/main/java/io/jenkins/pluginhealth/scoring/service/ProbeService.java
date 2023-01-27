@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsCoreProbe;
@@ -59,6 +60,7 @@ public class ProbeService {
     }
 
     private static final List<String> IGNORE_RAW_RESULT_PROBES = List.of(
+        DependabotPullRequestProbe.KEY,
         InstallationStatProbe.KEY,
         JenkinsCoreProbe.KEY,
         LastCommitDateProbe.KEY,
