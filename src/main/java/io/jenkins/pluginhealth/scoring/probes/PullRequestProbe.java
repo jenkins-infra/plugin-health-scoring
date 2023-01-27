@@ -60,7 +60,7 @@ public class PullRequestProbe extends Probe {
 
         try {
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(getRepositoryName(plugin.getScm()).orElseThrow());
+            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
 
             return ProbeResult.success(key(), "%d".formatted(pullRequests.size()));
@@ -70,11 +70,6 @@ public class PullRequestProbe extends Probe {
             }
             return ProbeResult.failure(key(), e.getMessage());
         }
-    }
-
-    private Optional<String> getRepositoryName(String scm) {
-        final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
-        return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
     }
 
     @Override

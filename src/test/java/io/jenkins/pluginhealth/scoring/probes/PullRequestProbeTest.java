@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -99,6 +100,7 @@ class PullRequestProbeTest {
         ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
         final List<GHPullRequest> ghPullRequests = List.of(
             new GHPullRequest(),
@@ -131,6 +133,7 @@ class PullRequestProbeTest {
         ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
 
         final PullRequestProbe probe = new PullRequestProbe();
