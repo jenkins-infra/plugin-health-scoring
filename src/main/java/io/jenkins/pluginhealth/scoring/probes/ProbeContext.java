@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
@@ -70,6 +71,11 @@ public class ProbeContext {
 
     public void setGitHub(GitHub github) {
         this.github = github;
+    }
+
+    public Optional<String> getRepositoryName(String scm) {
+        final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
+        return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
     }
 
     /* default */ void cleanUp() throws IOException {
