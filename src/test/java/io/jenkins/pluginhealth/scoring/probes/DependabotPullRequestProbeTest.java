@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -80,7 +81,7 @@ class DependabotPullRequestProbeTest {
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Repository is not configured to use dependabot"));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Dependabot not configured on the repository"));
     }
 
     @Test
@@ -119,5 +120,30 @@ class DependabotPullRequestProbeTest {
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2"));
+    }
+
+    @Test
+    public void shouldFailProperlyWhenIssueCommunicatingWithGitHub() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
+        ));
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("foo-bar"));
+
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(gh.getRepository(anyString())).thenThrow(IOException.class);
+
+        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(DependabotPullRequestProbe.KEY, "Could not count pull requests"));
     }
 }
