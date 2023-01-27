@@ -24,21 +24,55 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
+import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(DependabotPullRequestProbe.ORDER)
 public class DependabotPullRequestProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DependabotPullRequestProbe.class);
+
     public static final String KEY = "dependabot-pull-requests";
     public static final int ORDER = DependabotProbe.ORDER + 1;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        return null;
+        final ProbeResult dependabotResult = plugin.getDetails().get(DependabotProbe.KEY);
+        if (dependabotResult == null || dependabotResult.status().equals(ResultStatus.FAILURE)) {
+            return ProbeResult.error(key(), "Dependabot not configured on the repository");
+        }
+
+        try {
+            final GitHub gh = context.getGitHub();
+            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
+            final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
+
+            final long count = pullRequests.stream()
+                .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
+                .count();
+
+            return ProbeResult.success(key(), "%d".formatted(count));
+        } catch (NoSuchElementException | IOException e) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(e.getMessage());
+            }
+
+            return ProbeResult.failure(key(), "Could not count pull requests");
+        }
     }
 
     @Override

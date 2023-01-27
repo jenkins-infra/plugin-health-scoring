@@ -98,6 +98,7 @@ class DependabotPullRequestProbeTest {
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
 
         when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
 
         final GHLabel dependenciesLabel = mock(GHLabel.class);
