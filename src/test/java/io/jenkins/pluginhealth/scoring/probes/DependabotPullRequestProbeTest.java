@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -42,53 +41,51 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssueState;
+import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PullRequestProbeTest {
+class DependabotPullRequestProbeTest {
     @Test
-    public void shouldUsePullRequestKey() {
-        assertThat(spy(PullRequestProbe.class).key()).isEqualTo("pull-request");
-    }
-
-    @Test
-    public void shouldNotRequireNewRelease() {
-        assertThat(spy(PullRequestProbe.class).requiresRelease()).isFalse();
-    }
-
-    @Test
-    public void shouldNotBeRelatedToSourceCode() {
-        assertThat(spy(PullRequestProbe.class).isSourceCodeRelated()).isFalse();
+    public void shouldUseSpecificKey() {
+        assertThat(spy(DependabotPullRequestProbe.class).key()).isEqualTo(DependabotPullRequestProbe.KEY);
     }
 
     @Test
     public void shouldHaveDescription() {
-        assertThat(spy(PullRequestProbe.class).getDescription()).isNotBlank();
+        assertThat(spy(DependabotPullRequestProbe.class).getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldNotRunWithInvalidSCMLink() {
+    public void shouldNotRequireRelease() {
+        assertThat(spy(DependabotPullRequestProbe.class).requiresRelease()).isFalse();
+    }
+
+    @Test
+    public void shouldNotBeRelatedToSourceCode() {
+        assertThat(spy(DependabotPullRequestProbe.class).isSourceCodeRelated()).isFalse();
+    }
+
+    @Test
+    public void shouldBeSkippedWhenNoDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "not valid")
-        ));
+        when(plugin.getDetails()).thenReturn(Map.of());
 
-        final PullRequestProbe probe = new PullRequestProbe();
+        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result)
-            .usingRecursiveComparison()
+        assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "SCM link is not valid, cannot continue"));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Dependabot not configured on the repository"));
     }
 
     @Test
-    public void shouldBeAbleToCountOpenPullRequest() throws IOException {
+    public void shouldAccessGitHubAPIWhenDependabotActivated() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -96,55 +93,58 @@ class PullRequestProbeTest {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "valid")
+            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
         ));
-        when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+
+        when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
-        final List<GHPullRequest> ghPullRequests = List.of(
-            new GHPullRequest(),
-            new GHPullRequest(),
-            new GHPullRequest()
-        );
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(ghPullRequests);
 
-        final PullRequestProbe probe = new PullRequestProbe();
+        final GHLabel dependenciesLabel = mock(GHLabel.class);
+        when(dependenciesLabel.getName()).thenReturn("dependencies");
+
+        final GHPullRequest pr_1 = mock(GHPullRequest.class);
+        when(pr_1.getLabels()).thenReturn(List.of(dependenciesLabel));
+        final GHPullRequest pr_2 = mock(GHPullRequest.class);
+        final GHPullRequest pr_3 = mock(GHPullRequest.class);
+        when(pr_3.getLabels()).thenReturn(List.of(dependenciesLabel));
+        final GHPullRequest pr_4 = mock(GHPullRequest.class);
+        final GHPullRequest pr_5 = mock(GHPullRequest.class);
+        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(
+            List.of(pr_1, pr_2, pr_3, pr_4, pr_5)
+        );
+
+        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        verify(ctx).getGitHub();
-        verify(gh.getRepository(anyString())).getPullRequests(GHIssueState.OPEN);
-
-        assertThat(result)
-            .usingRecursiveComparison()
+        assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size())));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2"));
     }
 
     @Test
-    public void shouldFailIfCommunicationWithGitHubIsImpossible() throws IOException {
+    public void shouldFailProperlyWhenIssueCommunicatingWithGitHub() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final GitHub gh = mock(GitHub.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "valid")
+            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
         ));
-        when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("foo-bar"));
+
+        when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
 
-        final PullRequestProbe probe = new PullRequestProbe();
+        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
-
-        verify(ctx).getGitHub();
 
         assertThat(result)
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.failure(PullRequestProbe.KEY, ""));
-
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(DependabotPullRequestProbe.KEY, "Could not count pull requests"));
     }
 }

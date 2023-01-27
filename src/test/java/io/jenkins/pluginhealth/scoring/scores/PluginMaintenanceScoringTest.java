@@ -37,6 +37,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
 import org.junit.jupiter.api.Test;
@@ -108,13 +109,31 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
+    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndDependabotButOpenedPullRequests() {
+        final Plugin plugin = mock(Plugin.class);
+        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "1", ResultStatus.SUCCESS)
+        ));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
+        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
+        assertThat(result.value()).isEqualTo(.75f);
+    }
+
+    @Test
     public void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS)
+            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -131,6 +150,7 @@ class PluginMaintenanceScoringTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
             ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.FAILURE)
         ));
 
@@ -148,6 +168,7 @@ class PluginMaintenanceScoringTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
             DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
             ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.SUCCESS)
         ));
 

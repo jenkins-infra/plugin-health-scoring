@@ -27,8 +27,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -44,18 +42,18 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order
-public class PullRequestProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestProbe.class);
+@Order(DependabotPullRequestProbe.ORDER)
+public class DependabotPullRequestProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DependabotPullRequestProbe.class);
 
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
-    public static final String KEY = "pull-request";
+    public static final String KEY = "dependabot-pull-requests";
+    public static final int ORDER = DependabotProbe.ORDER + 1;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult scmValidationResult = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
-        if (scmValidationResult == null || !ResultStatus.SUCCESS.equals(scmValidationResult.status())) {
-            return ProbeResult.error(key(), "SCM link is not valid, cannot continue");
+        final ProbeResult dependabotResult = plugin.getDetails().get(DependabotProbe.KEY);
+        if (dependabotResult == null || dependabotResult.status().equals(ResultStatus.FAILURE)) {
+            return ProbeResult.error(key(), "Dependabot not configured on the repository");
         }
 
         try {
@@ -63,12 +61,17 @@ public class PullRequestProbe extends Probe {
             final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
 
-            return ProbeResult.success(key(), "%d".formatted(pullRequests.size()));
+            final long count = pullRequests.stream()
+                .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
+                .count();
+
+            return ProbeResult.success(key(), "%d".formatted(count));
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
             }
-            return ProbeResult.failure(key(), e.getMessage());
+
+            return ProbeResult.failure(key(), "Could not count pull requests");
         }
     }
 
@@ -79,6 +82,6 @@ public class PullRequestProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Count the number of open pull request on the plugin repository";
+        return "Reports the number of pull request currently opened by Dependabot";
     }
 }
