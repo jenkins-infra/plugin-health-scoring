@@ -48,6 +48,6 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return null;
+        return "Reports the number of pull request currently opened by Dependabot";
     }
 }

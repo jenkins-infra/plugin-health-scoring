@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -52,6 +51,11 @@ class DependabotPullRequestProbeTest {
     @Test
     public void shouldUseSpecificKey() {
         assertThat(spy(DependabotPullRequestProbe.class).key()).isEqualTo(DependabotPullRequestProbe.KEY);
+    }
+
+    @Test
+    public void shouldHaveDescription() {
+        assertThat(spy(DependabotPullRequestProbe.class).getDescription()).isNotBlank();
     }
 
     @Test
