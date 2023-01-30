@@ -95,7 +95,7 @@ docker compose up
 
 NOTE: the required environment variables must be set in a file named `.env`.
 
-===== Connecting to database with Docker container
+==== Connecting to database with Docker container
 
 If you are using Docker you can connect to the database using the following command:
 
