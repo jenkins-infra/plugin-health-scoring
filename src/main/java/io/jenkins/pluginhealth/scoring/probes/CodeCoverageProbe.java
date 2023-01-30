@@ -28,6 +28,9 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 public class CodeCoverageProbe extends Probe {
+    public static final String KEY = "code-coverage";
+    public static final int ORDER = JenkinsfileProbe.ORDER + 100;
+
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         return null;
@@ -35,11 +38,16 @@ public class CodeCoverageProbe extends Probe {
 
     @Override
     public String key() {
-        return null;
+        return KEY;
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Retrieve plugin code coverage details";
+    }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
     }
 }
