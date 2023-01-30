@@ -101,7 +101,7 @@ If you are using Docker you can connect to the database using the following comm
 
 [source,bash]
 ----
-docker exec -it plugin-health-scoring-db-1  psql -U <postgres-user-name>
+docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
 ----
 
 == Testing change
