@@ -95,6 +95,15 @@ docker compose up
 
 NOTE: the required environment variables must be set in a file named `.env`.
 
+==== Connecting to database with Docker container
+
+If you are using Docker you can connect to the database using the following command:
+
+[source,bash]
+----
+docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
+----
+
 == Testing change
 
 The project has unit and integration tests.
