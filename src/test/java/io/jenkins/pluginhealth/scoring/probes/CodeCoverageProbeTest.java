@@ -101,7 +101,7 @@ class CodeCoverageProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
