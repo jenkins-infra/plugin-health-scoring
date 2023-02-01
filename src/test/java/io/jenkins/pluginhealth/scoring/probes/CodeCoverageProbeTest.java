@@ -114,6 +114,7 @@ class CodeCoverageProbeTest {
             Map.of(),
             List.of()
         ));
+        when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
 
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
