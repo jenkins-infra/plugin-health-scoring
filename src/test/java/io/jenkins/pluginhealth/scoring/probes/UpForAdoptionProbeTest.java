@@ -60,7 +60,7 @@ public class UpForAdoptionProbeTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"), 0, "")),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"), 0, "", "main")),
             Collections.emptyMap(),
             Collections.emptyList()
         ));
@@ -78,7 +78,7 @@ public class UpForAdoptionProbeTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"), 0, "")),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"), 0, "", "main")),
             Collections.emptyMap(),
             Collections.emptyList()
         ));
