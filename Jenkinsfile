@@ -27,7 +27,7 @@ pipeline {
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
           recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
-          recordIssues enabledForFailure: true, tool: checkStyle()
+          recordIssues enabledForFailure: true, tool: checkStyle(), healthy: 1
           recordIssues enabledForFailure: true, tool: spotBugs()
         }
         success {
