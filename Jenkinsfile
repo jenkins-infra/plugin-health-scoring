@@ -26,7 +26,7 @@ pipeline {
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
-          recordIssues enabledForFailure: true
+          recordIssues enabledForFailure: true,
             tools: [mavenConsole(), java(), javaDoc(), spotBugs()]
           recordIssues enabledForFailure: true,
             tool: checkStyle(),
