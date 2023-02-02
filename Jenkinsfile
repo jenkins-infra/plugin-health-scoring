@@ -26,9 +26,11 @@ pipeline {
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
-          recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
-          recordIssues enabledForFailure: true, tool: checkStyle(), healthy: 1
-          recordIssues enabledForFailure: true, tool: spotBugs()
+          recordIssues enabledForFailure: true
+            tools: [mavenConsole(), java(), javaDoc(), spotBugs()]
+          recordIssues enabledForFailure: true,
+            tool: checkStyle(),
+            qualityGates: [[ threshold: 1, type: 'TOTAL', unstable: true ]]
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
