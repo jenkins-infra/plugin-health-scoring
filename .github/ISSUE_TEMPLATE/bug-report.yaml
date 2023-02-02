@@ -1,0 +1,28 @@
+name: 🐛 Bug report
+description: File a bug report
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug on the project.
+  - type: input
+    label: Title
+    description: A brief and clear summary of the problem.
+    placeholder: Summary of the problem
+    validations:
+      required: true
+  - type: textarea
+    label: Description of the bug
+    description: |
+      Please describe the behavior you witnessed and what you were expected to have.
+      If this is about a probe result, please specify the plugin and the proof that the probe is incorrect.
+      For anything else, please provide the steps to reproduce the problem.
+    validations:
+      required: true
+  - type: input
+    label: Version (optional)
+    description: |
+      The version of the application on which you faced the problem.
+      The version can be found at the bottom of the web page.
+    placeholder: Version of the application
