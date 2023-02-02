@@ -19,6 +19,8 @@ When building, Yarn will bundle the front-end files only.
 NOTE: Optionally, you can use the Maven wrapper in the repository.
 In that case, replace the `mvn` command by `./mvnw` in the command listed bellow.
 
+Please see the link:ARCHITECTURE.adoc[architecture] document to better understand the structure of the code.
+
 == How to build locally the application
 
 Once you have installed the tools listed before, you can generate the application binary by running the command:
