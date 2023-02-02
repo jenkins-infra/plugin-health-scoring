@@ -17,21 +17,20 @@ pipeline {
       }
       steps {
         sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+
+        junit (
+          allowEmptyResults: false,
+          testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
+        )
+        publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
+        recordIssues enabledForFailure: true,
+          tools: [mavenConsole(), java(), javaDoc(), spotBugs()]
+        recordIssues enabledForFailure: true,
+          tool: checkStyle(),
+          qualityGates: [[ threshold: 1, type: 'TOTAL', unstable: true ]]
       }
 
       post {
-        always {
-          junit (
-            allowEmptyResults: false,
-            testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
-          )
-          publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
-          recordIssues enabledForFailure: true,
-            tools: [mavenConsole(), java(), javaDoc(), spotBugs()]
-          recordIssues enabledForFailure: true,
-            tool: checkStyle(),
-            qualityGates: [[ threshold: 1, type: 'TOTAL', unstable: true ]]
-        }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
         }
