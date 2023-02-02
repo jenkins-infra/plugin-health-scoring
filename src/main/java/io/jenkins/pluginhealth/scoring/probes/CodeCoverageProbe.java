@@ -61,9 +61,9 @@ public class CodeCoverageProbe extends Probe {
             final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+                // Requires pull request on https://github.com/hub4j/github-api/pull/1612
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch/*, Map.of("check_name", "Code Coverage")*/).toList();
-                // Requires pull request on hub4j/github-api#TODO
                 if (ghCheckRuns.size() != 1) {
                     return ProbeResult.failure(key(), "Could not determine code coverage for plugin");
                 } else {
