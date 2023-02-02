@@ -23,11 +23,7 @@ pipeline {
         always {
           junit (
             allowEmptyResults: false,
-            testResults: '**/target/surefire-reports/*.xml'
-          )
-          junit (
-            allowEmptyResults: false,
-            testResults: '**/target/failsafe-reports/*.xml'
+            testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
           recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
