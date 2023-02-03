@@ -22,15 +22,6 @@ body:
         Please describe the behavior you witnessed and what you were expected to have.
         If this is about a probe result, please specify the plugin and the proof that the probe is incorrect.
         For anything else, please provide the steps to reproduce the problem.
-        You can use AsciiDoc syntax.
       render: AsciiDoc
     validations:
       required: true
-  - type: input
-    id: version
-    attributes:
-      label: Version (optional)
-      description: |
-        The version of the application on which you faced the problem.
-        The version can be found at the bottom of the web page.
-      placeholder: "Example: 1.0.42 (abcdef)"
