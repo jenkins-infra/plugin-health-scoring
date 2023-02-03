@@ -7,7 +7,8 @@ The application is divided into two main parts: link:../src/main/java/io/jenkins
 Probes have the responsibility to fetch data for each plugins.
 They reach external system, like GitHub, the Jira, etc, and register the wanted data into a link:../src/main/java/io/jenkins/pluginhealth/scoring/model/ProbeResult.java[`ProbeResult`].
 
-A probe can retrieve any kind of data. For boolean data (example: _is dependabot configured?_), the status of the `ProbeResult` must reflect the boolean value.
+A probe can retrieve any kind of data.
+For boolean data (example: _is dependabot configured?_), the status of the `ProbeResult` must reflect the boolean value.
 For other type (example: _number of open pull request created by dependabot_), the status of the `ProbeResult` must be `SUCCESS` if we could get the data, `FAILURE` if not.
 
 The `ERROR` status must only be used when an error in the probe execution happened.
@@ -29,7 +30,8 @@ The environment variable `PROBE_ENGINE_CRON` is used to configure this CRON.
 The scoring implementation are responsible to determine the health of a plugin.
 Each implementation have a coefficient which dictate how important to the global health of a plugin, this scoring implementation is.
 
-Each implementation can use one or many `ProbeResult` of a plugin, in order to determine its score. The value the score is a `float` between 0 and 1.
+Each implementation can use one or many `ProbeResult` of a plugin, in order to determine its score.
+The value the score is a `float` between 0 and 1.
 
 The link:../src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoreEngine.java[`ScoreEngine`] is responsible to execute each `Scoring` implementation on every plugins.
 However, if the last score of a plugin was computed more recently than the most recent `ProbeResult` for a plugin, the scoring implementation is skipped.

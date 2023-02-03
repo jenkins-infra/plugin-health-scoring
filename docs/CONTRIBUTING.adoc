@@ -44,7 +44,7 @@ Before starting the application, it is required to create a GitHub App, configur
 
 ==== Environment variables
 
-You can find an example of environment variable in link:.env.example[].
+You can find the list of environment variables in link:.env.example[].
 
 [source,bash]
 ----
