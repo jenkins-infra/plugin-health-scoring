@@ -28,10 +28,14 @@ pipeline {
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
           recordIssues enabledForFailure: true,
-            tools: [mavenConsole(), java(), javaDoc(), spotBugs()]
+            tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true,
             tool: checkStyle(),
             qualityGates: [[ threshold: 1, type: 'TOTAL', unstable: true ]]
+          recordIssues enabledForFailure: true,
+            tool: spotBugs()
+            // Cannot use qualityGates here because spotbugs is not handling Java Record method too kindly
+            // https://github.com/spotbugs/spotbugs/issues/1569
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
