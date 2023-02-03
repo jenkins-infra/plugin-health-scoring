@@ -38,12 +38,15 @@ import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.kohsuke.github.GHApp;
 import org.kohsuke.github.GHAppInstallation;
 import org.kohsuke.github.GHAppInstallationToken;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -79,7 +82,12 @@ public class GithubConfiguration {
         final GitHub ghApp = new GitHubBuilder().withJwtToken(createJWT()).build();
         final GHAppInstallation ghAppInstall = getAppInstallation(ghApp);
         final GHAppInstallationToken ghAppInstallationToken = ghAppInstall.createToken().create();
-        return new GitHubBuilder().withAppInstallationToken(ghAppInstallationToken.getToken()).build();
+        final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
+            new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
+        ).build();
+        return new GitHubBuilder()
+            .withConnector(new OkHttpGitHubConnector(httpClient))
+            .withAppInstallationToken(ghAppInstallationToken.getToken()).build();
     }
 
     private GHAppInstallation getAppInstallation(GitHub ghApp) throws IOException {
