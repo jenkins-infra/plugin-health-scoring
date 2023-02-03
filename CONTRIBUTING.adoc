@@ -31,7 +31,11 @@ mvn package -Dmaven.test.skip
 There are two ways to run the project locally.
 Either way, the application requires some environment variables to be configured and a GitHub App.
 
-* Environment variables: to create your own environment variables refer to link:.env.example[].
+* Environment variables: To create your own environment variables refer to link:.env.example[] file.
+[source,bash]
+----
+include::.env.example[]
+----
 
 
 * To create the GitHub App, please see link:[]https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app
