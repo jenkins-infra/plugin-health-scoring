@@ -1,5 +1,5 @@
 name: ✨ New probe
-description:
+description: Request a new probe to be implemented on the project
 labels: [probe, enhancement]
 body:
   - type: markdown
