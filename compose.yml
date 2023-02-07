@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .
+      context: war
       dockerfile: src/main/docker/Dockerfile
     env_file:
       - .env
