@@ -30,7 +30,7 @@
 	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>Plugin Health Scoring</name>
+	<name>Plugin Health Scoring :: Parent</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
 	<inceptionYear>2022</inceptionYear>
 	<organization>
@@ -63,6 +63,11 @@
 			<name>Jake Leon</name>
 		</developer>
 	</developers>
+
+	<modules>
+		<module>core</module>
+		<module>war</module>
+	</modules>
 
 	<scm>
 		<connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
