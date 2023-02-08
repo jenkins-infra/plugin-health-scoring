@@ -22,35 +22,36 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.scores;
+
+package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
-import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
-
-
 import org.springframework.stereotype.Component;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+
+/**
+ * Check if the plugin exists in UpdateCenter map
+ *
+ * */
 
 @Component
-public class DeprecatedPluginScoring extends Scoring {
-    private static final float COEFFICIENT = .8f;
-    private static final String KEY = "deprecation";
+public class UpdateCenterPluginPublicationProbe extends Probe{
 
+    public static final String KEY = "update-center-plugin-publication-probe";
 
 
     @Override
-    protected ScoreResult doApply(Plugin plugin) {
-        final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
+    public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
+        final UpdateCenter updateCenter = ctx.getUpdateCenter();
 
-        final ProbeResult doesPluginExistInUpdateCenterMapResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
 
-        if (deprecatedPluginProbeResult == null || deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE) || doesPluginExistInUpdateCenterMapResult.status().equals(ResultStatus.FAILURE) ) {
-            return new ScoreResult(KEY, 0, COEFFICIENT);
+        if (updateCenterPlugin == null) {
+            return ProbeResult.failure(key(), "This plugin does not exist in update-center");
         }
-        return new ScoreResult(KEY, 1, COEFFICIENT);
+
+        return ProbeResult.success(key(), "This plugin exists in update-center");
     }
 
     @Override
@@ -59,12 +60,9 @@ public class DeprecatedPluginScoring extends Scoring {
     }
 
     @Override
-    public float coefficient() {
-        return COEFFICIENT;
+    public String getDescription() {
+        return "This probe detects if a specified plugin exists in update-center.";
     }
 
-    @Override
-    public String description() {
-        return "Scores plugin based on its deprecation status.";
-    }
 }
+
