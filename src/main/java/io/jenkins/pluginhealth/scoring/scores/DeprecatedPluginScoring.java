@@ -29,8 +29,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
-import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
-
 
 import org.springframework.stereotype.Component;
 

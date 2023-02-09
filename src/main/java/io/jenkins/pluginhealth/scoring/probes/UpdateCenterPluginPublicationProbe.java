@@ -23,11 +23,12 @@
  */
 
 package io.jenkins.pluginhealth.scoring.probes;
-
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import org.springframework.stereotype.Component;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * Check if the plugin exists in UpdateCenter map
@@ -35,9 +36,9 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
  * */
 @Component
 @Order(UpdateCenterPluginPublicationProbe.ORDER)
-public class UpdateCenterPluginPublicationProbe extends Probe{
+public class UpdateCenterPluginPublicationProbe extends Probe {
     public static final String KEY = "update-center-plugin-publication-probe";
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {

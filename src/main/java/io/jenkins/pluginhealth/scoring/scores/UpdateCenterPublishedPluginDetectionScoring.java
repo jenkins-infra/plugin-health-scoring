@@ -22,6 +22,16 @@
  * SOFTWARE.
  */
 
+package io.jenkins.pluginhealth.scoring.scores;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
+
+import org.springframework.stereotype.Component;
+
 @Component
 public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     private static final float COEFFICIENT = 1f;
