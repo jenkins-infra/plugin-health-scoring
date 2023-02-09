@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
