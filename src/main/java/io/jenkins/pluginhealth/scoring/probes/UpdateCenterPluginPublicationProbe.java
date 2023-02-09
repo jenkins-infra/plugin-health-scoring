@@ -34,8 +34,10 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
  *
  * */
 @Component
+@Order(UpdateCenterPluginPublicationProbe.ORDER)
 public class UpdateCenterPluginPublicationProbe extends Probe{
     public static final String KEY = "update-center-plugin-publication-probe";
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
