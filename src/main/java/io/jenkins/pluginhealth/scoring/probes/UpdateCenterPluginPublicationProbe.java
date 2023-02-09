@@ -33,7 +33,6 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
  * Check if the plugin exists in UpdateCenter map
  *
  * */
-
 @Component
 public class UpdateCenterPluginPublicationProbe extends Probe{
 
