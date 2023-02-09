@@ -39,8 +39,6 @@ public class DeprecatedPluginScoring extends Scoring {
     private static final float COEFFICIENT = .8f;
     private static final String KEY = "deprecation";
 
-
-
     @Override
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);

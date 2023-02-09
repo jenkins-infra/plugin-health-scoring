@@ -35,9 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
  * */
 @Component
 public class UpdateCenterPluginPublicationProbe extends Probe{
-
     public static final String KEY = "update-center-plugin-publication-probe";
-
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
