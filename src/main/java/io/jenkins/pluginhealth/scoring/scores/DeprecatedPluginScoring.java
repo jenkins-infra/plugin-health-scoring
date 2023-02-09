@@ -44,7 +44,6 @@ public class DeprecatedPluginScoring extends Scoring {
     @Override
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-
         final ProbeResult doesPluginExistInUpdateCenterMapResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
 
         if (deprecatedPluginProbeResult == null || deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE) || doesPluginExistInUpdateCenterMapResult == null || doesPluginExistInUpdateCenterMapResult.status().equals(ResultStatus.FAILURE) ) {
