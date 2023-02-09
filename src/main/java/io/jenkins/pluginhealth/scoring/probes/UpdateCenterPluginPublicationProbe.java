@@ -61,6 +61,5 @@ public class UpdateCenterPluginPublicationProbe extends Probe{
     public String getDescription() {
         return "This probe detects if a specified plugin exists in update-center.";
     }
-
 }
 
