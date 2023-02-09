@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +22,16 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.scores;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
-import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
-
-
-import org.springframework.stereotype.Component;
-
 @Component
-public class DeprecatedPluginScoring extends Scoring {
-    private static final float COEFFICIENT = .8f;
-    private static final String KEY = "deprecation";
+public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
+    private static final float COEFFICIENT = 1f;
+    public static final String KEY = "update-center-plugin-publication-probe";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {
-        final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
+        final ProbeResult doesPluginExistInUpdateCenterMapResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
 
-        if (deprecatedPluginProbeResult == null || deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE)) {
+        if (doesPluginExistInUpdateCenterMapResult == null || doesPluginExistInUpdateCenterMapResult.status().equals(ResultStatus.FAILURE) ) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
         }
         return new ScoreResult(KEY, 1, COEFFICIENT);
@@ -61,6 +49,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public String description() {
-        return "Scores plugin based on its deprecation status.";
+        return "Scores plugin if it is published in Update Center";
     }
 }
