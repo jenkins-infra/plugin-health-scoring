@@ -44,7 +44,6 @@ public class UpdateCenterPluginPublicationProbe extends Probe{
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
-
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
 
         if (updateCenterPlugin == null) {
