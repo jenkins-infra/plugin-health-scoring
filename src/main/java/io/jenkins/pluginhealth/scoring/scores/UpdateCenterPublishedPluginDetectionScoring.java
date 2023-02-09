@@ -41,7 +41,7 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     protected ScoreResult doApply(Plugin plugin) {
         final ProbeResult doesPluginExistInUpdateCenterMapResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
 
-        if (doesPluginExistInUpdateCenterMapResult == null || doesPluginExistInUpdateCenterMapResult.status().equals(ResultStatus.FAILURE) ) {
+        if (doesPluginExistInUpdateCenterMapResult == null || doesPluginExistInUpdateCenterMapResult.status().equals(ResultStatus.FAILURE)) {
             return new ScoreResult(KEY, 0, COEFFICIENT);
         }
         return new ScoreResult(KEY, 1, COEFFICIENT);

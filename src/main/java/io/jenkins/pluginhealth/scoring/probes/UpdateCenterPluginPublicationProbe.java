@@ -23,6 +23,7 @@
  */
 
 package io.jenkins.pluginhealth.scoring.probes;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
