@@ -1,22 +1,23 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/java-postgres
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
-	"name": "Java & PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"name": "Codespace Configuration for Plugin Health Scoring Project",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/java:0-17",
+
 	"features": {
-		// "ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/devcontainers-contrib/features/tomcat-sdkman:2": {},
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"installGradle": "false"
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
 		"ghcr.io/devcontainers/features/sshd:1": {}
 	}
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {}
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// This can be used to network with other containers or with the host.
-	// "forwardPorts": [5432],
+	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "java -version",
