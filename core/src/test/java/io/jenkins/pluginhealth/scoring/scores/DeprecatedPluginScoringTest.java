@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DeprecatedPluginScoringTest {
     @Test
-    public void shouldScoreCorrectlyNotDeprecatedPlugin() {
+    void shouldScoreCorrectlyNotDeprecatedPlugin() {
         final Plugin plugin = mock(Plugin.class);
         final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
 
@@ -60,7 +60,7 @@ class DeprecatedPluginScoringTest {
     }
 
     @Test
-    public void shouldBadlyScorePluginWithNoProbe() {
+    void shouldBadlyScorePluginWithNoProbe() {
         final Plugin plugin = mock(Plugin.class);
         final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
 
@@ -74,7 +74,7 @@ class DeprecatedPluginScoringTest {
     }
 
     @Test
-    public void shouldScoreCorrectlyDeprecatedPlugin() {
+    void shouldScoreCorrectlyDeprecatedPlugin() {
         final Plugin plugin = mock(Plugin.class);
         final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
 

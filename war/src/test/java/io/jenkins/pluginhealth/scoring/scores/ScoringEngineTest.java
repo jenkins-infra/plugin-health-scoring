@@ -65,7 +65,7 @@ class ScoringEngineTest {
     private ScoreService scoreService;
 
     @Test
-    public void shouldBeAbleToScoreOnePlugin() {
+    void shouldBeAbleToScoreOnePlugin() {
         final Plugin plugin = mock(Plugin.class);
         final Scoring scoringA = mock(Scoring.class);
         final Scoring scoringB = mock(Scoring.class);
@@ -89,7 +89,7 @@ class ScoringEngineTest {
     }
 
     @Test
-    public void shouldBeAbleToScoreMultiplePlugins() {
+    void shouldBeAbleToScoreMultiplePlugins() {
         final Plugin pluginA = mock(Plugin.class);
         final Plugin pluginB = mock(Plugin.class);
         final Plugin pluginC = mock(Plugin.class);
@@ -126,7 +126,7 @@ class ScoringEngineTest {
     }
 
     @Test
-    public void shouldOnlyScorePluginsWithNewerResultThanLatestScore() {
+    void shouldOnlyScorePluginsWithNewerResultThanLatestScore() {
         final Plugin pluginA = mock(Plugin.class);
         final String pluginName = "plugin-a";
         when(pluginA.getName()).thenReturn(pluginName);
@@ -151,7 +151,7 @@ class ScoringEngineTest {
     }
 
     @Test
-    public void shouldNotScorePluginsWithLatestScoreAndEmptyDetailsMap() {
+    void shouldNotScorePluginsWithLatestScoreAndEmptyDetailsMap() {
         final Plugin pluginA = mock(Plugin.class);
         final String pluginName = "plugin-a";
         when(pluginA.getName()).thenReturn(pluginName);

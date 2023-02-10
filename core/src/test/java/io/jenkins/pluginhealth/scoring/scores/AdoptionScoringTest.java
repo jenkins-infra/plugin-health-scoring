@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,9 +44,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AdoptionScoringTest {
+class AdoptionScoringTest {
     @Test
-    public void shouldScoreZeroForPluginsUpForAdoption() {
+    void shouldScoreZeroForPluginsUpForAdoption() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -61,7 +61,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreZeroForPluginsWithNoLastCommit() {
+    void shouldScoreZeroForPluginsWithNoLastCommit() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -74,7 +74,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreOneForPluginsWithCommitsLessThanSixMonthsOld() {
+    void shouldScoreOneForPluginsWithCommitsLessThanSixMonthsOld() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -91,7 +91,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
+    void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -108,7 +108,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
+    void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -125,7 +125,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
+    void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 
@@ -142,7 +142,7 @@ public class AdoptionScoringTest {
     }
 
     @Test
-    public void shouldScoreZeroForPluginsWithCommitsMoreThanFourYearsOld() {
+    void shouldScoreZeroForPluginsWithCommitsMoreThanFourYearsOld() {
         final AdoptionScoring scoring = spy(AdoptionScoring.class);
         final Plugin plugin = mock(Plugin.class);
 

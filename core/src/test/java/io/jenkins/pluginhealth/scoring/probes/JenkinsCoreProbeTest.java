@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,31 +45,31 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class JenkinsCoreProbeTest {
     @Test
-    public void shouldBeUsingJenkinsVersionKey() {
+    void shouldBeUsingJenkinsVersionKey() {
         final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.key()).isEqualTo("jenkins-version");
     }
 
     @Test
-    public void shouldRequireRelease() {
+    void shouldRequireRelease() {
         final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.requiresRelease()).isTrue();
     }
 
     @Test
-    public void shouldNotRequireSourceCodeChange() {
+    void shouldNotRequireSourceCodeChange() {
         final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.isSourceCodeRelated()).isFalse();
     }
 
     @Test
-    public void shouldHaveDescription() {
+    void shouldHaveDescription() {
         final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
         assertThat(probe.getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldFailIfPluginNotInUpdateCenter() {
+    void shouldFailIfPluginNotInUpdateCenter() {
         final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -93,7 +93,7 @@ class JenkinsCoreProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToExtractJenkinsVersionFromUpdateCenter() {
+    void shouldBeAbleToExtractJenkinsVersionFromUpdateCenter() {
         final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,19 +45,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ContinuousDeliveryProbeTest {
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldKeepUsingJEP229Key() {
+    void shouldKeepUsingJEP229Key() {
         final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.key()).isEqualTo("jep-229");
     }
 
     @Test
-    public void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
+    void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
@@ -73,7 +73,7 @@ class ContinuousDeliveryProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
+    void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
@@ -91,7 +91,7 @@ class ContinuousDeliveryProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectConfiguredRepository() throws Exception {
+    void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
@@ -110,7 +110,7 @@ class ContinuousDeliveryProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
+    void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();

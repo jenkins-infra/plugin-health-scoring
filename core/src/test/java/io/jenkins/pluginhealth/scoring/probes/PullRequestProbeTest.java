@@ -50,27 +50,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PullRequestProbeTest {
     @Test
-    public void shouldUsePullRequestKey() {
+    void shouldUsePullRequestKey() {
         assertThat(spy(PullRequestProbe.class).key()).isEqualTo("pull-request");
     }
 
     @Test
-    public void shouldNotRequireNewRelease() {
+    void shouldNotRequireNewRelease() {
         assertThat(spy(PullRequestProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldNotBeRelatedToSourceCode() {
+    void shouldNotBeRelatedToSourceCode() {
         assertThat(spy(PullRequestProbe.class).isSourceCodeRelated()).isFalse();
     }
 
     @Test
-    public void shouldHaveDescription() {
+    void shouldHaveDescription() {
         assertThat(spy(PullRequestProbe.class).getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldNotRunWithInvalidSCMLink() {
+    void shouldNotRunWithInvalidSCMLink() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -88,7 +88,7 @@ class PullRequestProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToCountOpenPullRequest() throws IOException {
+    void shouldBeAbleToCountOpenPullRequest() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -122,7 +122,7 @@ class PullRequestProbeTest {
     }
 
     @Test
-    public void shouldFailIfCommunicationWithGitHubIsImpossible() throws IOException {
+    void shouldFailIfCommunicationWithGitHubIsImpossible() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

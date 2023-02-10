@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class UpdateCenterServiceTest {
     @Test
-    public void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
+    void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
         URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
         assertThat(updateCenterURL).isNotNull();
         UpdateCenterService updateCenterService = new UpdateCenterService(updateCenterURL.toString());

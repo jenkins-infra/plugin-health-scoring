@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,7 @@ class PluginMaintenanceScoringTest {
     public static final float COEFFICIENT = .5f;
 
     @Test
-    public void shouldScoreZeroWhenNoJenkinsfileProbeResult() {
+    void shouldScoreZeroWhenNoJenkinsfileProbeResult() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -63,7 +63,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreZeroForPluginsWithNoJenkinsfile() {
+    void shouldScoreZeroForPluginsWithNoJenkinsfile() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -78,7 +78,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreSeventyFiveForPluginsWithOnlyJenkinsfile() {
+    void shouldScoreSeventyFiveForPluginsWithOnlyJenkinsfile() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -93,7 +93,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndNoDependabot() {
+    void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndNoDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -109,7 +109,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndDependabotButOpenedPullRequests() {
+    void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndDependabotButOpenedPullRequests() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -126,7 +126,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabot() {
+    void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -143,7 +143,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreNinetyForPluginsWithJenkinsfileAndDependabotButNoJEP229() {
+    void shouldScoreNinetyForPluginsWithJenkinsfileAndDependabotButNoJEP229() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
@@ -161,7 +161,7 @@ class PluginMaintenanceScoringTest {
     }
 
     @Test
-    public void shouldScoreHundredForPluginsWithJenkinsfileAndDependabotAndJEP229() {
+    void shouldScoreHundredForPluginsWithJenkinsfileAndDependabotAndJEP229() {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 

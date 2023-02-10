@@ -54,13 +54,13 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(
     controllers = ScoreAPI.class
 )
-public class ScoreAPITest {
+class ScoreAPITest {
     @MockBean private ScoreService scoreService;
     @Autowired private MockMvc mockMvc;
     @Autowired ObjectMapper mapper;
 
     @Test
-    public void shouldBeAbleToProvideScoresSummary() throws Exception {
+    void shouldBeAbleToProvideScoresSummary() throws Exception {
         final ScoreResult p1sr1 = new ScoreResult("foo", 1, 1);
         final ScoreResult p2sr1 = new ScoreResult("foo", 1, 1);
         final ScoreResult p2sr2 = new ScoreResult("bar", 0, .69f);

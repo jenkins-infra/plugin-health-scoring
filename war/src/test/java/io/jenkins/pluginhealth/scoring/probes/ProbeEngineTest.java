@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,7 +65,7 @@ class ProbeEngineTest {
     @Mock private GithubConfiguration githubConfiguration;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         when(updateCenterService.fetchUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
@@ -74,7 +74,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldBeAbleToRunSimpleProbe() throws IOException {
+    void shouldBeAbleToRunSimpleProbe() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -97,7 +97,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() throws IOException {
+    void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final String probeKey = "wiz";
         final Probe probe = mock(Probe.class);
@@ -121,7 +121,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotApplyProbeRelatedToCodeWithNoNewCode() throws IOException {
+    void shouldNotApplyProbeRelatedToCodeWithNoNewCode() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -145,7 +145,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldApplyProbeRelatedToCodeWithNewCommit() throws IOException {
+    void shouldApplyProbeRelatedToCodeWithNewCommit() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -172,7 +172,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() throws IOException {
+    void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() throws IOException {
         final String probeKey = "wiz";
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
@@ -198,7 +198,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() throws IOException {
+    void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() throws IOException {
         final String probeKey = "wiz";
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
@@ -225,7 +225,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldNotSaveErrors() throws IOException {
+    void shouldNotSaveErrors() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -244,7 +244,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    public void shouldBeAbleToGetPreviousContextResultInExecution() throws IOException {
+    void shouldBeAbleToGetPreviousContextResultInExecution() throws IOException {
         final Plugin plugin = spy(Plugin.class);
         final Probe probeOne = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,22 +42,22 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class PluginServiceIT extends AbstractDBContainerTest {
+class PluginServiceIT extends AbstractDBContainerTest {
     @Autowired private PluginRepository pluginRepository;
     private PluginService pluginService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.pluginService = new PluginService(pluginRepository);
     }
 
     @Test
-    public void shouldBeEmpty() {
+    void shouldBeEmpty() {
         assertThat(pluginRepository.count()).isZero();
     }
 
     @Test
-    public void shouldNotDuplicatePluginWhenNameIsTheSame() {
+    void shouldNotDuplicatePluginWhenNameIsTheSame() {
         Plugin plugin = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
 
         pluginService.saveOrUpdate(plugin);
@@ -75,7 +75,7 @@ public class PluginServiceIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeAbleToSavePluginWithThreeDigitVersion() {
+    void shouldBeAbleToSavePluginWithThreeDigitVersion() {
         final Plugin plugin = new Plugin("foo-bar", new VersionNumber("1.0.1"), null, ZonedDateTime.now());
 
         assertThat(pluginRepository.count()).isEqualTo(0);

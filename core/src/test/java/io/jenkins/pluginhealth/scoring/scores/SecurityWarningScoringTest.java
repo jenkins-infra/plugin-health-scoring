@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SecurityWarningScoringTest {
     @Test
-    public void shouldBeAbleToDetectPluginWithSecurityWarning() {
+    void shouldBeAbleToDetectPluginWithSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
 
@@ -60,7 +60,7 @@ class SecurityWarningScoringTest {
     }
 
     @Test
-    public void shouldBadlyScorePluginWithNoProbeResult() {
+    void shouldBadlyScorePluginWithNoProbeResult() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
 
@@ -74,7 +74,7 @@ class SecurityWarningScoringTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectPluginWithNoSecurityWarning() {
+    void shouldBeAbleToDetectPluginWithNoSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
 

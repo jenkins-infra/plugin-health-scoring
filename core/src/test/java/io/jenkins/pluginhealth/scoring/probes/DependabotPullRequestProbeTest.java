@@ -50,27 +50,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DependabotPullRequestProbeTest {
     @Test
-    public void shouldUseSpecificKey() {
+    void shouldUseSpecificKey() {
         assertThat(spy(DependabotPullRequestProbe.class).key()).isEqualTo(DependabotPullRequestProbe.KEY);
     }
 
     @Test
-    public void shouldHaveDescription() {
+    void shouldHaveDescription() {
         assertThat(spy(DependabotPullRequestProbe.class).getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         assertThat(spy(DependabotPullRequestProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldNotBeRelatedToSourceCode() {
+    void shouldNotBeRelatedToSourceCode() {
         assertThat(spy(DependabotPullRequestProbe.class).isSourceCodeRelated()).isFalse();
     }
 
     @Test
-    public void shouldBeSkippedWhenNoDependabot() {
+    void shouldBeSkippedWhenNoDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -85,7 +85,7 @@ class DependabotPullRequestProbeTest {
     }
 
     @Test
-    public void shouldAccessGitHubAPIWhenDependabotActivated() throws IOException {
+    void shouldAccessGitHubAPIWhenDependabotActivated() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -124,7 +124,7 @@ class DependabotPullRequestProbeTest {
     }
 
     @Test
-    public void shouldFailProperlyWhenIssueCommunicatingWithGitHub() throws IOException {
+    void shouldFailProperlyWhenIssueCommunicatingWithGitHub() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

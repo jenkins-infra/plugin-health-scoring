@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,22 +44,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class LastCommitDateProbeTest {
     @Test
-    public void shouldKeepScmAsKey() {
+    void shouldKeepScmAsKey() {
         assertThat(new LastCommitDateProbe().key()).isEqualTo("last-commit-date");
     }
 
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         assertThat(new LastCommitDateProbe().requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldBeExecutedAfterSCMLinkValidation() {
+    void shouldBeExecutedAfterSCMLinkValidation() {
         assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
     }
 
     @Test
-    public void shouldReturnSuccessStatusOnValidSCM() throws IOException {
+    void shouldReturnSuccessStatusOnValidSCM() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
@@ -74,7 +74,7 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldReturnSuccessStatusOnValidSCMWithSubFolder() throws IOException {
+    void shouldReturnSuccessStatusOnValidSCMWithSubFolder() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
@@ -89,7 +89,7 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldReturnFailureOnInvalidSCM() {
+    void shouldReturnFailureOnInvalidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
@@ -101,7 +101,7 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    public void shouldFailToRunAsFirstProbe() {
+    void shouldFailToRunAsFirstProbe() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();

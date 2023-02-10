@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,31 +46,31 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class InstallationStatProbeTest {
 
     @Test
-    public void doesNotRequireRelease() {
+    void doesNotRequireRelease() {
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
         assertThat(probe.requiresRelease()).isFalse();
     }
 
     @Test
-    public void doesNotRequireCodeModification() {
+    void doesNotRequireCodeModification() {
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
         assertThat(probe.isSourceCodeRelated()).isFalse();
     }
 
     @Test
-    public void shouldHaveStatAsKey() {
+    void shouldHaveStatAsKey() {
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
         assertThat(probe.key()).isEqualTo("stat");
     }
 
     @Test
-    public void shouldHaveDescription() {
+    void shouldHaveDescription() {
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
         assertThat(probe.getDescription()).isNotBlank();
     }
 
     @Test
-    public void shouldFailWhenPluginIsNotInUpdateCenter() {
+    void shouldFailWhenPluginIsNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
@@ -92,7 +92,7 @@ class InstallationStatProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToFindInstallationCountInUpdateCenter() {
+    void shouldBeAbleToFindInstallationCountInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);

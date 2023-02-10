@@ -41,17 +41,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class PluginRepositoryIT extends AbstractDBContainerTest {
+ class PluginRepositoryIT extends AbstractDBContainerTest {
     @Autowired private PluginRepository repository;
     @Autowired private TestEntityManager entityManager;
 
     @Test
-    public void shouldBeEmpty() {
+     void shouldBeEmpty() {
         assertThat(repository.count()).isZero();
     }
 
     @Test
-    public void shouldBeAbleToSaveOnePlugin() {
+     void shouldBeAbleToSaveOnePlugin() {
         final Plugin myPlugin = repository.save(new Plugin("myPlugin", new VersionNumber("1.0"), "this-is-ok", ZonedDateTime.now()));
         assertThat(myPlugin).extracting("name").isEqualTo("myPlugin");
         assertThat(myPlugin).extracting("version").isEqualTo(new VersionNumber("1.0"));
@@ -60,7 +60,7 @@ public class PluginRepositoryIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeAbleToFindAll() {
+     void shouldBeAbleToFindAll() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
@@ -74,7 +74,7 @@ public class PluginRepositoryIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeAbleToFindByName() {
+     void shouldBeAbleToFindByName() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
@@ -87,7 +87,7 @@ public class PluginRepositoryIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeAbleToUpdatePlugin() {
+     void shouldBeAbleToUpdatePlugin() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(10));
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());

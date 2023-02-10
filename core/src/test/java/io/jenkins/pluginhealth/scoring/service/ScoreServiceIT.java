@@ -48,7 +48,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class ScoreServiceIT extends AbstractDBContainerTest {
+class ScoreServiceIT extends AbstractDBContainerTest {
     @Autowired private TestEntityManager entityManager;
     @Autowired private ScoreRepository scoreRepository;
     @MockBean private PluginService pluginService;
@@ -56,17 +56,17 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     private ScoreService scoreService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         scoreService = new ScoreService(scoreRepository, pluginService);
     }
 
     @Test
-    public void shouldBeEmpty() {
+    void shouldBeEmpty() {
         assertThat(scoreRepository.count()).isZero();
     }
 
     @Test
-    public void shouldBeAbleToSaveScoreForPlugin() {
+    void shouldBeAbleToSaveScoreForPlugin() {
         final Plugin p1 = entityManager.persist(
             new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );
@@ -85,7 +85,7 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeAbleToExtractScoreSummary() {
+    void shouldBeAbleToExtractScoreSummary() {
         final Plugin p1 = entityManager.persist(
             new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );
@@ -123,7 +123,7 @@ public class ScoreServiceIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldOnlyRetrieveLatestScoreForPlugins() {
+    void shouldOnlyRetrieveLatestScoreForPlugins() {
         final Plugin p1 = entityManager.persist(
             new Plugin("plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5))
         );

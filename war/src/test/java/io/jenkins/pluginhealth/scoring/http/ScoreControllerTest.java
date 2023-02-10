@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +68,7 @@ class ScoreControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @Test
-    public void shouldDisplayListOfScoring() throws Exception {
+    void shouldDisplayListOfScoring() throws Exception {
         mockMvc.perform(get("/scores"))
             .andExpect(status().isOk())
             .andExpect(view().name("scores/listing"))
@@ -76,7 +76,7 @@ class ScoreControllerTest {
     }
 
     @Test
-    public void shouldDisplayScoreForSpecificPlugin() throws Exception {
+    void shouldDisplayScoreForSpecificPlugin() throws Exception {
         final String pluginName = "foo-bar";
         final ZonedDateTime scoreComputationTime = ZonedDateTime.now().minusMinutes(10);
 
@@ -110,7 +110,7 @@ class ScoreControllerTest {
     }
 
     @Test
-    public void shouldDisplayErrorWhenPluginUnknown() throws Exception {
+    void shouldDisplayErrorWhenPluginUnknown() throws Exception {
         when(scoreService.latestScoreFor(anyString()))
             .thenReturn(Optional.empty());
 

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,13 +55,13 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(
     controllers = ProbesController.class
 )
-public class ProbeControllerTest {
+class ProbeControllerTest {
     @MockBean private PluginService pluginService;
     @MockBean private ProbeService probeService;
     @Autowired private MockMvc mockMvc;
 
     @Test
-    public void shouldDisplayListOfProbes() throws Exception {
+    void shouldDisplayListOfProbes() throws Exception {
         final Probe probe = mock(Probe.class);
         when(probeService.getProbes()).thenReturn(List.of(probe));
 
@@ -77,7 +77,7 @@ public class ProbeControllerTest {
     }
 
     @Test
-    public void shouldDisplayRawResultOfProbes() throws Exception {
+    void shouldDisplayRawResultOfProbes() throws Exception {
         when(pluginService.getPluginsCount()).thenReturn(1L);
 
         mockMvc.perform(get("/probes/results"))

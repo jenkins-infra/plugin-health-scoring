@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,19 +41,19 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-public class UpForAdoptionProbeTest {
+class UpForAdoptionProbeTest {
     @Test
-    public void shouldNotRequireNewRelease() {
+    void shouldNotRequireNewRelease() {
         assertThat(new UpForAdoptionProbe().requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldKeepTheSameKey() {
+    void shouldKeepTheSameKey() {
         assertThat(new UpForAdoptionProbe().key()).isEqualTo("up-for-adoption");
     }
 
     @Test
-    public void shouldBeAbleToDetectPluginForAdoption() {
+    void shouldBeAbleToDetectPluginForAdoption() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
@@ -71,7 +71,7 @@ public class UpForAdoptionProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectPluginNotForAdoption() {
+    void shouldBeAbleToDetectPluginNotForAdoption() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();

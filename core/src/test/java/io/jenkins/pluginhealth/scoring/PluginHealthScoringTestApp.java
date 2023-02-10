@@ -22,36 +22,10 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.mock;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.time.ZonedDateTime;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-@ExtendWith(MockitoExtension.class)
-class ScoreTest {
-    @Test
-    void shouldBeAbleToAdjustScoreValueWithNewDetails() {
-        final Plugin plugin = mock(Plugin.class);
-        final Score score = new Score(plugin, ZonedDateTime.now());
-
-        assertThat(score.getValue()).isEqualTo(0);
-
-        score.addDetail(new ScoreResult("foo", 1, .4f));
-        assertThat(score.getDetails().size()).isEqualTo(1);
-        assertThat(score.getValue()).isEqualTo(100);
-
-        score.addDetail(new ScoreResult("bar", 0, .2f));
-        assertThat(score.getDetails().size()).isEqualTo(2);
-        assertThat(score.getValue()).isEqualTo(67);
-
-        score.addDetail(new ScoreResult("wiz", 1, .3f));
-        assertThat(score.getDetails().size()).isEqualTo(3);
-        assertThat(score.getValue()).isEqualTo(78);
-    }
+@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
+public class PluginHealthScoringTestApp {
 }

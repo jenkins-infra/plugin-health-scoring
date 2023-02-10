@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,19 +42,19 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-public class DeprecatedPluginProbeTest {
+class DeprecatedPluginProbeTest {
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         assertThat(new DeprecatedPluginProbe().requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldHaveStaticKey() {
+    void shouldHaveStaticKey() {
         assertThat(new DeprecatedPluginProbe().key()).isEqualTo("deprecation");
     }
 
     @Test
-    public void shouldBeAbleToDetectNonDeprecatedPlugin() {
+    void shouldBeAbleToDetectNonDeprecatedPlugin() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
@@ -72,7 +72,7 @@ public class DeprecatedPluginProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectDeprecatedPlugin() {
+    void shouldBeAbleToDetectDeprecatedPlugin() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
@@ -91,7 +91,7 @@ public class DeprecatedPluginProbeTest {
     }
 
     @Test
-    public void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
+    void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -115,7 +115,7 @@ public class DeprecatedPluginProbeTest {
     }
 
     @Test
-    public void shouldSurviveIfPluginIsNotInUpdateCenter() {
+    void shouldSurviveIfPluginIsNotInUpdateCenter() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";

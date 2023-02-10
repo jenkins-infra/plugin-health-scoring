@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,21 +44,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class JenkinsfileProbeTest {
+class JenkinsfileProbeTest {
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
         assertThat(jenkinsfileProbe.requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldKeepUsingTheSameKey() {
+    void shouldKeepUsingTheSameKey() {
         final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
         assertThat(jenkinsfileProbe.key()).isEqualTo("jenkinsfile");
     }
 
     @Test
-    public void shouldCorrectlyDetectMissingJenkinsfile() throws IOException {
+    void shouldCorrectlyDetectMissingJenkinsfile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = new JenkinsfileProbe();
@@ -74,7 +74,7 @@ public class JenkinsfileProbeTest {
     }
 
     @Test
-    public void shouldCorrectlyDetectJenkinsfile() throws IOException {
+    void shouldCorrectlyDetectJenkinsfile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = new JenkinsfileProbe();

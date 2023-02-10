@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,21 +43,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class DependabotProbeTest {
+class DependabotProbeTest {
     @Test
-    public void shouldNotRequireRelease() {
+    void shouldNotRequireRelease() {
         final DependabotProbe probe = spy(DependabotProbe.class);
         assertThat(probe.requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldUseDependabotKey() {
+    void shouldUseDependabotKey() {
         final DependabotProbe probe = spy(DependabotProbe.class);
         assertThat(probe.key()).isEqualTo("dependabot");
     }
 
     @Test
-    public void shouldDetectMissingDependabotFile() throws Exception {
+    void shouldDetectMissingDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = new DependabotProbe();
@@ -72,7 +72,7 @@ public class DependabotProbeTest {
     }
 
     @Test
-    public void shouldDetectDependabotFile() throws Exception {
+    void shouldDetectDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = new DependabotProbe();

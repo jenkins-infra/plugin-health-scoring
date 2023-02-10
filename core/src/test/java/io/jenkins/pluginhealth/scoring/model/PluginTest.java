@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PluginTest {
     @Test
-    public void shouldUpdateDetailsIfNoPreviousDetailsPresent() {
+    void shouldUpdateDetailsIfNoPreviousDetailsPresent() {
         final Plugin plugin = spy(Plugin.class);
         final ProbeResult probeResult = ProbeResult.success("foo", "this is a message");
 
@@ -46,7 +46,7 @@ class PluginTest {
     }
 
     @Test
-    public void shouldUpdateDetailsIfPreviousDetailsPresentAndDifferent() {
+    void shouldUpdateDetailsIfPreviousDetailsPresentAndDifferent() {
         final Plugin plugin = spy(Plugin.class);
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
@@ -62,7 +62,7 @@ class PluginTest {
     }
 
     @Test
-    public void shouldNotUpdateDetailsIfPreviousDetailsPresentButSame() {
+    void shouldNotUpdateDetailsIfPreviousDetailsPresentButSame() {
         final Plugin plugin = spy(Plugin.class);
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";

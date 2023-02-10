@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,17 +43,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SCMLinkValidationProbeTest {
     @Test
-    public void shouldKeepScmAsKey() {
+    void shouldKeepScmAsKey() {
         assertThat(new SCMLinkValidationProbe().key()).isEqualTo("scm");
     }
 
     @Test
-    public void shouldRequireRelease() {
+    void shouldRequireRelease() {
         assertThat(new SCMLinkValidationProbe().requiresRelease()).isTrue();
     }
 
     @Test
-    public void shouldNotAcceptNullNorEmptyScm() {
+    void shouldNotAcceptNullNorEmptyScm() {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctxP1 = mock(ProbeContext.class);
         final Plugin p2 = mock(Plugin.class);
@@ -72,7 +72,7 @@ class SCMLinkValidationProbeTest {
     }
 
     @Test
-    public void shouldRecognizeIncorrectSCMUrl() {
+    void shouldRecognizeIncorrectSCMUrl() {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = new SCMLinkValidationProbe();
@@ -85,7 +85,7 @@ class SCMLinkValidationProbeTest {
     }
 
     @Test
-    public void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
+    void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
@@ -103,7 +103,7 @@ class SCMLinkValidationProbeTest {
     }
 
     @Test
-    public void shouldRecognizeInvalidGitHubUrl() throws Exception {
+    void shouldRecognizeInvalidGitHubUrl() throws Exception {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);

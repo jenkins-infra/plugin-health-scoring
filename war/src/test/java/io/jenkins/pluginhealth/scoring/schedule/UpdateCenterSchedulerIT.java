@@ -51,7 +51,7 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     private UpdateCenterScheduler upScheduler;
 
     @BeforeEach
-    public void setupUpdateCenterContent() throws IOException {
+    void setupUpdateCenterContent() throws IOException {
         final UpdateCenter updateCenter = Jackson2ObjectMapperBuilder.json().build()
             .readValue(UpdateCenterSchedulerIT.class.getResourceAsStream("/update-center/update-center.actual.json"), UpdateCenter.class);
 
@@ -60,19 +60,19 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     }
 
     @Test
-    public void shouldBeEmpty() {
+    void shouldBeEmpty() {
         assertThat(pluginRepository.count()).isZero();
     }
 
     @Test
-    public void shouldBeAbleToInsertPluginsIntoDB() throws IOException {
+    void shouldBeAbleToInsertPluginsIntoDB() throws IOException {
         upScheduler.updateDatabase();
         pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1885);
     }
 
     @Test
-    public void shouldBeAbleToUpdatePluginsInDB() throws IOException {
+    void shouldBeAbleToUpdatePluginsInDB() throws IOException {
         upScheduler.updateDatabase();
         pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1885);
