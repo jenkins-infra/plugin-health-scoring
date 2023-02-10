@@ -28,18 +28,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.Deprecation;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 public class UpdateCenterPluginPublicationProbeTest {
