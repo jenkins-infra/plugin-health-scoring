@@ -44,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class UpdateCenterPublishedPluginDetectionScoringTest {
     @Test
-    public void shouldScoreCorrectlyNotDeprecatedPlugin() {
+    public void shouldScoreCorrectlyNotUpdateCenterPublishedPlugin() {
         final Plugin plugin = mock(Plugin.class);
         final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
 

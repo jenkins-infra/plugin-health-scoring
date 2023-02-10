@@ -24,17 +24,17 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
-
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class UpdateCenterPluginPublicationProbeTest {
 
@@ -50,7 +50,7 @@ public class UpdateCenterPluginPublicationProbeTest {
 
     @Test
     public void shouldFailIfPluginIsNotInUpdateCenterMap() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
@@ -68,5 +68,27 @@ public class UpdateCenterPluginPublicationProbeTest {
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "This plugin does not exists in update-center"));
+    }
+
+    @Test
+    public void shouldSucceedIfPluginIsInUpdateCenterMap() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            Collections.emptyList()
+        ));
+
+        final UpdateCenterPluginPublicationProbe probe = new UpdateCenterPluginPublicationProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin exists in update-center"));
     }
 }
