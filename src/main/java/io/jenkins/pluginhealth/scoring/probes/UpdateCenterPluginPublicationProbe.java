@@ -47,7 +47,7 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
 
         if (updateCenterPlugin == null) {
-            return ProbeResult.failure(key(), "This plugin does not exist in update-center");
+            return ProbeResult.failure(key(), "This plugin does not exists in update-center");
         }
 
         return ProbeResult.success(key(), "This plugin exists in update-center");
