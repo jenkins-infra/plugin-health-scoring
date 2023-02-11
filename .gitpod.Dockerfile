@@ -9,7 +9,7 @@ RUN bash -c '. /home/gitpod/.sdkman/bin/sdkman-init.sh && \
     sdk default java 17.0.3-ms'
 
 # Set up Node.js environment
-RUN  'VERSION="18.14.0" \
+RUN bash -c 'VERSION="18.14.0" \
     && source $HOME/.nvm/nvm.sh && nvm install $VERSION \
     && nvm use $VERSION && nvm alias default $VERSION'
     
@@ -22,6 +22,3 @@ ENV POSTGRES_DB=postgres
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres-s3cr3t
 
-# Set environment variables for the application schedulers
-ENV UPDATE_CENTER_CRON="0 0 */2 * * *"
-ENV PROBE_ENGINE_CRON="0 5 */2 * * *"
