@@ -1,2 +1,6 @@
 image:
   file: .gitpod.Dockerfile
+
+tasks:
+  - name: Build with Maven
+    command: mvn package -Dmaven.test.skip
