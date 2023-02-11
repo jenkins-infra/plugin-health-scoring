@@ -1,4 +1,7 @@
+#Pull Gitpod Workspace Image
 FROM gitpod/workspace-full
+
+#Pull Postgres Image
 FROM gitpod/workspace-postgres
 
 USER gitpod
@@ -14,11 +17,3 @@ RUN bash -c 'VERSION="18.14.0" \
     && nvm use $VERSION && nvm alias default $VERSION'
     
 RUN echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
-
-# Set environment variables for connecting to PostgreSQL
-ENV POSTGRES_HOST=localhost
-ENV POSTGRES_PORT=5432
-ENV POSTGRES_DB=postgres
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=postgres-s3cr3t
-
