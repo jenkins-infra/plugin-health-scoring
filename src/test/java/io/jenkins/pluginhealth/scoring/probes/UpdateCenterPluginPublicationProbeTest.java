@@ -26,15 +26,20 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Deprecation;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.SecurityWarning;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
-import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.lang.String;
+
+import org.junit.jupiter.api.Test;
 
 public class UpdateCenterPluginPublicationProbeTest {
 
@@ -78,9 +83,11 @@ public class UpdateCenterPluginPublicationProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1"
+            )),
             Map.of(),
-            Map.of(),
-            Collections.emptyList()
+            List.of()
         ));
 
         final UpdateCenterPluginPublicationProbe probe = new UpdateCenterPluginPublicationProbe();
