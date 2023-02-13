@@ -41,17 +41,17 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
- class PluginRepositoryIT extends AbstractDBContainerTest {
+class PluginRepositoryIT extends AbstractDBContainerTest {
     @Autowired private PluginRepository repository;
     @Autowired private TestEntityManager entityManager;
 
     @Test
-     void shouldBeEmpty() {
+    void shouldBeEmpty() {
         assertThat(repository.count()).isZero();
     }
 
     @Test
-     void shouldBeAbleToSaveOnePlugin() {
+    void shouldBeAbleToSaveOnePlugin() {
         final Plugin myPlugin = repository.save(new Plugin("myPlugin", new VersionNumber("1.0"), "this-is-ok", ZonedDateTime.now()));
         assertThat(myPlugin).extracting("name").isEqualTo("myPlugin");
         assertThat(myPlugin).extracting("version").isEqualTo(new VersionNumber("1.0"));
@@ -60,7 +60,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
     }
 
     @Test
-     void shouldBeAbleToFindAll() {
+    void shouldBeAbleToFindAll() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
@@ -68,26 +68,22 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
         final Plugin plugin3 = new Plugin("plugin-3", new VersionNumber("1.1"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin3);
 
-        assertThat(repository.findAll())
-            .hasSize(3)
-            .contains(plugin1, plugin2, plugin3);
+        assertThat(repository.findAll()).hasSize(3).contains(plugin1, plugin2, plugin3);
     }
 
     @Test
-     void shouldBeAbleToFindByName() {
+    void shouldBeAbleToFindByName() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin2);
 
         final Optional<Plugin> pluginFromDB = repository.findByName("plugin-1");
-        assertThat(pluginFromDB)
-            .isPresent()
-            .contains(plugin1);
+        assertThat(pluginFromDB).isPresent().contains(plugin1);
     }
 
     @Test
-     void shouldBeAbleToUpdatePlugin() {
+    void shouldBeAbleToUpdatePlugin() {
         final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(10));
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
@@ -106,11 +102,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
         repository.save(pluginFromDB);
 
         final Optional<Plugin> pluginToCheck = repository.findByName(plugin1.getName());
-        assertThat(pluginToCheck)
-            .isPresent()
-            .get()
-            .extracting(Plugin::getName, Plugin::getScm, Plugin::getVersion, Plugin::getReleaseTimestamp)
-            .containsExactly(plugin1Updated.getName(), plugin1Updated.getScm(), plugin1Updated.getVersion(), plugin1Updated.getReleaseTimestamp());
+        assertThat(pluginToCheck).isPresent().get().extracting(Plugin::getName, Plugin::getScm, Plugin::getVersion, Plugin::getReleaseTimestamp).containsExactly(plugin1Updated.getName(), plugin1Updated.getScm(), plugin1Updated.getVersion(), plugin1Updated.getReleaseTimestamp());
     }
-
 }

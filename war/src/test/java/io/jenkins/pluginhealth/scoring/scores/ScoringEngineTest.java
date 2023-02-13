@@ -57,12 +57,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ScoringEngineTest {
-    @Mock
-    private PluginService pluginService;
-    @Mock
-    private ScoringService scoringService;
-    @Mock
-    private ScoreService scoreService;
+    @Mock private PluginService pluginService;
+    @Mock private ScoringService scoringService;
+    @Mock private ScoreService scoreService;
 
     @Test
     void shouldBeAbleToScoreOnePlugin() {
