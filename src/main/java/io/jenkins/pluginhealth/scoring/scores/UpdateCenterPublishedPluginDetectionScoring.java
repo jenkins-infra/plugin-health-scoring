@@ -59,6 +59,6 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
 
     @Override
     public String description() {
-        return "Scores plugin if it is published in Update Center";
+        return "Scores a plugin based on its presence or not in the update-center.";
     }
 }
