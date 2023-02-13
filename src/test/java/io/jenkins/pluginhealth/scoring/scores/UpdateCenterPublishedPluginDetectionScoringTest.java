@@ -44,7 +44,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class UpdateCenterPublishedPluginDetectionScoringTest {
     @Test
-    public void shouldScoreCorrectlyNotUpdateCenterPublishedPlugin() {
+    public void shouldScoreCorrectlyWhenPluginInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
 
@@ -74,7 +74,7 @@ class UpdateCenterPublishedPluginDetectionScoringTest {
     }
 
     @Test
-    public void shouldScoreCorrectlyUpdateCenterPublishedPlugin() {
+    public void shouldScoreBadlyWhenPluginNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
 
