@@ -38,7 +38,7 @@ public class PluginHealthScoringDatabaseContainer extends PostgreSQLContainer<Pl
         if (container == null) {
             container = new PluginHealthScoringDatabaseContainer();
         }
-        return container;
+        return container.self();
     }
 
     @Override
