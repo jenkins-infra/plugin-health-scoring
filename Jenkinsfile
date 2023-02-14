@@ -22,6 +22,7 @@ pipeline {
 
       post {
         always {
+          discoverGitReferenceBuild referenceJob: 'main'
           junit (
             allowEmptyResults: false,
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
