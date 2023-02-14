@@ -24,12 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.model;
 
+import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
+
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import hudson.util.VersionNumber;
