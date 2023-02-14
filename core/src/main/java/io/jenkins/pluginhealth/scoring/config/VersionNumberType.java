@@ -89,7 +89,7 @@ public class VersionNumberType implements UserType<VersionNumber> {
 
     @Override
     public VersionNumber assemble(Serializable cached, Object owner) {
-        return deepCopy((VersionNumber) cached);
+        return cached instanceof VersionNumber ? deepCopy((VersionNumber) cached) : null;
     }
 
     @Override
