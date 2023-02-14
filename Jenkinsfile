@@ -34,7 +34,7 @@ pipeline {
             tool: checkStyle(),
             qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
           recordIssues enabledForFailure: true,
-            tool: spotBugs()
+            tool: spotBugs(),
             qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
         }
         success {
