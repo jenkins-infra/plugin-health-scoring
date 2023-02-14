@@ -163,6 +163,34 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>download-yarn</id>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<tasks>
+								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs"/>
+								<dirname file="${yarn.dest}" property="yarn.dest.dir"/>
+								<mkdir dir="${yarn.dest.dir}"/>
+								<get dest="${yarn.dest}"
+										 src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js"
+										 usetimestamp="true"/>
+								<checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}"
+													verifyProperty="yarn.checksum.matches"/>
+								<condition property="yarn.checksum.matches.fail">
+									<equals arg1="${yarn.checksum.matches}" arg2="false"/>
+								</condition>
+								<fail if="yarn.checksum.matches.fail">Checksum error</fail>
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
 				<version>1.12.1</version>
@@ -185,6 +213,9 @@
 							<goal>yarn</goal>
 						</goals>
 						<phase>initialize</phase>
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
 					</execution>
 					<execution>
 						<id>yarn build</id>
@@ -194,34 +225,6 @@
 						<phase>generate-sources</phase>
 						<configuration>
 							<arguments>build</arguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>download-yarn</id>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<phase>initialize</phase>
-						<configuration>
-							<tasks>
-								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs"/>
-								<dirname file="${yarn.dest}" property="yarn.dest.dir"/>
-								<mkdir dir="${yarn.dest.dir}"/>
-								<get dest="${yarn.dest}"
-										 src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js"
-										 usetimestamp="true"/>
-								<checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}"
-													verifyProperty="yarn.checksum.matches"/>
-								<condition property="yarn.checksum.matches.fail">
-									<equals arg1="${yarn.checksum.matches}" arg2="false"/>
-								</condition>
-								<fail if="yarn.checksum.matches.fail">Checksum error</fail>
-							</tasks>
 						</configuration>
 					</execution>
 				</executions>
