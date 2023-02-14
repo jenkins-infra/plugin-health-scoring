@@ -32,8 +32,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Check if the plugin exists in UpdateCenter map
- *
+ * Check if a plugin is still published by the Update Center.
  * */
 @Component
 @Order(UpdateCenterPluginPublicationProbe.ORDER)
@@ -47,10 +46,10 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
 
         if (updateCenterPlugin == null) {
-            return ProbeResult.failure(key(), "This plugin does not exists in update-center");
+            return ProbeResult.failure(key(), "This plugin's publication has been stopped by the update-center");
         }
 
-        return ProbeResult.success(key(), "This plugin exists in update-center");
+        return ProbeResult.success(key(), "This plugin is still actively published by the update-center");
     }
 
     @Override
@@ -60,7 +59,7 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "This probe detects if a specified plugin exists in update-center.";
+        return "This probe detects if a specified plugin is still actively published by the update-center.";
     }
 }
 

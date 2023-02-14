@@ -69,7 +69,7 @@ public class UpdateCenterPluginPublicationProbeTest {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "This plugin does not exists in update-center"));
+            .isEqualTo(ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center"));
     }
 
     @Test
@@ -93,6 +93,6 @@ public class UpdateCenterPluginPublicationProbeTest {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin exists in update-center"));
+            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center"));
     }
 }
