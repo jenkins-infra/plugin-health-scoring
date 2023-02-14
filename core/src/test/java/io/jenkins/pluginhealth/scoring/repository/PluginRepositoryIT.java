@@ -102,6 +102,18 @@ class PluginRepositoryIT extends AbstractDBContainerTest {
         repository.save(pluginFromDB);
 
         final Optional<Plugin> pluginToCheck = repository.findByName(plugin1.getName());
-        assertThat(pluginToCheck).isPresent().get().extracting(Plugin::getName, Plugin::getScm, Plugin::getVersion, Plugin::getReleaseTimestamp).containsExactly(plugin1Updated.getName(), plugin1Updated.getScm(), plugin1Updated.getVersion(), plugin1Updated.getReleaseTimestamp());
+        assertThat(pluginToCheck)
+            .isPresent()
+            .get()
+            .extracting(
+                Plugin::getName,
+                Plugin::getScm,
+                Plugin::getVersion,
+                Plugin::getReleaseTimestamp)
+            .containsExactly(
+                plugin1Updated.getName(),
+                plugin1Updated.getScm(),
+                plugin1Updated.getVersion(),
+                plugin1Updated.getReleaseTimestamp());
     }
 }
