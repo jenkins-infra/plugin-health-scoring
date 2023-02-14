@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<FindBugsFilter>
+
+    <!--
+        Ignore returning references to internal representations of objects.
+        See https://github.com/spotbugs/spotbugs/issues/1569.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <!--
+        Ignoring when internal representation stores reference to external representation.
+        See https://github.com/spotbugs/spotbugs/issues/1569.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

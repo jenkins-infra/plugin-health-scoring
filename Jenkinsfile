@@ -22,6 +22,7 @@ pipeline {
 
       post {
         always {
+          discoverGitReferenceBuild referenceJob: 'main'
           junit (
             allowEmptyResults: false,
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
@@ -31,11 +32,10 @@ pipeline {
             tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true,
             tool: checkStyle(),
-            qualityGates: [[ threshold: 1, type: 'TOTAL', unstable: true ]]
+            qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
           recordIssues enabledForFailure: true,
-            tool: spotBugs()
-            // Cannot use qualityGates here because spotbugs is not handling Java Record method too kindly
-            // https://github.com/spotbugs/spotbugs/issues/1569
+            tool: spotBugs(),
+            qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
