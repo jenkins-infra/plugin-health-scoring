@@ -156,6 +156,7 @@
 					<artifactId>maven-checkstyle-plugin</artifactId>
 					<version>3.2.1</version>
 					<configuration>
+						<linkXRef>false</linkXRef>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
 						<configLocation>analytics/checkstyle-configuration.xml</configLocation>
 					</configuration>
