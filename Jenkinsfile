@@ -38,7 +38,9 @@ pipeline {
             qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
         }
         success {
-            stash name: 'binary', includes: 'war/target/plugin-health-scoring.jar'
+          dir('war') {
+            stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
+          }
         }
       }
     }
