@@ -52,6 +52,12 @@ public class ContributingGuidelinesProbeTest {
     }
 
     @Test
+    public void shouldExecuteOnSourceCodeChange() {
+        final ContributingGuidelinesProbe contributingGuidelinesProbe = spy(ContributingGuidelinesProbe.class);
+        assertThat(contributingGuidelinesProbe.isSourceCodeRelated()).isTrue();
+    }
+
+    @Test
     public void shouldKeepUsingTheSameKey() {
         final ContributingGuidelinesProbe contributingGuidelinesProbe = spy(ContributingGuidelinesProbe.class);
         assertThat(contributingGuidelinesProbe.key()).isEqualTo("contributing-guidelines");
