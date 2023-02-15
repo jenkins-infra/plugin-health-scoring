@@ -5,7 +5,6 @@ USER gitpod
 
 # Set up Java environment
 RUN bash -c '. /home/gitpod/.sdkman/bin/sdkman-init.sh && \
-    sdk update && \
     sdk install java 17.0.3-ms && \
     sdk default java 17.0.3-ms'
 
@@ -18,6 +17,7 @@ RUN echo "nvm use default &>/dev/null" >> ~/.bashrc.d/51-nvm-fix
 
 # Install Maven
 RUN bash -c 'VERSION="3.9.0" &&\
+    . /home/gitpod/.sdkman/bin/sdkman-init.sh && \
     sdk install maven $version && \
     sdk default maven $version'
     
