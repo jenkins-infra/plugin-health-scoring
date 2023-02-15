@@ -18,7 +18,7 @@ ARG server_port=8080
 ARG spring_profile=production
 
 RUN groupadd -r -g ${gid} ${group} \
-    && useradd -r -d ${HOME} -u ${uid} -g ${gid} ${user}
+    && useradd -l -r -d ${HOME} -u ${uid} -g ${gid} ${user}
 USER ${user}:${group}
 
 WORKDIR ${HOME}
