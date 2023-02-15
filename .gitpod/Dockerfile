@@ -1,5 +1,5 @@
 #Pull Gitpod Workspace Image
-FROM gitpod/workspace-full
+FROM gitpod/workspace-postgres
 
 USER gitpod
 
