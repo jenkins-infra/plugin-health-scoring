@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     private static final float COEFFICIENT = 1f;
-    public static final String KEY = "update-center-plugin-publication-probe";
+    public static final String KEY = "update-center-plugin-publication";
 
     @Override
     protected ScoreResult doApply(Plugin plugin) {
