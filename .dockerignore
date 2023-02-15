@@ -5,6 +5,7 @@ docs
 test
 war
 !war/src/main/docker/Dockerfile
+!war/src/main/docker/docker-entrypoint.sh
 !war/target/plugin-health-scoring.jar
 
 .github
