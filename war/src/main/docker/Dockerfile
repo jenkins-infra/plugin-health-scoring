@@ -30,7 +30,7 @@ ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
 
 EXPOSE ${server_port}
 
-COPY src/main/docker/docker-entrypoint.sh .
+COPY war/src/main/docker/docker-entrypoint.sh .
 
 COPY --from=builder /src/dependencies/ ./
 COPY --from=builder /src/spring-boot-loader/ ./
