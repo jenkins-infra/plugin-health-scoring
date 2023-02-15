@@ -248,7 +248,7 @@
 					<version>3.2.1</version>
 					<configuration>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
-						<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
+						<configLocation>src/analytics/checkstyle-configuration.xml</configLocation>
 					</configuration>
 					<dependencies>
 						<dependency>
@@ -301,6 +301,7 @@
 					<artifactId>spotbugs-maven-plugin</artifactId>
 					<version>4.7.3.0</version>
 					<configuration>
+						<excludeFilterFile>src/analytics/spotbugs-exclude.xml</excludeFilterFile>
 						<effort>Max</effort>
 					</configuration>
 				</plugin>
