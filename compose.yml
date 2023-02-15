@@ -3,14 +3,14 @@ services:
     build:
       context: war
       dockerfile: src/main/docker/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     env_file:
       - .env
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
       - "8080:8080"
 
