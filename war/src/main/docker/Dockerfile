@@ -2,7 +2,7 @@ FROM eclipse-temurin:17.0.4.1_1-jre as builder
 
 WORKDIR /src
 
-COPY target/plugin-health-scoring.jar /src/plugin-health-scoring.jar
+COPY war/target/plugin-health-scoring.jar /src/plugin-health-scoring.jar
 RUN java -Djarmode=layertools -jar plugin-health-scoring.jar extract
 
 FROM eclipse-temurin:17.0.4.1_1-jre

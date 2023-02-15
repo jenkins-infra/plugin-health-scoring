@@ -1,12 +1,16 @@
 pom.xml
+analytics
 core
+docs
+test
 war
 !war/src/main/docker/Dockerfile
-target
 !war/target/plugin-health-scoring.jar
 
+.github
 .idea
 .mvn
 mvnw
 mvnw.cmd
 .yarn
+node
