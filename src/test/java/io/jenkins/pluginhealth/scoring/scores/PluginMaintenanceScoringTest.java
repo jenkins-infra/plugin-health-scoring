@@ -36,6 +36,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
+import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
@@ -46,135 +47,234 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PluginMaintenanceScoringTest {
-    public static final String KEY = "repository-configuration";
-    public static final float COEFFICIENT = .5f;
+        public static final String KEY = "repository-configuration";
+        public static final float COEFFICIENT = .5f;
 
-    @Test
-    public void shouldScoreZeroWhenNoJenkinsfileProbeResult() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreZeroWhenNoJenkinsfileProbeResult() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of());
+                when(plugin.getDetails()).thenReturn(Map.of());
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(0f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(0f);
+        }
 
-    @Test
-    public void shouldScoreZeroForPluginsWithNoJenkinsfile() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreZeroForPluginsWithNoJenkinsfile() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.FAILURE)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.FAILURE)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(0f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(0f);
+        }
 
-    @Test
-    public void shouldScoreSeventyFiveForPluginsWithOnlyJenkinsfile() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreSixtyFiveForPluginsWithOnlyJenkinsfile() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(.75f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.65f);
+        }
 
-    @Test
-    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndNoDependabot() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreSixtyFiveForPluginsWithJenkinsfileAndNoDependabotAndNoContributingGuidelines() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.FAILURE)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.FAILURE),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.FAILURE)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(.75f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.65f);
+        }
 
-    @Test
-    public void shouldScoreSeventyFiveForPluginsWithJenkinsfileAndDependabotButOpenedPullRequests() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreSixtyFiveForPluginsWithJenkinsfileAndDependabotButOpenedPullRequests() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "1", ResultStatus.SUCCESS)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "1", ResultStatus.SUCCESS)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(.75f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.65f);
+        }
 
-    @Test
-    public void shouldScoreNinetyForPluginsWithOnlyJenkinsfileAndDependabot() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreEightyForPluginsWithJenkinsfileAndContributingGuidelinesAndDependabotButOpenedPullRequests() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "1", ResultStatus.SUCCESS),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.SUCCESS)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(.9f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.8f);
+        }
 
-    @Test
-    public void shouldScoreNinetyForPluginsWithJenkinsfileAndDependabotButNoJEP229() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreEightyForPluginsWithOnlyJenkinsfileAndDependabotButNoContributingGuidelines() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
-            ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.FAILURE)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.FAILURE)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(.9f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.8f);
+        }
 
-    @Test
-    public void shouldScoreHundredForPluginsWithJenkinsfileAndDependabotAndJEP229() {
-        final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        @Test
+        public void shouldScoreEightyForPluginsWithJenkinsfileAndDependabotButNoJEP229AndNoContributingGuidelines() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
-            DependabotPullRequestProbe.KEY, new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
-            ContinuousDeliveryProbe.KEY, new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.SUCCESS)
-        ));
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
+                                ContinuousDeliveryProbe.KEY,
+                                new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.FAILURE),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.FAILURE)));
 
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY)).isEqualTo(KEY);
-        assertThat(result.coefficient()).withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT)).isEqualTo(COEFFICIENT);
-        assertThat(result.value()).isEqualTo(1f);
-    }
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.8f);
+        }
+
+        @Test
+        public void shouldScoreNinetyFiveForPluginsWithJenkinsfileAndDependabotAndContributingGuidelines() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.SUCCESS)));
+
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.95f);
+        }
+
+        @Test
+        public void shouldScoreNinetyFiveForPluginsWithJenkinsfileAndDependabotAndContributingGuidelinesButNoJEP229() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
+                                ContinuousDeliveryProbe.KEY,
+                                new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.FAILURE),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.SUCCESS)));
+
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(.95f);
+        }
+
+        @Test
+        public void shouldScoreHundredForPluginsWithJenkinsfileAndDependabotAndJEP229AndContributingGuidelines() {
+                final Plugin plugin = mock(Plugin.class);
+                final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+
+                when(plugin.getDetails()).thenReturn(Map.of(
+                                JenkinsfileProbe.KEY, new ProbeResult(JenkinsfileProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotProbe.KEY, new ProbeResult(DependabotProbe.KEY, "", ResultStatus.SUCCESS),
+                                DependabotPullRequestProbe.KEY,
+                                new ProbeResult(DependabotPullRequestProbe.KEY, "0", ResultStatus.SUCCESS),
+                                ContinuousDeliveryProbe.KEY,
+                                new ProbeResult(ContinuousDeliveryProbe.KEY, "", ResultStatus.SUCCESS),
+                                ContributingGuidelinesProbe.KEY,
+                                new ProbeResult(ContributingGuidelinesProbe.KEY, "", ResultStatus.SUCCESS)));
+
+                final ScoreResult result = scoring.apply(plugin);
+                assertThat(result.key()).withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
+                                .isEqualTo(KEY);
+                assertThat(result.coefficient())
+                                .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
+                                .isEqualTo(COEFFICIENT);
+                assertThat(result.value()).isEqualTo(1f);
+        }
 }

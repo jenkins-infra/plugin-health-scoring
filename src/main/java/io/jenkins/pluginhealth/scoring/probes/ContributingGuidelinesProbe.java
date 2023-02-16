@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 public class ContributingGuidelinesProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContributingGuidelinesProbe.class);
     public static final int ORDER = JenkinsfileProbe.ORDER + 1;
-    private static final String KEY = "contributing-guidelines";
+    public static final String KEY = "contributing-guidelines";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
