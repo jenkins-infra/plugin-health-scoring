@@ -30,9 +30,9 @@ ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
 
 EXPOSE ${server_port}
 
-COPY war/src/main/docker/docker-entrypoint.sh .
+COPY --chown=${user}:${group} war/src/main/docker/docker-entrypoint.sh .
 
-COPY --from=builder /src/dependencies/ ./
-COPY --from=builder /src/spring-boot-loader/ ./
-COPY --from=builder /src/snapshot-dependencies/ ./
-COPY --from=builder /src/application/ ./
+COPY --from=builder --chown=${user}:${group} /src/dependencies/ ./
+COPY --from=builder --chown=${user}:${group} /src/spring-boot-loader/ ./
+COPY --from=builder --chown=${user}:${group} /src/snapshot-dependencies/ ./
+COPY --from=builder --chown=${user}:${group} /src/application/ ./
