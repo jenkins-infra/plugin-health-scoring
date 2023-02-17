@@ -33,5 +33,6 @@ else
         "-XX:+DisableExplicitGC" \
         "-Djava.awt.headless=true" \
         "-showversion" \
-        "org.springframework.boot.loader.JarLauncher"
+        "-cp" "${HOME}:${HOME}"'/lib/*' \
+        "io.jenkins.pluginhealth.scoring.PluginHealthScoring"
 fi

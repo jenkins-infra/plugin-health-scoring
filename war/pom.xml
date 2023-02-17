@@ -242,6 +242,9 @@
 					</execution>
 				</executions>
 				<configuration>
+					<layers>
+						<enabled>false</enabled>
+					</layers>
 					<excludeInfoProperties>
 						<excludeInfoProperty>time</excludeInfoProperty>
 						<excludeInfoProperty>group</excludeInfoProperty>
