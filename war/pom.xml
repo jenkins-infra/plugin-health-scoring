@@ -249,6 +249,7 @@
 						<excludeInfoProperty>time</excludeInfoProperty>
 						<excludeInfoProperty>group</excludeInfoProperty>
 						<excludeInfoProperty>artifact</excludeInfoProperty>
+						<excludeInfoProperty>name</excludeInfoProperty>
 					</excludeInfoProperties>
 				</configuration>
 			</plugin>
