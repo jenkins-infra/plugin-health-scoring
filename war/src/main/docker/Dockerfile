@@ -32,6 +32,6 @@ EXPOSE ${server_port}
 
 COPY --chown=${user}:${group} war/src/main/docker/docker-entrypoint.sh .
 
-COPY --chown=phs:phs --from=builder /src/BOOT-INF/lib ./lib
-COPY --chown=phs:phs --from=builder /src/META-INF ./META-INF
-COPY --chown=phs:phs --from=builder /src/BOOT-INF/classes ./
+COPY --chown=${user}:${group} --from=builder /src/BOOT-INF/lib ./lib
+COPY --chown=${user}:${group} --from=builder /src/META-INF ./META-INF
+COPY --chown=${user}:${group} --from=builder /src/BOOT-INF/classes ./
