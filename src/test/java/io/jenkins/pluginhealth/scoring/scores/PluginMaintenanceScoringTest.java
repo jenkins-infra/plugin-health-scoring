@@ -55,11 +55,11 @@ class PluginMaintenanceScoringTest {
 
     static Stream<Arguments> probeResultsAndValue() {
         return Stream.of(
-            arguments( // Nothing
+            arguments(// Nothing
                 Map.of(),
                 0f
             ),
-            arguments( // All bad
+            arguments(// All bad
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
@@ -69,7 +69,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 0f
             ),
-            arguments( // All bad with open dependabot pull request
+            arguments(// All bad with open dependabot pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -79,7 +79,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 0f
             ),
-            arguments( // All good
+            arguments(// All good
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -89,7 +89,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 1f
             ),
-            arguments( // Only Jenkinsfile
+            arguments(// Only Jenkinsfile
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
@@ -99,7 +99,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .65f
             ),
-            arguments( // Jenkinsfile and dependabot but with open pull request
+            arguments(// Jenkinsfile and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -109,7 +109,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .65f
             ),
-            arguments( // Jenkinsfile and dependabot with no open pull request
+            arguments(// Jenkinsfile and dependabot with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -119,7 +119,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .8f
             ),
-            arguments( // Jenkinsfile and CD
+            arguments(// Jenkinsfile and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
@@ -129,7 +129,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .7f
             ),
-            arguments( // Jenkinsfile and Contributing guide
+            arguments(// Jenkinsfile and Contributing guide
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
@@ -139,7 +139,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .8f
             ),
-            arguments( // Jenkinsfile and CD and dependabot but with open pull request
+            arguments(// Jenkinsfile and CD and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -149,7 +149,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .7f
             ),
-            arguments( // Jenkinsfile and CD and dependabot with no open pull request
+            arguments(// Jenkinsfile and CD and dependabot with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -159,7 +159,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .85f
             ),
-            arguments( // Jenkinsfile and Contributing guide and dependabot and with no open pull request
+            arguments(// Jenkinsfile and Contributing guide and dependabot and with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -169,7 +169,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .95f
             ),
-            arguments( // Jenkinfile and CD and Contributing guild and dependabot but with open pull request
+            arguments(// Jenkinfile and CD and Contributing guild and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -179,7 +179,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .85f
             ),
-            arguments( // Contributing guide only
+            arguments(// Contributing guide only
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
@@ -189,7 +189,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .15f
             ),
-            arguments( // Dependabot only with no open pull requests
+            arguments(// Dependabot only with no open pull requests
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -199,7 +199,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .15f
             ),
-            arguments( // Contributing guide and Dependabot with no open pull requests
+            arguments(// Contributing guide and Dependabot with no open pull requests
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -209,7 +209,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .3f
             ),
-            arguments( // Dependabot with no open pull request and CD and Contributing guide
+            arguments(// Dependabot with no open pull request and CD and Contributing guide
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -219,7 +219,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .35f
             ),
-            arguments( // Dependabot with no open pull request and CD
+            arguments(// Dependabot with no open pull request and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -229,7 +229,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .2f
             ),
-            arguments( // Dependabot but with open pull request and Contributing guide and CD
+            arguments(// Dependabot but with open pull request and Contributing guide and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
@@ -239,7 +239,7 @@ class PluginMaintenanceScoringTest {
                 ),
                 .2f
             ),
-            arguments( // Contributing guide and CD
+            arguments(// Contributing guide and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
