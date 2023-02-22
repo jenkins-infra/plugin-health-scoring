@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
@@ -64,33 +64,80 @@ public class ContributingGuidelinesProbeTest {
     }
 
     @Test
+    public void shouldBeDescribed() {
+        assertThat(spy(ContributingGuidelinesProbe.class).getDescription()).isNotBlank();
+    }
+
+    @Test
+    public void shouldGiveErrorIfSCMLinkIsNotValidated() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+        when(plugin.getDetails()).thenReturn(Map.of());
+
+        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+    }
+
+    @Test
     public void shouldCorrectlyDetectMissingContributingGuidelines() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
 
+        when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
-                SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS,
-                        ZonedDateTime.now().minusMinutes(5))));
-        when(ctx.getScmRepository()).thenReturn(
-                Files.createTempDirectory("foo"));
+            SCMLinkValidationProbe.KEY,
+            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
+        final Path repository = Files.createTempDirectory(plugin.getName());
+        when(ctx.getScmRepository()).thenReturn(repository);
 
         assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
     }
 
     @Test
-    public void shouldCorrectlyDetectContributingGuidelines() throws IOException {
+    public void shouldCorrectlyDetectContributingGuidelinesInRootLevelOfRepository() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-                SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS,
-                        ZonedDateTime.now().minusMinutes(5))));
-        when(ctx.getScmRepository()).thenReturn(
-                Files.createFile(
-                        Paths.get(Files.createTempDirectory("foo").toAbsolutePath().toString(), "CONTRIBUTING.md")));
+        when(plugin.getName()).thenReturn("foo");
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                SCMLinkValidationProbe.KEY,
+                new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            )
+        );
+        final Path repository = Files.createTempDirectory(plugin.getName());
+        Files.createFile(repository.resolve("CONTRIBUTING.md"));
+        when(ctx.getScmRepository()).thenReturn(repository);
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.SUCCESS);
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    public void shouldCorrectlyDetectContributingGuidelinesInDocsFolder() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
+
+        when(plugin.getName()).thenReturn("foo");
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                SCMLinkValidationProbe.KEY,
+                new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            )
+        );
+        final Path repository = Files.createTempDirectory(plugin.getName());
+        Files.createFile(Files.createDirectory(repository.resolve("docs")).resolve("CONTRIBUTING.md"));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
     }
 }
