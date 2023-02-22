@@ -11,6 +11,7 @@ services:
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
+      - SPRING_PROFILES_ACTIVE=dev
     ports:
       - "8080:8080"
 
