@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -78,5 +79,9 @@ public class ScoreService {
                 score.getComputedAt()
             );
         }
+    }
+
+    public Map<String, ScoreService.ScoreSummary> GetAllScoresOfPlugin(Plugin plugin){
+        return getLatestScoresSummaryMap();
     }
 }
