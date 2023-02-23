@@ -64,6 +64,7 @@ public class GithubConfiguration {
 
     @NotEmpty
     private final String appId;
+    @ValidPrivateKeyFile
     private final Path privateKeyPath;
     @NotEmpty
     private final String appInstallationName;

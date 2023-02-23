@@ -24,7 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -38,17 +43,25 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public abstract class AbstractDBContainerTest {
     @Container
     private static final PostgreSQLContainer<?> DB_CONTAINER = PluginHealthScoringDatabaseContainer.getInstance();
+    @TempDir
+    private static Path dir;
 
     static class DockerPostgresDatasourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
-            TestPropertyValues.of(
-                "spring.datasource.url=" + DB_CONTAINER.getJdbcUrl(),
-                "spring.datasource.username=" + DB_CONTAINER.getUsername(),
-                "spring.datasource.password=" + DB_CONTAINER.getPassword(),
-                "cron.update-center=0 0 */2 * * *",
-                "cron.probe-engine=0 0 */2 * * *"
-            ).applyTo(applicationContext);
+            try {
+                final Path key = Files.createFile(dir.resolve("key.pem"));
+                TestPropertyValues.of(
+                    "spring.datasource.url=" + DB_CONTAINER.getJdbcUrl(),
+                    "spring.datasource.username=" + DB_CONTAINER.getUsername(),
+                    "spring.datasource.password=" + DB_CONTAINER.getPassword(),
+                    "cron.update-center=0 0 */2 * * *",
+                    "cron.probe-engine=0 0 */15 * * *",
+                    "github.private-key-path=" + key.toAbsolutePath()
+                ).applyTo(applicationContext);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
