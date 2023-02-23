@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -51,30 +54,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "github")
 @Validated
 public class GithubConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
-    private static final long DEFAULT_TTL = 60 * 1000 * 5;
 
+    @NotEmpty
     private final String appId;
     private final Path privateKeyPath;
+    @NotEmpty
     private final String appInstallationName;
+    @Min(value = 5000, message = "TTL should not be shorter than 5_000ms")
+    @Max(value = 10 * 60 * 1000, message = "TTL cannot be longer than 10min")
     private final long ttl;
 
     @ConstructorBinding
-    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName, long ttl) {
+    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName, @DefaultValue("300000") long ttl) {
         this.appId = appId;
         this.privateKeyPath = privateKeyPath;
         this.appInstallationName = appInstallationName;
-        if (ttl > 10 * 60 * 1000) { /* TTL must be less than 10min */
-            LOGGER.warn("GitHub App Token cannot have a TTL of more than 10min, using default value of {}ms", DEFAULT_TTL);
-            this.ttl = DEFAULT_TTL;
-        } else {
-            this.ttl = ttl == 0 ? DEFAULT_TTL : ttl;
-            LOGGER.info("GitHub JWT TTL: {}ms", this.ttl);
+        this.ttl = ttl;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("GitHub API Client TTL: {}ms", ttl);
+            LOGGER.debug("Private Key Path: {} [valid: {}]", privateKeyPath, Files.exists(privateKeyPath) && Files.isReadable(privateKeyPath));
         }
     }
 

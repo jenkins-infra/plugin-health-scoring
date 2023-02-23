@@ -9,11 +9,14 @@ services:
     env_file:
       - .env
     environment:
+      - GITHUB_PRIVATEKEYPATH=/app/github-app-private-key.pem
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - SPRING_PROFILES_ACTIVE=dev
     ports:
       - "8080:8080"
+    volumes:
+      - "${GITHUB_APP_PRIVATE_KEY_PATH}:/app/github-app-private-key.pem:ro"
 
   db:
     image: postgres:14.1-alpine
