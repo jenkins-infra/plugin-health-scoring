@@ -1,18 +1,15 @@
 name: Release Drafter
-
 on:
   push:
     branches:
       - main
-
 # Only allow 1 release-drafter build at a time to avoid creating multiple "next" releases
 concurrency: "release-drafter"
-
 jobs:
   update_release_draft:
     runs-on: ubuntu-22.04
     steps:
-      - uses: release-drafter/release-drafter@v5.22.0
+      - uses: release-drafter/release-drafter@cfc5540ebc9d65a8731f02032e3d44db5e449fb6 # v5.22.0
         env:
           # This token is generated automatically by default in GitHub Actions: no need to create it manually
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
