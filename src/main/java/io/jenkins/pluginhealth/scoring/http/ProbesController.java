@@ -24,8 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.Comparator;
-
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
