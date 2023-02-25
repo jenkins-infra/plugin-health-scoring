@@ -137,7 +137,7 @@
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.2.2</version>
+			<version>4.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
@@ -248,7 +248,7 @@
 					<version>3.2.1</version>
 					<configuration>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
-						<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
+						<configLocation>src/analytics/checkstyle-configuration.xml</configLocation>
 					</configuration>
 					<dependencies>
 						<dependency>
@@ -270,7 +270,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M8</version>
+					<version>3.0.0-M9</version>
 					<configuration>
 						<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					</configuration>
@@ -294,13 +294,14 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M8</version>
+					<version>3.0.0-M9</version>
 				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
 					<version>4.7.3.0</version>
 					<configuration>
+						<excludeFilterFile>src/analytics/spotbugs-exclude.xml</excludeFilterFile>
 						<effort>Max</effort>
 					</configuration>
 				</plugin>
