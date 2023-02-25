@@ -20,5 +20,3 @@ RUN bash -c 'VERSION="3.9.0" &&\
     . /home/gitpod/.sdkman/bin/sdkman-init.sh && \
     sdk install maven $version && \
     sdk default maven $version'
-    
-
