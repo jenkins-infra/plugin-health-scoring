@@ -76,6 +76,11 @@ public class PullRequestProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Count the number of open pull request on the plugin repository";
     }

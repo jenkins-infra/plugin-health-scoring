@@ -55,6 +55,8 @@ public abstract class Probe {
 
     public abstract String key();
 
+    public abstract int getOrder();
+
     public abstract String getDescription();
 
     protected boolean requiresRelease() {

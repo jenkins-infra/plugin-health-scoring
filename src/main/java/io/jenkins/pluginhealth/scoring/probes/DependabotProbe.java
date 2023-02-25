@@ -69,6 +69,11 @@ public class DependabotProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Checks if dependabot is configured on a plugin.";
     }

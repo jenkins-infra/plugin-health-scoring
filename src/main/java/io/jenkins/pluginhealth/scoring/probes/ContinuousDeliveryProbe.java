@@ -72,6 +72,10 @@ public class ContinuousDeliveryProbe extends Probe {
     public String key() {
         return KEY;
     }
+    @Override
+    public int getOrder() {
+        return ORDER;
+    }
 
     @Override
     public String getDescription() {

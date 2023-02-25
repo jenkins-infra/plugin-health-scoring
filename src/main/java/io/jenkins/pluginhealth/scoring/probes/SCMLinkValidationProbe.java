@@ -69,6 +69,11 @@ public final class SCMLinkValidationProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return """
             The SCMLinkValidation probe validates with GitHub API \

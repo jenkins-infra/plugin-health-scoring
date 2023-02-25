@@ -12,12 +12,13 @@
         Raw results of the probes execution can be found on the
         <a href="" data-th-href="@{/probes/results}">results page</a>.
     </p>
-    <table class="table">
+    <table class="table" id="probes-table">
         <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Execution Order</th>
         </tr>
         </thead>
         <tbody>
@@ -25,6 +26,7 @@
             <td><code data-th-text="${probe.id}"></code></td>
             <td data-th-text="${probe.name}"></td>
             <td data-th-text="${probe.description}"></td>
+            <td data-th-text="${probe.executionOrder()}"></td>
         </tr>
         </tbody>
     </table>

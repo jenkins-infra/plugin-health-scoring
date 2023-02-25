@@ -81,6 +81,11 @@ public class DependabotPullRequestProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Reports the number of pull request currently opened by Dependabot";
     }

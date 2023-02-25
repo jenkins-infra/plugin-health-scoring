@@ -68,6 +68,11 @@ public class JenkinsfileProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return """
             Validates the existence of a `Jenkinsfile` file in the repository.

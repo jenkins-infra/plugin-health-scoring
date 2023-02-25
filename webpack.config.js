@@ -107,6 +107,20 @@ module.exports = (env, argv) => ({
           filename: "[name].[ext]",
         },
       },
+      {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: {
+            exposes: "jQuery",
+          },
+        }, {
+          loader: 'expose-loader',
+          options: {
+            exposes: "$",
+          },
+        }]
+      },
     ],
   },
   optimization: {
