@@ -1,20 +1,8 @@
-FROM mcr.microsoft.com/vscode/devcontainers/java:0-17.0.2
+FROM mcr.microsoft.com/devcontainers/java:0-17
 
-# Install sdkman
-RUN curl -s "https://get.sdkman.io" | bash
+ARG INSTALL_MAVEN="true"
+ARG MAVEN_VERSION="3.9.0"
 
-# Install Java 17.0.3-ms using sdkman
-RUN /bin/bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.3.ms-zulu"
+RUN if [ "${INSTALL_MAVEN}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi
 
-# Install Node.js 18.14.0 using sdkman
-RUN /bin/bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install nodejs 18.14.0"
 
-# Install Maven 3.9.0 using sdkman
-RUN /bin/bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install maven 3.9.0"
-
-# Install PostgreSQL client
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends postgresql-client
-
-# Install Yarn
-RUN npm install -g yarn
