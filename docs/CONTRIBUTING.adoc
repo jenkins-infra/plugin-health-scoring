@@ -150,11 +150,15 @@ WARNING: The integration tests requires Docker to be installed.
 All proposed changes are submitted and reviewed through a GitHub pull request.
 To submit a pull request:
 
-. Create a branch prefixed with `feature/` for a new enhancement, `fix/` for a bugfix.
-. Commit your changes to this new branch.
+. Make sure your changeset is not introducing a regression by running `mvn verify`
+. Create a branch prefixed with:
+.. `feature/` for a new enhancement
+.. `fix/` for a bugfix
+.. `docs/` for documentation changes
+. Commit your changes to this new branch
 . Push the branch to your fork of the repository.
-. In the GitHub Web UI, select the *New pull request* option.
-. Fill in the pull request description.
+. In the GitHub Web UI, select the *New pull request* option
+. Follow the pull request template
 . Click the _Create pull request_ button.
 
 The pull request will be built in link:https://ci.jenkins.io[ci.jenkins.io].
