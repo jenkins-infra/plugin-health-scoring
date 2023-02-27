@@ -299,7 +299,7 @@
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.7.3.0</version>
+					<version>4.7.3.2</version>
 					<configuration>
 						<excludeFilterFile>src/analytics/spotbugs-exclude.xml</excludeFilterFile>
 						<effort>Max</effort>
