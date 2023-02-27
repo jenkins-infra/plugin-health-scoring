@@ -102,7 +102,7 @@
 		<yarn-berry.version>3.2.4</yarn-berry.version>
 		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
 
-		<spring-boot.version>3.0.2</spring-boot.version>
+		<spring-boot.version>3.0.3</spring-boot.version>
 		<testcontainers.version>1.17.6</testcontainers.version>
 	</properties>
 
@@ -163,7 +163,7 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.7.0</version>
+							<version>10.8.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -208,7 +208,7 @@
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.7.3.0</version>
+					<version>4.7.3.2</version>
 					<configuration>
 						<excludeFilterFile>analytics/spotbugs-exclude.xml</excludeFilterFile>
 						<effort>Max</effort>
