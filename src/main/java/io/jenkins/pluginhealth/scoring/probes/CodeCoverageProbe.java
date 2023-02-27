@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -61,9 +62,8 @@ public class CodeCoverageProbe extends Probe {
             final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-                // Requires pull request on https://github.com/hub4j/github-api/pull/1612
                 final List<GHCheckRun> ghCheckRuns =
-                    ghRepository.getCheckRuns(defaultBranch/*, Map.of("check_name", "Code Coverage")*/).toList();
+                    ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
                 if (ghCheckRuns.size() != 1) {
                     return ProbeResult.failure(key(), "Could not determine code coverage for plugin");
                 } else {

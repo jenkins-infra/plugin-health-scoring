@@ -118,7 +118,8 @@ class CodeCoverageProbeTest {
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
 
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
-        when(ghRepository.getCheckRuns(defaultBranch)).thenReturn(null);
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
+            .thenReturn(null);
 
         final CodeCoverageProbe probe = new CodeCoverageProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
