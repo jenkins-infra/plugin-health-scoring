@@ -127,6 +127,6 @@ class CodeCoverageProbeTest {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line: 80%, Branch: 95%"));
     }
 }
