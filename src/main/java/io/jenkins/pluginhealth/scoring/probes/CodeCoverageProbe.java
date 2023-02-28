@@ -70,7 +70,7 @@ public class CodeCoverageProbe extends Probe {
                     return ProbeResult.success(key(), ghCheckRuns.get(0).getOutput().getTitle());
                 }
             } else {
-                return ProbeResult.failure(key(), "Plugin has no default branch configured. See Update-Center.");
+                return ProbeResult.failure(key(), "Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);

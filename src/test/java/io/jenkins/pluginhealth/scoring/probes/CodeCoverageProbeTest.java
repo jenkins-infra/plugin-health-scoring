@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -43,8 +42,10 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.PagedIterable;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -87,10 +88,12 @@ class CodeCoverageProbeTest {
             .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldBeAbleToRetrieveDetailsFromGitHubChecks() throws IOException {
         final String pluginName = "mailer";
-        final String scmLink = "https://github.com/jenkinsci/mailer-plugin";
+        final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + pluginRepo;
         final String defaultBranch = "main";
 
         final Plugin plugin = mock(Plugin.class);
@@ -115,11 +118,19 @@ class CodeCoverageProbeTest {
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
 
-        when(gh.getRepository(anyString())).thenReturn(ghRepository);
+        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
+        final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
+        final GHCheckRun checkRun = mock(GHCheckRun.class);
+        final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
+        when(output.getTitle()).thenReturn("Line: 80%, Branch: 95%");
+        when(checkRun.getOutput()).thenReturn(output);
+        when(checkRuns.toList()).thenReturn(
+            List.of(checkRun)
+        );
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
-            .thenReturn(null);
+            .thenReturn(checkRuns);
 
         final CodeCoverageProbe probe = new CodeCoverageProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -128,5 +139,51 @@ class CodeCoverageProbeTest {
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line: 80%, Branch: 95%"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void shouldFailIfThereIsNoCodeCoverage() throws IOException {
+        final String pluginName = "mailer";
+        final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + pluginRepo;
+        final String defaultBranch = "main";
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+        ));
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(
+                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
+                    "42", defaultBranch
+                )
+            ),
+            Map.of(),
+            List.of()
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
+
+        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
+        final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
+            .thenReturn(checkRuns);
+
+        final CodeCoverageProbe probe = new CodeCoverageProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Could not determine code coverage for plugin"));
     }
 }
