@@ -1,6 +1,11 @@
-image:
-  file: .gitpod/Dockerfile
-
 tasks:
-  - name: Build with Maven
-    command: mvn package -Dmaven.test.skip
+  - init: |
+      # Install Java 17.0.6-tem
+      sdk install java 17.0.6-tem
+      
+      # Set default Java version
+      sdk default java 17.0.6-tem
+      
+      # Install dependencies, build project, and run tests
+      yarn install
+      ./mvnw install -DskipTests=false
