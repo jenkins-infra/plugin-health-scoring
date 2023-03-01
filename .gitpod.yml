@@ -9,6 +9,3 @@ tasks:
     init: |    
       #Build using Maven
       mvn package -Dmaven.test.skip
-      
-      # Install Yarn dependencies
-      yarn install
