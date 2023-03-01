@@ -24,8 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.Comparator;
-
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
@@ -60,7 +58,6 @@ public class ProbesController {
             "probes",
             probeService.getProbes().stream()
                 .map(ProbeDetails::map)
-                .sorted(Comparator.comparing(ProbeDetails::name))
                 .toList()
         );
         return modelAndView;

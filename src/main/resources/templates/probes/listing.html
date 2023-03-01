@@ -2,9 +2,6 @@
 <html lang="en" data-layout-decorate="~{layouts/main}">
 <head>
     <title>Probes</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="" data-th-src="@{/js/index.js}" type="text/javascript"></script>
 </head>
 <body>
@@ -16,7 +13,7 @@
         Raw results of the probes execution can be found on the
         <a href="" data-th-href="@{/probes/results}">results page</a>.
     </p>
-    <table class="table">
+    <table class="table" id="probes-table">
         <thead>
         <tr>
             <th>ID</th>

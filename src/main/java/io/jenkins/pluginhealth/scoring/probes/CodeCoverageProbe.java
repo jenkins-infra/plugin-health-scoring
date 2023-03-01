@@ -84,6 +84,11 @@ public class CodeCoverageProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Retrieve plugin code coverage details";
     }

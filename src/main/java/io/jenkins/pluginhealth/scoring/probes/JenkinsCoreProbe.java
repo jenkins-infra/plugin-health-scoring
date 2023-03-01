@@ -54,6 +54,11 @@ public class JenkinsCoreProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "This probe registers the Jenkins core version requirement for each plugin.";
     }

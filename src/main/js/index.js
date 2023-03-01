@@ -3,6 +3,12 @@ defineCustomElements(window, {
   resourcesUrl: '/',
 });
 
+import $ from 'jquery';
+import dt from 'datatables.net';
 $(document).ready( function () {
-    $('#myTable').DataTable();
+  if (window.location.pathname === "/probes") {
+    $('#probes-table').DataTable(
+      {"order":[[3, 'asc']]}
+    );
+  }
 } );
