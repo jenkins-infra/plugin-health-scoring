@@ -1,12 +1,7 @@
-image: gitpod/workspace-full
-
-# List the steps to be run when creating a workspace
 tasks:
   - init: |
       # Install Java 17.0.6-tem
-      . /home/gitpod/.sdkman/bin/sdkman-init.sh && \
-      sdk install java 17.0.3-ms && \
-      sdk default java 17.0.3-ms
+      yes Y | sdk install java 17.0.6-tem
 
       # Set Node.js to 18.14.0
       VERSION="18.14.0" \
@@ -14,3 +9,5 @@ tasks:
       && nvm use $VERSION && nvm alias default $VERSION
 
       yarn install
+
+      mvn package -Dmaven.test.skip
