@@ -1,10 +1,13 @@
+image: gitpod/workspace-full
+
+# List the steps to be run when creating a workspace
 tasks:
   - init: |
       # Install Java 17.0.6-tem
       sdk install java 17.0.6-tem
       
       # Set default Java version
-      yes | sdk default java 17.0.6-tem
+      y | sdk default java 17.0.6-tem && echo "Java 17.0.6-tem set as default."
       
       # Install dependencies, build project, and run tests
       yarn install
