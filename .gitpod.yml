@@ -12,5 +12,3 @@ tasks:
       
       # Install Yarn dependencies
       yarn install
-
-      
