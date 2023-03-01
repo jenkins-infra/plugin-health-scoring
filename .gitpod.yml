@@ -1,13 +1,18 @@
 tasks:
-  - init: |
-      # Install Java 17.0.6-tem
+  - name: Setup and Build
+    before: |
+      # Download and Install Java 17.0.6-tem
       yes Y | sdk install java 17.0.6-tem
 
-      # Set Node.js to 18.14.0
+      # Download and Install 18.14.0
       VERSION="18.14.0" \
       && source $HOME/.nvm/nvm.sh && nvm install $VERSION \
       && nvm use $VERSION && nvm alias default $VERSION
 
-      yarn install
-
+      # Download and Install Maven 3.9.0
+      VERSION="3.9.0" &&\
+      yes Y | sdk install maven $version
+    init: |    
+      #Build using Maven
       mvn package -Dmaven.test.skip
+        
