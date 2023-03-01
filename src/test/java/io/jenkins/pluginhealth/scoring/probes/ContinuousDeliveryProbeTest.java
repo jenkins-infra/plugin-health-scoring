@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -41,16 +43,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ContinuousDeploymentProbeTest {
+class ContinuousDeliveryProbeTest {
     @Test
     public void shouldNotRequireRelease() {
-        final ContinuousDeploymentProbe probe = spy(ContinuousDeploymentProbe.class);
+        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldKeepUsingJEP229Key() {
-        final ContinuousDeploymentProbe probe = spy(ContinuousDeploymentProbe.class);
+        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.key()).isEqualTo("jep-229");
     }
 
@@ -58,8 +60,11 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -71,8 +76,11 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
         when(ctx.getScmRepository()).thenReturn(repo);
@@ -86,8 +94,11 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         Files.createFile(workflows.resolve("cd.yml"));
@@ -102,8 +113,11 @@ class ContinuousDeploymentProbeTest {
     public void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeploymentProbe probe = new ContinuousDeploymentProbe();
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+        ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         Files.createFile(workflows.resolve("cd.yaml"));

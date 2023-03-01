@@ -28,24 +28,21 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import hudson.util.VersionNumber;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 @Entity
 @Table(name = "plugins")
-@TypeDef(name = "json", typeClass = JsonType.class)
-@TypeDef(name = "version", typeClass = VersionNumberType.class)
 public class Plugin {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -54,8 +51,8 @@ public class Plugin {
     @Column(name = "name", unique = true)
     private String name;
 
-    @Type(type = "version")
-    @Column(name = "version")
+    @Type(VersionNumberType.class)
+    @Column(name = "version", nullable = false)
     private VersionNumber version;
 
     @Column(name = "scm")
@@ -64,8 +61,8 @@ public class Plugin {
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
 
-    @Type(type = "json")
     @Column(columnDefinition = "jsonb")
+    @Type(value = JsonType.class)
     private final Map<String, ProbeResult> details = new HashMap<>();
 
     public Plugin() {
@@ -113,13 +110,15 @@ public class Plugin {
         return Map.copyOf(details);
     }
 
-    public Plugin addDetails(ProbeResult result) {
-        details.put(result.id(), result);
+    public Plugin addDetails(ProbeResult newProbeResult) {
+        this.details.compute(newProbeResult.id(), (s, previousProbeResult) -> {
+            return Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult;
+        });
         return this;
     }
 
     public Plugin addDetails(Map<String, ProbeResult> details) {
-        this.details.putAll(details);
+        details.values().forEach(this::addDetails);
         return this;
     }
 

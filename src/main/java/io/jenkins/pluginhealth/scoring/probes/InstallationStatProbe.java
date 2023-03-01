@@ -24,56 +24,37 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Stream;
-
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(ContinuousDeploymentProbe.ORDER)
-public class ContinuousDeploymentProbe extends Probe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeploymentProbe.class);
+@Order(value = InstallationStatProbe.ORDER)
+public class InstallationStatProbe extends Probe {
+    public static final String KEY = "stat";
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repo = context.getScmRepository();
-        final Path githubWorkflow = repo.resolve(".github/workflows");
-        if (Files.notExists(githubWorkflow)) {
-            return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
+        final UpdateCenter updateCenter = context.getUpdateCenter();
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = updateCenter.plugins().get(plugin.getName());
+
+        if (ucPlugin == null) {
+            return ProbeResult.failure(KEY, "Plugin is not part of the update-center");
         }
-        try (Stream<Path> files = Files.find(githubWorkflow, 1,
-            (path, basicFileAttributes) -> Files.isRegularFile(path) && List.of("cd.yml", "cd.yaml").contains(path.getFileName().toString())
-        )) {
-            return files.findFirst().isPresent() ?
-                ProbeResult.success(key(), "JEP-229 workflow definition found") :
-                ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
-        } catch (IOException ex) {
-            LOGGER.warn("Could not walk {} Git clone in {}", plugin.getName(), repo, ex);
-            return ProbeResult.error(key(), "Could not work plugin repository");
-        }
+        return ProbeResult.success(KEY, "%d".formatted(ucPlugin.popularity()));
     }
 
     @Override
     public String key() {
-        return "jep-229";
-    }
-
-    public int getOrder() {
-        return ORDER;
+        return KEY;
     }
 
     @Override
     public String getDescription() {
-        return "Checks if JEP-229 (Continuous Deployment) has been activated on the plugin";
+        return "This probe registers the latest installation count stat for a specific plugin.";
     }
 }

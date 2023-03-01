@@ -49,6 +49,7 @@ public class LastCommitDateProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
+    public static final String KEY = "last-commit-date";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -74,11 +75,12 @@ public class LastCommitDateProbe extends Probe {
                 if (commit == null) {
                     return ProbeResult.failure(key(), "Last commit cannot be found");
                 }
-                final ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(
+                final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                     commit.getAuthorIdent().getWhenAsInstant(),
                     commit.getAuthorIdent().getZoneId()
                 );
-                return ProbeResult.success(key(), zonedDateTime.toString());
+                context.setLastCommitDate(commitDate);
+                return ProbeResult.success(key(), commitDate.toString());
             } catch (GitAPIException ex) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("There was an issue while cloning the plugin repository", ex);
@@ -92,7 +94,7 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public String key() {
-        return "last-commit-date";
+        return KEY;
     }
 
     public int getOrder() {
@@ -102,5 +104,10 @@ public class LastCommitDateProbe extends Probe {
     @Override
     public String getDescription() {
         return "Register the last commit date on the official plugin repository";
+    }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
     }
 }

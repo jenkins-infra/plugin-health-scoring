@@ -27,7 +27,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>1.8.1-SNAPSHOT</version>
 
 	<name>Plugin Health Scoring</name>
 	<description>Build and provide health indicators on plugins of the Jenkins ecosystem</description>
@@ -95,8 +95,9 @@
 		<yarn-berry.version>3.2.4</yarn-berry.version>
 		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
 
-		<spring-boot.version>2.7.5</spring-boot.version>
-		<testcontainers.version>1.17.5</testcontainers.version>
+		<spring-boot.version>3.0.3</spring-boot.version>
+		<testcontainers.version>1.17.6</testcontainers.version>
+		<jjwt.version>0.11.5</jjwt.version>
 	</properties>
 
 	<dependencyManagement>
@@ -121,12 +122,26 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>6.3.0.2022009070944-r</version>
+			<version>6.4.0.202211300538-r</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jenkins-ci</groupId>
 			<artifactId>version-number</artifactId>
-			<version>1.10</version>
+			<version>1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>org.kohsuke</groupId>
+			<artifactId>github-api</artifactId>
+			<version>1.314</version>
+		</dependency>
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
 		</dependency>
 
 		<dependency>
@@ -157,8 +172,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.vladmihalcea</groupId>
-			<artifactId>hibernate-types-55</artifactId>
-			<version>2.20.0</version>
+			<artifactId>hibernate-types-60</artifactId>
+			<version>2.21.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -230,22 +245,32 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.2.1</version>
 					<configuration>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
-						<configLocation>src/checkstyle/checkstyle-configuration.xml</configLocation>
+						<configLocation>src/analytics/checkstyle-configuration.xml</configLocation>
 					</configuration>
 					<dependencies>
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.4</version>
+							<version>10.8.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
 				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.10.1</version>
+					<configuration>
+						<release>${maven.compiler.source}</release>
+						<compilerArgs>
+							<arg>-parameters</arg>
+						</compilerArgs>
+					</configuration>
+				</plugin>
+				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M7</version>
+					<version>3.0.0-M9</version>
 					<configuration>
 						<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					</configuration>
@@ -269,13 +294,14 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M7</version>
+					<version>3.0.0-M9</version>
 				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
 					<artifactId>spotbugs-maven-plugin</artifactId>
-					<version>4.7.3.0</version>
+					<version>4.7.3.2</version>
 					<configuration>
+						<excludeFilterFile>src/analytics/spotbugs-exclude.xml</excludeFilterFile>
 						<effort>Max</effort>
 					</configuration>
 				</plugin>

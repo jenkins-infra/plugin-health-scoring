@@ -36,7 +36,7 @@ public abstract class Probe {
      * Starts the analyze on a plugin.
      * Should only be called by the {@link ProbeEngine#run()} method.
      *
-     * @param plugin the plugin on which to perform the analyze
+     * @param plugin  the plugin on which to perform the analyze
      * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
@@ -47,7 +47,7 @@ public abstract class Probe {
     /**
      * Perform the analyze on a plugin
      *
-     * @param plugin the plugin on which the analyze is done
+     * @param plugin  the plugin on which the analyze is done
      * @param context holder of information passed across the probes executed on a single plugin
      * @return a ProbeResult representing the result of the analyze
      */
@@ -60,6 +60,10 @@ public abstract class Probe {
     public abstract String getDescription();
 
     protected boolean requiresRelease() {
+        return false;
+    }
+
+    protected boolean isSourceCodeRelated() {
         return false;
     }
 }

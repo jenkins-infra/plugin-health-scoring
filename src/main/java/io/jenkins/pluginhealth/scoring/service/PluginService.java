@@ -24,13 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.Optional;
 import java.util.stream.Stream;
-import javax.transaction.Transactional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PluginService {
@@ -41,8 +42,8 @@ public class PluginService {
     }
 
     @Transactional
-    public Plugin saveOrUpdate(Plugin plugin) {
-        return pluginRepository.findByName(plugin.getName())
+    public void saveOrUpdate(Plugin plugin) {
+        pluginRepository.findByName(plugin.getName())
             .map(pluginFromDatabase -> pluginFromDatabase
                 .setScm(plugin.getScm())
                 .setReleaseTimestamp(plugin.getReleaseTimestamp())
@@ -52,13 +53,18 @@ public class PluginService {
             .orElseGet(() -> pluginRepository.save(plugin));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Stream<Plugin> streamAll() {
         return pluginRepository.findAll().stream();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public long getPluginsCount() {
         return pluginRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Plugin> findByName(String pluginName) {
+        return pluginRepository.findByName(pluginName);
     }
 }

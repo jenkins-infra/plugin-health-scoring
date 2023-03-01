@@ -7,6 +7,7 @@ pipeline {
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
+    skipStagesAfterUnstable()
     timestamps()
   }
 
@@ -21,18 +22,20 @@ pipeline {
 
       post {
         always {
+          discoverGitReferenceBuild referenceJob: 'main'
           junit (
             allowEmptyResults: false,
-            testResults: '**/target/surefire-reports/*.xml'
-          )
-          junit (
-            allowEmptyResults: false,
-            testResults: '**/target/failsafe-reports/*.xml'
+            testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
           publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
-          recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
-          recordIssues enabledForFailure: true, tool: checkStyle()
-          recordIssues enabledForFailure: true, tool: spotBugs()
+          recordIssues enabledForFailure: true,
+            tools: [mavenConsole(), java(), javaDoc()]
+          recordIssues enabledForFailure: true,
+            tool: checkStyle(),
+            qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
+          recordIssues enabledForFailure: true,
+            tool: spotBugs(),
+            qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
         }
         success {
             stash name: 'binary', includes: 'target/plugin-health-scoring.jar'

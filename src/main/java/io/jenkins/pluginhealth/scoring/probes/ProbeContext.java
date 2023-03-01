@@ -28,16 +28,23 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-/*default*/ class ProbeContext {
+import org.kohsuke.github.GitHub;
+
+public class ProbeContext {
     private final UpdateCenter updateCenter;
     private final Path scmRepository;
+    private GitHub github;
+    private ZonedDateTime lastCommitDate;
 
-    /*default*/ ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+    public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
         this.scmRepository = Files.createTempDirectory(pluginName);
     }
@@ -50,7 +57,28 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
         return scmRepository;
     }
 
-    public void cleanUp() throws IOException {
+    public Optional<ZonedDateTime> getLastCommitDate() {
+        return Optional.ofNullable(lastCommitDate);
+    }
+
+    public void setLastCommitDate(ZonedDateTime lastCommitDate) {
+        this.lastCommitDate = lastCommitDate;
+    }
+
+    public GitHub getGitHub() {
+        return github;
+    }
+
+    public void setGitHub(GitHub github) {
+        this.github = github;
+    }
+
+    public Optional<String> getRepositoryName(String scm) {
+        final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
+        return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
+    }
+
+    /* default */ void cleanUp() throws IOException {
         try (Stream<Path> paths = Files.walk(this.scmRepository)) {
             paths.sorted(Comparator.reverseOrder())
                 .map(Path::toFile)

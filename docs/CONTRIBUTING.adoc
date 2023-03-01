@@ -1,0 +1,164 @@
+= Contributing to Plugin Health Scoring
+
+This page provides information about contributing to the Plugin Health Scoring code base.
+
+== Getting started
+
+The project is using Maven with Java 17 and Yarn to be built.
+The entire build process can be handled by Maven.
+When building, Yarn will bundle the front-end files only.
+
+. Clone the repository.
+. Install tools
+.. Java 17
+.. Maven 3.8.6
+.. Node 18.10.0 and Yarn 3.2.4
+.. Optional: have Docker installed in your environment
+. Open the project in your favorite IDE.
+
+NOTE: Optionally, you can use the Maven wrapper in the repository.
+In that case, replace the `mvn` command by `./mvnw` in the command listed bellow.
+
+Please see the link:ARCHITECTURE.adoc[architecture] document to better understand the structure of the code.
+
+== How to build locally the application
+
+Once you have installed the tools listed before, you can generate the application binary by running the command:
+
+[source,bash]
+----
+mvn verify
+----
+
+This will run all the tests of the application.
+You can speed up the process by running the command:
+
+[source,bash]
+----
+mvn package -Dmaven.test.skip
+----
+
+=== How to run the application locally
+
+Before starting the application, it is required to create a GitHub App, configure environment variables and have access to a PostgreSQL Database.
+
+==== Environment variables
+
+You can find the list of environment variables in link:.env.example[].
+
+[source,bash]
+----
+include::.env.example[]
+----
+
+==== GitHub App
+
+To create the GitHub App, please see link:https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app[]
+
+The application requires the following permissions:
+
+* Repository content (read-only)
+
+Once the GitHub APP created, generate a private key.
+It will be downloaded automatically.
+
+The downloaded key needs to be converted using the following command:
+
+[source,bash]
+----
+openssl pkcs8 -topk8 -inform PEM -outform PEM -in ORIGINAL_KEY.pem -out CONVERTED_KEY.pem -nocrypt
+----
+
+NOTE: You need to change `ORIGINAL_KEY` and `CONVERTED_KEY` with real values.
+
+This final file is the one to point to in `GITHUB_APP_PRIVATE_KEY_PATH` environment variable.
+
+Finally, you need to install the GitHub APP on your GitHub user.
+In the GitHub App configuration page, find the *Install App* link on the left side menu.
+
+==== Starting a PostgreSQL database
+
+If you don't want to install a PostgreSQL database locally, it is possible to start the service in the Docker Compose configuration.
+
+In order to start the database this way, you can run the following command:
+
+[source,bash]
+----
+docker compose up -d db
+----
+
+==== Running the application from CLI
+
+This method is preferred if you intend to submit any modifications to the project.
+
+In one terminal, run:
+
+[source,bash]
+----
+yarn install
+yarn dev
+----
+
+This will build and update the front-end files when you modify them.
+
+In a second terminal run:
+
+[source,bash]
+----
+mvn spring-boot:run -Dskip.yarn -Dspring.profiles.active=dev
+----
+
+This will start the application.
+
+NOTE: Don't forget to set the required environment variables.
+
+==== Running the application with Docker Compose
+
+If you want to simply run the project locally, you can run:
+
+[source,bash]
+----
+mvn package -Dmaven.test.skip
+docker compose up
+----
+
+NOTE: the required environment variables must be set in a file named `.env`.
+
+==== Connecting to database with Docker container
+
+If you are using Docker you can connect to the database using the following command:
+
+[source,bash]
+----
+docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
+----
+
+== Testing change
+
+The project has unit and integration tests.
+You can run all those with
+
+[source,bash]
+----
+mvn verify
+----
+
+WARNING: The integration tests requires Docker to be installed.
+
+== Proposing changes
+
+All proposed changes are submitted and reviewed through a GitHub pull request.
+To submit a pull request:
+
+. Make sure your changeset is not introducing a regression by running `mvn verify`
+. Create a branch prefixed with:
+.. `feature/` for a new enhancement
+.. `fix/` for a bugfix
+.. `docs/` for documentation changes
+. Commit your changes to this new branch
+. Push the branch to your fork of the repository.
+. In the GitHub Web UI, select the *New pull request* option
+. Follow the pull request template
+. Click the _Create pull request_ button.
+
+The pull request will be built in link:https://ci.jenkins.io[ci.jenkins.io].

@@ -10,4 +10,4 @@ You can find out more about the project at link:https://www.jenkins.io/projects/
 
 == Contributing
 
-Please see the contributing guide in link:CONTRIBUTING.adoc[CONTRIBUTING].
+Please see the contributing guide in link:docs/CONTRIBUTING.adoc[CONTRIBUTING].

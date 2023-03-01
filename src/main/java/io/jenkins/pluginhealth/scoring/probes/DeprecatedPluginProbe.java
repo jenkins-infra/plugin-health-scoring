@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 @Order(DeprecatedPluginProbe.ORDER)
 public class DeprecatedPluginProbe extends Probe {
     public static final int ORDER = 1;
+    public static final String KEY = "deprecation";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
@@ -45,12 +46,19 @@ public class DeprecatedPluginProbe extends Probe {
         if (updateCenter.deprecations().containsKey(plugin.getName())) {
             return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
         }
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
+        if (updateCenterPlugin == null) {
+            return ProbeResult.failure(key(), "This plugin is not in update-center");
+        }
+        if (updateCenterPlugin.labels().contains("deprecated")) {
+            return ProbeResult.failure(key(), "This plugin is marked as deprecated");
+        }
         return ProbeResult.success(key(), "This plugin is NOT deprecated");
     }
 
     @Override
     public String key() {
-        return "deprecation";
+        return KEY;
     }
 
     public int getOrder() {

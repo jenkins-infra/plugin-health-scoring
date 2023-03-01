@@ -26,39 +26,69 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import hudson.util.VersionNumber;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Service;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
+@DataJpaTest
 public class PluginServiceIT extends AbstractDBContainerTest {
-    @Autowired
-    private PluginRepository pluginRepository;
-    @Autowired
+    @Autowired private PluginRepository pluginRepository;
     private PluginService pluginService;
+
+    @BeforeEach
+    public void setup() {
+        this.pluginService = new PluginService(pluginRepository);
+    }
+
+    @Test
+    public void shouldBeEmpty() {
+        assertThat(pluginRepository.count()).isZero();
+    }
 
     @Test
     public void shouldNotDuplicatePluginWhenNameIsTheSame() {
         Plugin plugin = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
 
         pluginService.saveOrUpdate(plugin);
+        pluginRepository.flush();
         assertThat(pluginRepository.findAll())
             .hasSize(1)
             .contains(plugin);
 
-        Plugin copy = new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null);
+        Plugin copy = new Plugin("myPlugin", new VersionNumber("1.1"), "https://github.com/jenkinsci/my-plugin", null);
         pluginService.saveOrUpdate(copy);
+        pluginRepository.flush();
         assertThat(pluginRepository.findAll())
             .hasSize(1)
-            .contains(plugin);
+            .contains(copy);
+    }
+
+    @Test
+    public void shouldBeAbleToSavePluginWithThreeDigitVersion() {
+        final Plugin plugin = new Plugin("foo-bar", new VersionNumber("1.0.1"), null, ZonedDateTime.now());
+
+        assertThat(pluginRepository.count()).isEqualTo(0);
+        pluginService.saveOrUpdate(plugin);
+        pluginRepository.flush();
+        assertThat(pluginRepository.count()).isEqualTo(1);
+
+        final Optional<Plugin> saved = pluginRepository.findByName("foo-bar");
+        assertThat(saved)
+            .isPresent()
+            .get()
+            .extracting("version")
+            .isNotNull()
+            .isEqualTo(new VersionNumber("1.0.1"));
     }
 }

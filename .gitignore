@@ -6,6 +6,8 @@ target
 
 ### Application
 .env
+*.der
+*.pem
 
 ### Node
 node/
@@ -19,3 +21,6 @@ node_modules/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# IntelliJ IDEA
+.idea

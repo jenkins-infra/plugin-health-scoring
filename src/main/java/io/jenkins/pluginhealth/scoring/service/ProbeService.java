@@ -24,45 +24,65 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
+import io.jenkins.pluginhealth.scoring.probes.InstallationStatProbe;
+import io.jenkins.pluginhealth.scoring.probes.JenkinsCoreProbe;
+import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
+import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
+import io.jenkins.pluginhealth.scoring.probes.ProbeContext;
+import io.jenkins.pluginhealth.scoring.probes.PullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 import io.jenkins.pluginhealth.scoring.repository.PluginRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProbeService {
     private final List<Probe> probes;
-    private final PluginService pluginService;
     private final PluginRepository pluginRepository;
 
-    public ProbeService(List<Probe> probes, PluginService pluginService, PluginRepository pluginRepository) {
+    public ProbeService(List<Probe> probes, PluginRepository pluginRepository) {
         this.probes = List.copyOf(probes);
-        this.pluginService = pluginService;
         this.pluginRepository = pluginRepository;
     }
 
-    @Transactional
-    public Map<String, Long> getProbesFinalResults() {
-        Map<String, Long> probeResultsMap = probes.stream()
-            .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
-
-        probeResultsMap.remove("last-commit-date");
-
-        return probeResultsMap;
+    public List<Probe> getProbes() {
+        return probes;
     }
 
-    @Transactional
-    public long getProbesRawResultsFromDatabase(String probeID) {
+    private static final List<String> IGNORE_RAW_RESULT_PROBES = List.of(
+        DependabotPullRequestProbe.KEY,
+        InstallationStatProbe.KEY,
+        JenkinsCoreProbe.KEY,
+        LastCommitDateProbe.KEY,
+        PullRequestProbe.KEY
+    );
+
+    @Transactional(readOnly = true)
+    public Map<String, Long> getProbesFinalResults() {
+        return probes.stream()
+            .filter(probe -> !IGNORE_RAW_RESULT_PROBES.contains(probe.key()))
+            .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
+    }
+
+    private long getProbesRawResultsFromDatabase(String probeID) {
         return switch (probeID) {
-            case "up-for-adoption", "security", "deprecation" ->
+            case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
                 pluginRepository.getProbeRawResult(probeID, "FAILURE");
-            default ->
-                pluginRepository.getProbeRawResult(probeID, "SUCCESS");
+            default -> pluginRepository.getProbeRawResult(probeID, "SUCCESS");
         };
+    }
+
+    public ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+        return new ProbeContext(pluginName, updateCenter);
     }
 }
