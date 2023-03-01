@@ -81,7 +81,7 @@ public class UpdateCenterPluginPublicationProbeTest {
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                pluginName, null, null, null, List.of(), 0, "2.361.1"
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
             )),
             Map.of(),
             List.of()
