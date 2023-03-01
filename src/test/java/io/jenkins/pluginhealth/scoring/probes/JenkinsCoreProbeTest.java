@@ -103,7 +103,7 @@ class JenkinsCoreProbeTest {
             Map.of(
                 pluginName,
                 new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, null, null, null, List.of(), 0, "2.361.1"
+                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
                 )
             ),
             Map.of(),
