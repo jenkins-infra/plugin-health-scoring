@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -75,9 +76,55 @@ class CodeCoverageProbeTest {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+            )
+        );
+
+        final CodeCoverageProbe probe = new CodeCoverageProbe();
+
+        // ProbeResult missing
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+
+        // ProbeResult failure
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+    }
+
+    @Test
+    public void shouldFailWhenRepositoryIsNotInOrganization() {
+        final String pluginName = "foo";
+        final String scmLink = "foo-bar";
+        final String defaultBranch = "main";
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
         ));
+
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(
+                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
+                    "42", defaultBranch
+                )
+            ),
+            Map.of(),
+            List.of()
+        ));
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
 
         final CodeCoverageProbe probe = new CodeCoverageProbe();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -85,7 +132,7 @@ class CodeCoverageProbeTest {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Cannot determine plugin repository"));
     }
 
     @SuppressWarnings("unchecked")
