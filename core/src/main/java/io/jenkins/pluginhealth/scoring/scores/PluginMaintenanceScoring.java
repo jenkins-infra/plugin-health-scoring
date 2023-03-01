@@ -29,6 +29,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
+import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
@@ -46,25 +47,34 @@ public class PluginMaintenanceScoring extends Scoring {
         final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
         final ProbeResult dependabotPullRequestResult = plugin.getDetails().get(DependabotPullRequestProbe.KEY);
         final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
+        final ProbeResult contributingGuidelinesProbeResult = plugin.getDetails().get(ContributingGuidelinesProbe.KEY);
 
-        if (jenkinsfileProbeResult == null || jenkinsfileProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return new ScoreResult(KEY, 0, COEFFICIENT);
+        float score = 0.0f;
+
+        if (jenkinsfileProbeResult != null && jenkinsfileProbeResult.status().equals(ResultStatus.SUCCESS)) {
+            score += 0.65f;
         }
 
-        if (dependabotProbeResult == null || dependabotProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return new ScoreResult(KEY, .75f, COEFFICIENT);
+        if (contributingGuidelinesProbeResult != null && contributingGuidelinesProbeResult.status().equals(ResultStatus.SUCCESS)) {
+            score += 0.15f;
+        }
+
+        if (dependabotProbeResult != null && dependabotProbeResult.status().equals(ResultStatus.SUCCESS)) {
+            score += 0.15f;
         }
 
         if (dependabotPullRequestResult != null && dependabotPullRequestResult.status().equals(ResultStatus.SUCCESS)
             && Integer.parseInt(dependabotPullRequestResult.message()) > 0) {
-            return new ScoreResult(KEY, .75f, COEFFICIENT);
+            score -= 0.15f;
         }
 
-        if (cdProbeResult == null || cdProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return new ScoreResult(KEY, .9f, COEFFICIENT);
+        if (cdProbeResult != null && cdProbeResult.status().equals(ResultStatus.SUCCESS)) {
+            score += 0.05f;
         }
 
-        return new ScoreResult(KEY, 1, COEFFICIENT);
+        score = Math.round(score * 100.0) / 100.0f; // Prevent rounding errors
+
+        return new ScoreResult(KEY, score, COEFFICIENT);
     }
 
     @Override
@@ -79,6 +89,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public String description() {
-        return "Scores plugin based on Jenkinsfile presence, dependabot and JEP-229 configuration.";
+        return "Scores plugin based on Jenkinsfile presence, Contributing Guidelines presence, dependabot and JEP-229 configuration.";
     }
 }
