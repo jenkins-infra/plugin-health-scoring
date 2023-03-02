@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+String phase = infra.isInfra() ? 'deploy' : 'verify'
+
 pipeline {
   agent {
     // 'docker' is the (legacy) label used on ci.jenkins.io for "Docker Linux AMD64" while 'linux-amd64-docker' is the label used on infra.ci.jenkins.io
@@ -17,8 +19,14 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        final String phase = infra.isInfra() ? 'deploy' : 'verify'
-        sh "./mvnw -V $phase checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false"
+        sh """
+          ./mvnw -V ${phase}\
+            checkstyle:checkstyle \
+            spotbugs:spotbugs \
+            -Dmaven.test.failure.ignore \
+            -Dcheckstyle.failOnViolation=false \
+            -Dspotbugs.failOnError=false
+        """
       }
 
       post {
