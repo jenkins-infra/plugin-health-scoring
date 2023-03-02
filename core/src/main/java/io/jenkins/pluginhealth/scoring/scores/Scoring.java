@@ -42,6 +42,8 @@ public abstract class Scoring {
     }
 
     /**
+     * Applies the scoring implementation on a plugin.
+     * Based on the provided plugin, the method returns a non-null {@link ScoreResult}.
      *
      * @param plugin the plugin to score
      * @return a {@link ScoreResult}
@@ -49,17 +51,17 @@ public abstract class Scoring {
     protected abstract ScoreResult doApply(Plugin plugin);
 
     /**
-     * Returns the key identifier for the scoring.
+     * Returns the key identifier for the scoring implementation.
      *
      * @return the identifier of the scoring implementation
      */
     public abstract String key();
 
     /**
-     * Represents the weight of the scoring process on the overall plugin score.
+     * Represents the weight of the scoring implementation applied to the overall plugin score.
      * Its value must be between 0 and 1 included.
      *
-     * @return the weight of the scoring process.
+     * @return the weight of the scoring implementation.
      */
     public abstract float coefficient();
 

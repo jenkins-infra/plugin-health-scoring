@@ -45,7 +45,7 @@ public abstract class Probe {
     }
 
     /**
-     * Perform the analyze on a plugin.
+     * Performs the analysis on a plugin.
      * Based on the provided plugin and context, the method returns a non-null {@link ProbeResult}.
      *
      * @param plugin  the plugin on which the analyze is done
@@ -70,8 +70,8 @@ public abstract class Probe {
     public abstract String getDescription();
 
     /**
-     * Returns a boolean value which specify if the probe result can only be modified by a release of the plugin.
-     * If the probe execution is only altered by a new release of the plugin, returns true, otherwise returns false.
+     * Returns a boolean value that specifies if the probe result can only be modified by a release of the plugin.
+     * If the probe result can be altered by a new release of the plugin, returns true, otherwise returns false.
      *
      * @return true if a release of the plugin is required to change the result of the probe execution, otherwise false.
      */
