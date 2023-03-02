@@ -26,22 +26,24 @@ package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
 
+import org.kohsuke.github.GitHub;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GitHubHealthIndicator extends AbstractHealthIndicator {
-    private final GithubConfiguration githubConfiguration;
+    private final GitHub github;
 
-    public GitHubHealthIndicator(GithubConfiguration githubConfiguration) {
-        this.githubConfiguration = githubConfiguration;
+    public GitHubHealthIndicator(GitHub github) {
+        this.github = github;
     }
+
 
     @Override
     protected void doHealthCheck(Health.Builder builder) {
         try {
-            githubConfiguration.getGitHub().checkApiUrlValidity();
+            github.checkApiUrlValidity();
             builder.up();
         } catch (IOException ex) {
             builder.down()
