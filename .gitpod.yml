@@ -1,0 +1,19 @@
+tasks:
+  - name: Setup and Build
+    before: |
+      # Download and Install Java 17.0.6-tem
+      yes Y | sdk install java 17.0.6-tem
+
+      # Download and Install Maven 3.9.0
+      yes Y | sdk install maven 3.9.0
+    init: |    
+      # Build using Maven
+      mvn package -Dmaven.test.skip
+      
+vscode:
+  extensions:
+    - redhat.java
+    - vscjava.vscode-java-debug
+    - vscjava.vscode-java-test
+    - vscjava.vscode-maven
+    - vscjava.vscode-java-dependency
