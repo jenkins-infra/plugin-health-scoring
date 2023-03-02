@@ -27,17 +27,47 @@ package io.jenkins.pluginhealth.scoring.scores;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
+/**
+ * Represents a scoring process of a plugin, based on ProbeResults contained within the Plugin#details map.
+ */
 public abstract class Scoring {
+    /**
+     * Starts the scoring process of the plugin.
+     *
+     * @param plugin the plugin to score
+     * @return a {@link ScoreResult} describing the plugin based on the ProbeResult and the scoring requirements.
+     */
     public final ScoreResult apply(Plugin plugin) {
         return doApply(plugin);
     }
 
+    /**
+     *
+     * @param plugin the plugin to score
+     * @return a {@link ScoreResult}
+     */
     protected abstract ScoreResult doApply(Plugin plugin);
 
+    /**
+     * Returns the key identifier for the scoring.
+     *
+     * @return the identifier of the scoring implementation
+     */
     public abstract String key();
 
+    /**
+     * Represents the weight of the scoring process on the overall plugin score.
+     * Its value must be between 0 and 1 included.
+     *
+     * @return the weight of the scoring process.
+     */
     public abstract float coefficient();
 
+    /**
+     * Returns a description of the scoring implementation.
+     *
+     * @return the description of the scoring implementation
+     */
     public abstract String description();
 
     public String name() {
