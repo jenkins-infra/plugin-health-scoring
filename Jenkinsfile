@@ -17,7 +17,7 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        sh './mvnw -V deploy checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
       }
 
       post {
