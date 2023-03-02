@@ -17,7 +17,8 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        sh './mvnw -V deploy checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        final String phase = infra.isInfra() ? 'deploy' : 'verify'
+        sh "./mvnw -V $phase checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false"
       }
 
       post {
