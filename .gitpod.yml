@@ -7,5 +7,13 @@ tasks:
       # Download and Install Maven 3.9.0
       yes Y | sdk install maven 3.9.0
     init: |    
-      #Build using Maven
+      # Build using Maven
       mvn package -Dmaven.test.skip
+      
+vscode:
+  extensions:
+    - redhat.java
+    - vscjava.vscode-java-debug
+    - vscjava.vscode-java-test
+    - vscjava.vscode-maven
+    - vscjava.vscode-java-dependency
