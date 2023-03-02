@@ -34,7 +34,7 @@ public abstract class Probe {
 
     /**
      * Starts the analyze on a plugin.
-     * Should only be called by the {@link ProbeEngine#run()} method.
+     * The implementation of the probe action is deferred to {@link Probe#doApply(Plugin, ProbeContext)}.
      *
      * @param plugin  the plugin on which to perform the analyze
      * @param context holder of information passed across the probes executed on a single plugin
@@ -45,7 +45,8 @@ public abstract class Probe {
     }
 
     /**
-     * Perform the analyze on a plugin
+     * Perform the analyze on a plugin.
+     * Based on the provided plugin and context, the method returns a non-null {@link ProbeResult}.
      *
      * @param plugin  the plugin on which the analyze is done
      * @param context holder of information passed across the probes executed on a single plugin
@@ -53,14 +54,38 @@ public abstract class Probe {
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
+    /**
+     * Returns the key identifier for the probe.
+     * This is how the different probes can be identified in the {@link Plugin#details} map.
+     *
+     * @return the identifier of the probe
+     */
     public abstract String key();
 
+    /**
+     * Returns a description of the action of the probe.
+     *
+     * @return the description of the probe
+     */
     public abstract String getDescription();
 
+    /**
+     * Returns a boolean value which specify if the probe result can only be modified by a release of the plugin.
+     * If the probe execution is only altered by a new release of the plugin, returns true, otherwise returns false.
+     *
+     * @return true if a release of the plugin is required to change the result of the probe execution, otherwise false.
+     */
     protected boolean requiresRelease() {
         return false;
     }
 
+    /**
+     * Determines that the probe requires a modification of the source code of the plugin to change its previous
+     * execution on the plugin.
+     *
+     * @return true if the result of the probe can only be change from the previous execution if the source code of the
+     * plugin was change. Otherwise false.
+     */
     protected boolean isSourceCodeRelated() {
         return false;
     }
