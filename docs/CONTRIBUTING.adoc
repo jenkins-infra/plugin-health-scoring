@@ -21,12 +21,6 @@ In that case, replace the `mvn` command by `./mvnw` in the command listed bellow
 
 Please see the link:ARCHITECTURE.adoc[architecture] document to better understand the structure of the code.
 
-== Run the application on Gitpod
-
-This project includes a configuration in `.gitpod.yml` to be able to run on Gitpod. The required versions of Java and Maven are installed when starting the Gitpod workspace. Follow the steps to run the application using Docker compose.
-
-NOTE: If in case the build fails on start, run `mvn package -Dmaven.test.skip` again.
-
 == How to build locally the application
 
 Once you have installed the tools listed before, you can generate the application binary by running the command:
@@ -138,6 +132,12 @@ If you are using Docker you can connect to the database using the following comm
 ----
 docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
 ----
+
+== Run the application on Gitpod
+
+This project includes a configuration in `.gitpod.yml` to be able to run on Gitpod. The required versions of Java and Maven are installed when starting the Gitpod workspace. Follow the steps to run the application using Docker compose.
+
+NOTE: If in case the build fails on start, run `mvn package -Dmaven.test.skip` again.
 
 == Testing change
 
