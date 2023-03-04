@@ -1,8 +1,8 @@
 package io.jenkins.pluginhealth.scoring.probes;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -25,32 +25,28 @@ public class SpotBugsProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY)==null) {
+        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
             LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
             return ProbeResult.error(key(), "SCM link has not been validated yet");
         }
-
     final Path repository = context.getScmRepository();
     try (Stream<Path> paths = Files.find(repository, 2,
                 (file, basicFileAttributes) -> Files.isReadable(file)
                         && ("pom.xml".equalsIgnoreCase(file.getFileName().toString())))) {
             Optional<Path> pomFile = paths.findFirst();
-        if(pomFile.isPresent()){
+        if (pomFile.isPresent()) {
             Path file = pomFile.get();
               if (Files.lines(file).anyMatch(line -> line.contains("<groupId>com.github.spotbugs</groupId>"))) {
                 return ProbeResult.success(key(), "SpotBugs is enabled");
             } else {
                 return ProbeResult.failure(key(), "SpotBugs not enabled");
                 }
-         
-      } else{
-            return ProbeResult.error( key(),"could not found pom.xml");
+      } else {
+            return ProbeResult.error(key(), "could not found pom.xml");
         }
-       
-    }catch (IOException e) {
+    } catch (IOException e) {
         return ProbeResult.error(key(), e.getMessage());
       }
-
     }
 
     @Override
