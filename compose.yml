@@ -2,17 +2,21 @@ services:
   app:
     build:
       context: .
-      dockerfile: src/main/docker/Dockerfile
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
+      dockerfile: war/src/main/docker/Dockerfile
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - GITHUB_PRIVATEKEYPATH=/app/github-app-private-key.pem
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - SPRING_PROFILES_ACTIVE=dev
     ports:
       - "8080:8080"
+    volumes:
+      - "${GITHUB_APP_PRIVATE_KEY_PATH}:/app/github-app-private-key.pem:ro"
 
   db:
     image: postgres:14.1-alpine

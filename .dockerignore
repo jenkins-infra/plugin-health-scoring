@@ -1,10 +1,4 @@
-pom.xml
-src
-!src/main/docker/Dockerfile
-target
-!target/plugin-health-scoring.jar
+*
 
-.idea
-.mvn
-mvnw
-mvnw.cmd
+!war/src/main/docker/docker-entrypoint.sh
+!war/target/plugin-health-scoring.jar
