@@ -61,6 +61,7 @@ public class DeprecatedPluginProbe extends Probe {
         return KEY;
     }
 
+    @Override
     public int getOrder() {
         return ORDER;
     }

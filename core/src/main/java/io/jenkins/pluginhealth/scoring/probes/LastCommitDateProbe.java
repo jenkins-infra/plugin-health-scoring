@@ -97,6 +97,7 @@ public class LastCommitDateProbe extends Probe {
         return KEY;
     }
 
+    @Override
     public int getOrder() {
         return ORDER;
     }

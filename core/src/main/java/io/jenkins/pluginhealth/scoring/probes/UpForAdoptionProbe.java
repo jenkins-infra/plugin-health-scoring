@@ -62,6 +62,7 @@ public class UpForAdoptionProbe extends Probe {
         return KEY;
     }
 
+    @Override
     public int getOrder() {
         return ORDER;
     }

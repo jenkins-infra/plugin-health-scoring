@@ -70,6 +70,11 @@ public class ContributingGuidelinesProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Validates the existence of a `CONTRIBUTING.adoc` or `CONTRIBUTING.md` file in the repository.";
     }

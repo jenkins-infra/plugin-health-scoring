@@ -68,6 +68,7 @@ public final class SCMLinkValidationProbe extends Probe {
         return KEY;
     }
 
+    @Override
     public int getOrder() {
         return ORDER;
     }
