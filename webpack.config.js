@@ -28,6 +28,7 @@ const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => ({
@@ -39,8 +40,12 @@ module.exports = (env, argv) => ({
     'style': [
       path.join(__dirname, 'src/main/less/index.less'),
     ],
+    'js/listing':[
+      path.join(__dirname, 'src/main/js/probes/listing.js')
+    ],
   },
   output: {
+    publicPath: "/",
     path: path.join(__dirname, 'target/classes/static'),
   },
   devtool:
@@ -62,6 +67,11 @@ module.exports = (env, argv) => ({
       ],
     }),
     new CleanPlugin(),
+    new HtmlWebpackPlugin({
+      filename: "../templates/probes/listing.html",
+      template: "src/main/resources/templates/probes/listing.html",
+      chunks: ['js/listing']
+    })
   ],
   module: {
     rules: [
@@ -128,7 +138,13 @@ module.exports = (env, argv) => ({
       chunks: "async",
       cacheGroups: {
         commons: {
-          test: /[\\/]node_modules[\\/]/,
+          test:  function (module, chunks){
+            if(/listing.js/.test(module.context)){
+              return false;
+            } else if(/[\\/]node_modules[\\/]/.test(module.context)){
+              return false;
+            }
+          },
           name: "js/vendors",
           chunks: "all",
         },

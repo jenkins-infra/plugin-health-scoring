@@ -1,25 +1,47 @@
 .dataTables_filter {
   float: right;
-  margin: 15px;
+  margin: 10px;
 }
 
 .dataTables_length {
   float: left;
-  margin: 15px;
+  margin: 10px;
 }
 
 .dataTables_info {
   float: left;
   display: inline;
+  margin: 10px;
 }
 
 .dataTables_paginate {
 
   float: right;
-
-  & >.paginate_button {
+  margin: 10px;
+  .paginate_button {
+    padding: 0.25em 0.5em;
+    margin-left: 3px;
+    text-align: center;
+    cursor: pointer;
+    *cursor: hand;
     border: 1px solid black;
-    margin: 5px;
+  }
+
+  .previous{
+    border: 0px;
+  }
+
+  .next{
+    border: 0px;
+  }
+
+  .disabled{
+    color: darkgrey;
+  }
+
+  .current{
+    background-color: #2b323b;
+    color: white;
   }
 
 }
