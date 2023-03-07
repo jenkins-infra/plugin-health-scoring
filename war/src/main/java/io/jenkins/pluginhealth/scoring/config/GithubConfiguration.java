@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 
-import jakarta.validation.constraints.NotEmpty;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import org.kohsuke.github.GitHub;
@@ -39,44 +38,41 @@ import org.kohsuke.github.extras.authorization.JWTTokenProvider;
 import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.context.annotation.Bean;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "github")
-@Validated
+@Configuration
 public class GithubConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
 
-    @NotEmpty
-    private final String appId;
-    private final Path privateKeyPath;
-    @NotEmpty
-    private final String appInstallationName;
+    private final ApplicationConfiguration configuration;
 
-    @ConstructorBinding
-    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName) {
-        this.appId = appId;
-        this.privateKeyPath = privateKeyPath;
-        this.appInstallationName = appInstallationName;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Private Key Path: {} [valid: {}]", privateKeyPath, Files.exists(privateKeyPath) && Files.isReadable(privateKeyPath));
-        }
+    public GithubConfiguration(ApplicationConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Bean
-    public GitHub getGitHub() throws IOException, GeneralSecurityException {
-        final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
-            new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
-        ).build();
-        return new GitHubBuilder()
-            .withAuthorizationProvider(createAuthorizationProvider())
-            .withConnector(new OkHttpGitHubConnector(httpClient))
-            .build();
+    public GitHub getGitHub() {
+        try {
+            final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
+                new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
+            ).build();
+            final OrgAppInstallationAuthorizationProvider authorizationProvider = createAuthorizationProvider();
+            return new GitHubBuilder()
+                .withAuthorizationProvider(authorizationProvider)
+                .withConnector(new OkHttpGitHubConnector(httpClient))
+                .build();
+        } catch (GeneralSecurityException | IOException ex) {
+            LOGGER.error("Could not create connection to GitHub.", ex);
+            return null;
+        }
     }
 
     private OrgAppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
+        final String appId = configuration.gitHub().appId();
+        final Path privateKeyPath = configuration.gitHub().privateKeyPath();
+        final String appInstallationName = configuration.gitHub().appInstallationName();
+
         final JWTTokenProvider jwtTokenProvider = new JWTTokenProvider(appId, privateKeyPath);
         return new OrgAppInstallationAuthorizationProvider(appInstallationName, jwtTokenProvider);
     }

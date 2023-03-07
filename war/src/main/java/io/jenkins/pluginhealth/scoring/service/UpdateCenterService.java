@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.net.URL;
 
+import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,14 +38,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UpdateCenterService {
     private final ObjectMapper objectMapper;
-    private final String updateCenterURL;
+    private final ApplicationConfiguration configuration;
 
-    public UpdateCenterService(@Value("${jenkins.update-center}") String updateCenterURL) {
+    public UpdateCenterService(ApplicationConfiguration configuration) {
         this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
-        this.updateCenterURL = updateCenterURL;
+        this.configuration = configuration;
     }
 
     public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
+        return objectMapper.readValue(new URL(configuration.jenkins().updateCenter()), UpdateCenter.class);
     }
 }

@@ -25,24 +25,30 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import java.net.URL;
 
+import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@JsonTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class UpdateCenterServiceTest {
+    @Mock private ApplicationConfiguration configuration;
+
     @Test
     void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
         URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
         assertThat(updateCenterURL).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(updateCenterURL.toString());
+
+        when(configuration.jenkins()).thenReturn(new ApplicationConfiguration.Jenkins(updateCenterURL.toString()));
+
+        UpdateCenterService updateCenterService = new UpdateCenterService(configuration);
 
         UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         assertThat(updateCenter.plugins()).hasSize(25);
