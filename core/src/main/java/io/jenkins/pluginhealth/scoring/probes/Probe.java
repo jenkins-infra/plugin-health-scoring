@@ -33,10 +33,10 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 public abstract class Probe {
 
     /**
-     * Starts the analyze on a plugin.
+     * Starts the analysis on a plugin.
      * The implementation of the probe action is deferred to {@link Probe#doApply(Plugin, ProbeContext)}.
      *
-     * @param plugin  the plugin on which to perform the analyze
+     * @param plugin  the plugin on which to perform the analysis
      * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
@@ -48,9 +48,9 @@ public abstract class Probe {
      * Performs the analysis on a plugin.
      * Based on the provided plugin and context, the method returns a non-null {@link ProbeResult}.
      *
-     * @param plugin  the plugin on which the analyze is done
+     * @param plugin  the plugin on which the analysis is done
      * @param context holder of information passed across the probes executed on a single plugin
-     * @return a ProbeResult representing the result of the analyze
+     * @return a ProbeResult representing the result of the analysis
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
