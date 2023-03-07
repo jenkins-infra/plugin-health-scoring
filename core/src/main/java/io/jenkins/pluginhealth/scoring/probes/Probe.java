@@ -80,11 +80,11 @@ public abstract class Probe {
     }
 
     /**
-     * Determines that the probe requires a modification of the source code of the plugin to change its previous
+     * Determines if the probe requires modification of the plugin source code to change the result of its previous
      * execution on the plugin.
      *
-     * @return true if the result of the probe can only be change from the previous execution if the source code of the
-     * plugin was change. Otherwise false.
+     * @return true if the probe result can only be changed from the previous execution if the source code of the
+     * plugin was changed. Otherwise, false.
      */
     protected boolean isSourceCodeRelated() {
         return false;
