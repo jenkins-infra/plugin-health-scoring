@@ -32,6 +32,7 @@ import java.security.GeneralSecurityException;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import org.kohsuke.github.GHAppInstallation;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.authorization.AppInstallationAuthorizationProvider;
@@ -85,8 +86,11 @@ public class GithubConfiguration {
         final JWTTokenProvider jwtTokenProvider = new JWTTokenProvider(appId, privateKeyPath);
         return new AppInstallationAuthorizationProvider(
             app -> {
-                final GHAppInstallation installationByOrganization = app.getInstallationByOrganization(appInstallationName);
-                return installationByOrganization != null ? installationByOrganization : app.getInstallationByUser(appInstallationName);
+                try {
+                    return app.getInstallationByOrganization(appInstallationName);
+                } catch (GHFileNotFoundException ex) {
+                    return app.getInstallationByUser(appInstallationName);
+                }
             },
             jwtTokenProvider
         );
