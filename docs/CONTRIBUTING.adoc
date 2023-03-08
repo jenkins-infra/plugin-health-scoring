@@ -135,7 +135,10 @@ docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name
 
 == Run the application on Gitpod
 
-This project includes a configuration in `.gitpod.yml` to be able to run on Gitpod. The required versions of Java and Maven are installed when starting the Gitpod workspace. Follow the steps to run the application using Docker compose.
+This project includes a configuration in `.gitpod.yml` to be able to contribute to it on Gitpod.
+The required versions of Java and Maven are installed when starting the Gitpod workspace.
+
+Follow the steps to run the application using Docker compose.
 
 NOTE: If in case the build fails on start, run `mvn package -Dmaven.test.skip` again.
 
