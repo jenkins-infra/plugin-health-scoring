@@ -21,3 +21,7 @@ node_modules/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# IntelliJ IDEA
+.idea
+*.iml

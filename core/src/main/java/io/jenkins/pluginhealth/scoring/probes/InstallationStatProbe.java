@@ -54,6 +54,11 @@ public class InstallationStatProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "This probe registers the latest installation count stat for a specific plugin.";
     }
