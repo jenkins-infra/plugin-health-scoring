@@ -44,14 +44,13 @@ public class GitHubHealthIndicator extends AbstractHealthIndicator {
     protected void doHealthCheck(Health.Builder builder) {
         try {
             if (Objects.isNull(github)) {
-                builder.down();
+                builder.down().withDetail("error", "GitHub object is null");
             } else {
                 github.checkApiUrlValidity();
                 builder.up();
             }
         } catch (IOException ex) {
-            builder.down()
-                .withDetail("reason", ex.getMessage());
+            builder.down(ex);
         }
     }
 }
