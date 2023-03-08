@@ -136,7 +136,6 @@ docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name
 == Run the application on Gitpod
 
 Gitpod is a cloud-based IDE that allows developers to write, test, and deploy code from anywhere.
-
 Follow this link to get familiar with Gitpod: link:https://www.gitpod.io/docs/introduction/getting-started[Getting Started with Gitpod]
 
 This project includes a configuration in `.gitpod.yml` to be able to contribute to it on Gitpod.
