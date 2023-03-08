@@ -143,7 +143,7 @@ The required versions of Java and Maven are installed when starting the Gitpod w
 
 In order to run the project within the Gitpod environment, follow the steps of running the application with Docker Compose.
 
-NOTE: If in case the build fails on start, run `mvn package -Dmaven.test.skip` again.
+NOTE: In case the build fails on start, run `mvn package -Dmaven.test.skip` again.
 
 == Testing change
 
