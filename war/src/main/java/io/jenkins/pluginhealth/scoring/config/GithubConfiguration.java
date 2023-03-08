@@ -52,20 +52,28 @@ public class GithubConfiguration {
     }
 
     @Bean
-    public GitHub getGitHub() {
+    public GitHub getGitHub() throws IOException {
+        final GitHubBuilder gitHubBuilder = new GitHubBuilder();
+
         try {
             final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
                 new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
             ).build();
-            final OrgAppInstallationAuthorizationProvider authorizationProvider = createAuthorizationProvider();
-            return new GitHubBuilder()
-                .withAuthorizationProvider(authorizationProvider)
-                .withConnector(new OkHttpGitHubConnector(httpClient))
-                .build();
-        } catch (GeneralSecurityException | IOException ex) {
-            LOGGER.error("Could not create connection to GitHub.", ex);
-            return null;
+            gitHubBuilder.withConnector(new OkHttpGitHubConnector(httpClient));
+        } catch (IOException ex) {
+            LOGGER.warn("Could not create cache folder for GitHub connection. Will work without.", ex);
         }
+
+        try {
+            final Path privateKeyPath = configuration.gitHub().privateKeyPath();
+            if (Files.exists(privateKeyPath)) {
+                gitHubBuilder.withAuthorizationProvider(createAuthorizationProvider());
+            }
+        } catch (GeneralSecurityException | IOException ex) {
+            LOGGER.error("Could not create authenticated connection to GitHub.", ex);
+        }
+
+        return gitHubBuilder.build();
     }
 
     private OrgAppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
