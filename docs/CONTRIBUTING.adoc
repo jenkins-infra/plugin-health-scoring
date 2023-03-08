@@ -143,7 +143,7 @@ This project includes a configuration in `.gitpod.yml` to be able to contribute 
 
 The required versions of Java and Maven are installed when starting the Gitpod workspace.
 
-To contribute to this project, follow the steps of running the application with Docker Compose to run the application in your workspace.`
+To contribute to this project, follow the steps of running the application with Docker Compose to run the application in your workspace.
 
 NOTE: If in case the build fails on start, run `mvn package -Dmaven.test.skip` again.
 
