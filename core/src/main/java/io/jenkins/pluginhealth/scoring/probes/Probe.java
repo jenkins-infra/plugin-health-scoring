@@ -73,7 +73,7 @@ public abstract class Probe {
      * Returns a boolean value that specifies if the probe result can only be modified by a release of the plugin.
      * If the probe result can be altered by a new release of the plugin, returns true, otherwise returns false.
      *
-     * @return true if a release of the plugin is required to change the result of the probe execution, otherwise false.
+     * @return true if a release of the plugin is required to change the result of the probe execution. Otherwise, false.
      */
     protected boolean requiresRelease() {
         return false;
