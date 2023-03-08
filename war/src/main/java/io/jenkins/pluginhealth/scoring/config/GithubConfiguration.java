@@ -31,9 +31,10 @@ import java.security.GeneralSecurityException;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
+import org.kohsuke.github.GHAppInstallation;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.authorization.OrgAppInstallationAuthorizationProvider;
+import org.kohsuke.github.authorization.AppInstallationAuthorizationProvider;
 import org.kohsuke.github.extras.authorization.JWTTokenProvider;
 import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 import org.slf4j.Logger;
@@ -76,12 +77,18 @@ public class GithubConfiguration {
         return gitHubBuilder.build();
     }
 
-    private OrgAppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
+    private AppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
         final String appId = configuration.gitHub().appId();
         final Path privateKeyPath = configuration.gitHub().privateKeyPath();
         final String appInstallationName = configuration.gitHub().appInstallationName();
 
         final JWTTokenProvider jwtTokenProvider = new JWTTokenProvider(appId, privateKeyPath);
-        return new OrgAppInstallationAuthorizationProvider(appInstallationName, jwtTokenProvider);
+        return new AppInstallationAuthorizationProvider(
+            app -> {
+                final GHAppInstallation installationByOrganization = app.getInstallationByOrganization(appInstallationName);
+                return installationByOrganization != null ? installationByOrganization : app.getInstallationByUser(appInstallationName);
+            },
+            jwtTokenProvider
+        );
     }
 }
