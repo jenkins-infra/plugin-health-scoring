@@ -1,8 +1,0 @@
-version: '3.8'
-
-services:
-  app:
-    container_name: Plugin Health Scoring
-    build: 
-      context: .
-      dockerfile: Dockerfile

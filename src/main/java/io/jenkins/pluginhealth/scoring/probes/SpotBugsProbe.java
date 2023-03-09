@@ -27,14 +27,16 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
+import org.kohsuke.github.GHCheckRun;
+import org.kohsuke.github.GHRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -51,28 +53,32 @@ public class SpotBugsProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
+        final ProbeResult jenkinsFileResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
+        if (jenkinsFileResult == null || !jenkinsFileResult.status().equals(ResultStatus.SUCCESS)) {
+            return ProbeResult.error(key(), "Requires Jenkinsfile");
         }
-    final Path repository = context.getScmRepository();
-    try (Stream<Path> paths = Files.find(repository, 2,
-                (file, basicFileAttributes) -> Files.isReadable(file)
-                        && ("pom.xml".equalsIgnoreCase(file.getFileName().toString())))) {
-            Optional<Path> pomFile = paths.findFirst();
-        if (pomFile.isPresent()) {
-            Path file = pomFile.get();
-              if (Files.lines(file).anyMatch(line -> line.contains("<groupId>com.github.spotbugs</groupId>"))) {
-                return ProbeResult.success(key(), "SpotBugs is enabled");
-            } else {
-                return ProbeResult.failure(key(), "SpotBugs not enabled");
+
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
+            context.getUpdateCenter().plugins().get(plugin.getName());
+        final String defaultBranch = ucPlugin.defaultBranch();
+        try {
+            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            if (repositoryName.isPresent()) {
+                final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+                final List<GHCheckRun> ghCheckRuns =
+                    ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")).toList();
+                if (ghCheckRuns.size() != 1) {
+                    return ProbeResult.failure(key(), "SpotBugs not found in build configuration");
+                } else {
+                    return ProbeResult.success(key(), "SpotBugs found in build configuration");
                 }
-      } else {
-            return ProbeResult.error(key(), "could not found pom.xml");
+            } else {
+                return ProbeResult.failure(key(), "Cannot determine plugin repository");
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
+            return ProbeResult.failure(key(), "Could not get SpotBugs check");
         }
-    } catch (IOException e) {
-        return ProbeResult.error(key(), e.getMessage());
-      }
     }
 
     @Override
