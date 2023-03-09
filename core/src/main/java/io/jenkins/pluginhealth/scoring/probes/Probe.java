@@ -33,10 +33,10 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 public abstract class Probe {
 
     /**
-     * Starts the analyze on a plugin.
-     * Should only be called by the {@link ProbeEngine#run()} method.
+     * Starts the analysis on a plugin.
+     * The implementation of the probe action is deferred to {@link Probe#doApply(Plugin, ProbeContext)}.
      *
-     * @param plugin  the plugin on which to perform the analyze
+     * @param plugin  the plugin on which to perform the analysis
      * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
@@ -45,22 +45,47 @@ public abstract class Probe {
     }
 
     /**
-     * Perform the analyze on a plugin
+     * Performs the analysis on a plugin.
+     * Based on the provided plugin and context, the method returns a non-null {@link ProbeResult}.
      *
-     * @param plugin  the plugin on which the analyze is done
+     * @param plugin  the plugin on which the analysis is done
      * @param context holder of information passed across the probes executed on a single plugin
-     * @return a ProbeResult representing the result of the analyze
+     * @return a ProbeResult representing the result of the analysis
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
+    /**
+     * Returns the key identifier for the probe.
+     * This is how the different probes can be identified in the {@link Plugin#details} map.
+     *
+     * @return the identifier of the probe
+     */
     public abstract String key();
 
+    /**
+     * Returns a description of the action of the probe.
+     *
+     * @return the description of the probe
+     */
     public abstract String getDescription();
 
+    /**
+     * Returns a boolean value that specifies if the probe result can only be modified by a release of the plugin.
+     * If the probe result can be altered by a new release of the plugin, returns true, otherwise returns false.
+     *
+     * @return true if a release of the plugin is required to change the result of the probe execution. Otherwise, false.
+     */
     protected boolean requiresRelease() {
         return false;
     }
 
+    /**
+     * Determines if the probe requires modification of the plugin source code to change the result of its previous
+     * execution on the plugin.
+     *
+     * @return true if the probe result can only be changed from the previous execution if the source code of the
+     * plugin was changed. Otherwise, false.
+     */
     protected boolean isSourceCodeRelated() {
         return false;
     }
