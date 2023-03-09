@@ -11,5 +11,5 @@ tab_width = 2
 indent_style = tab
 indent_size = 2
 
-[{*.y?ml,*.json,Jenkinsfile,*.js,*.less}]
+[{*.yml,*.yaml,*.json,Jenkinsfile,*.js,*.less}]
 indent_size = 2
