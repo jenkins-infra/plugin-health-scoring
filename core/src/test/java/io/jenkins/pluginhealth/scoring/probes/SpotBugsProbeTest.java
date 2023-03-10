@@ -106,7 +106,7 @@
          final Plugin plugin = mock(Plugin.class);
          final ProbeContext ctx = mock(ProbeContext.class);
 
-         
+
          when(plugin.getName()).thenReturn(pluginName);
          when(plugin.getScm()).thenReturn(scmLink);
          when(plugin.getDetails()).thenReturn(Map.of(
