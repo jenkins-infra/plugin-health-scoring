@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -41,8 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-
 
 @Component
 @Order(SpotBugsProbe.ORDER)
