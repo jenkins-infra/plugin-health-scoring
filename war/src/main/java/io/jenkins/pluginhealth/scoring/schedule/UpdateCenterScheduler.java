@@ -38,23 +38,33 @@ import org.springframework.stereotype.Component;
 @Component
 public class UpdateCenterScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCenterScheduler.class);
+
+    private final ExecutorEngine executorEngine;
     private final UpdateCenterService updateCenterService;
     private final PluginService pluginService;
 
-    public UpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService) {
+    public UpdateCenterScheduler(ExecutorEngine executorEngine, UpdateCenterService updateCenterService,
+                                 PluginService pluginService) {
+        this.executorEngine = executorEngine;
         this.updateCenterService = updateCenterService;
         this.pluginService = pluginService;
     }
 
     @Scheduled(cron = "${cron.update-center}", zone = "UTC")
-    public void updateDatabase() throws IOException {
-        LOGGER.info("Updating plugins from update-center");
-        updateCenterService.fetchUpdateCenter()
-            .plugins().values().stream()
-            .map(Plugin::toPlugin)
-            .forEach(pluginService::saveOrUpdate);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Plugins updated from update-center");
-        }
+    public void updateDatabase() {
+        executorEngine.run(() -> {
+            try {
+                LOGGER.info("Updating plugins from update-center");
+                updateCenterService.fetchUpdateCenter()
+                    .plugins().values().stream()
+                    .map(Plugin::toPlugin)
+                    .forEach(pluginService::saveOrUpdate);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Plugins updated from update-center");
+                }
+            } catch (IOException ex) {
+                LOGGER.error("Error while updating plugins table from update-center", ex);
+            }
+        });
     }
 }

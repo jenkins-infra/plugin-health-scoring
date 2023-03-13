@@ -47,6 +47,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @DataJpaTest
 class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     @Autowired private PluginRepository pluginRepository;
+    @Autowired private ExecutorEngine executorEngine;
     @Mock private UpdateCenterService ucService;
     private UpdateCenterScheduler upScheduler;
 
@@ -56,7 +57,7 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
             .readValue(UpdateCenterSchedulerIT.class.getResourceAsStream("/update-center/update-center.actual.json"), UpdateCenter.class);
 
         when(ucService.fetchUpdateCenter()).thenReturn(updateCenter);
-        upScheduler = new UpdateCenterScheduler(ucService, new PluginService(pluginRepository));
+        upScheduler = new UpdateCenterScheduler(executorEngine, ucService, new PluginService(pluginRepository));
     }
 
     @Test
