@@ -39,8 +39,8 @@ public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
-    public UpdateCenterService(@Value("${jenkins.update-center}") String updateCenterURL) {
-        this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
+    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update-center}") String updateCenterURL) {
+        this.objectMapper = objectMapper;
         this.updateCenterURL = updateCenterURL;
     }
 
