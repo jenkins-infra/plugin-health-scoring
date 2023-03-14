@@ -32,6 +32,7 @@ import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
 import org.springframework.stereotype.Component;
@@ -48,14 +49,19 @@ public class PluginMaintenanceScoring extends Scoring {
         final ProbeResult dependabotPullRequestResult = plugin.getDetails().get(DependabotPullRequestProbe.KEY);
         final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
         final ProbeResult contributingGuidelinesProbeResult = plugin.getDetails().get(ContributingGuidelinesProbe.KEY);
+        final ProbeResult documentationMigrationProbeResult = plugin.getDetails().get(DocumentationMigrationProbe.KEY);
 
         float score = 0.0f;
 
         if (jenkinsfileProbeResult != null && jenkinsfileProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.65f;
+            score += 0.5f;
         }
 
         if (contributingGuidelinesProbeResult != null && contributingGuidelinesProbeResult.status().equals(ResultStatus.SUCCESS)) {
+            score += 0.15f;
+        }
+
+        if (documentationMigrationProbeResult != null && documentationMigrationProbeResult.status().equals(ResultStatus.SUCCESS)) {
             score += 0.15f;
         }
 
@@ -89,6 +95,9 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public String description() {
-        return "Scores plugin based on Jenkinsfile presence, Contributing Guidelines presence, dependabot and JEP-229 configuration.";
+        return """
+            Scores plugin based on Jenkinsfile presence, Contributing Guidelines presence,
+            documentation migration, dependabot and JEP-229 configuration.
+            """;
     }
 }
