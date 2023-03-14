@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -54,12 +55,14 @@ public final class ProbeEngine {
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
     private final GithubConfiguration githubConfiguration;
+    private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration, PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
         this.githubConfiguration = githubConfiguration;
+        this.pluginDocumentationService = pluginDocumentationService;
     }
 
     /**
@@ -116,6 +119,8 @@ public final class ProbeEngine {
             LOGGER.error("Cannot create connection to GitHub", ex);
             return;
         }
+        probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
+
         probeService.getProbes().forEach(probe -> {
             try {
                 final ProbeResult previousResult = plugin.getDetails().get(probe.key());
