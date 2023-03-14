@@ -40,7 +40,7 @@ class PluginDocumentationServiceTest {
     @Autowired private ObjectMapper objectMapper;
 
     @Test
-    public void shouldBeAbleToParseAvailableFile() {
+    void shouldBeAbleToParseAvailableFile() {
         final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
         assertThat(url).isNotNull();
 
