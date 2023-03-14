@@ -62,190 +62,190 @@ class PluginMaintenanceScoringTest {
             arguments(// All bad
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 0f
             ),
             arguments(// All bad with open dependabot pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 0f
             ),
             arguments(// All good
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 1f
             ),
             arguments(// Only Jenkinsfile
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .65f
             ),
             arguments(// Jenkinsfile and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .65f
             ),
             arguments(// Jenkinsfile and dependabot with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .8f
             ),
             arguments(// Jenkinsfile and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .7f
             ),
             arguments(// Jenkinsfile and Contributing guide
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .8f
             ),
             arguments(// Jenkinsfile and CD and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .7f
             ),
             arguments(// Jenkinsfile and CD and dependabot with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .85f
             ),
             arguments(// Jenkinsfile and Contributing guide and dependabot and with no open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .95f
             ),
             arguments(// Jenkinfile and CD and Contributing guild and dependabot but with open pull request
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .85f
             ),
             arguments(// Contributing guide only
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .15f
             ),
             arguments(// Dependabot only with no open pull requests
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .15f
             ),
             arguments(// Contributing guide and Dependabot with no open pull requests
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .3f
             ),
             arguments(// Dependabot with no open pull request and CD and Contributing guide
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .35f
             ),
             arguments(// Dependabot with no open pull request and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.failure(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .2f
             ),
             arguments(// Dependabot but with open pull request and Contributing guide and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .2f
             ),
             arguments(// Contributing guide and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    ContributingGuidelinesProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "0"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "")
                 ),
                 .2f
             )
