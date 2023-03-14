@@ -24,8 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.net.URL;
 import java.util.Map;
