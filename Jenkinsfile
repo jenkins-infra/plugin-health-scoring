@@ -38,14 +38,14 @@ pipeline {
             qualityGates: [[ threshold: 1, type: 'NEW', unstable: true ]]
         }
         success {
-            stash name: 'binary', includes: 'target/plugin-health-scoring.jar'
+          stash name: 'binary', includes: 'war/target/plugin-health-scoring.jar'
         }
       }
     }
 
     stage('Docker image') {
       steps {
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'src/main/docker/Dockerfile', unstash: 'binary'])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary'])
       }
     }
   }
