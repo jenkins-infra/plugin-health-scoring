@@ -24,26 +24,31 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.io.IOException;
-import java.net.URL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import java.net.URL;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
-@Service
-public class UpdateCenterService {
-    private final ObjectMapper objectMapper;
-    private final String updateCenterURL;
+@JsonTest
+class PluginDocumentationServiceTest {
+    @Autowired private ObjectMapper objectMapper;
 
-    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update-center}") String updateCenterURL) {
-        this.objectMapper = objectMapper;
-        this.updateCenterURL = updateCenterURL;
-    }
+    @Test
+    void shouldBeAbleToParseAvailableFile() {
+        final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
+        assertThat(url).isNotNull();
 
-    public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(new URL(updateCenterURL), UpdateCenter.class);
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, url.toString());
+        final Map<String, String> map = service.fetchPluginDocumentationUrl();
+
+        assertThat(map)
+            .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
+            .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
     }
 }

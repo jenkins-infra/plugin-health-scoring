@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
@@ -43,6 +44,7 @@ public class ProbeContext {
     private final Path scmRepository;
     private GitHub github;
     private ZonedDateTime lastCommitDate;
+    private Map<String, String> pluginDocumentationLinks;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -71,6 +73,14 @@ public class ProbeContext {
 
     public void setGitHub(GitHub github) {
         this.github = github;
+    }
+
+    public void setPluginDocumentationLinks(Map<String, String> pluginDocumentationLinks) {
+        this.pluginDocumentationLinks = pluginDocumentationLinks;
+    }
+
+    public Map<String, String> getPluginDocumentationLinks() {
+        return pluginDocumentationLinks;
     }
 
     public Optional<String> getRepositoryName(String scm) {
