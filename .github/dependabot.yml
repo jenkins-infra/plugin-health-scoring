@@ -9,7 +9,7 @@ updates:
 
   # Maintain Yarn dependencies
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/war"
     schedule:
         interval: "weekly"
         day: "sunday"
