@@ -185,7 +185,7 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.8.1</version>
+							<version>10.9.2</version>
 						</dependency>
 					</dependencies>
 				</plugin>
@@ -201,7 +201,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.0.0-M9</version>
+					<version>3.0.0</version>
 					<configuration>
 						<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					</configuration>
@@ -216,7 +216,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>3.0.0-M7</version>
+					<version>3.0.0</version>
 					<configuration>
 						<goals>verify</goals>
 						<signTag>true</signTag>
@@ -225,7 +225,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M9</version>
+					<version>3.0.0</version>
 				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
