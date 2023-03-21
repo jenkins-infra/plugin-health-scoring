@@ -30,6 +30,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -54,12 +55,14 @@ public final class ProbeEngine {
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
     private final GitHub gitHub;
+    private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GitHub gitHub) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GitHub gitHub, PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
         this.gitHub = gitHub;
+        this.pluginDocumentationService = pluginDocumentationService;
     }
 
     /**
@@ -110,7 +113,9 @@ public final class ProbeEngine {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;
         }
+
         probeContext.setGitHub(gitHub);
+
         probeService.getProbes().forEach(probe -> {
             try {
                 final ProbeResult previousResult = plugin.getDetails().get(probe.key());

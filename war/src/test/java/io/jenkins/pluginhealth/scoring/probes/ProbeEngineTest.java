@@ -46,6 +46,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -63,6 +64,7 @@ class ProbeEngineTest {
     @Mock private ProbeService probeService;
     @Mock private UpdateCenterService updateCenterService;
     @Mock private GitHub gitHub;
+    @Mock private PluginDocumentationService pluginDocumentationService;
 
     @BeforeEach
     void setup() throws IOException {
@@ -88,7 +90,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
@@ -113,7 +115,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe, never()).doApply(plugin, ctx);
@@ -138,7 +140,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe, never()).apply(plugin, ctx);
@@ -164,7 +166,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe).apply(plugin, ctx);
@@ -190,7 +192,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe).doApply(eq(plugin), any(ProbeContext.class));
@@ -217,7 +219,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(probe).doApply(plugin, ctx);
@@ -237,7 +239,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(plugin, never()).addDetails(any(ProbeResult.class));
@@ -276,7 +278,7 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probeOne, probeTwo));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub);
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
         verify(plugin, times(2)).addDetails(any(ProbeResult.class));

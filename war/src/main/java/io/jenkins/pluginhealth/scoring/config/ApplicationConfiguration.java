@@ -34,7 +34,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app")
 @Validated
 public record ApplicationConfiguration(@Valid Jenkins jenkins, @Valid GitHub gitHub) {
-    public record Jenkins(@NotBlank String updateCenter) {
+    public record Jenkins(@NotBlank String updateCenter, @NotBlank String documentationUrls) {
     }
 
     public record GitHub(@NotBlank String appId, Path privateKeyPath, @NotBlank String appInstallationName) {

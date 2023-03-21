@@ -31,20 +31,26 @@ import java.net.URL;
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
+@JsonTest
 class UpdateCenterServiceTest {
+    @Autowired private ObjectMapper objectMapper;
+
     @Test
     void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
         URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
         assertThat(updateCenterURL).isNotNull();
 
         final ApplicationConfiguration configuration = new ApplicationConfiguration(
-            new ApplicationConfiguration.Jenkins(updateCenterURL.toString()),
+            new ApplicationConfiguration.Jenkins(updateCenterURL.toString(), "foo"),
             new ApplicationConfiguration.GitHub("foo", null, "bar")
         );
 
-        UpdateCenterService updateCenterService = new UpdateCenterService(configuration);
+        UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, configuration);
 
         UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         assertThat(updateCenter.plugins()).hasSize(25);

@@ -20,7 +20,9 @@ management:
       gitHub.enabled: true
 
 app:
-  jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
+  jenkins:
+    update-center: https://updates.jenkins.io/current/update-center.actual.json
+    documentation-urls: https://updates.jenkins.io/current/plugin-documentation-urls.json
   github:
     app-id: ${GITHUB_APP_ID}
     private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH}

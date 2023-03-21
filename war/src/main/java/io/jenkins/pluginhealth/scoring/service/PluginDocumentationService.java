@@ -25,25 +25,47 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UpdateCenterService {
+public class PluginDocumentationService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginDocumentationService.class);
+
     private final ObjectMapper objectMapper;
     private final ApplicationConfiguration configuration;
 
-    public UpdateCenterService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
+    public PluginDocumentationService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
         this.objectMapper = objectMapper;
         this.configuration = configuration;
     }
 
-    public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(new URL(configuration.jenkins().updateCenter()), UpdateCenter.class);
+    public Map<String, String> fetchPluginDocumentationUrl() {
+        try {
+            final Map<String, Link> foo = objectMapper.readValue(new URL(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
+            return foo.entrySet().stream()
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    e -> e.getValue().url()
+                ));
+        } catch (MalformedURLException e) {
+            LOGGER.error("URL to documentation link is incorrect.", e);
+            return Map.of();
+        } catch (IOException e) {
+            LOGGER.error("Could not fetch plugin documentation.", e);
+            return Map.of();
+        }
     }
+
+    public record Link(String url) {}
 }

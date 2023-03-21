@@ -24,26 +24,38 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.io.IOException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
 import java.net.URL;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Service;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
-@Service
-public class UpdateCenterService {
-    private final ObjectMapper objectMapper;
-    private final ApplicationConfiguration configuration;
+@JsonTest
+class PluginDocumentationServiceTest {
+    @Autowired private ObjectMapper objectMapper;
 
-    public UpdateCenterService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
-        this.objectMapper = objectMapper;
-        this.configuration = configuration;
-    }
+    @Test
+    void shouldBeAbleToParseAvailableFile() {
+        final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
+        assertThat(url).isNotNull();
 
-    public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(new URL(configuration.jenkins().updateCenter()), UpdateCenter.class);
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins("foo", url.toString()),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
+        final Map<String, String> map = service.fetchPluginDocumentationUrl();
+
+        assertThat(map)
+            .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
+            .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
     }
 }
