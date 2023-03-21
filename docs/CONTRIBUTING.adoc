@@ -95,6 +95,7 @@ In one terminal, run:
 
 [source,bash]
 ----
+cd ./war
 yarn install
 yarn dev
 ----
