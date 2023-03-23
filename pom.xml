@@ -132,6 +132,11 @@
 				<artifactId>plugin-health-scoring-test</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.kohsuke</groupId>
+				<artifactId>github-api</artifactId>
+				<version>1.314</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
