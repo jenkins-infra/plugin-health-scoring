@@ -254,7 +254,7 @@ class SpotBugsProbeTest {
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "This plugin is no longer in the update-center"));
-        } catch(NullPointerException ex) {
+        } catch (NullPointerException ex) {
             assert false;
         }
 
