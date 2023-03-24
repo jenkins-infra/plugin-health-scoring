@@ -56,6 +56,9 @@ public class SpotBugsProbe extends Probe {
 
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
+        if (ucPlugin == null) {
+            return ProbeResult.error(key(), "This plugin is no longer in the update-center");
+        }
         final String defaultBranch = ucPlugin.defaultBranch();
         try {
             final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
