@@ -231,4 +231,32 @@ class SpotBugsProbeTest {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(SpotBugsProbe.KEY, "SpotBugs not found in build configuration"));
     }
+
+    @Test
+    void shouldNotThrowExceptionWhenPluginRemovedFromUpdateCenter() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("mailer");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+        ));
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            List.of()
+        ));
+
+        final SpotBugsProbe probe = new SpotBugsProbe();
+        try {
+            final ProbeResult result = probe.apply(plugin, ctx);
+            assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "This plugin is no longer in the update-center"));
+        } catch(NullPointerException ex) {
+            assert false;
+        }
+
+    }
 }
