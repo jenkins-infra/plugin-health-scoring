@@ -96,16 +96,21 @@ public final class ProbeEngine {
         if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
             return true;
         }
-        if (probe.requiresRelease() && (previousResult.timestamp() != null)
-            && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) {
+        if (probe.requiresRelease() &&
+            (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
             return true;
         }
         final Optional<ZonedDateTime> optionalLastCommit = ctx.getLastCommitDate();
         if (probe.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
-            LOGGER.error("{} requires last commit date but was executed before the date time is registered in ctx", probe.key());
+            LOGGER.error(
+                "{} requires last commit date for {} but was executed before the date time is registered in ctx",
+                probe.key(), plugin.getName()
+            );
         }
-        if (probe.isSourceCodeRelated() && optionalLastCommit.map(date -> previousResult.timestamp() != null
-            && previousResult.timestamp().isBefore(date)).orElse(false)) {
+        if (probe.isSourceCodeRelated() &&
+            optionalLastCommit
+                .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
+                .orElse(false)) {
             return true;
         }
         return false;
