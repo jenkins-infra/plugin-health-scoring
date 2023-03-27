@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(value = SCMLinkValidationProbe.ORDER)
-public final class SCMLinkValidationProbe extends Probe {
+public class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
     private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";

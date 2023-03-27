@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -45,17 +46,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class LastCommitDateProbeTest {
     @Test
     void shouldKeepScmAsKey() {
-        assertThat(new LastCommitDateProbe().key()).isEqualTo("last-commit-date");
+        assertThat(spy(LastCommitDateProbe.class).key()).isEqualTo("last-commit-date");
     }
 
     @Test
     void shouldNotRequireRelease() {
-        assertThat(new LastCommitDateProbe().requiresRelease()).isFalse();
+        assertThat(spy(LastCommitDateProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
     void shouldNotBeRelatedToSourceCode() {
-        assertThat(new LastCommitDateProbe().isSourceCodeRelated()).isFalse();
+        assertThat(spy(LastCommitDateProbe.class).isSourceCodeRelated()).isFalse();
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(LastCommitDateProbe.class).getDescription()).isNotBlank();
     }
 
     @Test

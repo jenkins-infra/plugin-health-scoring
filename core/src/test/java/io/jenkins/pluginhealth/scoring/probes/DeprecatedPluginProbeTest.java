@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
@@ -54,8 +55,13 @@ class DeprecatedPluginProbeTest {
     }
 
     @Test
+    void shouldHaveDescription() {
+        assertThat(spy(DeprecatedPluginProbe.class).getDescription()).isNotBlank();
+    }
+
+    @Test
     void shouldBeAbleToDetectNonDeprecatedPlugin() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
 
@@ -73,7 +79,7 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldBeAbleToDetectDeprecatedPlugin() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
 
@@ -92,7 +98,7 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
@@ -116,7 +122,7 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldSurviveIfPluginIsNotInUpdateCenter() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 

@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -39,15 +40,19 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 public class UpdateCenterPluginPublicationProbeTest {
-
     @Test
     public void shouldNotRequireRelease() {
-        assertThat(new UpdateCenterPluginPublicationProbe().requiresRelease()).isFalse();
+        assertThat(spy(UpdateCenterPluginPublicationProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldHaveStaticKey() {
-        assertThat(new UpdateCenterPluginPublicationProbe().key()).isEqualTo("update-center-plugin-publication-probe");
+        assertThat(spy(UpdateCenterPluginPublicationProbe.class).key()).isEqualTo("update-center-plugin-publication-probe");
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(UpdateCenterPluginPublicationProbe.class).getDescription()).isNotBlank();
     }
 
     @Test

@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -44,12 +45,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SCMLinkValidationProbeTest {
     @Test
     void shouldKeepScmAsKey() {
-        assertThat(new SCMLinkValidationProbe().key()).isEqualTo("scm");
+        assertThat(spy(SCMLinkValidationProbe.class).key()).isEqualTo("scm");
     }
 
     @Test
     void shouldRequireRelease() {
-        assertThat(new SCMLinkValidationProbe().requiresRelease()).isTrue();
+        assertThat(spy(SCMLinkValidationProbe.class).requiresRelease()).isTrue();
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(SCMLinkValidationProbe.class).getDescription()).isNotBlank();
     }
 
     @Test

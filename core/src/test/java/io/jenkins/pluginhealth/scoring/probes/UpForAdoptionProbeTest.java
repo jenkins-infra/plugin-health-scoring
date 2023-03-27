@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
@@ -43,6 +44,11 @@ import org.junit.jupiter.api.Test;
 
 class UpForAdoptionProbeTest {
     @Test
+    void shouldHaveDescription() {
+        assertThat(spy(UpForAdoptionProbe.class).getDescription()).isNotBlank();
+    }
+
+    @Test
     void shouldNotRequireNewRelease() {
         assertThat(new UpForAdoptionProbe().requiresRelease()).isFalse();
     }
@@ -54,7 +60,7 @@ class UpForAdoptionProbeTest {
 
     @Test
     void shouldBeAbleToDetectPluginForAdoption() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
 
@@ -86,5 +92,24 @@ class UpForAdoptionProbeTest {
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
 
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    void shouldFailWhenPluginNotPresentInUpdateCenter() {
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            List.of()
+        ));
+
+        final UpForAdoptionProbe probe = new UpForAdoptionProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
     }
 }

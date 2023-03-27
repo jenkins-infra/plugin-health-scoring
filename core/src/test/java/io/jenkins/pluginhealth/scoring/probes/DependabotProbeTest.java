@@ -46,14 +46,37 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class DependabotProbeTest {
     @Test
     void shouldNotRequireRelease() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+        assertThat(spy(DependabotProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
+    void shouldBeRelatedToCode() {
+        assertThat(spy(DependabotProbe.class).isSourceCodeRelated()).isTrue();
+    }
+
+
+    @Test
     void shouldUseDependabotKey() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.key()).isEqualTo("dependabot");
+        assertThat(spy(DependabotProbe.class).key()).isEqualTo("dependabot");
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(DependabotProbe.class).getDescription()).isNotBlank();
+    }
+
+    @Test
+    void shouldRequireValidSCM() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+        when(plugin.getDetails()).thenReturn(Map.of());
+
+        final DependabotProbe probe = new DependabotProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
     }
 
     @Test

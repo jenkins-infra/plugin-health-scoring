@@ -47,14 +47,23 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class JenkinsfileProbeTest {
     @Test
     void shouldNotRequireRelease() {
-        final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
-        assertThat(jenkinsfileProbe.requiresRelease()).isFalse();
+        assertThat(spy(JenkinsfileProbe.class).requiresRelease()).isFalse();
     }
 
     @Test
+    void shouldBeRelatedToCode() {
+        assertThat(spy(JenkinsfileProbe.class).isSourceCodeRelated()).isTrue();
+    }
+
+
+    @Test
     void shouldKeepUsingTheSameKey() {
-        final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
-        assertThat(jenkinsfileProbe.key()).isEqualTo("jenkinsfile");
+        assertThat(spy(JenkinsfileProbe.class).key()).isEqualTo("jenkinsfile");
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(JenkinsfileProbe.class).getDescription()).isNotBlank();
     }
 
     @Test

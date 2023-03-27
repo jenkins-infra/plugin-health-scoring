@@ -51,9 +51,33 @@ class ContinuousDeliveryProbeTest {
     }
 
     @Test
+    void shouldBeRelatedToCode() {
+        assertThat(spy(ContinuousDeliveryProbe.class).isSourceCodeRelated()).isTrue();
+    }
+
+    @Test
     void shouldKeepUsingJEP229Key() {
         final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
         assertThat(probe.key()).isEqualTo("jep-229");
+    }
+
+    @Test
+    void shouldHaveDescription() {
+        assertThat(spy(ContinuousDeliveryProbe.class).getDescription()).isNotBlank();
+    }
+
+    @Test
+    void shouldRequireSCMValidation() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+        when(plugin.getDetails()).thenReturn(Map.of());
+
+        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
     }
 
     @Test
