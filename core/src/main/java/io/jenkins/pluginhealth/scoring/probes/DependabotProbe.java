@@ -41,7 +41,7 @@ import org.springframework.stereotype.Component;
 @Order(DependabotProbe.ORDER)
 public class DependabotProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependabotProbe.class);
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "dependabot";
 
     @Override

@@ -46,7 +46,7 @@ public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
 
     public static final String KEY = "code-coverage";
-    public static final int ORDER = JenkinsfileProbe.ORDER + 100;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {

@@ -47,7 +47,7 @@ public class DependabotPullRequestProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependabotPullRequestProbe.class);
 
     public static final String KEY = "dependabot-pull-requests";
-    public static final int ORDER = DependabotProbe.ORDER + 1;
+    public static final int ORDER = DependabotProbe.ORDER + 10;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {

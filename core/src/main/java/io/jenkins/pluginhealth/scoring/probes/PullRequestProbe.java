@@ -46,7 +46,7 @@ import org.springframework.stereotype.Component;
 public class PullRequestProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestProbe.class);
 
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "pull-request";
 
     @Override

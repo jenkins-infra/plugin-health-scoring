@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Order(value = InstallationStatProbe.ORDER)
 public class InstallationStatProbe extends Probe {
     public static final String KEY = "stat";
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final int ORDER = 0;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {

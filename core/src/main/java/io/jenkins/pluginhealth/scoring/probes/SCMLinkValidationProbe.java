@@ -47,7 +47,7 @@ public final class SCMLinkValidationProbe extends Probe {
 
     private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 20;
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
     public static final String KEY = "scm";
 
     @Override

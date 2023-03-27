@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DocumentationMigrationProbe.ORDER)
 public class DocumentationMigrationProbe extends Probe {
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "documentation-migration";
 
     @Override

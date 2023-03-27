@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
 public class LastCommitDateProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "last-commit-date";
 
     @Override

@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 @Order(SpotBugsProbe.ORDER)
 public class SpotBugsProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpotBugsProbe.class);
-    public static final int ORDER = ContributingGuidelinesProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "spotbugs";
 
     @Override

@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 @Order(ContinuousDeliveryProbe.ORDER)
 public class ContinuousDeliveryProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
 
     @Override

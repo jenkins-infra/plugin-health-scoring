@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = ContributingGuidelinesProbe.ORDER)
 public class ContributingGuidelinesProbe extends Probe {
-    public static final int ORDER = JenkinsfileProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "contributing-guidelines";
 
     @Override
