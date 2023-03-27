@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.spy;
 
 import java.time.ZonedDateTime;
@@ -58,7 +59,8 @@ class PluginTest {
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails()).containsEntry(probeKey, probeResult);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, probeResult));
     }
 
     @Test
@@ -74,6 +76,7 @@ class PluginTest {
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails()).containsEntry(probeKey, previousProbeResult);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, previousProbeResult));
     }
 }
