@@ -54,6 +54,11 @@ class LastCommitDateProbeTest {
     }
 
     @Test
+    void shouldNotBeRelatedToSourceCode() {
+        assertThat(new LastCommitDateProbe().isSourceCodeRelated()).isFalse();
+    }
+
+    @Test
     void shouldBeExecutedAfterSCMLinkValidation() {
         assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
     }

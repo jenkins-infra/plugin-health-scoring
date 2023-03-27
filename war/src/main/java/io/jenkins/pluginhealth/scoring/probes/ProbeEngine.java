@@ -25,6 +25,8 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -91,15 +93,19 @@ public final class ProbeEngine {
         if (previousResult == null) {
             return true;
         }
+        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
+            return true;
+        }
         if (probe.requiresRelease() && (previousResult.timestamp() != null)
             && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) {
             return true;
         }
-        if (probe.isSourceCodeRelated() && ctx.getLastCommitDate().map(date -> previousResult.timestamp() != null
-            && previousResult.timestamp().isBefore(date)).orElse(false)) {
-            return true;
+        final Optional<ZonedDateTime> optionalLastCommit = ctx.getLastCommitDate();
+        if (probe.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
+            LOGGER.error("{} requires last commit date but was executed before the date time is registered in ctx", probe.key());
         }
-        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
+        if (probe.isSourceCodeRelated() && optionalLastCommit.map(date -> previousResult.timestamp() != null
+            && previousResult.timestamp().isBefore(date)).orElse(false)) {
             return true;
         }
         return false;
