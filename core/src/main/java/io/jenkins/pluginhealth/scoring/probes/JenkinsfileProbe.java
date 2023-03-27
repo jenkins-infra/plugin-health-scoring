@@ -46,10 +46,6 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
-        }
         final Path repository = context.getScmRepository();
         try (Stream<Path> paths = Files
             .find(repository, 1, (file, basicFileAttributes) -> Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))
@@ -78,5 +74,10 @@ public class JenkinsfileProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 /**
  * Represents the analyze which can be performed on a plugin
@@ -41,6 +42,14 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
+        for (String probeKey : getProbeResultRequirement()) {
+            final ProbeResult probeResult = plugin.getDetails().get(probeKey);
+            if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
+                return ProbeResult.error(key(), "Missing or not successful probe result requirement. " +
+                    "Needs " + probeKey + " to be successful to execute " + key());
+            }
+        }
+
         return doApply(plugin, context);
     }
 
@@ -53,6 +62,16 @@ public abstract class Probe {
      * @return a ProbeResult representing the result of the analysis
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
+
+    /**
+     * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
+     * order to consider executing the probe.
+     *
+     * @return
+     */
+    protected String[] getProbeResultRequirement() {
+        return new String[]{};
+    }
 
     /**
      * Returns the key identifier for the probe.

@@ -41,10 +41,6 @@ public class DocumentationMigrationProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult scmValidationProbe = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
-        if (scmValidationProbe == null || scmValidationProbe.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.error(key(), "SCM link needs to be validated");
-        }
         final Map<String, String> pluginDocumentationLinks = context.getPluginDocumentationLinks();
         final String scm = plugin.getScm();
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
@@ -71,5 +67,10 @@ public class DocumentationMigrationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

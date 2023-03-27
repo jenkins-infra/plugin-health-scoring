@@ -80,8 +80,8 @@ class DependabotPullRequestProbeTest {
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Dependabot not configured on the repository"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
     }
 
     @Test

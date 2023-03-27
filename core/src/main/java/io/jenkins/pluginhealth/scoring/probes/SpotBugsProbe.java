@@ -49,11 +49,6 @@ public class SpotBugsProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult jenkinsFileResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
-        if (jenkinsFileResult == null || !jenkinsFileResult.status().equals(ResultStatus.SUCCESS)) {
-            return ProbeResult.error(key(), "Requires Jenkinsfile");
-        }
-
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         if (ucPlugin == null) {
@@ -93,5 +88,10 @@ public class SpotBugsProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{JenkinsfileProbe.KEY};
     }
 }

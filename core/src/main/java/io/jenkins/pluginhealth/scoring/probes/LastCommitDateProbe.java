@@ -53,11 +53,6 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
-        }
-
         if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
             final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
             if (!matcher.find()) {
@@ -110,5 +105,10 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

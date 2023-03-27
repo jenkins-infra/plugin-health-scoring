@@ -100,7 +100,7 @@ class LastCommitDateProbeTest {
     }
 
     @Test
-    void shouldReturnFailureOnInvalidSCM() {
+    void shouldReturnErrorOnInvalidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
@@ -108,7 +108,7 @@ class LastCommitDateProbeTest {
         when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid")));
         final ProbeResult r = probe.apply(plugin, ctx);
 
-        assertThat(r.status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(r.status()).isEqualTo(ResultStatus.ERROR);
     }
 
     @Test

@@ -70,7 +70,6 @@ class DependabotProbeTest {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of());
 
         final DependabotProbe probe = new DependabotProbe();

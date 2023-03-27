@@ -52,10 +52,6 @@ public class SCMLinkValidationProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult deprecatedProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-        if (deprecatedProbeResult != null && deprecatedProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.failure(key(), "Plugin is deprecated");
-        }
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.failure(key(), "The plugin SCM link is empty");

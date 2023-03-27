@@ -88,14 +88,14 @@ class SpotBugsProbeTest {
         // ProbeResult missing
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Requires Jenkinsfile"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, ""));
 
         // ProbeResult failure
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Requires Jenkinsfile"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, ""));
     }
 
     @Test

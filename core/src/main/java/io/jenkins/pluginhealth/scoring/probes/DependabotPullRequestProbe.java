@@ -51,11 +51,6 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult dependabotResult = plugin.getDetails().get(DependabotProbe.KEY);
-        if (dependabotResult == null || dependabotResult.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.error(key(), "Dependabot not configured on the repository");
-        }
-
         try {
             final GitHub gh = context.getGitHub();
             final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
@@ -83,5 +78,10 @@ public class DependabotPullRequestProbe extends Probe {
     @Override
     public String getDescription() {
         return "Reports the number of pull request currently opened by Dependabot";
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{DependabotProbe.KEY};
     }
 }

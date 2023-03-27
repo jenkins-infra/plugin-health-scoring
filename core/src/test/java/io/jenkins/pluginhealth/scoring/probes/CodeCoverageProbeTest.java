@@ -87,14 +87,14 @@ class CodeCoverageProbeTest {
         // ProbeResult missing
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, ""));
 
         // ProbeResult failure
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, ""));
     }
 
     @Test

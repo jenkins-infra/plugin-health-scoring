@@ -71,13 +71,13 @@ class DocumentationMigrationProbeTest {
         final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
 
         assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "SCM link needs to be validated"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
 
 
         assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "SCM link needs to be validated"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
     }
 
     @SuppressWarnings("unchecked")

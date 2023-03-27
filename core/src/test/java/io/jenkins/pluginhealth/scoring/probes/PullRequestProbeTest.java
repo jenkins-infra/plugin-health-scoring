@@ -83,8 +83,8 @@ class PullRequestProbeTest {
 
         assertThat(result)
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "SCM link is not valid, cannot continue"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
     }
 
     @Test
