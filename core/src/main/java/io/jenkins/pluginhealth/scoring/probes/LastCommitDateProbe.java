@@ -104,6 +104,11 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     protected boolean isSourceCodeRelated() {
-        return true;
+        /*
+         * This is counter intuitive, but this probe needs to be executed all the time.
+         * So even if the probe seems to be related to code, in order to not be skipped by the
+         * ProbeEngine, is must be `false`.
+         */
+        return false;
     }
 }

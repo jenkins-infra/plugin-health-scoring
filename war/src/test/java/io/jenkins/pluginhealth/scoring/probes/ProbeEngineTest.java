@@ -84,7 +84,8 @@ class ProbeEngineTest {
         final ProbeResult expectedResult = ProbeResult.success("foo", "bar");
 
         when(plugin.getName()).thenReturn("foo");
-        when(probe.doApply(any(Plugin.class), any(ProbeContext.class))).thenReturn(expectedResult);
+
+        when(probe.doApply(plugin, ctx)).thenReturn(expectedResult);
 
         when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
@@ -93,7 +94,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
-        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+        verify(probe).doApply(plugin, ctx);
         verify(plugin).addDetails(expectedResult);
         verify(pluginService).saveOrUpdate(plugin);
     }
@@ -108,6 +109,7 @@ class ProbeEngineTest {
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusDays(1));
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good")));
+
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.key()).thenReturn(probeKey);
 
@@ -132,6 +134,7 @@ class ProbeEngineTest {
             "probe", new ProbeResult("probe", "message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
         when(plugin.getName()).thenReturn("foo");
+
         when(probe.key()).thenReturn("probe");
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.isSourceCodeRelated()).thenReturn(true);
@@ -156,8 +159,10 @@ class ProbeEngineTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             "probe", new ProbeResult("probe", "message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
-        when(ctx.getLastCommitDate()).thenReturn(Optional.of(ZonedDateTime.now()));
         when(plugin.getName()).thenReturn("foo");
+
+        when(ctx.getLastCommitDate()).thenReturn(Optional.of(ZonedDateTime.now()));
+
         when(probe.key()).thenReturn("probe");
         when(probe.isSourceCodeRelated()).thenReturn(true);
         when(probe.doApply(plugin, ctx)).thenReturn(result);
@@ -211,6 +216,7 @@ class ProbeEngineTest {
             probeKey,
             new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
+
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.apply(eq(plugin), any(ProbeContext.class))).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
         when(probe.key()).thenReturn(probeKey);
@@ -233,6 +239,7 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn("foo");
+
         when(probe.doApply(eq(plugin), any(ProbeContext.class))).thenReturn(ProbeResult.error("foo", "bar"));
 
         when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
@@ -270,6 +277,7 @@ class ProbeEngineTest {
         };
 
         when(plugin.getName()).thenReturn("foo");
+
         when(probeOne.key()).thenReturn("foo");
         when(probeOne.doApply(any(Plugin.class), any(ProbeContext.class)))
             .thenReturn(ProbeResult.success("foo", "This is ok"));
