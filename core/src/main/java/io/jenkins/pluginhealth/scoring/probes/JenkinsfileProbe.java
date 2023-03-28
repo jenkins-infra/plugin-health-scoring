@@ -75,6 +75,6 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     protected String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY,LastCommitDateProbe.KEY};
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }
