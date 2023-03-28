@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

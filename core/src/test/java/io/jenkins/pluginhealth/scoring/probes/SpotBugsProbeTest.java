@@ -111,7 +111,8 @@ class SpotBugsProbeTest {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -151,7 +152,8 @@ class SpotBugsProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -202,7 +204,8 @@ class SpotBugsProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(

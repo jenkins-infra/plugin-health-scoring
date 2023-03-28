@@ -28,7 +28,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

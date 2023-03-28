@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -86,7 +85,8 @@ class ContinuousDeliveryProbeTest {
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
 
@@ -102,7 +102,8 @@ class ContinuousDeliveryProbeTest {
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
@@ -120,7 +121,8 @@ class ContinuousDeliveryProbeTest {
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
@@ -139,7 +141,8 @@ class ContinuousDeliveryProbeTest {
         final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));

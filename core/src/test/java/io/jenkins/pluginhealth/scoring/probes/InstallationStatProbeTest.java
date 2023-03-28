@@ -99,6 +99,9 @@ class InstallationStatProbeTest {
 
         final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,

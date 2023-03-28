@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -89,8 +88,8 @@ public class ContributingGuidelinesProbeTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY,
-            new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repository = Files.createTempDirectory(plugin.getName());
         when(ctx.getScmRepository()).thenReturn(repository);
@@ -105,12 +104,10 @@ public class ContributingGuidelinesProbeTest {
         final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                SCMLinkValidationProbe.KEY,
-                new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
-            )
-        );
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
         final Path repository = Files.createTempDirectory(plugin.getName());
         Files.createFile(repository.resolve("CONTRIBUTING.md"));
         when(ctx.getScmRepository()).thenReturn(repository);
@@ -126,12 +123,10 @@ public class ContributingGuidelinesProbeTest {
         final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                SCMLinkValidationProbe.KEY,
-                new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
-            )
-        );
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
         final Path repository = Files.createTempDirectory(plugin.getName());
         Files.createFile(Files.createDirectory(repository.resolve("docs")).resolve("CONTRIBUTING.md"));
         when(ctx.getScmRepository()).thenReturn(repository);

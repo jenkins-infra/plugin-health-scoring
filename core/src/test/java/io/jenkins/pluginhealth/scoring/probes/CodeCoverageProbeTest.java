@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -110,7 +112,9 @@ class CodeCoverageProbeTest {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -150,7 +154,9 @@ class CodeCoverageProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -203,7 +209,9 @@ class CodeCoverageProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(

@@ -75,7 +75,9 @@ class LastCommitDateProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
-        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
+        );
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/parameterized-trigger-plugin.git");
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
         final ProbeResult r = probe.apply(plugin, ctx);
@@ -90,7 +92,9 @@ class LastCommitDateProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = new LastCommitDateProbe();
 
-        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid")));
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
+        );
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/aws-java-sdk-plugin/aws-java-sdk-logs");
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
         final ProbeResult r = probe.apply(plugin, ctx);

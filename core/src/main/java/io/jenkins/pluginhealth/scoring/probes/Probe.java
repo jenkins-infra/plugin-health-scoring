@@ -65,9 +65,9 @@ public abstract class Probe {
 
     /**
      * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
-     * order to consider executing the probe.
+     * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
      *
-     * @return
+     * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
      */
     protected String[] getProbeResultRequirement() {
         return new String[]{};

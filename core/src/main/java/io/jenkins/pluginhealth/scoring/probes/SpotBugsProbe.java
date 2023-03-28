@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
@@ -51,9 +50,6 @@ public class SpotBugsProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
-        if (ucPlugin == null) {
-            return ProbeResult.error(key(), "This plugin is no longer in the update-center");
-        }
         final String defaultBranch = ucPlugin.defaultBranch();
         try {
             final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
@@ -92,6 +88,6 @@ public class SpotBugsProbe extends Probe {
 
     @Override
     protected String[] getProbeResultRequirement() {
-        return new String[]{JenkinsfileProbe.KEY};
+        return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY};
     }
 }

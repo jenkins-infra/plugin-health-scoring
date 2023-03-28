@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
@@ -90,6 +89,6 @@ public class CodeCoverageProbe extends Probe {
 
     @Override
     protected String[] getProbeResultRequirement() {
-        return new String[]{JenkinsfileProbe.KEY};
+        return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

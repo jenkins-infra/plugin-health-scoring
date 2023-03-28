@@ -30,7 +30,6 @@ import java.util.NoSuchElementException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;

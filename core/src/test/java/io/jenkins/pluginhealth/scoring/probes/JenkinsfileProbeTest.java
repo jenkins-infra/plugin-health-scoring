@@ -55,7 +55,6 @@ class JenkinsfileProbeTest {
         assertThat(spy(JenkinsfileProbe.class).isSourceCodeRelated()).isTrue();
     }
 
-
     @Test
     void shouldKeepUsingTheSameKey() {
         assertThat(spy(JenkinsfileProbe.class).key()).isEqualTo("jenkinsfile");
