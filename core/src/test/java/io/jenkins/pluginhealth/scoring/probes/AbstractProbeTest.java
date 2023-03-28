@@ -25,6 +25,16 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Map;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
@@ -50,4 +60,25 @@ abstract class AbstractProbeTest<T extends Probe> {
     void shouldNotHaveNullRequirement() {
         assertThat(getSpy().getProbeResultRequirement()).isNotNull();
     }
+/*
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldValidateProbeRequirements() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final Probe probe = getSpy();
+        final int probeRequirementsLength = probe.getProbeResultRequirement().length;
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of()
+        );
+        // TODO generate required mocking to validate the requirements
+
+        final ProbeResult result = probe.apply(plugin, ctx);
+        for (int i = 0; i < Math.pow(probeRequirementsLength, probeRequirementsLength) - probeRequirementsLength; i++) {
+            assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+            verify(probe, never()).doApply(plugin, ctx);
+        }
+    }*/
 }

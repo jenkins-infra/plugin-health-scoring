@@ -32,15 +32,12 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(value = JenkinsfileProbe.ORDER)
 public class JenkinsfileProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JenkinsfileProbe.class);
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jenkinsfile";
 
@@ -78,6 +75,6 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     protected String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
+        return new String[]{SCMLinkValidationProbe.KEY,LastCommitDateProbe.KEY};
     }
 }

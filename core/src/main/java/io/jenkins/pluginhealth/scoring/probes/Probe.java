@@ -24,14 +24,21 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the analyze which can be performed on a plugin
  */
 public abstract class Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Probe.class);
 
     /**
      * Starts the analysis on a plugin.
@@ -42,15 +49,51 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        for (String probeKey : getProbeResultRequirement()) {
-            final ProbeResult probeResult = plugin.getDetails().get(probeKey);
+        if (shouldBeExecuted(plugin, context)) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
+            }
+            return doApply(plugin, context);
+        }
+        return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
+    }
+
+    private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
+        for (String requirementKey : this.getProbeResultRequirement()) {
+            final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
             if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
-                return ProbeResult.error(key(), "Missing or not successful probe result requirement. " +
-                    "Needs " + probeKey + " to be successful to execute " + key());
+                LOGGER.warn("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
+                return false;
             }
         }
 
-        return doApply(plugin, context);
+        final ProbeResult previousResult = plugin.getDetails().get(this.key());
+        if (previousResult == null) {
+            return true;
+        }
+        if (!this.requiresRelease() && !this.isSourceCodeRelated()) {
+            return true;
+        }
+        if (this.requiresRelease() &&
+            (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
+            return true;
+        }
+        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
+        if (this.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
+            LOGGER.error(
+                "{} requires last commit date for {} but was executed before the date time is registered in execution context",
+                this.key(), plugin.getName()
+            );
+        }
+        if (this.isSourceCodeRelated() &&
+            optionalLastCommit
+                .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
+                .orElse(false)) {
+            return true;
+        }
+
+        LOGGER.debug("{} does not meet requirement to be executed on {}", this.key(), plugin.getName());
+        return false;
     }
 
     /**

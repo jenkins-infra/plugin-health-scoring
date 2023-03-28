@@ -75,9 +75,7 @@ public class LastCommitDateProbe extends Probe {
             context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), commitDate.toString());
         } catch (GitAPIException ex) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("There was an issue while cloning the plugin repository", ex);
-            }
+            LOGGER.error("There was an issue while cloning the plugin repository", ex);
             return ProbeResult.failure(key(), "Could not clone the plugin repository");
         }
     }

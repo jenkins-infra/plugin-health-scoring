@@ -79,7 +79,8 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -120,7 +121,8 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -171,7 +173,8 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
             JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(

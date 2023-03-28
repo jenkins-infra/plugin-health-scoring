@@ -25,8 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
-import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -85,35 +83,10 @@ public final class ProbeEngine {
      * @throws IOException thrown when the update-center cannot be retrieved
      */
     public void runOn(Plugin plugin) throws IOException {
+        LOGGER.info("Start running probes on {}", plugin.getName());
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         runOn(plugin, updateCenter);
-    }
-
-    private boolean shouldExecuteProbe(Probe probe, ProbeResult previousResult, Plugin plugin, ProbeContext ctx) {
-        if (previousResult == null) {
-            return true;
-        }
-        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
-            return true;
-        }
-        if (probe.requiresRelease() &&
-            (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
-            return true;
-        }
-        final Optional<ZonedDateTime> optionalLastCommit = ctx.getLastCommitDate();
-        if (probe.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
-            LOGGER.error(
-                "{} requires last commit date for {} but was executed before the date time is registered in ctx",
-                probe.key(), plugin.getName()
-            );
-        }
-        if (probe.isSourceCodeRelated() &&
-            optionalLastCommit
-                .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
-                .orElse(false)) {
-            return true;
-        }
-        return false;
+        LOGGER.info("Probe engine has finished");
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
@@ -134,19 +107,9 @@ public final class ProbeEngine {
 
         probeService.getProbes().forEach(probe -> {
             try {
-                final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                if (shouldExecuteProbe(probe, previousResult, plugin, probeContext)) {
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
-                    }
-                    final ProbeResult result = probe.apply(plugin, probeContext);
-                    if (result.status() != ResultStatus.ERROR) {
-                        plugin.addDetails(result);
-                    }
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("{} requires a release of {} to be processed.", probe.key(), plugin.getName());
-                    }
+                final ProbeResult result = probe.apply(plugin, probeContext);
+                if (result.status() != ResultStatus.ERROR) {
+                    plugin.addDetails(result);
                 }
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
