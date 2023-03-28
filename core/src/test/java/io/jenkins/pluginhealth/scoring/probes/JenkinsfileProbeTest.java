@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
