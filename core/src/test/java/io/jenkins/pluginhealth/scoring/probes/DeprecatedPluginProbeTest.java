@@ -43,27 +43,22 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-class DeprecatedPluginProbeTest {
+class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe> {
+    @Override
+    DeprecatedPluginProbe getSpy() {
+        return spy(DeprecatedPluginProbe.class);
+    }
+
     @Test
     void shouldNotRequireRelease() {
-        assertThat(new DeprecatedPluginProbe().requiresRelease()).isFalse();
-    }
-
-    @Test
-    void shouldHaveStaticKey() {
-        assertThat(new DeprecatedPluginProbe().key()).isEqualTo("deprecation");
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(DeprecatedPluginProbe.class).getDescription()).isNotBlank();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeAbleToDetectNonDeprecatedPlugin() {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -81,7 +76,7 @@ class DeprecatedPluginProbeTest {
     void shouldBeAbleToDetectDeprecatedPlugin() {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -111,7 +106,7 @@ class DeprecatedPluginProbeTest {
             Collections.emptyList()
         ));
 
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -133,7 +128,7 @@ class DeprecatedPluginProbeTest {
             Collections.emptyList()
         ));
 
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)

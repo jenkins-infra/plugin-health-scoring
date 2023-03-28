@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,51 +41,58 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class PullRequestProbeTest {
+class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
+    @Override
+    PullRequestProbe getSpy() {
+        return spy(PullRequestProbe.class);
+    }
+
     @Test
     void shouldUsePullRequestKey() {
-        assertThat(spy(PullRequestProbe.class).key()).isEqualTo("pull-request");
+        assertThat(getSpy().key()).isEqualTo("pull-request");
     }
 
     @Test
     void shouldNotRequireNewRelease() {
-        assertThat(spy(PullRequestProbe.class).requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldNotBeRelatedToSourceCode() {
-        assertThat(spy(PullRequestProbe.class).isSourceCodeRelated()).isFalse();
+        assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
     @Test
     void shouldHaveDescription() {
-        assertThat(spy(PullRequestProbe.class).getDescription()).isNotBlank();
+        assertThat(getSpy().getDescription()).isNotBlank();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldNotRunWithInvalidSCMLink() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "not valid")
-        ));
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "not valid")
+            )
+        );
 
-        final PullRequestProbe probe = new PullRequestProbe();
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
+        final PullRequestProbe probe = getSpy();
+        for (int i = 0; i < 2; i++) {
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
+            verify(probe, never()).doApply(plugin, ctx);
+        }
     }
 
     @Test
@@ -109,7 +117,7 @@ class PullRequestProbeTest {
         );
         when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(ghPullRequests);
 
-        final PullRequestProbe probe = new PullRequestProbe();
+        final PullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(ctx).getGitHub();
@@ -136,7 +144,7 @@ class PullRequestProbeTest {
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
 
-        final PullRequestProbe probe = new PullRequestProbe();
+        final PullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(ctx).getGitHub();

@@ -36,26 +36,18 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class SCMLinkValidationProbeTest {
-    @Test
-    void shouldKeepScmAsKey() {
-        assertThat(spy(SCMLinkValidationProbe.class).key()).isEqualTo("scm");
+class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProbe> {
+    @Override
+    SCMLinkValidationProbe getSpy() {
+        return spy(SCMLinkValidationProbe.class);
     }
 
     @Test
     void shouldRequireRelease() {
-        assertThat(spy(SCMLinkValidationProbe.class).requiresRelease()).isTrue();
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(SCMLinkValidationProbe.class).getDescription()).isNotBlank();
+        assertThat(getSpy().requiresRelease()).isTrue();
     }
 
     @Test
@@ -64,7 +56,7 @@ class SCMLinkValidationProbeTest {
         final ProbeContext ctxP1 = mock(ProbeContext.class);
         final Plugin p2 = mock(Plugin.class);
         final ProbeContext ctxP2 = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe();
+        final SCMLinkValidationProbe probe = getSpy();
 
         when(p1.getScm()).thenReturn(null);
         when(p2.getScm()).thenReturn("");
@@ -81,7 +73,7 @@ class SCMLinkValidationProbeTest {
     void shouldRecognizeIncorrectSCMUrl() {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe();
+        final SCMLinkValidationProbe probe = getSpy();
 
         when(p1.getScm()).thenReturn("this-is-not-correct");
         final ProbeResult r1 = probe.apply(p1, ctx);
@@ -101,7 +93,7 @@ class SCMLinkValidationProbeTest {
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
 
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe();
+        final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
@@ -119,7 +111,7 @@ class SCMLinkValidationProbeTest {
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenThrow(IOException.class);
 
-        final SCMLinkValidationProbe probe = new SCMLinkValidationProbe();
+        final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);

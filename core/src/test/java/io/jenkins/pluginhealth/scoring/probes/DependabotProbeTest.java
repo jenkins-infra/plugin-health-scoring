@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
@@ -38,50 +40,63 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class DependabotProbeTest {
+class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
+    @Override
+    DependabotProbe getSpy() {
+        return spy(DependabotProbe.class);
+    }
+
     @Test
     void shouldNotRequireRelease() {
-        assertThat(spy(DependabotProbe.class).requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeRelatedToCode() {
-        assertThat(spy(DependabotProbe.class).isSourceCodeRelated()).isTrue();
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
-
-    @Test
-    void shouldUseDependabotKey() {
-        assertThat(spy(DependabotProbe.class).key()).isEqualTo("dependabot");
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(DependabotProbe.class).getDescription()).isNotBlank();
-    }
-
+    @SuppressWarnings("unchecked")
     @Test
     void shouldRequireValidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of());
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+            ),
+            Map.of(
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+            ),
+            Map.of(
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+            )
+        );
 
-        final DependabotProbe probe = new DependabotProbe();
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+        final DependabotProbe probe = getSpy();
+        for (int i = 0; i < 6; i++) {
+            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            verify(probe, never()).doApply(plugin, ctx);
+        }
     }
 
     @Test
     void shouldDetectMissingDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final DependabotProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -97,7 +112,7 @@ class DependabotProbeTest {
     void shouldDetectDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final DependabotProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),

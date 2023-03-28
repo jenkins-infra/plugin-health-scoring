@@ -42,27 +42,22 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-class UpForAdoptionProbeTest {
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(UpForAdoptionProbe.class).getDescription()).isNotBlank();
+class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
+    @Override
+    UpForAdoptionProbe getSpy() {
+        return spy(UpForAdoptionProbe.class);
     }
 
     @Test
     void shouldNotRequireNewRelease() {
-        assertThat(new UpForAdoptionProbe().requiresRelease()).isFalse();
-    }
-
-    @Test
-    void shouldKeepTheSameKey() {
-        assertThat(new UpForAdoptionProbe().key()).isEqualTo("up-for-adoption");
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeAbleToDetectPluginForAdoption() {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
+        final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -80,7 +75,7 @@ class UpForAdoptionProbeTest {
     void shouldBeAbleToDetectPluginNotForAdoption() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
+        final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -107,7 +102,7 @@ class UpForAdoptionProbeTest {
             List.of()
         ));
 
-        final UpForAdoptionProbe probe = new UpForAdoptionProbe();
+        final UpForAdoptionProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);

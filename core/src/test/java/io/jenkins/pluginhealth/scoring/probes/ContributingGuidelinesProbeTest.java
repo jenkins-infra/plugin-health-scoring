@@ -39,52 +39,28 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-public class ContributingGuidelinesProbeTest {
+public class ContributingGuidelinesProbeTest extends AbstractProbeTest<ContributingGuidelinesProbe> {
+    @Override
+    ContributingGuidelinesProbe getSpy() {
+        return spy(ContributingGuidelinesProbe.class);
+    }
+
     @Test
     public void shouldNotRequireRelease() {
-        final ContributingGuidelinesProbe contributingGuidelinesProbe = spy(ContributingGuidelinesProbe.class);
-        assertThat(contributingGuidelinesProbe.requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldExecuteOnSourceCodeChange() {
-        final ContributingGuidelinesProbe contributingGuidelinesProbe = spy(ContributingGuidelinesProbe.class);
-        assertThat(contributingGuidelinesProbe.isSourceCodeRelated()).isTrue();
-    }
-
-    @Test
-    public void shouldKeepUsingTheSameKey() {
-        final ContributingGuidelinesProbe contributingGuidelinesProbe = spy(ContributingGuidelinesProbe.class);
-        assertThat(contributingGuidelinesProbe.key()).isEqualTo("contributing-guidelines");
-    }
-
-    @Test
-    public void shouldBeDescribed() {
-        assertThat(spy(ContributingGuidelinesProbe.class).getDescription()).isNotBlank();
-    }
-
-    @Test
-    public void shouldGiveErrorIfSCMLinkIsNotValidated() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(Map.of());
-
-        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
     @Test
     public void shouldCorrectlyDetectMissingContributingGuidelines() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
+        final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -101,7 +77,7 @@ public class ContributingGuidelinesProbeTest {
     public void shouldCorrectlyDetectContributingGuidelinesInRootLevelOfRepository() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
+        final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -120,7 +96,7 @@ public class ContributingGuidelinesProbeTest {
     public void shouldCorrectlyDetectContributingGuidelinesInDocsFolder() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContributingGuidelinesProbe probe = new ContributingGuidelinesProbe();
+        final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(

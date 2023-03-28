@@ -38,51 +38,28 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class ContinuousDeliveryProbeTest {
+class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryProbe> {
+    @Override
+    ContinuousDeliveryProbe getSpy() {
+        return spy(ContinuousDeliveryProbe.class);
+    }
+
     @Test
     void shouldNotRequireRelease() {
-        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeRelatedToCode() {
-        assertThat(spy(ContinuousDeliveryProbe.class).isSourceCodeRelated()).isTrue();
-    }
-
-    @Test
-    void shouldKeepUsingJEP229Key() {
-        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
-        assertThat(probe.key()).isEqualTo("jep-229");
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(ContinuousDeliveryProbe.class).getDescription()).isNotBlank();
-    }
-
-    @Test
-    void shouldRequireSCMValidation() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(Map.of());
-
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -99,7 +76,7 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -118,7 +95,7 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -138,7 +115,7 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),

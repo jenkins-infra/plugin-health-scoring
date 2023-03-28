@@ -49,53 +49,20 @@ import org.kohsuke.github.PagedIterable;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class SpotBugsProbeTest {
-    @Test
-    public void shouldHaveSpecificKey() {
-        assertThat(spy(SpotBugsProbe.class).key()).isEqualTo(SpotBugsProbe.KEY);
-    }
-
-    @Test
-    public void shouldHaveDescription() {
-        assertThat(spy(SpotBugsProbe.class).getDescription()).isNotBlank();
+class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
+    @Override
+    protected SpotBugsProbe getSpy() {
+        return spy(SpotBugsProbe.class);
     }
 
     @Test
     public void shouldNotRequireRelease() {
-        assertThat(spy(SpotBugsProbe.class).requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldBeRelatedToCode() {
-        assertThat(spy(SpotBugsProbe.class).isSourceCodeRelated()).isTrue();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void shouldRequireJenkinsfile() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
-            )
-        );
-
-        final SpotBugsProbe probe = new SpotBugsProbe();
-
-        // ProbeResult missing
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, ""));
-
-        // ProbeResult failure
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, ""));
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
     @Test
@@ -127,7 +94,7 @@ class SpotBugsProbeTest {
         ));
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
 
-        final SpotBugsProbe probe = new SpotBugsProbe();
+        final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -172,14 +139,13 @@ class SpotBugsProbeTest {
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         final GHCheckRun checkRun = mock(GHCheckRun.class);
-        final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
         when(checkRuns.toList()).thenReturn(
             List.of(checkRun)
         );
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")))
             .thenReturn(checkRuns);
 
-        final SpotBugsProbe probe = new SpotBugsProbe();
+        final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -226,40 +192,12 @@ class SpotBugsProbeTest {
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")))
             .thenReturn(checkRuns);
 
-        final SpotBugsProbe probe = new SpotBugsProbe();
+        final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(SpotBugsProbe.KEY, "SpotBugs not found in build configuration"));
-    }
-
-    @Test
-    void shouldNotThrowExceptionWhenPluginRemovedFromUpdateCenter() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getName()).thenReturn("mailer");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
-        ));
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            List.of()
-        ));
-
-        final SpotBugsProbe probe = new SpotBugsProbe();
-        try {
-            final ProbeResult result = probe.apply(plugin, ctx);
-            assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "This plugin is no longer in the update-center"));
-        } catch (NullPointerException ex) {
-            assert false;
-        }
-
     }
 }
