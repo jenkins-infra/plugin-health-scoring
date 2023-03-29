@@ -29,7 +29,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
-import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
@@ -48,17 +47,12 @@ public class PluginMaintenanceScoring extends Scoring {
         final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
         final ProbeResult dependabotPullRequestResult = plugin.getDetails().get(DependabotPullRequestProbe.KEY);
         final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
-        final ProbeResult contributingGuidelinesProbeResult = plugin.getDetails().get(ContributingGuidelinesProbe.KEY);
         final ProbeResult documentationMigrationProbeResult = plugin.getDetails().get(DocumentationMigrationProbe.KEY);
 
         float score = 0.0f;
 
         if (jenkinsfileProbeResult != null && jenkinsfileProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.5f;
-        }
-
-        if (contributingGuidelinesProbeResult != null && contributingGuidelinesProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.15f;
+            score += 0.65f;
         }
 
         if (documentationMigrationProbeResult != null && documentationMigrationProbeResult.status().equals(ResultStatus.SUCCESS)) {
@@ -96,8 +90,7 @@ public class PluginMaintenanceScoring extends Scoring {
     @Override
     public String description() {
         return """
-            Scores plugin based on Jenkinsfile presence, Contributing Guidelines presence,
-            documentation migration, dependabot and JEP-229 configuration.
+            Scores plugin based on Jenkinsfile presence, documentation migration, dependabot and JEP-229 configuration.
             """;
     }
 }
