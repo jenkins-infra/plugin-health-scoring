@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -38,20 +39,19 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 
-public class UpdateCenterPluginPublicationProbeTest {
-
-    @Test
-    public void shouldNotRequireRelease() {
-        assertThat(new UpdateCenterPluginPublicationProbe().requiresRelease()).isFalse();
+class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCenterPluginPublicationProbe> {
+    @Override
+    UpdateCenterPluginPublicationProbe getSpy() {
+        return spy(UpdateCenterPluginPublicationProbe.class);
     }
 
     @Test
-    public void shouldHaveStaticKey() {
-        assertThat(new UpdateCenterPluginPublicationProbe().key()).isEqualTo("update-center-plugin-publication-probe");
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
-    public void shouldFailIfPluginIsNotInUpdateCenterMap() {
+    void shouldFailIfPluginIsNotInUpdateCenterMap() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -63,7 +63,7 @@ public class UpdateCenterPluginPublicationProbeTest {
             Collections.emptyList()
         ));
 
-        final UpdateCenterPluginPublicationProbe probe = new UpdateCenterPluginPublicationProbe();
+        final UpdateCenterPluginPublicationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -73,7 +73,7 @@ public class UpdateCenterPluginPublicationProbeTest {
     }
 
     @Test
-    public void shouldSucceedIfPluginIsInUpdateCenterMap() {
+    void shouldSucceedIfPluginIsInUpdateCenterMap() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -87,7 +87,7 @@ public class UpdateCenterPluginPublicationProbeTest {
             List.of()
         ));
 
-        final UpdateCenterPluginPublicationProbe probe = new UpdateCenterPluginPublicationProbe();
+        final UpdateCenterPluginPublicationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)

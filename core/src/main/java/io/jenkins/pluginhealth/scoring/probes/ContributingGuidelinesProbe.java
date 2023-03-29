@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -39,16 +38,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = ContributingGuidelinesProbe.ORDER)
 public class ContributingGuidelinesProbe extends Probe {
-    public static final int ORDER = JenkinsfileProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "contributing-guidelines";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult scmValidationResult = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
-        if (scmValidationResult == null || !scmValidationResult.status().equals(ResultStatus.SUCCESS)) {
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
-        }
-
         final Path repository = context.getScmRepository();
         try (Stream<Path> paths = Files.find(repository, 2,
             (file, basicFileAttributes) -> Files.isReadable(file)
@@ -75,5 +69,10 @@ public class ContributingGuidelinesProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

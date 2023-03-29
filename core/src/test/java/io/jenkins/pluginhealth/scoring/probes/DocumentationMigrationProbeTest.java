@@ -36,25 +36,20 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
 
-class DocumentationMigrationProbeTest {
-    @Test
-    void shouldHaveKey() {
-        assertThat(spy(DocumentationMigrationProbe.class).key()).isEqualTo("documentation-migration");
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(DocumentationMigrationProbe.class).getDescription()).isNotBlank();
+class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMigrationProbe> {
+    @Override
+    DocumentationMigrationProbe getSpy() {
+        return spy(DocumentationMigrationProbe.class);
     }
 
     @Test
     void shouldRequiredRelease() {
-        assertThat(spy(DocumentationMigrationProbe.class).requiresRelease()).isTrue();
+        assertThat(getSpy().requiresRelease()).isTrue();
     }
 
     @Test
     void shouldNotBeRelatedToSourceCodeModifications() {
-        assertThat(spy(DocumentationMigrationProbe.class).isSourceCodeRelated()).isFalse();
+        assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
     @SuppressWarnings("unchecked")
@@ -68,16 +63,17 @@ class DocumentationMigrationProbeTest {
             Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""))
         );
 
-        final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
+        final DocumentationMigrationProbe probe = getSpy();
 
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "SCM link needs to be validated"));
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
 
-
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "SCM link needs to be validated"));
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
     }
 
     @SuppressWarnings("unchecked")
@@ -95,13 +91,15 @@ class DocumentationMigrationProbeTest {
             Map.of("something-else", "not-what-we-are-looking-for")
         );
 
-        final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
+        final DocumentationMigrationProbe probe = getSpy();
 
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "No link to documentation can be confirmed"));
 
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source"));
     }
@@ -122,10 +120,11 @@ class DocumentationMigrationProbeTest {
             Map.of(pluginName, "https://wiki.jenkins-ci.org/DISPLAY/foo-plugin")
         );
 
-        final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
+        final DocumentationMigrationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).usingRecursiveComparison()
+        assertThat(result)
+            .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.failure(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository"));
     }
@@ -146,10 +145,11 @@ class DocumentationMigrationProbeTest {
             Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin")
         );
 
-        final DocumentationMigrationProbe probe = new DocumentationMigrationProbe();
+        final DocumentationMigrationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).usingRecursiveComparison()
+        assertThat(result)
+            .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
     }

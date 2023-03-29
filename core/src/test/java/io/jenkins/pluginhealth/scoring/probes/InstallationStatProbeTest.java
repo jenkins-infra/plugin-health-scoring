@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -39,56 +41,41 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class InstallationStatProbeTest {
+class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe> {
+    @Override
+    InstallationStatProbe getSpy() {
+        return spy(InstallationStatProbe.class);
+    }
 
     @Test
     void doesNotRequireRelease() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void doesNotRequireCodeModification() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.isSourceCodeRelated()).isFalse();
+        assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    void shouldHaveStatAsKey() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.key()).isEqualTo("stat");
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        assertThat(probe.getDescription()).isNotBlank();
-    }
-
-    @Test
-    void shouldFailWhenPluginIsNotInUpdateCenter() {
+    void shouldRequirePluginToBeInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-
-        final String pluginName = "plugin";
-        when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            List.of()
-        ));
-
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(result).isNotNull();
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.FAILURE);
-        });
+        for (int i = 0; i < 2; i++) {
+            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            verify(probe, never()).doApply(plugin, ctx);
+        }
     }
 
     @Test
@@ -99,6 +86,9 @@ class InstallationStatProbeTest {
 
         final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,

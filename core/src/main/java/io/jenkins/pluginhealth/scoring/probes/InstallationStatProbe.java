@@ -35,16 +35,12 @@ import org.springframework.stereotype.Component;
 @Order(value = InstallationStatProbe.ORDER)
 public class InstallationStatProbe extends Probe {
     public static final String KEY = "stat";
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final int ORDER = 0;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = updateCenter.plugins().get(plugin.getName());
-
-        if (ucPlugin == null) {
-            return ProbeResult.failure(KEY, "Plugin is not part of the update-center");
-        }
         return ProbeResult.success(KEY, "%d".formatted(ucPlugin.popularity()));
     }
 
@@ -56,5 +52,10 @@ public class InstallationStatProbe extends Probe {
     @Override
     public String getDescription() {
         return "This probe registers the latest installation count stat for a specific plugin.";
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }

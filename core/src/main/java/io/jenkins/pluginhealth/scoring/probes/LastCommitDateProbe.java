@@ -29,7 +29,6 @@ import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
@@ -48,47 +47,36 @@ import org.springframework.stereotype.Component;
 public class LastCommitDateProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "last-commit-date";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
+        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
+        if (!matcher.find()) {
+            return ProbeResult.failure(key(), "The SCM link is not valid");
         }
+        final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
+        final String folder = matcher.group("folder");
 
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY).status() == ResultStatus.SUCCESS) {
-            final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
-            if (!matcher.find()) {
-                return ProbeResult.failure(key(), "The SCM link is not valid");
+        try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
+            final LogCommand logCommand = git.log().setMaxCount(1);
+            if (folder != null) {
+                logCommand.addPath(folder);
             }
-            final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
-            final String folder = matcher.group("folder");
-
-            try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
-                final LogCommand logCommand = git.log().setMaxCount(1);
-                if (folder != null) {
-                    logCommand.addPath(folder);
-                }
-                final RevCommit commit = logCommand.call().iterator().next();
-                if (commit == null) {
-                    return ProbeResult.failure(key(), "Last commit cannot be found");
-                }
-                final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                    commit.getAuthorIdent().getWhenAsInstant(),
-                    commit.getAuthorIdent().getZoneId()
-                );
-                context.setLastCommitDate(commitDate);
-                return ProbeResult.success(key(), commitDate.toString());
-            } catch (GitAPIException ex) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("There was an issue while cloning the plugin repository", ex);
-                }
-                return ProbeResult.failure(key(), "Could not clone the plugin repository");
+            final RevCommit commit = logCommand.call().iterator().next();
+            if (commit == null) {
+                return ProbeResult.failure(key(), "Last commit cannot be found");
             }
-        } else {
-            return ProbeResult.failure(key(), "Due to invalid SCM, latest commit date cannot be found");
+            final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
+                commit.getAuthorIdent().getWhenAsInstant(),
+                commit.getAuthorIdent().getZoneId()
+            );
+            context.setLastCommitDate(commitDate);
+            return ProbeResult.success(key(), commitDate.toString());
+        } catch (GitAPIException ex) {
+            LOGGER.error("There was an issue while cloning the plugin repository", ex);
+            return ProbeResult.failure(key(), "Could not clone the plugin repository");
         }
     }
 
@@ -110,5 +98,10 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

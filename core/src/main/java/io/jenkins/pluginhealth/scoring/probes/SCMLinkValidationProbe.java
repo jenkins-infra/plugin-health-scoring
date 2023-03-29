@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,20 +41,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(value = SCMLinkValidationProbe.ORDER)
-public final class SCMLinkValidationProbe extends Probe {
+public class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
     private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 20;
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
     public static final String KEY = "scm";
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult deprecatedProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-        if (deprecatedProbeResult != null && deprecatedProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.failure(key(), "Plugin is deprecated");
-        }
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.failure(key(), "The plugin SCM link is empty");

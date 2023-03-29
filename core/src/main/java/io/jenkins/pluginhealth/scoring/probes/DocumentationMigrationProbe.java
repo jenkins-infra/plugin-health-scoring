@@ -28,7 +28,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -36,15 +35,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DocumentationMigrationProbe.ORDER)
 public class DocumentationMigrationProbe extends Probe {
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 1;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "documentation-migration";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult scmValidationProbe = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
-        if (scmValidationProbe == null || scmValidationProbe.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.error(key(), "SCM link needs to be validated");
-        }
         final Map<String, String> pluginDocumentationLinks = context.getPluginDocumentationLinks();
         final String scm = plugin.getScm();
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
@@ -71,5 +66,10 @@ public class DocumentationMigrationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

@@ -31,7 +31,6 @@ import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
@@ -46,15 +45,10 @@ public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
 
     public static final String KEY = "code-coverage";
-    public static final int ORDER = JenkinsfileProbe.ORDER + 100;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult jenkinsFileResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
-        if (jenkinsFileResult == null || !jenkinsFileResult.status().equals(ResultStatus.SUCCESS)) {
-            return ProbeResult.error(key(), "Requires Jenkinsfile");
-        }
-
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
@@ -91,5 +85,10 @@ public class CodeCoverageProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    protected String[] getProbeResultRequirement() {
+        return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

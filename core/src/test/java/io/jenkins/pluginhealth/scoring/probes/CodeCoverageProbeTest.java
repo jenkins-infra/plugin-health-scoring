@@ -41,60 +41,25 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterable;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class CodeCoverageProbeTest {
-    @Test
-    public void shouldHaveSpecificKey() {
-        assertThat(spy(CodeCoverageProbe.class).key()).isEqualTo(CodeCoverageProbe.KEY);
-    }
-
-    @Test
-    public void shouldHaveDescription() {
-        assertThat(spy(CodeCoverageProbe.class).getDescription()).isNotBlank();
+class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
+    @Override
+    CodeCoverageProbe getSpy() {
+        return spy(CodeCoverageProbe.class);
     }
 
     @Test
     public void shouldNotRequireRelease() {
-        assertThat(spy(CodeCoverageProbe.class).requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     public void shouldBeRelatedToCode() {
-        assertThat(spy(CodeCoverageProbe.class).isSourceCodeRelated()).isTrue();
-    }
-
-    @Test
-    public void shouldRequireJenkinsfile() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, "")
-            )
-        );
-
-        final CodeCoverageProbe probe = new CodeCoverageProbe();
-
-        // ProbeResult missing
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
-
-        // ProbeResult failure
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Requires Jenkinsfile"));
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
     @Test
@@ -110,7 +75,9 @@ class CodeCoverageProbeTest {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -125,7 +92,7 @@ class CodeCoverageProbeTest {
         ));
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
 
-        final CodeCoverageProbe probe = new CodeCoverageProbe();
+        final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -150,7 +117,9 @@ class CodeCoverageProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -178,7 +147,7 @@ class CodeCoverageProbeTest {
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
             .thenReturn(checkRuns);
 
-        final CodeCoverageProbe probe = new CodeCoverageProbe();
+        final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -203,7 +172,9 @@ class CodeCoverageProbeTest {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "")
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -224,7 +195,7 @@ class CodeCoverageProbeTest {
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
             .thenReturn(checkRuns);
 
-        final CodeCoverageProbe probe = new CodeCoverageProbe();
+        final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)

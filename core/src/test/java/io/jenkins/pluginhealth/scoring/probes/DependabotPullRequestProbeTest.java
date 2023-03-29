@@ -39,34 +39,26 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class DependabotPullRequestProbeTest {
-    @Test
-    void shouldUseSpecificKey() {
-        assertThat(spy(DependabotPullRequestProbe.class).key()).isEqualTo(DependabotPullRequestProbe.KEY);
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        assertThat(spy(DependabotPullRequestProbe.class).getDescription()).isNotBlank();
+class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullRequestProbe> {
+    @Override
+    DependabotPullRequestProbe getSpy() {
+        return spy(DependabotPullRequestProbe.class);
     }
 
     @Test
     void shouldNotRequireRelease() {
-        assertThat(spy(DependabotPullRequestProbe.class).requiresRelease()).isFalse();
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldNotBeRelatedToSourceCode() {
-        assertThat(spy(DependabotPullRequestProbe.class).isSourceCodeRelated()).isFalse();
+        assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
     @Test
@@ -76,12 +68,12 @@ class DependabotPullRequestProbeTest {
 
         when(plugin.getDetails()).thenReturn(Map.of());
 
-        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
+        final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Dependabot not configured on the repository"));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
     }
 
     @Test
@@ -115,7 +107,7 @@ class DependabotPullRequestProbeTest {
             List.of(pr_1, pr_2, pr_3, pr_4, pr_5)
         );
 
-        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
+        final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).usingRecursiveComparison()
@@ -139,7 +131,7 @@ class DependabotPullRequestProbeTest {
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
 
-        final DependabotPullRequestProbe probe = new DependabotPullRequestProbe();
+        final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)

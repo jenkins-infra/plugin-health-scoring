@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
@@ -41,22 +42,22 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-class UpForAdoptionProbeTest {
-    @Test
-    void shouldNotRequireNewRelease() {
-        assertThat(new UpForAdoptionProbe().requiresRelease()).isFalse();
+class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
+    @Override
+    UpForAdoptionProbe getSpy() {
+        return spy(UpForAdoptionProbe.class);
     }
 
     @Test
-    void shouldKeepTheSameKey() {
-        assertThat(new UpForAdoptionProbe().key()).isEqualTo("up-for-adoption");
+    void shouldNotRequireNewRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeAbleToDetectPluginForAdoption() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
+        final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -74,7 +75,7 @@ class UpForAdoptionProbeTest {
     void shouldBeAbleToDetectPluginNotForAdoption() {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final UpForAdoptionProbe upForAdoptionProbe = new UpForAdoptionProbe();
+        final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -86,5 +87,24 @@ class UpForAdoptionProbeTest {
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
 
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+    }
+
+    @Test
+    void shouldFailWhenPluginNotPresentInUpdateCenter() {
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("foo");
+
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            List.of()
+        ));
+
+        final UpForAdoptionProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
     }
 }
