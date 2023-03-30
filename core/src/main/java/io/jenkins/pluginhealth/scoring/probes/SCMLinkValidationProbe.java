@@ -53,7 +53,7 @@ public class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.failure(key(), "The plugin SCM link is empty");
+            return ProbeResult.error(key(), "The plugin SCM link is empty");
         }
         return fromSCMLink(context, plugin.getScm());
     }

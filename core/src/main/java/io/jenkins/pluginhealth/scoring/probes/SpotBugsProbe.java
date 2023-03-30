@@ -67,7 +67,7 @@ public class SpotBugsProbe extends Probe {
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.failure(key(), "Could not get SpotBugs check");
+            return ProbeResult.error(key(), "Could not get SpotBugs check");
         }
     }
 
