@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.Map;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
@@ -42,42 +44,6 @@ public class PluginMaintenanceScoring extends Scoring {
     private static final String KEY = "repository-configuration";
 
     @Override
-    protected ScoreResult doApply(Plugin plugin) {
-        final ProbeResult jenkinsfileProbeResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
-        final ProbeResult dependabotProbeResult = plugin.getDetails().get(DependabotProbe.KEY);
-        final ProbeResult dependabotPullRequestResult = plugin.getDetails().get(DependabotPullRequestProbe.KEY);
-        final ProbeResult cdProbeResult = plugin.getDetails().get(ContinuousDeliveryProbe.KEY);
-        final ProbeResult documentationMigrationProbeResult = plugin.getDetails().get(DocumentationMigrationProbe.KEY);
-
-        float score = 0.0f;
-
-        if (jenkinsfileProbeResult != null && jenkinsfileProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.65f;
-        }
-
-        if (documentationMigrationProbeResult != null && documentationMigrationProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.15f;
-        }
-
-        if (dependabotProbeResult != null && dependabotProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.15f;
-        }
-
-        if (dependabotPullRequestResult != null && dependabotPullRequestResult.status().equals(ResultStatus.SUCCESS)
-            && Integer.parseInt(dependabotPullRequestResult.message()) > 0) {
-            score -= 0.15f;
-        }
-
-        if (cdProbeResult != null && cdProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            score += 0.05f;
-        }
-
-        score = Math.round(score * 100.0) / 100.0f; // Prevent rounding errors
-
-        return new ScoreResult(KEY, score, COEFFICIENT);
-    }
-
-    @Override
     public String key() {
         return KEY;
     }
@@ -85,6 +51,17 @@ public class PluginMaintenanceScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
+    }
+
+    @Override
+    public Map<String, Float> getScoreComponents() {
+        return Map.of(
+            JenkinsfileProbe.KEY, .65f,
+            DocumentationMigrationProbe.KEY, .15f,
+            DependabotProbe.KEY, .15f,
+            DependabotPullRequestProbe.KEY, .15f,
+            ContinuousDeliveryProbe.KEY, .05f
+        );
     }
 
     @Override

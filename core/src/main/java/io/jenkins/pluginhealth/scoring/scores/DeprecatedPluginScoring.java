@@ -24,10 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import java.util.Map;
+
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
 import org.springframework.stereotype.Component;
@@ -38,15 +36,6 @@ public class DeprecatedPluginScoring extends Scoring {
     private static final String KEY = "deprecation";
 
     @Override
-    protected ScoreResult doApply(Plugin plugin) {
-        final ProbeResult deprecatedPluginProbeResult = plugin.getDetails().get(DeprecatedPluginProbe.KEY);
-        if (deprecatedPluginProbeResult == null || deprecatedPluginProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return new ScoreResult(KEY, 0, COEFFICIENT);
-        }
-        return new ScoreResult(KEY, 1, COEFFICIENT);
-    }
-
-    @Override
     public String key() {
         return KEY;
     }
@@ -54,6 +43,13 @@ public class DeprecatedPluginScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
+    }
+
+    @Override
+    public Map<String, Float> getScoreComponents() {
+        return Map.of(
+            DeprecatedPluginProbe.KEY, 1f
+        );
     }
 
     @Override
