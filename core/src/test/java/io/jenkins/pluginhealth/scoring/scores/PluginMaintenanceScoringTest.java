@@ -42,16 +42,18 @@ import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class PluginMaintenanceScoringTest {
+class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenanceScoring> {
     public static final String KEY = "repository-configuration";
     public static final float COEFFICIENT = .5f;
+
+    @Override
+    PluginMaintenanceScoring getSpy() {
+        return spy(PluginMaintenanceScoring.class);
+    }
 
     static Stream<Arguments> probeResultsAndValue() {
         return Stream.of(
@@ -240,7 +242,7 @@ class PluginMaintenanceScoringTest {
     @MethodSource("probeResultsAndValue")
     public void shouldScorePluginBasedOnProbeResultMatrix(Map<String, ProbeResult> details, float value) {
         final Plugin plugin = mock(Plugin.class);
-        final PluginMaintenanceScoring scoring = spy(PluginMaintenanceScoring.class);
+        final PluginMaintenanceScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(details);
 

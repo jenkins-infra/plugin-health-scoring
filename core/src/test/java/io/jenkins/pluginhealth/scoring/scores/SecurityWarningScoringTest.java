@@ -38,15 +38,17 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class SecurityWarningScoringTest {
+class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScoring> {
+    @Override
+    SecurityWarningScoring getSpy() {
+        return spy(SecurityWarningScoring.class);
+    }
+
     @Test
     void shouldBeAbleToDetectPluginWithSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
-        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
+        final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.FAILURE)
@@ -62,7 +64,7 @@ class SecurityWarningScoringTest {
     @Test
     void shouldBadlyScorePluginWithNoProbeResult() {
         final Plugin plugin = mock(Plugin.class);
-        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
+        final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of());
 
@@ -76,7 +78,7 @@ class SecurityWarningScoringTest {
     @Test
     void shouldBeAbleToDetectPluginWithNoSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
-        final SecurityWarningScoring scoring = spy(SecurityWarningScoring.class);
+        final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.SUCCESS)
