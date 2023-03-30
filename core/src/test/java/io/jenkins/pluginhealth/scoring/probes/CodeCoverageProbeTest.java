@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -82,6 +84,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe, never()).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
@@ -179,6 +182,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
@@ -235,6 +239,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
@@ -291,6 +296,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
@@ -347,6 +353,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
@@ -369,6 +376,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -395,6 +403,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        verify(probe).doApply(plugin, ctx);
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
