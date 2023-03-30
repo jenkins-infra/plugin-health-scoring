@@ -101,7 +101,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source"));
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source"));
     }
 
     @Test

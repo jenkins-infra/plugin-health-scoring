@@ -64,8 +64,8 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final ProbeResult r1 = probe.apply(p1, ctxP1);
         final ProbeResult r2 = probe.apply(p2, ctxP2);
 
-        assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(r2.status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(r1.status()).isEqualTo(ResultStatus.ERROR);
+        assertThat(r2.status()).isEqualTo(ResultStatus.ERROR);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is empty");
     }
 
@@ -83,7 +83,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     }
 
     @Test
-    void shouldRecognizeCorrectGitHubUrl() throws IOException, InterruptedException {
+    void shouldRecognizeCorrectGitHubUrl() throws IOException {
         final Plugin p1 = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);

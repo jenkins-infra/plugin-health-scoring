@@ -61,23 +61,64 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldBeSkippedWhenNoDependabot() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of());
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""))
+        );
 
         final DependabotPullRequestProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).usingRecursiveComparison()
+        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
+        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
             .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
     }
 
     @Test
-    void shouldAccessGitHubAPIWhenDependabotActivated() throws IOException {
+    void shouldAccessGitHubAPIAndSeeNoPullRequest() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
+        ));
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
+
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(gh.getRepository(anyString())).thenReturn(ghRepository);
+
+        final GHLabel dependenciesLabel = mock(GHLabel.class);
+        when(dependenciesLabel.getName()).thenReturn("dependencies");
+
+        final GHPullRequest pr_1 = mock(GHPullRequest.class);
+        final GHPullRequest pr_2 = mock(GHPullRequest.class);
+        final GHPullRequest pr_3 = mock(GHPullRequest.class);
+        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(
+            List.of(pr_1, pr_2, pr_3)
+        );
+
+        final DependabotPullRequestProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result).usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "No open pull request from dependabot"));
+    }
+
+    @Test
+    void shouldAccessGitHubAPIWhenDependabotActivatedWithOpenedPR() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -112,7 +153,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2"));
+            .isEqualTo(ProbeResult.failure(DependabotPullRequestProbe.KEY, "2 open pull requests from Dependabot"));
     }
 
     @Test
@@ -137,6 +178,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(DependabotPullRequestProbe.KEY, "Could not count pull requests"));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests"));
     }
 }
