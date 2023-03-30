@@ -50,18 +50,21 @@ public abstract class Scoring {
         float score = 0;
 
         for (Map.Entry<String, Float> component : scoreComponents.entrySet()) {
-            max += component.getValue();
+            final float componentMaxValue = component.getValue();
+            if (componentMaxValue > 0) {
+                max += componentMaxValue;
+            }
             final ProbeResult probeResult = plugin.getDetails().get(component.getKey());
-            if (probeResult != null && probeResult.status().equals(ResultStatus.SUCCESS)) {
-                score += component.getValue();
+            if (probeResult != null) {
+                if (componentMaxValue > 0 && probeResult.status().equals(ResultStatus.SUCCESS)) {
+                    score += componentMaxValue;
+                } else if (probeResult.status().equals(ResultStatus.FAILURE) && componentMaxValue < 0) {
+                    score += componentMaxValue;
+                }
             }
         }
 
-        if (max > 0) {
-            score = Math.round(score / max * 100) / 100f;
-        } else {
-            score = 0;
-        }
+        score = Math.round(Math.max(score, 0) / max * 100) / 100f;
         return new ScoreResult(key(), score, coefficient());
     }
 

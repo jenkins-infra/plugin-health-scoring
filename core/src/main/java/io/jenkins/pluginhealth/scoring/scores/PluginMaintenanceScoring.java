@@ -26,10 +26,6 @@ package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
@@ -59,7 +55,7 @@ public class PluginMaintenanceScoring extends Scoring {
             JenkinsfileProbe.KEY, .65f,
             DocumentationMigrationProbe.KEY, .15f,
             DependabotProbe.KEY, .15f,
-            DependabotPullRequestProbe.KEY, .15f,
+            DependabotPullRequestProbe.KEY, -.15f,
             ContinuousDeliveryProbe.KEY, .05f
         );
     }
