@@ -88,7 +88,7 @@ public class ScoreController {
         private String description;
         private Map<String, Float> components;
 
-        public ScoreView(String key, float value, float coefficient) {
+        private ScoreView(String key, float value, float coefficient) {
             this.key = key;
             this.value = value;
             this.coefficient = coefficient;

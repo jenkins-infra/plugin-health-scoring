@@ -6,13 +6,10 @@
 <body>
 
 <section data-layout-fragment="content">
-    <h1 data-th-text="'Score of ' + ${score.plugin.name} + ' plugin'"></h1>
+    <h1 data-th-utext="'Score of <em>' + ${score.plugin.name} + '</em> plugin'"></h1>
     <div class="card score" data-th-text="${score.value}"></div>
 
     <h3>Details</h3>
-    <p>
-        Those details were computed at <span data-th-text="${#temporals.format(score.computedAt)}"></span>
-    </p>
     <table class="table">
         <thead>
         <tr>
@@ -23,12 +20,45 @@
         </tr>
         </thead>
         <tbody>
-        <tr data-th-each="detail: ${details}">
-            <td><code data-th-text="${detail.key}"></code></td>
-            <td align="center" data-th-text="${detail.value}"></td>
-            <td align="center" data-th-text="${detail.coefficient}"></td>
-            <td data-th-text="${detail.description}"></td>
-        </tr>
+        <th-block data-th-each="detail,iter: ${details}">
+            <tr>
+                <td><code data-th-text="${detail.key}"></code></td>
+                <td align="center" data-th-text="${detail.value}"></td>
+                <td align="center" data-th-text="${detail.coefficient}"></td>
+                <td data-th-text="${detail.description}"></td>
+            </tr>
+            <tr data-th-id="'collapse-' + ${iter.current.key}">
+                <td colspan="5">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Probe key</th>
+                            <th>Maximum value</th>
+                            <th>Status</th>
+                            <th>Message</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr data-th-each="component : ${detail.components}"
+                            data-th-with="key=${component.key},maxScore = ${component.value},probe = ${score.plugin.details.get(component.key)}">
+                            <td>
+                                <code data-th-text="${key}"></code>
+                            </td>
+                            <td data-th-text="${maxScore}"></td>
+                            <td>
+                                <ion-icon data-th-if="${probe} != null and ${probe.status.name()} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
+                                <ion-icon data-th-if="${probe} == null or ${probe.status.name()} == 'FAILURE'" class="failure" name="close"></ion-icon>
+                            </td>
+                            <td>
+                                <span data-th-if="${probe} != null" data-th-text="${probe.message}"></span>
+                                <span data-th-unless="${probe} != null">Not executed</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </th-block>
         </tbody>
     </table>
 
