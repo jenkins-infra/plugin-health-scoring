@@ -13,6 +13,7 @@
     <table class="table">
         <thead>
         <tr>
+            <th></th>
             <th>Key</th>
             <th>Value</th>
             <th>Coefficient</th>
@@ -20,15 +21,17 @@
         </tr>
         </thead>
         <tbody>
-        <th-block data-th-each="detail,iter: ${details}">
-            <tr>
+        <th-block data-th-each="detail: ${details}">
+            <tr class="collapse" data-th-data-target="'collapse-' + ${detail.key}">
+                <td><ion-icon name="chevron-expand"></ion-icon></td>
                 <td><code data-th-text="${detail.key}"></code></td>
                 <td align="center" data-th-text="${detail.value}"></td>
                 <td align="center" data-th-text="${detail.coefficient}"></td>
                 <td data-th-text="${detail.description}"></td>
             </tr>
-            <tr data-th-id="'collapse-' + ${iter.current.key}">
+            <tr class="collapse-content" data-th-id="'collapse-' + ${detail.key}">
                 <td colspan="5">
+                    <h3>Details:</h3>
                     <table class="table">
                         <thead>
                         <tr>
@@ -40,18 +43,18 @@
                         </thead>
                         <tbody>
                         <tr data-th-each="component : ${detail.components}"
-                            data-th-with="key=${component.key},maxScore = ${component.value},probe = ${score.plugin.details.get(component.key)}">
+                            data-th-with="key=${component.key},maxScore = ${component.value},result = ${score.plugin.details.get(component.key)}">
                             <td>
                                 <code data-th-text="${key}"></code>
                             </td>
                             <td data-th-text="${maxScore}"></td>
                             <td>
-                                <ion-icon data-th-if="${probe} != null and ${probe.status.name()} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
-                                <ion-icon data-th-if="${probe} == null or ${probe.status.name()} == 'FAILURE'" class="failure" name="close"></ion-icon>
+                                <ion-icon data-th-if="${result} != null and ${result.status.name()} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
+                                <ion-icon data-th-if="${result} == null or ${result.status.name()} == 'FAILURE'" class="failure" name="close"></ion-icon>
                             </td>
                             <td>
-                                <span data-th-if="${probe} != null" data-th-text="${probe.message}"></span>
-                                <span data-th-unless="${probe} != null">Not executed</span>
+                                <span data-th-if="${result} != null" data-th-text="${result.message}"></span>
+                                <span data-th-unless="${result} != null">Not executed</span>
                             </td>
                         </tr>
                         </tbody>
