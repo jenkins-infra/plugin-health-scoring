@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
@@ -67,10 +66,15 @@ public class ScoreController {
         return scoreService.latestScoreFor(pluginName)
             .map(score -> {
                 final List<ScoreView> details = score.getDetails().stream()
-                    .map(ScoreView::fromScoreResult)
+                    .map(results -> new ScoreView(results.key(), results.value(), results.coefficient()))
                     .map(view -> {
-                        final Optional<Scoring> scoring = scoringService.get(view.key());
-                        return scoring.map(value -> view.withDescription(value.description())).orElse(view);
+                        final Optional<Scoring> scoring = scoringService.get(view.getKey());
+                        return scoring
+                            .map(s -> view
+                                .withComponents(s.getScoreComponents())
+                                .withDescription(s.description())
+                            )
+                            .orElse(view);
                     })
                     .toList();
                 return new ModelAndView("scores/details", Map.of("score", score, "details", details));
@@ -78,13 +82,46 @@ public class ScoreController {
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 
-    record ScoreView(String key, float value, float coefficient, String description) {
-        public ScoreView withDescription(String description) {
-            return new ScoreView(this.key, this.value, this.coefficient, description);
+    private static class ScoreView {
+        private final String key;
+        private final float value, coefficient;
+        private String description;
+        private Map<String, Float> components;
+
+        public ScoreView(String key, float value, float coefficient) {
+            this.key = key;
+            this.value = value;
+            this.coefficient = coefficient;
         }
 
-        public static ScoreView fromScoreResult(ScoreResult scoreResult) {
-            return new ScoreView(scoreResult.key(), scoreResult.value(), scoreResult.coefficient(), null);
+        public String getKey() {
+            return key;
+        }
+
+        public float getValue() {
+            return value;
+        }
+
+        public float getCoefficient() {
+            return coefficient;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public ScoreView withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Map<String, Float> getComponents() {
+            return components;
+        }
+
+        public ScoreView withComponents(Map<String, Float> components) {
+            this.components = components;
+            return this;
         }
     }
 }
