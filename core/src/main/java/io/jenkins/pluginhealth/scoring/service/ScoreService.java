@@ -68,6 +68,25 @@ public class ScoreService {
             ));
     }
 
+    @Transactional
+    public void deleteOldPluginScores() {
+        Map<String, List<Score>> scoresByPlugin = repository.findAll().stream.collect(Collectors.groupingBy(score -> score.getPlugin().getName(),Collectors.toList
+        ));
+
+        for(List<Score> scores = scoresByPlugin.values()) {
+            if(scores.size() > 5) {
+                List<Score> scoresToRemove = scores.stream.sorted((s1, s2) -> s2.getComputedAt().compareTo(s1.getComputedAt())).skip(5).collect(Collectors.toList());
+
+              repository.deleteAll(scoresToRemove);
+            }
+        }
+    }
+
+     @Scheduled(cron = "0 0 * * * *")
+    public void scheduledDeleteOldPluginScores() {
+        deleteOldPluginScores();
+    }
+
     public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
         public static ScoreSummary fromScore(Score score) {
             final Plugin plugin = score.getPlugin();
@@ -79,4 +98,5 @@ public class ScoreService {
             );
         }
     }
+
 }
