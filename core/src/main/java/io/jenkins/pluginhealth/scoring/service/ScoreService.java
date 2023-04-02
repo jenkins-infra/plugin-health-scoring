@@ -82,7 +82,7 @@ public class ScoreService {
         }
     }
 
-     @Scheduled(cron = "0 0 * * * *")
+     @Scheduled(cron = "0 0 * * * *") // runs every hour
     public void scheduledDeleteOldPluginScores() {
         deleteOldPluginScores();
     }
