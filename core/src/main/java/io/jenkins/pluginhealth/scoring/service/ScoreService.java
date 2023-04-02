@@ -73,7 +73,7 @@ public class ScoreService {
         Map<String, List<Score>> scoresByPlugin = repository.findAll().stream.collect(Collectors.groupingBy(score -> score.getPlugin().getName(),Collectors.toList
         ));
 
-        for(List<Score> scores = scoresByPlugin.values()) {
+        for(List<Score> scores : scoresByPlugin.values()) {
             if(scores.size() > 5) {
                 List<Score> scoresToRemove = scores.stream.sorted((s1, s2) -> s2.getComputedAt().compareTo(s1.getComputedAt())).skip(5).collect(Collectors.toList());
 
