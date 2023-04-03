@@ -73,17 +73,24 @@ public class ProbeService {
     );
 
     @Transactional(readOnly = true)
-    public Map<String, Long> getProbesFinalResults() {
+    public Map<String, ProbeResult> getProbesFinalResults() {
         return probes.stream()
             .filter(probe -> !IGNORE_RAW_RESULT_PROBES.contains(probe.key()))
-            .collect(Collectors.toMap(Probe::key, probe -> getProbesRawResultsFromDatabase(probe.key())));
+            .collect(Collectors.toMap(Probe::key, probe -> new ProbeResult(
+                    getProbesRawResultsFromDatabase(probe.key(), true),
+                    getProbesRawResultsFromDatabase(probe.key(), false)
+                )
+            ));
     }
 
-    private long getProbesRawResultsFromDatabase(String probeID) {
+    private record ProbeResult(long validated, long unvalidated) {
+    }
+
+    private long getProbesRawResultsFromDatabase(String probeID, boolean valid) {
         return switch (probeID) {
             case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
-                pluginRepository.getProbeRawResult(probeID, "FAILURE");
-            default -> pluginRepository.getProbeRawResult(probeID, "SUCCESS");
+                pluginRepository.getProbeRawResult(probeID, valid ? "FAILURE" : "SUCCESS");
+            default -> pluginRepository.getProbeRawResult(probeID, valid ? "SUCCESS" : "FAILURE");
         };
     }
 
@@ -96,7 +103,6 @@ public class ProbeService {
             .map(probe -> new ProbeView(probe.key(), probe.getDescription(), probe.getProbeResultRequirement()))
             .collect(Collectors.toMap(ProbeView::key, p -> p));
     }
-
 
     public record ProbeView(String key, String description, String[] requirements) {
     }
