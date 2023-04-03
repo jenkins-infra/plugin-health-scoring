@@ -46,7 +46,9 @@ public class AdoptionScoring extends Scoring {
     @Override
     public ScoreResult apply(Plugin plugin) {
         final ScoreResult result = super.apply(plugin);
-        if (result.value() == 0) return result;
+        if (result.value() == 0) {
+            return result;
+        }
 
         final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
         if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ResultStatus.SUCCESS)) {
