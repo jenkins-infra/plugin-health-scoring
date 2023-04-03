@@ -85,6 +85,10 @@ public abstract class Scoring {
 
     /**
      * Returns a map describing the probe required for the score computation and their maximum score.
+     * <br/>
+     * The key is the probe key to consider.
+     * The value is the value to be added to the score if the probe result is successful.
+     * The value can be negative and in that case, the value will be considered in case the probe result is not
      *
      * @return map of Probe key to evaluate and their maximum score
      */
