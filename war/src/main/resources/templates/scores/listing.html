@@ -19,7 +19,7 @@
         </thead>
         <tbody>
         <tr data-th-each="scoring: ${scorings}">
-            <td><code data-th-text="${scoring.key}"></code></td>
+            <td><code class="label" data-th-text="${scoring.key}"></code></td>
             <td data-th-text="${scoring.name}"></td>
             <td align="center" data-th-text="${scoring.coefficient}"></td>
             <td data-th-text="${scoring.description}"></td>

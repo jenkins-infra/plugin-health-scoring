@@ -24,7 +24,7 @@
         <th-block data-th-each="scoreDetail: ${score.details}">
             <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
                 <td><ion-icon name="chevron-expand"></ion-icon></td>
-                <td><code data-th-text="${scoreDetail.key}"></code></td>
+                <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
                 <td align="center" data-th-text="${scoreDetail.coefficient}"></td>
                 <td data-th-text="${scores.get(scoreDetail.key)?.description}"></td>
@@ -44,7 +44,7 @@
                         <tbody>
                         <tr data-th-each="component : ${scores.get(scoreDetail.key)?.components}"
                             data-th-with="probeResult=${score.probeResults.get(component.key)}">
-                            <td><code data-th-text="${component.key}"></code></td>
+                            <td><code class="label" data-th-text="${component.key}"></code></td>
                             <td data-th-text="${component.value}"></td>
                             <td>
                                 <ion-icon data-th-if="${probeResult} != null and ${probeResult.status} == 'SUCCESS'"
@@ -58,7 +58,12 @@
                                 <span data-th-if="${probeResult} != null" data-th-text="${probeResult.message}"></span>
                                 <span data-th-if="${probeResult} == null">
                                     Not executed.
-                                    This probes requires <code data-th-text="${#strings.arrayJoin(probes.get(component.key)?.requirements, ',')}"></code> to be successful to be executed.
+                                    This probes requires
+                                    <th-block data-th-each="requirement, iter : ${probes.get(component.key)?.requirements}">
+                                        <code class="label" data-th-text="${requirement}"></code>
+                                        <span data-th-unless="${iter.last}">, </span>
+                                    </th-block>
+                                    to be successful to be executed.
                                 </span>
                             </td>
                         </tr>
@@ -83,7 +88,7 @@
             </thead>
             <tbody>
             <tr data-th-each="iter: ${score.probeResults}" data-th-with="probeResult = ${iter.value}">
-                <td><code data-th-text="${probeResult.key}"></code></td>
+                <td><code data-th-text="${probeResult.key}" class="label"></code></td>
                 <td>
                     <ion-icon data-th-if="${probeResult.status} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
                     <ion-icon data-th-if="${probeResult.status} == 'FAILURE'" class="failure" name="close"></ion-icon>
