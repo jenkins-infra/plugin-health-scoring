@@ -25,7 +25,9 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 
@@ -46,4 +48,14 @@ public class ScoringService {
     public Optional<Scoring> get(String key) {
         return scoringList.stream().filter(scoring -> scoring.key().equals(key)).findFirst();
     }
+
+    public Map<String, ScoreView> getScoringsView() {
+        return getScoringList().stream()
+            .map(scoring -> new ScoringService.ScoreView(
+                scoring.key(), scoring.coefficient(), scoring.description(), scoring.getScoreComponents()
+            ))
+            .collect(Collectors.toMap(ScoreView::key, s -> s));
+    }
+
+    public record ScoreView(String key, float coefficient, String description, Map<String, Float> components) {}
 }

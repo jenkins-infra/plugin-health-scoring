@@ -6,7 +6,7 @@
 <body>
 
 <section data-layout-fragment="content">
-    <h1 data-th-utext="'Score of <em>' + ${score.plugin.name} + '</em> plugin'"></h1>
+    <h1 data-th-utext="'Score of <em>' + ${score.pluginName} + '</em> plugin'"></h1>
     <div class="card score" data-th-text="${score.value}"></div>
 
     <h3>Details</h3>
@@ -21,15 +21,15 @@
         </tr>
         </thead>
         <tbody>
-        <th-block data-th-each="detail: ${details}">
-            <tr class="collapse" data-th-data-target="'collapse-' + ${detail.key}">
+        <th-block data-th-each="scoreDetail: ${score.details}">
+            <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
                 <td><ion-icon name="chevron-expand"></ion-icon></td>
-                <td><code data-th-text="${detail.key}"></code></td>
-                <td align="center" data-th-text="${detail.value}"></td>
-                <td align="center" data-th-text="${detail.coefficient}"></td>
-                <td data-th-text="${detail.description}"></td>
+                <td><code data-th-text="${scoreDetail.key}"></code></td>
+                <td align="center" data-th-text="${scoreDetail.value}"></td>
+                <td align="center" data-th-text="${scoreDetail.coefficient}"></td>
+                <td data-th-text="${scores.get(scoreDetail.key)?.description}"></td>
             </tr>
-            <tr class="collapse-content" data-th-classappend="${detail.value} != 1.0 ? 'show':_" data-th-id="'collapse-' + ${detail.key}">
+            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 1.0 ? 'show':_" data-th-id="'collapse-' + ${scoreDetail.key}">
                 <td colspan="5">
                     <h3>Details:</h3>
                     <table class="table">
@@ -42,23 +42,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr data-th-each="component : ${detail.components}"
-                            data-th-with="key=${component.key},maxScore = ${component.value},result = ${score.plugin.details.get(component.key)}">
+                        <tr data-th-each="component : ${scores.get(scoreDetail.key)?.components}"
+                            data-th-with="probeResult=${score.probeResults.get(component.key)}">
+                            <td><code data-th-text="${component.key}"></code></td>
+                            <td data-th-text="${component.value}"></td>
                             <td>
-                                <code data-th-text="${key}"></code>
-                            </td>
-                            <td data-th-text="${maxScore}"></td>
-                            <td>
-                                <ion-icon data-th-if="${result} != null and ${result.status.name()} == 'SUCCESS'"
+                                <ion-icon data-th-if="${probeResult} != null and ${probeResult.status} == 'SUCCESS'"
                                           class="success"
                                           name="checkmark-circle"></ion-icon>
-                                <ion-icon data-th-if="${result} == null or ${result.status.name()} == 'FAILURE'"
+                                <ion-icon data-th-if="${probeResult} == null or ${probeResult.status} == 'FAILURE'"
                                           class="failure"
                                           name="close"></ion-icon>
                             </td>
                             <td>
-                                <span data-th-if="${result} != null" data-th-text="${result.message}"></span>
-                                <span data-th-unless="${result} != null">Not executed</span>
+                                <span data-th-if="${probeResult} != null" data-th-text="${probeResult.message}"></span>
+                                <span data-th-if="${probeResult} == null">
+                                    Not executed.
+                                    This probes requires <code data-th-text="${#strings.arrayJoin(probes.get(component.key)?.requirements, ',')}"></code> to be successful to be executed.
+                                </span>
                             </td>
                         </tr>
                         </tbody>
@@ -70,30 +71,30 @@
     </table>
 
     <h3>Probes results</h3>
-    <div data-th-if="${#maps.size(score.plugin.details)} > 0">
+    <div data-th-if="${#maps.size(score.probeResults)} > 0">
         <table class="table">
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Status</th>
                 <th>Message</th>
-                <th>Timestamp</th>
+                <th>Description</th>
             </tr>
             </thead>
             <tbody>
-            <tr data-th-each="detail: ${score.plugin.details}" data-th-with="probe = ${detail.value}">
-                <td><code data-th-text="${probe.id}"></code></td>
+            <tr data-th-each="iter: ${score.probeResults}" data-th-with="probeResult = ${iter.value}">
+                <td><code data-th-text="${probeResult.key}"></code></td>
                 <td>
-                    <ion-icon data-th-if="${probe.status.name()} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
-                    <ion-icon data-th-if="${probe.status.name()} == 'FAILURE'" class="failure" name="close"></ion-icon>
+                    <ion-icon data-th-if="${probeResult.status} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
+                    <ion-icon data-th-if="${probeResult.status} == 'FAILURE'" class="failure" name="close"></ion-icon>
                 </td>
-                <td data-th-text="${probe.message}"></td>
-                <td data-th-text="${#temporals.format(probe.timestamp)}"></td>
+                <td data-th-text="${probeResult.message}"></td>
+                <td data-th-text="${probes.get(probeResult.key)?.description}"></td>
             </tr>
             </tbody>
         </table>
     </div>
-    <p data-th-unless="${#maps.size(score.plugin.details) > 0}">
+    <p data-th-unless="${#maps.size(score.pluginProbeResults) > 0}">
         No probe were executed on the plugin yet.
     </p>
 </section>
