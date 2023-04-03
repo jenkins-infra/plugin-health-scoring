@@ -186,7 +186,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage is above 75%. Branch coverage is above 75%."));
+            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage is above 70%. Branch coverage is above 60%."));
     }
 
     @SuppressWarnings("unchecked")
@@ -228,7 +228,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         final GHCheckRun checkRun = mock(GHCheckRun.class);
         final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
-        when(output.getTitle()).thenReturn("Line: 51.42% (+0.00% against last successful build). Branch: 64.52% (+0.00% against last successful build).");
+        when(output.getTitle()).thenReturn("Line: 51.42% (+0.00% against last successful build). Branch: 44.52% (+0.00% against last successful build).");
         when(checkRun.getOutput()).thenReturn(output);
         when(checkRuns.toList()).thenReturn(
             List.of(checkRun)
@@ -243,7 +243,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is below 75%. Branch coverage is below 75%."));
+            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is below 70%. Branch coverage is below 60%."));
     }
 
     @SuppressWarnings("unchecked")
@@ -285,7 +285,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         final GHCheckRun checkRun = mock(GHCheckRun.class);
         final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
-        when(output.getTitle()).thenReturn("Line: 81.95% (+0.00% against last successful build). Branch: 64.52% (+0.00% against last successful build).");
+        when(output.getTitle()).thenReturn("Line: 81.95% (+0.00% against last successful build). Branch: 54.52% (+0.00% against last successful build).");
         when(checkRun.getOutput()).thenReturn(output);
         when(checkRuns.toList()).thenReturn(
             List.of(checkRun)
@@ -300,7 +300,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is above 75%. Branch coverage is below 75%."));
+            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is above 70%. Branch coverage is below 60%."));
     }
 
     @SuppressWarnings("unchecked")
@@ -357,7 +357,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is below 75%. Branch coverage is above 75%."));
+            .isEqualTo(ProbeResult.failure(CodeCoverageProbe.KEY, "Line coverage is below 70%. Branch coverage is above 60%."));
     }
 
     @SuppressWarnings("unchecked")

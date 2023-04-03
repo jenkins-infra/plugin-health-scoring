@@ -45,8 +45,8 @@ import org.springframework.stereotype.Component;
 @Order(CodeCoverageProbe.ORDER)
 public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
-    private static final int LINE_COVERAGE_THRESHOLD = 75;
-    private static final int BRANCH_COVERAGE_THRESHOLD = 75;
+    private static final int LINE_COVERAGE_THRESHOLD = 70;
+    private static final int BRANCH_COVERAGE_THRESHOLD = 60;
 
     private static final String COVERAGE_TITLE_REGEXP =
         "^Line: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?.$";
