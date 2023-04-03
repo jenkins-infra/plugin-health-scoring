@@ -29,7 +29,7 @@
                 <td align="center" data-th-text="${detail.coefficient}"></td>
                 <td data-th-text="${detail.description}"></td>
             </tr>
-            <tr class="collapse-content" data-th-id="'collapse-' + ${detail.key}">
+            <tr class="collapse-content" data-th-classappend="${detail.value} != 1.0 ? 'show':_" data-th-id="'collapse-' + ${detail.key}">
                 <td colspan="5">
                     <h3>Details:</h3>
                     <table class="table">
@@ -49,8 +49,12 @@
                             </td>
                             <td data-th-text="${maxScore}"></td>
                             <td>
-                                <ion-icon data-th-if="${result} != null and ${result.status.name()} == 'SUCCESS'" class="success" name="checkmark-circle"></ion-icon>
-                                <ion-icon data-th-if="${result} == null or ${result.status.name()} == 'FAILURE'" class="failure" name="close"></ion-icon>
+                                <ion-icon data-th-if="${result} != null and ${result.status.name()} == 'SUCCESS'"
+                                          class="success"
+                                          name="checkmark-circle"></ion-icon>
+                                <ion-icon data-th-if="${result} == null or ${result.status.name()} == 'FAILURE'"
+                                          class="failure"
+                                          name="close"></ion-icon>
                             </td>
                             <td>
                                 <span data-th-if="${result} != null" data-th-text="${result.message}"></span>
