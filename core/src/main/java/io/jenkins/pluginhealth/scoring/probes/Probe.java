@@ -113,7 +113,7 @@ public abstract class Probe {
      *
      * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
      */
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{};
     }
 

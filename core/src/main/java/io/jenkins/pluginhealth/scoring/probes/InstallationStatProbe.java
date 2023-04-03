@@ -55,7 +55,7 @@ public class InstallationStatProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }

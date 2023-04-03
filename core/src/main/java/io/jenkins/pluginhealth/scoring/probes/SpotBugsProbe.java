@@ -87,7 +87,7 @@ public class SpotBugsProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

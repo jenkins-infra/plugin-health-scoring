@@ -82,7 +82,7 @@ public class DependabotPullRequestProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{DependabotProbe.KEY};
     }
 }
