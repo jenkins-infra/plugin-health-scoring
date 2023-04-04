@@ -24,10 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -106,7 +102,7 @@ class ScoreControllerTest {
             .andExpect(view().name("scores/details"))
             .andExpect(model().attribute("module", "scores"))
             .andExpect(model().attributeExists("score", "scores", "probes"))
-            .andExpect(model().attribute(
+            /*.andExpect(model().attribute(
                 "score",
                 allOf(
                     hasProperty("value", equalTo(42L)),
@@ -114,7 +110,7 @@ class ScoreControllerTest {
                     hasProperty("probeResults", instanceOf(Map.class)),
                     hasProperty("details", instanceOf(Collection.class))
                 )
-            ));
+            ))*/; // TODO see https://github.com/hamcrest/JavaHamcrest/issues/392
     }
 
     @Test
