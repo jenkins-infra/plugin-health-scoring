@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.probes.Probe;
-import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
@@ -58,7 +56,7 @@ public class ScoreController {
     }
 
     @ModelAttribute(name = "module")
-        /* default */ String module() {
+    /* default */ String module() {
         return "scores";
     }
 

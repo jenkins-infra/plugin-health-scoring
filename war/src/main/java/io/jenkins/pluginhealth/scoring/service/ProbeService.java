@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
@@ -58,10 +57,6 @@ public class ProbeService {
 
     public List<Probe> getProbes() {
         return probes;
-    }
-
-    public Optional<Probe> getProbeByKey(String key) {
-        return probes.stream().filter(p -> p.key().equals(key)).findFirst();
     }
 
     private static final List<String> IGNORE_RAW_RESULT_PROBES = List.of(
