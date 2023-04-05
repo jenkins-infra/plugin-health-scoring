@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Order(JenkinsCoreProbe.ORDER)
 public class JenkinsCoreProbe extends Probe {
     public static final String KEY = "jenkins-version";
-    public static final int ORDER = 0;
+    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -61,5 +61,10 @@ public class JenkinsCoreProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }
