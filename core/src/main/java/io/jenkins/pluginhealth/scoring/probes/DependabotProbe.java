@@ -45,14 +45,18 @@ public class DependabotProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path scmRepository = context.getScmRepository();
         final Path githubConfig = scmRepository.resolve(".github");
+        if (Files.notExists(githubConfig)) {
+            return ProbeResult.failure(key(), "No GitHub configuration folder");
+        }
 
         try (Stream<Path> paths = Files
-            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path) && path.getFileName().toString().startsWith("dependabot"))) {
+            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path)
+                && path.getFileName().toString().startsWith("dependabot"))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), "Dependabot is configured"))
                 .orElseGet(() -> ProbeResult.failure(key(), "No configuration file for dependabot"));
         } catch (IOException ex) {
-            return ProbeResult.failure(key(), "No GitHub configuration folder");
+            return ProbeResult.error(key(), "Could not browse the plugin folder");
         }
     }
 
@@ -72,7 +76,7 @@ public class DependabotProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

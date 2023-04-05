@@ -62,7 +62,7 @@ public abstract class Probe {
         for (String requirementKey : this.getProbeResultRequirement()) {
             final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
             if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
-                LOGGER.warn("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
+                LOGGER.info("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
                 return false;
             }
         }
@@ -113,7 +113,7 @@ public abstract class Probe {
      *
      * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
      */
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{};
     }
 

@@ -80,7 +80,7 @@ public class ContinuousDeliveryProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

@@ -66,7 +66,7 @@ public class LastCommitDateProbe extends Probe {
             }
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
-                return ProbeResult.failure(key(), "Last commit cannot be found");
+                return ProbeResult.failure(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                 commit.getAuthorIdent().getWhenAsInstant(),
@@ -101,7 +101,7 @@ public class LastCommitDateProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

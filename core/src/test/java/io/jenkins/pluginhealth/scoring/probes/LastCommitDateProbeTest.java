@@ -58,9 +58,31 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldBeExecutedAfterSCMLinkValidation() {
-        assertThat(SCMLinkValidationProbe.ORDER).isLessThan(LastCommitDateProbe.ORDER);
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final LastCommitDateProbe probe = getSpy();
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
+            )
+        );
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, ""));
+        verify(probe, never()).doApply(plugin, ctx);
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, ""));
+        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test

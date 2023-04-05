@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Order(value = InstallationStatProbe.ORDER)
 public class InstallationStatProbe extends Probe {
     public static final String KEY = "stat";
-    public static final int ORDER = 0;
+    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -55,7 +55,7 @@ public class InstallationStatProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }

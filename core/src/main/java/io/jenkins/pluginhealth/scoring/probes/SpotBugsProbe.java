@@ -67,7 +67,7 @@ public class SpotBugsProbe extends Probe {
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.failure(key(), "Could not get SpotBugs check");
+            return ProbeResult.error(key(), "Could not get SpotBugs check");
         }
     }
 
@@ -87,7 +87,7 @@ public class SpotBugsProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

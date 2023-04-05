@@ -38,11 +38,13 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class UpdateCenterPublishedPluginDetectionScoringTest {
+class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTest<UpdateCenterPublishedPluginDetectionScoring> {
+    @Override
+    UpdateCenterPublishedPluginDetectionScoring getSpy() {
+        return spy(UpdateCenterPublishedPluginDetectionScoring.class);
+    }
+
     @Test
     public void shouldScoreCorrectlyWhenPluginInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
@@ -62,7 +64,7 @@ class UpdateCenterPublishedPluginDetectionScoringTest {
     @Test
     public void shouldBadlyScorePluginWithNoProbe() {
         final Plugin plugin = mock(Plugin.class);
-        final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
+        final UpdateCenterPublishedPluginDetectionScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of());
 
@@ -76,7 +78,7 @@ class UpdateCenterPublishedPluginDetectionScoringTest {
     @Test
     public void shouldScoreBadlyWhenPluginNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
-        final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
+        final UpdateCenterPublishedPluginDetectionScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             UpdateCenterPluginPublicationProbe.KEY, new ProbeResult(UpdateCenterPluginPublicationProbe.KEY, "", ResultStatus.FAILURE)

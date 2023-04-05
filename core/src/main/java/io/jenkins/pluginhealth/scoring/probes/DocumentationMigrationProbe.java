@@ -47,7 +47,7 @@ public class DocumentationMigrationProbe extends Probe {
         return pluginDocumentationLinks.isEmpty() ?
             ProbeResult.error(key(), "No link to documentation can be confirmed") :
             linkDocumentationForPlugin == null ?
-                ProbeResult.failure(key(), "Plugin is not listed in documentation migration source") :
+                ProbeResult.error(key(), "Plugin is not listed in documentation migration source") :
                 scm != null && scm.contains(linkDocumentationForPlugin) ?
                     ProbeResult.success(key(), "Documentation is located in the plugin repository") :
                     ProbeResult.failure(key(), "Documentation is not located in the plugin repository");
@@ -69,7 +69,7 @@ public class DocumentationMigrationProbe extends Probe {
     }
 
     @Override
-    protected String[] getProbeResultRequirement() {
+    public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

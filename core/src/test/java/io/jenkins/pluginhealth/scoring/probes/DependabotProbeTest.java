@@ -59,7 +59,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldRequireValidSCM() {
+    void shouldRequireValidSCMAndLastCommit() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
