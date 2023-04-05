@@ -12,16 +12,20 @@
         <thead>
         <tr>
             <th>Key</th>
-            <th>Name</th>
             <th>Weight</th>
+            <th>Probe(s) used</th>
             <th>Description</th>
         </tr>
         </thead>
         <tbody>
         <tr data-th-each="scoring: ${scorings}">
             <td><code class="label" data-th-text="${scoring.key}"></code></td>
-            <td data-th-text="${scoring.name}"></td>
             <td align="center" data-th-text="${scoring.coefficient}"></td>
+            <td>
+                <code class="label"
+                      data-th-each="component : ${scoring.scoreComponents}"
+                      data-th-text="${component.key}"></code>
+            </td>
             <td data-th-text="${scoring.description}"></td>
         </tr>
         </tbody>
