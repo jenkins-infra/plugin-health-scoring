@@ -19,7 +19,7 @@ pipeline {
       steps {
         script {
           infra.withArtifactCachingProxy() {
-            def OPTS = env.MAVEN_SETTINGS ?: "-s ${MAVEN_SETTINGS}"
+            def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
             sh """
               ./mvnw -V \
                 ${OPTS} \
