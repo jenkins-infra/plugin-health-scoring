@@ -22,6 +22,7 @@ pipeline {
             def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
             sh """
               ./mvnw -V \
+                --no-transfer-progress \
                 ${OPTS} \
                 verify \
                 checkstyle:checkstyle \
