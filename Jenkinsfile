@@ -19,9 +19,9 @@ pipeline {
       steps {
         script {
           def OPTS=''
-          if [[ -n ${MAVEN_SETTINGS} ]]; then
+          if(env.MAVEN_SETTINGS) {
             OPTS="-s ${MAVEN_SETTINGS}"
-          fi
+          }
           infra.withArtifactCachingProxy() {
             sh """
               ./mvnw -V \
