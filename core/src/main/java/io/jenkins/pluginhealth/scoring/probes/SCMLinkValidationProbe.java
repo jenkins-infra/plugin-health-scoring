@@ -46,7 +46,7 @@ public class SCMLinkValidationProbe extends Probe {
 
     private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
+    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
 
     @Override
@@ -91,5 +91,10 @@ public class SCMLinkValidationProbe extends Probe {
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
         }
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }
