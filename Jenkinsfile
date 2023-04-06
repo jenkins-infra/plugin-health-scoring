@@ -17,17 +17,23 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        infra.withArtifactCachingProxy() {
-          sh '''
-            ./mvnw -V \
-              -s ${MAVEN_SETTINGS} \
-              verify \
-              checkstyle:checkstyle \
-              spotbugs:spotbugs \
-              -Dmaven.test.failure.ignore \
-              -Dcheckstyle.failOnViolation=false \
-              -Dspotbugs.failOnError=false
-          '''
+        script {
+          def OPTS=''
+          if [[ -n ${MAVEN_SETTINGS} ]]; then
+            OPTS="-s ${MAVEN_SETTINGS}"
+          fi
+          infra.withArtifactCachingProxy() {
+            sh """
+              ./mvnw -V \
+                ${OPTS} \
+                verify \
+                checkstyle:checkstyle \
+                spotbugs:spotbugs \
+                -Dmaven.test.failure.ignore \
+                -Dcheckstyle.failOnViolation=false \
+                -Dspotbugs.failOnError=false
+            """
+          }
         }
       }
 
