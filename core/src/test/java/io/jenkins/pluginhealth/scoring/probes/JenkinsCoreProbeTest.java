@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -75,9 +77,9 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         assertThat(result).isNotNull();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result).extracting("id").isEqualTo(probe.key());
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.FAILURE);
-            softly.assertThat(result).extracting("message").isEqualTo("Plugin is not in the update-center");
+            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.ERROR);
         });
+        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test
@@ -87,6 +89,9 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,

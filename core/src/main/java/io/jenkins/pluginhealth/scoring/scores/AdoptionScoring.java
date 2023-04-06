@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.scores;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -43,10 +44,10 @@ public class AdoptionScoring extends Scoring {
     private static final String KEY = "adoption";
 
     @Override
-    protected ScoreResult doApply(Plugin plugin) {
-        final ProbeResult adoptionProbeResult = plugin.getDetails().get(UpForAdoptionProbe.KEY);
-        if (adoptionProbeResult != null && adoptionProbeResult.status().equals(ResultStatus.FAILURE)) {
-            return new ScoreResult(KEY, 0, COEFFICIENT);
+    public ScoreResult apply(Plugin plugin) {
+        final ScoreResult result = super.apply(plugin);
+        if (result.value() == 0) {
+            return result;
         }
 
         final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
@@ -77,6 +78,13 @@ public class AdoptionScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
+    }
+
+    @Override
+    public Map<String, Float> getScoreComponents() {
+        return Map.of(
+            UpForAdoptionProbe.KEY, 1f
+        );
     }
 
     @Override

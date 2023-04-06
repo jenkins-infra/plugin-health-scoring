@@ -24,9 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
-import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,14 +33,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.time.ZonedDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.scores.Scoring;
+import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -63,6 +62,7 @@ import org.springframework.test.web.servlet.MockMvc;
     controllers = ScoreController.class
 )
 class ScoreControllerTest {
+    @MockBean private ProbeService probeService;
     @MockBean private ScoreService scoreService;
     @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
@@ -72,41 +72,45 @@ class ScoreControllerTest {
         mockMvc.perform(get("/scores"))
             .andExpect(status().isOk())
             .andExpect(view().name("scores/listing"))
+            .andExpect(model().attribute("module", "scores"))
             .andExpect(model().attributeExists("scorings"));
     }
 
     @Test
     void shouldDisplayScoreForSpecificPlugin() throws Exception {
         final String pluginName = "foo-bar";
-        final ZonedDateTime scoreComputationTime = ZonedDateTime.now().minusMinutes(10);
+        final String probeKey = "probe-key";
+        final String scoreKey = "score-key";
 
         final Plugin plugin = mock(Plugin.class);
         when(plugin.getName()).thenReturn(pluginName);
-
-        final Scoring scoring = mock(Scoring.class);
-        when(scoring.description()).thenReturn("description");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            probeKey, ProbeResult.success(probeKey, "message")
+        ));
 
         final Score score = mock(Score.class);
         when(score.getPlugin()).thenReturn(plugin);
-        when(score.getComputedAt()).thenReturn(scoreComputationTime);
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(
-            new ScoreResult("foo", .42f, 1f)
+            new ScoreResult(scoreKey, .42f, 1f)
         ));
 
-        when(scoringService.get("foo")).thenReturn(Optional.of(scoring));
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));
 
         mockMvc.perform(get("/scores/{pluginName}", pluginName))
             .andExpect(status().isOk())
-            .andExpect(model().attributeExists("score"))
-            .andExpect(model().attribute(
+            .andExpect(view().name("scores/details"))
+            .andExpect(model().attribute("module", "scores"))
+            .andExpect(model().attributeExists("score", "scores", "probes"))
+            /*.andExpect(model().attribute(
                 "score",
                 allOf(
                     hasProperty("value", equalTo(42L)),
-                    hasProperty("computedAt", equalTo(scoreComputationTime))
+                    hasProperty("pluginName", equalTo(pluginName)),
+                    hasProperty("probeResults", instanceOf(Map.class)),
+                    hasProperty("details", instanceOf(Collection.class))
                 )
-            ));
+            ))*/; // TODO see https://github.com/hamcrest/JavaHamcrest/issues/392
     }
 
     @Test
@@ -117,7 +121,7 @@ class ScoreControllerTest {
         mockMvc.perform(get("/scores/foo-bar"))
             .andExpect(status().isNotFound())
             .andExpect(view().name("scores/unknown"))
+            .andExpect(model().attribute("module", "scores"))
             .andExpect(model().attribute("pluginName", equalTo("foo-bar")));
     }
-
 }

@@ -22,32 +22,51 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.util.Map;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
-abstract class AbstractProbeTest<T extends Probe> {
-    /**
-     * Create a {@link org.mockito.Mockito#spy(Object)} spy} of the specific Probe implementation to be tested.
-     *
-     * @return a spy of the Probe been tested
-     */
+public abstract class AbstractScoringTest<T extends Scoring> {
     abstract T getSpy();
 
     @Test
-    void shouldUseValidKey() {
-        assertThat(getSpy().key()).isNotBlank();
+    void shouldHaveValidName() {
+        assertThat(getSpy().name()).isNotBlank();
     }
 
     @Test
     void shouldHaveDescription() {
-        assertThat(getSpy().getDescription()).isNotBlank();
+        assertThat(getSpy().description()).isNotBlank();
     }
 
     @Test
-    void shouldNotHaveNullRequirement() {
-        assertThat(getSpy().getProbeResultRequirement()).isNotNull();
+    void shouldNotHaveNullNotEmptyRequirements() {
+        assertThat(getSpy().getScoreComponents()).isNotEmpty();
+    }
+
+    @Test
+    void shouldReturnNonNullScoreResult() {
+        final Plugin plugin = mock(Plugin.class);
+        final T scoring = getSpy();
+
+        when(scoring.getScoreComponents()).thenReturn(Map.of("foo", 1f));
+        final ScoreResult score = scoring.apply(plugin);
+
+        assertThat(score.key()).isEqualTo(scoring.key());
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(score.key()).isEqualTo(scoring.key());
+            softly.assertThat(score.coefficient()).isEqualTo(scoring.coefficient());
+            softly.assertThat(score.value()).isEqualTo(0f);
+        });
     }
 }
