@@ -172,9 +172,8 @@ class ScoreServiceIT extends AbstractDBContainerTest {
     }
 
     @Test
-    void shouldBeAbeToRetrieveScoreStatistics() {
+    void shouldBeAbeToRetrieveScoreStatisticsAndIgnoreOldScores() {
         final String s1Key = "foo";
-        final String s2Key = "bar";
 
         final Plugin p1 = entityManager.persist(new Plugin(
             "plugin-1", new VersionNumber("1.0"), null, ZonedDateTime.now().minusMinutes(5)
@@ -199,39 +198,40 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         ));
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
-        p1s.addDetail(new ScoreResult(s1Key, 1, 1));
-        p1s.addDetail(new ScoreResult(s2Key, 0, .5f));
+        p1s.addDetail(new ScoreResult(s1Key, .5f, .5f));
+
+        final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
+        p1sOld.addDetail(new ScoreResult(s1Key, 1, 1));
 
         final Score p2s = new Score(p2, ZonedDateTime.now());
         p2s.addDetail(new ScoreResult(s1Key, 0, 1));
 
-        final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
-        p1sOld.addDetail(new ScoreResult(s1Key, 1, 1));
-        p1sOld.addDetail(new ScoreResult(s2Key, 1, .5f));
+        final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(5));
+        p2sOld.addDetail(new ScoreResult(s1Key, .9f, 1));
 
         final Score p3s = new Score(p3, ZonedDateTime.now());
         p3s.addDetail(new ScoreResult(s1Key, 1, 1));
 
         final Score p4s = new Score(p4, ZonedDateTime.now());
-        p3s.addDetail(new ScoreResult(s1Key, .75f, 1));
+        p4s.addDetail(new ScoreResult(s1Key, .75f, 1));
 
         final Score p5s = new Score(p5, ZonedDateTime.now());
-        p3s.addDetail(new ScoreResult(s1Key, .8f, 1));
+        p5s.addDetail(new ScoreResult(s1Key, .8f, 1));
 
         final Score p6s = new Score(p6, ZonedDateTime.now());
-        p3s.addDetail(new ScoreResult(s1Key, .42f, 1));
+        p6s.addDetail(new ScoreResult(s1Key, .42f, 1));
 
         final Score p7s = new Score(p7, ZonedDateTime.now());
-        p3s.addDetail(new ScoreResult(s1Key, 0, 1));
+        p7s.addDetail(new ScoreResult(s1Key, 0, 1));
 
-        List.of(p1s, p2s, p1sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
-        assertThat(scoreRepository.count()).isEqualTo(8);
+        List.of(p1s, p1sOld, p2s, p2sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
+        assertThat(scoreRepository.count()).isEqualTo(9);
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
 
         assertThat(scoresStatistics)
             .isEqualTo(new ScoreService.ScoreStatistics(
-                0, 100, 0, 67, 80
+                50, 0, 100, 0,50, 80
             ));
     }
 }
