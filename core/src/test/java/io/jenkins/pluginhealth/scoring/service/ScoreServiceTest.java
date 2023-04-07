@@ -55,7 +55,7 @@ public class ScoreServiceTest {
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
         assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(
-            50, 0, 100, 0,50, 80
+            50, 0, 100, 0, 50, 80
         ));
     }
 }
