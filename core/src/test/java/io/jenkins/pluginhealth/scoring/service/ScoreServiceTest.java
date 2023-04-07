@@ -49,9 +49,9 @@ public class ScoreServiceTest {
 
     @Test
     void shouldBeAbleToComputeScoreStatisticCorrectly() {
-        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {
-            50, 0, 100, 75, 80, 42, 0
-        });
+        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(
+            new int[] { 50, 0, 100, 75, 80, 42, 0 }
+        );
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
         assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(
