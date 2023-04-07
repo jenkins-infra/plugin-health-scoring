@@ -49,7 +49,7 @@ public class ScoreServiceTest {
 
     @Test
     void shouldBeAbleToComputeScoreStatisticCorrectly() {
-        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[]{
+        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {
             50, 0, 100, 75, 80, 42, 0
         });
 
