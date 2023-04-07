@@ -79,4 +79,33 @@ class PluginTest {
         assertThat(plugin.getDetails())
             .containsExactly(entry(probeKey, previousProbeResult));
     }
+
+    @Test
+    void shouldOverrideSuccessfulPreviousResultWithFailure() {
+        final Plugin plugin = spy(Plugin.class);
+        final String probeKey = "foo";
+        final String probeResultMessage = "this is a message";
+
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(10));
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.FAILURE, ZonedDateTime.now());
+
+        plugin.addDetails(previousProbeResult);
+        plugin.addDetails(probeResult);
+
+        assertThat(plugin.getDetails()).hasSize(1);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, probeResult));
+    }
+
+    @Test
+    void shouldRemoveEntryWhenNewStatusInError() {
+        final Plugin plugin = spy(Plugin.class);
+        final String probeKey = "foo";
+
+        plugin.addDetails(ProbeResult.success(probeKey, ""));
+        assertThat(plugin.getDetails()).hasSize(1);
+
+        plugin.addDetails(ProbeResult.error(probeKey, ""));
+        assertThat(plugin.getDetails()).isEmpty();
+    }
 }

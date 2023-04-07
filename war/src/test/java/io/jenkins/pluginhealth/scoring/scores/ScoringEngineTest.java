@@ -68,8 +68,8 @@ class ScoringEngineTest {
         final Scoring scoringB = mock(Scoring.class);
 
         when(plugin.getName()).thenReturn("foo-bar");
-        when(scoringA.doApply(plugin)).thenReturn(new ScoreResult("scoring-a", 1, .5f));
-        when(scoringB.doApply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1));
+        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 1, .5f));
+        when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(scoreService.save(any(Score.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -98,8 +98,8 @@ class ScoringEngineTest {
         when(pluginB.getName()).thenReturn("plugin-b");
         when(pluginC.getName()).thenReturn("plugin-c");
 
-        when(scoringA.doApply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 1, 0.5f));
-        when(scoringB.doApply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", .75f, .75f));
+        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 1, 0.5f));
+        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", .75f, .75f));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));

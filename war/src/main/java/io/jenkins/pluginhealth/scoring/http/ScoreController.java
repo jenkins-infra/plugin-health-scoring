@@ -24,12 +24,13 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.scores.Scoring;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -44,10 +45,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping(path = "/scores")
 public class ScoreController {
+    private final ProbeService probeService;
     private final ScoreService scoreService;
     private final ScoringService scoringService;
 
-    public ScoreController(ScoreService scoreService, ScoringService scoringService) {
+    public ScoreController(ProbeService probeService, ScoreService scoreService, ScoringService scoringService) {
+        this.probeService = probeService;
         this.scoreService = scoreService;
         this.scoringService = scoringService;
     }
@@ -66,25 +69,42 @@ public class ScoreController {
     public ModelAndView getScoreOf(@PathVariable String pluginName) {
         return scoreService.latestScoreFor(pluginName)
             .map(score -> {
-                final List<ScoreView> details = score.getDetails().stream()
-                    .map(ScoreView::fromScoreResult)
-                    .map(view -> {
-                        final Optional<Scoring> scoring = scoringService.get(view.key());
-                        return scoring.map(value -> view.withDescription(value.description())).orElse(view);
-                    })
+                final Plugin plugin = score.getPlugin();
+                final Map<String, ProbeResultView> probeResultViews = plugin.getDetails().values().stream()
+                    .map(result -> new ProbeResultView(
+                        result.id(), result.status().name(), result.message()
+                    ))
+                    .collect(Collectors.toMap(ProbeResultView::key, value -> value));
+                final List<ScoreResultView> scoreComponents = score.getDetails().stream()
+                    .map(result -> new ScoreResultView(result.key(), result.value(), result.coefficient()))
                     .toList();
-                return new ModelAndView("scores/details", Map.of("score", score, "details", details));
+                final Map<String, ScoringService.ScoreView> scores = scoringService.getScoringsView();
+                final Map<String, ProbeService.ProbeView> probes = probeService.getProbesView();
+
+                final PluginScoreView view = new PluginScoreView(
+                    plugin.getName(),
+                    score.getValue(),
+                    probeResultViews,
+                    scoreComponents
+                );
+                return new ModelAndView("scores/details", Map.of(
+                    "score", view,
+                    "scores", scores,
+                    "probes", probes
+                ));
             })
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 
-    record ScoreView(String key, float value, float coefficient, String description) {
-        public ScoreView withDescription(String description) {
-            return new ScoreView(this.key, this.value, this.coefficient, description);
-        }
+    private record PluginScoreView(String pluginName,
+                                   long value,
+                                   Map<String, ProbeResultView> probeResults,
+                                   Collection<ScoreResultView> details) {
+    }
 
-        public static ScoreView fromScoreResult(ScoreResult scoreResult) {
-            return new ScoreView(scoreResult.key(), scoreResult.value(), scoreResult.coefficient(), null);
-        }
+    private record ProbeResultView(String key, String status, String message) {
+    }
+
+    private record ScoreResultView(String key, float value, float coefficient) {
     }
 }

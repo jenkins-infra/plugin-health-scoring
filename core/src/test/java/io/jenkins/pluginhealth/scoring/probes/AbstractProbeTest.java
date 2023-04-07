@@ -22,36 +22,32 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.scores;
+package io.jenkins.pluginhealth.scoring.probes;
 
-import java.util.Map;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
+import org.junit.jupiter.api.Test;
 
-import org.springframework.stereotype.Component;
+abstract class AbstractProbeTest<T extends Probe> {
+    /**
+     * Create a {@link org.mockito.Mockito#spy(Object)} spy} of the specific Probe implementation to be tested.
+     *
+     * @return a spy of the Probe been tested
+     */
+    abstract T getSpy();
 
-@Component
-public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
-    private static final float COEFFICIENT = 1f;
-    public static final String KEY = "update-center-plugin-publication";
-
-    @Override
-    public String key() {
-        return KEY;
+    @Test
+    void shouldUseValidKey() {
+        assertThat(getSpy().key()).isNotBlank();
     }
 
-    @Override
-    public float coefficient() {
-        return COEFFICIENT;
+    @Test
+    void shouldHaveDescription() {
+        assertThat(getSpy().getDescription()).isNotBlank();
     }
 
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(UpdateCenterPluginPublicationProbe.KEY, 1f);
-    }
-
-    @Override
-    public String description() {
-        return "Scores a plugin based on its presence or not in the update-center.";
+    @Test
+    void shouldNotHaveNullRequirement() {
+        assertThat(getSpy().getProbeResultRequirement()).isNotNull();
     }
 }

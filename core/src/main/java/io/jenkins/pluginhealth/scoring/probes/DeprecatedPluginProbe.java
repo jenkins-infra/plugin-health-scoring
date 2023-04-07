@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DeprecatedPluginProbe.ORDER)
 public class DeprecatedPluginProbe extends Probe {
-    public static final int ORDER = 1;
+    public static final int ORDER = 0;
     public static final String KEY = "deprecation";
 
     @Override

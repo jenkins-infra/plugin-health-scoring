@@ -26,7 +26,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -39,33 +41,21 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class JenkinsCoreProbeTest {
-    @Test
-    void shouldBeUsingJenkinsVersionKey() {
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
-        assertThat(probe.key()).isEqualTo("jenkins-version");
+class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
+    @Override
+    JenkinsCoreProbe getSpy() {
+        return spy(JenkinsCoreProbe.class);
     }
 
     @Test
     void shouldRequireRelease() {
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
-        assertThat(probe.requiresRelease()).isTrue();
+        assertThat(getSpy().requiresRelease()).isTrue();
     }
 
     @Test
     void shouldNotRequireSourceCodeChange() {
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
-        assertThat(probe.isSourceCodeRelated()).isFalse();
-    }
-
-    @Test
-    void shouldHaveDescription() {
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
-        assertThat(probe.getDescription()).isNotBlank();
+        assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
     @Test
@@ -81,15 +71,15 @@ class JenkinsCoreProbeTest {
             List.of()
         ));
 
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
+        final JenkinsCoreProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).isNotNull();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result).extracting("id").isEqualTo(probe.key());
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.FAILURE);
-            softly.assertThat(result).extracting("message").isEqualTo("Plugin is not in the update-center");
+            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.ERROR);
         });
+        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test
@@ -99,6 +89,9 @@ class JenkinsCoreProbeTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
@@ -110,7 +103,7 @@ class JenkinsCoreProbeTest {
             List.of()
         ));
 
-        final JenkinsCoreProbe probe = spy(JenkinsCoreProbe.class);
+        final JenkinsCoreProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).isNotNull();

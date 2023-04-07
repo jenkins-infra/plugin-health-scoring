@@ -12,16 +12,24 @@
         <thead>
         <tr>
             <th>ID</th>
-            <th>Result</th>
+            <th>Success / Number of plugin</th>
+            <th>Failure / Number of plugins</th>
+            <th>Errors</th>
         </tr>
         </thead>
         <tbody>
         <tr data-th-each="probeResult: ${probeResults}">
             <td><code data-th-text="${probeResult.key}"></code></td>
-            <td data-th-text="${probeResult.value} + ' / ' + ${pluginsCount}"></td>
+            <td data-th-text="${probeResult.value.validated} + ' / ' + ${pluginsCount}"></td>
+            <td data-th-text="${probeResult.value.unvalidated} + ' / ' + ${pluginsCount}"></td>
+            <td data-th-text="(${pluginsCount} - ${probeResult.value.validated} - ${probeResult.value.unvalidated})"></td>
         </tr>
         </tbody>
     </table>
+    <p>
+        Note: <code class="label">success + failure != total</code> because errors occurring during probes' execution
+        and those are not considered as a plugin related issue.
+    </p>
 </section>
 
 </body>

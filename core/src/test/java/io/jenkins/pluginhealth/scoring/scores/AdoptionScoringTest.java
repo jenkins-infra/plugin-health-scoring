@@ -40,14 +40,16 @@ import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class AdoptionScoringTest {
+class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
+    @Override
+    AdoptionScoring getSpy() {
+        return spy(AdoptionScoring.class);
+    }
+
     @Test
     void shouldScoreZeroForPluginsUpForAdoption() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getDetails()).thenReturn(
@@ -62,7 +64,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreZeroForPluginsWithNoLastCommit() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getDetails()).thenReturn(
@@ -75,7 +77,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreOneForPluginsWithCommitsLessThanSixMonthsOld() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(2));
@@ -92,7 +94,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(8));
@@ -109,7 +111,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(18));
@@ -126,7 +128,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(3));
@@ -143,7 +145,7 @@ class AdoptionScoringTest {
 
     @Test
     void shouldScoreZeroForPluginsWithCommitsMoreThanFourYearsOld() {
-        final AdoptionScoring scoring = spy(AdoptionScoring.class);
+        final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(4));

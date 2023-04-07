@@ -26,12 +26,13 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -39,31 +40,67 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class DependabotProbeTest {
-    @Test
-    void shouldNotRequireRelease() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
+    @Override
+    DependabotProbe getSpy() {
+        return spy(DependabotProbe.class);
     }
 
     @Test
-    void shouldUseDependabotKey() {
-        final DependabotProbe probe = spy(DependabotProbe.class);
-        assertThat(probe.key()).isEqualTo("dependabot");
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Test
+    void shouldBeRelatedToCode() {
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldRequireValidSCMAndLastCommit() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+            ),
+            Map.of(
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+            ),
+            Map.of(
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+            )
+        );
+
+        final DependabotProbe probe = getSpy();
+        for (int i = 0; i < 6; i++) {
+            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            verify(probe, never()).doApply(plugin, ctx);
+        }
     }
 
     @Test
     void shouldDetectMissingDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final DependabotProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(repo);
@@ -75,10 +112,11 @@ class DependabotProbeTest {
     void shouldDetectDependabotFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DependabotProbe probe = new DependabotProbe();
+        final DependabotProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));

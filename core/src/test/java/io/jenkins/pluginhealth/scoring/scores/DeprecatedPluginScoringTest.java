@@ -38,15 +38,17 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class DeprecatedPluginScoringTest {
+class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginScoring> {
+    @Override
+    DeprecatedPluginScoring getSpy() {
+        return spy(DeprecatedPluginScoring.class);
+    }
+
     @Test
     void shouldScoreCorrectlyNotDeprecatedPlugin() {
         final Plugin plugin = mock(Plugin.class);
-        final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
+        final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.SUCCESS)
@@ -62,7 +64,7 @@ class DeprecatedPluginScoringTest {
     @Test
     void shouldBadlyScorePluginWithNoProbe() {
         final Plugin plugin = mock(Plugin.class);
-        final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
+        final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of());
 
@@ -76,7 +78,7 @@ class DeprecatedPluginScoringTest {
     @Test
     void shouldScoreCorrectlyDeprecatedPlugin() {
         final Plugin plugin = mock(Plugin.class);
-        final DeprecatedPluginScoring scoring = spy(DeprecatedPluginScoring.class);
+        final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.FAILURE)
