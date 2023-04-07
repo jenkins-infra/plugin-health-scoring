@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,6 +69,22 @@ public class ScoreService {
             ));
     }
 
+    @Transactional(readOnly = true)
+    public ScoreStatistics getScoresStatistics() {
+        final int[] values = repository.getLatestScoreValueOfEveryPlugin();
+        Arrays.sort(values);
+        final int numberOfElement = values.length;
+
+        return new ScoreStatistics(
+            Math.round((float) Arrays.stream(values).sum() / numberOfElement),
+            values[0],
+            values[numberOfElement - 1],
+            values[(int) (numberOfElement * .25)],
+            values[(int) (numberOfElement * .5)],
+            values[(int) (numberOfElement * .75)]
+        );
+    }
+
     public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
         public static ScoreSummary fromScore(Score score) {
             final Plugin plugin = score.getPlugin();
@@ -78,5 +95,9 @@ public class ScoreService {
                 score.getComputedAt()
             );
         }
+    }
+
+    public record ScoreStatistics(int average, int minimum, int maximum, int firstQuartile, int median,
+                                  int thirdQuartile) {
     }
 }

@@ -37,7 +37,12 @@ public interface PluginRepository extends JpaRepository<Plugin, Long> {
     Optional<Plugin> findByName(String name);
 
     @Query(
-        value = "SELECT count(id) FROM plugins WHERE scm IS NOT NULL AND details -> ?1 ->> 'status' = ?2",
+        value = """
+            SELECT count(id)
+            FROM plugins
+            WHERE
+              details -> ?1 ->> 'status' = ?2
+            """,
         nativeQuery = true
     )
     long getProbeRawResult(String probeID, String status);
