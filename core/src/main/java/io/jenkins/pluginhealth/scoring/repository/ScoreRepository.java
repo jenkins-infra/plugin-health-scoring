@@ -64,4 +64,20 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
         nativeQuery = true
     )
     int[] getLatestScoreValueOfEveryPlugin();
+
+    @Query(
+        value = """
+        DELETE FROM scores
+        WHERE id NOT IN (
+            SELECT id
+            FROM (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY plugin_id ORDER BY computed_at DESC) AS row_num
+                FROM scores
+            ) s
+            WHERE row_num <= 5
+        );
+        """,
+        nativeQuery = true
+    )
+    long deleteOldScoreFromPlugin();
 }
