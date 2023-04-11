@@ -103,7 +103,7 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         List.of(p1s, p2s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(2);
 
-        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
+        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap();
 
         assertThat(summary)
             .extractingFromEntries(
@@ -111,14 +111,8 @@ class ScoreServiceIT extends AbstractDBContainerTest {
                 Map.Entry::getValue
             )
             .containsExactlyInAnyOrder(
-                tuple(
-                    p1.getName(),
-                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails(), p1s.getComputedAt())
-                ),
-                tuple(
-                    p2.getName(),
-                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails(), p2s.getComputedAt())
-                )
+                tuple(p1.getName(), p1s),
+                tuple(p2.getName(), p2s)
             );
     }
 
@@ -152,7 +146,7 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         List.of(p1s, p2s, p1sOld, p2sOld, p1sOld2).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(5);
 
-        final Map<String, ScoreService.ScoreSummary> summary = scoreService.getLatestScoresSummaryMap();
+        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap();
 
         assertThat(summary)
             .extractingFromEntries(
@@ -160,14 +154,8 @@ class ScoreServiceIT extends AbstractDBContainerTest {
                 Map.Entry::getValue
             )
             .containsExactlyInAnyOrder(
-                tuple(
-                    p1.getName(),
-                    new ScoreService.ScoreSummary(p1s.getValue(), p1.getVersion().toString(), p1s.getDetails(), p1s.getComputedAt())
-                ),
-                tuple(
-                    p2.getName(),
-                    new ScoreService.ScoreSummary(p2s.getValue(), p2.getVersion().toString(), p2s.getDetails(), p2s.getComputedAt())
-                )
+                tuple(p1.getName(), p1s),
+                tuple(p2.getName(), p2s)
             );
     }
 
