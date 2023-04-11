@@ -51,14 +51,11 @@ public class ScoreAPI {
     }
 
     @GetMapping(value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
-    /*public Map<String, ScoreService.ScoreSummary> all() {
-        return scoreService.getLatestScoresSummaryMap();
-    }*/
-
     public ScoreReport getReport() {
         final ScoreService.ScoreStatistics stats = scoreService.getScoresStatistics();
         record Tuple(String name, PluginScoreSummary summary) {
         }
+
         final Map<String, PluginScoreSummary> plugins = scoreService.getLatestScoresSummaryMap()
             .entrySet().stream()
             .map(entry -> {
