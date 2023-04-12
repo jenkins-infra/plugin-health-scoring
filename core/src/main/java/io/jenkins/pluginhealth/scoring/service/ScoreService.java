@@ -86,7 +86,7 @@ public class ScoreService {
     }
 
     @Transactional
-    public long deleteOldScores() {
+    public int deleteOldScores() {
         return repository.deleteOldScoreFromPlugin();
     }
 

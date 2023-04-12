@@ -21,7 +21,7 @@ public class DeleteOldScoreScheduler {
     public void deleteOldScores() {
         LOGGER.info("Deleting old scores");
 
-        long numberOfRowsDeleted  = scoreService.deleteOldScores();
+        int numberOfRowsDeleted  = scoreService.deleteOldScores();
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Deleted {} rows when deleting old scores", numberOfRowsDeleted);
