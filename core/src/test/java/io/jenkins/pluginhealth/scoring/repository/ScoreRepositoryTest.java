@@ -3,6 +3,7 @@ package io.jenkins.pluginhealth.scoring.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import hudson.util.VersionNumber;
+import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 
@@ -17,7 +18,7 @@ import java.time.ZonedDateTime;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class ScoreRepositoryTest {
+public class ScoreRepositoryTest extends AbstractDBContainerTest {
 
     @Autowired
     private ScoreRepository repository;
