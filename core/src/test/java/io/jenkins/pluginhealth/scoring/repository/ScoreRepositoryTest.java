@@ -27,8 +27,7 @@ public class ScoreRepositoryTest extends AbstractDBContainerTest {
 
     @Test
     void shouldBeAbleToDeleteOldScores() {
-        final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
-        entityManager.persist(plugin1);
+        final Plugin plugin1 = entityManager.persist(new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now()));
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin2);
         final Plugin plugin3 = new Plugin("plugin-3", new VersionNumber("1.1"), "scm", ZonedDateTime.now());
