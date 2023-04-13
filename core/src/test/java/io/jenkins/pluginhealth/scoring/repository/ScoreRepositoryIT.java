@@ -59,6 +59,8 @@ public class ScoreRepositoryIT extends AbstractDBContainerTest {
         assertThat(noOfRowsDeleted).isEqualTo(6);
 
         List<Score> remainingScores = entityManager.getEntityManager().createQuery("SELECT s FROM Score s", Score.class).getResultList();
+
+        assertThat(remainingScores.size()).isEqualTo(15);
         assertThat(remainingScores).doesNotContain(oldScore1, oldScore2, oldScore21, oldScore22, oldScore31, oldScore32);
 
         assertThat(remainingScores).containsExactlyInAnyOrder(recentScore1, recentScore2, recentScore3, recentScore4, recentScore5,
