@@ -42,7 +42,7 @@ pipeline {
             allowEmptyResults: false,
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
-          publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
+          recordCoverage(tools: [[parser: 'JACOCO', pattern: '**/target/site/**/jacoco.xml', mergeToOneReport: true]], sourceCodeRetention: 'MODIFIED')
           recordIssues enabledForFailure: true,
             tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true,
