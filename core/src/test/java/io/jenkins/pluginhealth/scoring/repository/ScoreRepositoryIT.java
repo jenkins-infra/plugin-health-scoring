@@ -2,6 +2,7 @@ package io.jenkins.pluginhealth.scoring.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -30,32 +31,40 @@ public class ScoreRepositoryIT extends AbstractDBContainerTest {
         final Plugin plugin2 = entityManager.persist(new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now()));
         final Plugin plugin3 = entityManager.persist(new Plugin("plugin-3", new VersionNumber("1.1"), "scm", ZonedDateTime.now()));
 
-        final Score score1 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusDays(1)));
-        final Score score2 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusHours(8)));
-        final Score score3 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusMonths(1)));
-        final Score score4 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
-        final Score score5 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
-        final Score score6 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
-        final Score score7 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
+        final Score oldScore1 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusDays(1)));
+        final Score oldScore2 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusMonths(1)));
+        final Score recentScore1 = entityManager.persist(new Score(plugin1, ZonedDateTime.now().minusHours(8)));
+        final Score recentScore2 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
+        final Score recentScore3 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
+        final Score recentScore4 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
+        final Score recentScore5 = entityManager.persist(new Score(plugin1, ZonedDateTime.now()));
 
-        final Score score21 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(5)));
-        final Score score22 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(4)));
-        final Score score23 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(3)));
-        final Score score24 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(2)));
-        final Score score25 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(1)));
-        final Score score26 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusHours(15)));
-        final Score score27 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusMonths(1)));
+        final Score oldScore21 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusMonths(1)));
+        final Score oldScore22 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(5)));
+        final Score recentScore01 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(3)));
+        final Score recentScore02 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(2)));
+        final Score recentScore03 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(1)));
+        final Score recentScore04 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusHours(15)));
+        final Score recentScore05 = entityManager.persist(new Score(plugin2, ZonedDateTime.now().minusDays(4)));
 
-        final Score score31 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(7)));
-        final Score score32 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(6)));
-        final Score score33 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(5)));
-        final Score score34 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(4)));
-        final Score score35 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(3)));
-        final Score score36 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(2)));
-        final Score score37 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(1)));
+        final Score oldScore31 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(7)));
+        final Score oldScore32 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(6)));
+        final Score recentScore001 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(5)));
+        final Score recentScore002 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(4)));
+        final Score recentScore003 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(3)));
+        final Score recentScore004 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(2)));
+        final Score recentScore005 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(1)));
 
         long noOfRowsDeleted = repository.deleteOldScoreFromPlugin();
         assertThat(noOfRowsDeleted).isEqualTo(6);
+
+        List<Score> remainingScores = entityManager.getEntityManager().createQuery("SELECT s FROM Score s", Score.class).getResultList();
+        assertThat(remainingScores).doesNotContain(oldScore1, oldScore2, oldScore21, oldScore22, oldScore31, oldScore32);
+
+        assertThat(remainingScores).containsExactlyInAnyOrder(recentScore1, recentScore2, recentScore3, recentScore4, recentScore5,
+            recentScore01, recentScore02, recentScore03, recentScore04, recentScore05,
+            recentScore001, recentScore002, recentScore003, recentScore004, recentScore005);
+
     }
 }
 
