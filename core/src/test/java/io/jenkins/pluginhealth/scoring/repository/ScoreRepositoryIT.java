@@ -2,6 +2,7 @@ package io.jenkins.pluginhealth.scoring.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.time.ZonedDateTime;
+
 import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
