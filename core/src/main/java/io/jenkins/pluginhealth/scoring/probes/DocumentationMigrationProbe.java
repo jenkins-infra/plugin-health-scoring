@@ -48,7 +48,7 @@ public class DocumentationMigrationProbe extends Probe {
             ProbeResult.error(key(), "No link to documentation can be confirmed") :
             linkDocumentationForPlugin == null ?
                 ProbeResult.error(key(), "Plugin is not listed in documentation migration source") :
-                scm != null && scm.contains(linkDocumentationForPlugin) ?
+                scm != null && linkDocumentationForPlugin.contains(scm) ?
                     ProbeResult.success(key(), "Documentation is located in the plugin repository") :
                     ProbeResult.failure(key(), "Documentation is not located in the plugin repository");
     }
