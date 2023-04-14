@@ -57,10 +57,9 @@ public class ScoreRepositoryIT extends AbstractDBContainerTest {
         final Score recentScore005 = entityManager.persist(new Score(plugin3, ZonedDateTime.now().minusDays(1)));
 
         long noOfRowsDeleted = repository.deleteOldScoreFromPlugin();
+        List<Score> remainingScores = repository.findAll();
+
         assertThat(noOfRowsDeleted).isEqualTo(6);
-
-        List<Score> remainingScores = entityManager.getEntityManager().createQuery("SELECT s FROM Score s", Score.class).getResultList();
-
         assertThat(remainingScores.size()).isEqualTo(15);
         assertThat(remainingScores).doesNotContain(oldScore1, oldScore2, oldScore21, oldScore22, oldScore31, oldScore32);
 
