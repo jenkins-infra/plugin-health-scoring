@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DeleteOldScoreScheduler {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteOldScoreScheduler.class);
     private final ScoreService scoreService;
 
