@@ -19,10 +19,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 public class ScoreRepositoryIT extends AbstractDBContainerTest {
-
-    @Autowired
-    private ScoreRepository repository;
-
+    @Autowired private ScoreRepository repository;
     @Autowired private TestEntityManager entityManager;
 
     @Test
