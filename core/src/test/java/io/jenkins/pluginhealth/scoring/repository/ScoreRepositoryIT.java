@@ -56,13 +56,14 @@ public class ScoreRepositoryIT extends AbstractDBContainerTest {
         List<Score> remainingScores = repository.findAll();
 
         assertThat(noOfRowsDeleted).isEqualTo(6);
-        assertThat(remainingScores.size()).isEqualTo(15);
-        assertThat(remainingScores).doesNotContain(oldScore1, oldScore2, oldScore21, oldScore22, oldScore31, oldScore32);
-
-        assertThat(remainingScores).containsExactlyInAnyOrder(recentScore1, recentScore2, recentScore3, recentScore4, recentScore5,
-            recentScore01, recentScore02, recentScore03, recentScore04, recentScore05,
-            recentScore001, recentScore002, recentScore003, recentScore004, recentScore005);
-
+        assertThat(remainingScores)
+            .hasSize(15)
+            .doesNotContain(oldScore1, oldScore2, oldScore21, oldScore22, oldScore31, oldScore32)
+            .containsExactlyInAnyOrder(
+                 recentScore1, recentScore2, recentScore3, recentScore4, recentScore5,
+                 recentScore01, recentScore02, recentScore03, recentScore04, recentScore05,
+                 recentScore001, recentScore002, recentScore003, recentScore004, recentScore005
+            );
     }
 }
 
