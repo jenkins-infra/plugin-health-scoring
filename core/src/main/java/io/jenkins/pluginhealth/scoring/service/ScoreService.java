@@ -85,6 +85,11 @@ public class ScoreService {
         );
     }
 
+    @Transactional
+    public int deleteOldScores() {
+        return repository.deleteOldScoreFromPlugin();
+    }
+
     public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
         public static ScoreSummary fromScore(Score score) {
             final Plugin plugin = score.getPlugin();
