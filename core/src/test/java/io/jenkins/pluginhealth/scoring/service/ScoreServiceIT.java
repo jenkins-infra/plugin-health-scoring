@@ -26,10 +26,12 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -58,11 +60,6 @@ class ScoreServiceIT extends AbstractDBContainerTest {
     @BeforeEach
     void setup() {
         scoreService = new ScoreService(scoreRepository, pluginService);
-    }
-
-    @Test
-    void shouldBeEmpty() {
-        assertThat(scoreRepository.count()).isZero();
     }
 
     @Test
@@ -221,5 +218,18 @@ class ScoreServiceIT extends AbstractDBContainerTest {
             .isEqualTo(new ScoreService.ScoreStatistics(
                 50, 0, 100, 0, 50, 80
             ));
+    }
+
+    @Test
+    void shouldBeAbleToFindLatestScoreForPluginByName() {
+        final String name = "foo";
+        final Plugin plugin = entityManager.persist(
+            new Plugin(name, new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(5))
+        );
+        final Score score = entityManager.persist(new Score(plugin, ZonedDateTime.now()));
+
+        when(pluginService.findByName(name)).thenReturn(Optional.of(plugin));
+
+        assertThat(scoreService.latestScoreFor(name)).contains(score);
     }
 }

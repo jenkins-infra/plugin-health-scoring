@@ -41,10 +41,6 @@ public class JenkinsCoreProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter uc = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = uc.plugins().get(plugin.getName());
-
-        if (ucPlugin == null) {
-            return ProbeResult.failure(KEY, "Plugin is not in the update-center");
-        }
         return ProbeResult.success(KEY, ucPlugin.requiredCore());
     }
 

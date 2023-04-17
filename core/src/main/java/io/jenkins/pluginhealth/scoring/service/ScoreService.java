@@ -81,6 +81,11 @@ public class ScoreService {
         );
     }
 
+    @Transactional
+    public int deleteOldScores() {
+        return repository.deleteOldScoreFromPlugin();
+    }
+
     public record ScoreStatistics(int average, int minimum, int maximum, int firstQuartile, int median,
                                   int thirdQuartile) {
     }

@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -64,4 +65,21 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
         nativeQuery = true
     )
     int[] getLatestScoreValueOfEveryPlugin();
+
+    @Modifying
+    @Query(
+        value = """
+        DELETE FROM scores
+        WHERE id NOT IN (
+            SELECT id
+            FROM (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY plugin_id ORDER BY computed_at DESC) AS row_num
+                FROM scores
+            ) s
+            WHERE row_num <= 5
+        );
+        """,
+        nativeQuery = true
+    )
+    int deleteOldScoreFromPlugin();
 }
