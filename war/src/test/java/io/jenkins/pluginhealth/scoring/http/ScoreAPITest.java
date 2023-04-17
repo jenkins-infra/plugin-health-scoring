@@ -49,7 +49,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@ExtendWith({ SpringExtension.class, MockitoExtension.class })
 @ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
 @WebMvcTest(
     controllers = ScoreAPI.class
