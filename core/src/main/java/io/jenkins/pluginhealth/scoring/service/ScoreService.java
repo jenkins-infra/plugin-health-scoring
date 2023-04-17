@@ -24,16 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.service;
 
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
 import org.springframework.stereotype.Service;
@@ -61,11 +57,11 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, ScoreSummary> getLatestScoresSummaryMap() {
+    public Map<String, Score> getLatestScoresSummaryMap() {
         return repository.findLatestScoreForAllPlugins().stream()
             .collect(Collectors.toMap(
                 score -> score.getPlugin().getName(),
-                ScoreSummary::fromScore
+                score -> score
             ));
     }
 
@@ -88,18 +84,6 @@ public class ScoreService {
     @Transactional
     public int deleteOldScores() {
         return repository.deleteOldScoreFromPlugin();
-    }
-
-    public record ScoreSummary(long value, String version, Set<ScoreResult> details, ZonedDateTime timestamp) {
-        public static ScoreSummary fromScore(Score score) {
-            final Plugin plugin = score.getPlugin();
-            return new ScoreSummary(
-                score.getValue(),
-                plugin.getVersion() == null ? "" : plugin.getVersion().toString(),
-                score.getDetails(),
-                score.getComputedAt()
-            );
-        }
     }
 
     public record ScoreStatistics(int average, int minimum, int maximum, int firstQuartile, int median,
