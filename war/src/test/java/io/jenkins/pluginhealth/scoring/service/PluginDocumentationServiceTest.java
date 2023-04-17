@@ -51,4 +51,12 @@ class PluginDocumentationServiceTest {
             .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
             .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
     }
+
+    @Test
+    void shouldSurviveIncorrectlyConfiguredDocumentationURL() {
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, "this-is-not-a-correct-url");
+        final Map<String, String> map = service.fetchPluginDocumentationUrl();
+
+        assertThat(map).isEmpty();
+    }
 }
