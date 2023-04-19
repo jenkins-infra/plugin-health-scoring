@@ -43,9 +43,9 @@ import java.util.regex.Matcher;
  * this probe will find number of unreleased commits in a repository
  */
 @Component
-@Order(value = HasUnreleasedProductionChangesProbe .ORDER)
+@Order(value = LastCommitDateProbe.ORDER)
 public class HasUnreleasedProductionChangesProbe  extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HasUnreleasedProductionChangesProbe .class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HasUnreleasedProductionChangesProbe.class);
 
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "unreleased-production-changes";
@@ -79,7 +79,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             return ProbeResult.success(key(), commitDate.toString());
         } catch (GitAPIException ex) {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
-            return ProbeResult.failure(key(), "Could not clone the plugin repository");
+            return ProbeResult.error(key(), "Could not clone the plugin repository");
         }
     }
 
