@@ -48,12 +48,19 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
         );
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-plugin/");
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-plugin/tree/master/src");
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
-        final ProbeResult r = probe.apply(plugin, ctx);
+        final ProbeResult probeResult = probe.apply(plugin, ctx);
 
-        assertThat(r.id()).isEqualTo("last-commit-date");
-        assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probeResult.id()).isEqualTo("unreleased-production-changes");
+        assertThat(probeResult.status()).isEqualTo(ResultStatus.SUCCESS);
+
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-plugin/blob/master/pom.xml");
+        when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
+        final ProbeResult probeResult2 = probe.apply(plugin, ctx);
+
+        assertThat(probeResult2.id()).isEqualTo("unreleased-production-changes");
+        assertThat(probeResult2.status()).isEqualTo(ResultStatus.SUCCESS);
     }
 
 
