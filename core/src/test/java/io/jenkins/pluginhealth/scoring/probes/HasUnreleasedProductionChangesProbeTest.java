@@ -7,12 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
 public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnreleasedProductionChangesProbe> {
     @Override
@@ -31,12 +29,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             .comparingOnlyFields("id", "status")
             .isEqualTo(ProbeResult.error(HasUnreleasedProductionChangesProbe.KEY, ""));
         verify(probe, never()).doApply(plugin, ctx);
-
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(HasUnreleasedProductionChangesProbe.KEY, ""));
-        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test
@@ -45,9 +37,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final HasUnreleasedProductionChangesProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
-        );
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-plugin/tree/master/src");
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
         final ProbeResult probeResult = probe.apply(plugin, ctx);
@@ -61,6 +50,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         assertThat(probeResult2.id()).isEqualTo("unreleased-production-changes");
         assertThat(probeResult2.status()).isEqualTo(ResultStatus.SUCCESS);
+
     }
 
 
