@@ -57,7 +57,8 @@ public final class ProbeEngine {
     private final GithubConfiguration githubConfiguration;
     private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration, PluginDocumentationService pluginDocumentationService) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService,
+                       GithubConfiguration githubConfiguration, PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
@@ -72,7 +73,13 @@ public final class ProbeEngine {
         LOGGER.info("Start running probes on all plugins");
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         pluginService.streamAll().parallel()
-            .forEach(plugin -> this.runOn(plugin, updateCenter));
+            .forEach(plugin -> {
+                try {
+                    this.runOn(plugin, probeService.getProbeContext(plugin.getName(), updateCenter));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         LOGGER.info("Probe engine has finished");
     }
 
@@ -85,18 +92,11 @@ public final class ProbeEngine {
     public void runOn(Plugin plugin) throws IOException {
         LOGGER.info("Start running probes on {}", plugin.getName());
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
-        runOn(plugin, updateCenter);
+        runOn(plugin, probeService.getProbeContext(plugin.getName(), updateCenter, true));
         LOGGER.info("Probe engine has finished");
     }
 
-    private void runOn(Plugin plugin, UpdateCenter updateCenter) {
-        final ProbeContext probeContext;
-        try {
-            probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
-        } catch (IOException ex) {
-            LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
-            return;
-        }
+    private void runOn(Plugin plugin, ProbeContext probeContext) {
         try {
             probeContext.setGitHub(githubConfiguration.getGitHub());
         } catch (IOException ex) {

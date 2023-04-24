@@ -66,6 +66,9 @@ public abstract class Probe {
                 return false;
             }
         }
+        if (context.isExecutionForced()) {
+            return true;
+        }
 
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {

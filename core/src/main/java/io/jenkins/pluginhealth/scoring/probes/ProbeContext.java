@@ -46,9 +46,12 @@ public class ProbeContext {
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
 
-    public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+    private final boolean executionForced;
+
+    public ProbeContext(String pluginName, UpdateCenter updateCenter, boolean executionForced) throws IOException {
         this.updateCenter = updateCenter;
         this.scmRepository = Files.createTempDirectory(pluginName);
+        this.executionForced = executionForced;
     }
 
     public UpdateCenter getUpdateCenter() {
@@ -86,6 +89,10 @@ public class ProbeContext {
     public Optional<String> getRepositoryName(String scm) {
         final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
+    }
+
+    public boolean isExecutionForced() {
+        return executionForced;
     }
 
     /* default */ void cleanUp() throws IOException {

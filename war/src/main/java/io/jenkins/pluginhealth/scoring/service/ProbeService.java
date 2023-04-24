@@ -90,7 +90,11 @@ public class ProbeService {
     }
 
     public ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
-        return new ProbeContext(pluginName, updateCenter);
+        return getProbeContext(pluginName, updateCenter, false);
+    }
+
+    public ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter, boolean executionForced) throws IOException {
+        return new ProbeContext(pluginName, updateCenter, executionForced);
     }
 
     public Map<String, ProbeView> getProbesView() {
