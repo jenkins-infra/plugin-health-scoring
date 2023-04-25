@@ -36,6 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.probes.Probe;
+import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
+import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 
@@ -58,6 +60,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class ProbeControllerTest {
     @MockBean private PluginService pluginService;
     @MockBean private ProbeService probeService;
+    @MockBean private ProbeEngine probeEngine;
+    @MockBean private ScoringEngine scoringEngine;
     @Autowired private MockMvc mockMvc;
 
     @Test

@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
  * Each implementation can choose to placed before or after another implementation using {@link org.springframework.core.annotation.Order} flag.
  */
 @Component
-public final class ProbeEngine {
+public class ProbeEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProbeEngine.class);
 
     private final ProbeService probeService;

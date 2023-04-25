@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public final class ScoringEngine {
+public class ScoringEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoringEngine.class);
 
     private final ScoringService scoringService;
