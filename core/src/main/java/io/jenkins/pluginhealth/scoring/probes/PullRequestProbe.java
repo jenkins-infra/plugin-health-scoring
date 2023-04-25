@@ -26,47 +26,32 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order
 public class PullRequestProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PullRequestProbe.class);
-
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "pull-request";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult scmValidationResult = plugin.getDetails().get(SCMLinkValidationProbe.KEY);
-        if (scmValidationResult == null || !ResultStatus.SUCCESS.equals(scmValidationResult.status())) {
-            return ProbeResult.error(key(), "SCM link is not valid, cannot continue");
-        }
-
         try {
             final GitHub gh = context.getGitHub();
             final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
-
             return ProbeResult.success(key(), "%d".formatted(pullRequests.size()));
-        } catch (NoSuchElementException | IOException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(e.getMessage());
-            }
-            return ProbeResult.failure(key(), e.getMessage());
+        } catch (IOException e) {
+            return ProbeResult.error(key(), e.getMessage());
         }
     }
 
@@ -78,5 +63,10 @@ public class PullRequestProbe extends Probe {
     @Override
     public String getDescription() {
         return "Count the number of open pull request on the plugin repository";
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }

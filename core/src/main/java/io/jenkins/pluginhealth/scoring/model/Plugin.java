@@ -111,9 +111,11 @@ public class Plugin {
     }
 
     public Plugin addDetails(ProbeResult newProbeResult) {
-        this.details.compute(newProbeResult.id(), (s, previousProbeResult) -> {
-            return Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult;
-        });
+        this.details.compute(newProbeResult.id(), (s, previousProbeResult) ->
+            newProbeResult.status() == ResultStatus.ERROR ?
+                null :
+                Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult
+        );
         return this;
     }
 

@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
@@ -42,22 +43,22 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
-class DeprecatedPluginProbeTest {
-    @Test
-    void shouldNotRequireRelease() {
-        assertThat(new DeprecatedPluginProbe().requiresRelease()).isFalse();
+class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe> {
+    @Override
+    DeprecatedPluginProbe getSpy() {
+        return spy(DeprecatedPluginProbe.class);
     }
 
     @Test
-    void shouldHaveStaticKey() {
-        assertThat(new DeprecatedPluginProbe().key()).isEqualTo("deprecation");
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
     void shouldBeAbleToDetectNonDeprecatedPlugin() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -73,9 +74,9 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldBeAbleToDetectDeprecatedPlugin() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
@@ -92,7 +93,7 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
@@ -105,7 +106,7 @@ class DeprecatedPluginProbeTest {
             Collections.emptyList()
         ));
 
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
@@ -116,7 +117,7 @@ class DeprecatedPluginProbeTest {
 
     @Test
     void shouldSurviveIfPluginIsNotInUpdateCenter() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
@@ -127,7 +128,7 @@ class DeprecatedPluginProbeTest {
             Collections.emptyList()
         ));
 
-        final DeprecatedPluginProbe probe = new DeprecatedPluginProbe();
+        final DeprecatedPluginProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)

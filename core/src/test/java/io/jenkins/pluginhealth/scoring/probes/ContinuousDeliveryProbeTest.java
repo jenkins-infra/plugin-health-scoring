@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -39,31 +38,32 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class ContinuousDeliveryProbeTest {
-    @Test
-    void shouldNotRequireRelease() {
-        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
-        assertThat(probe.requiresRelease()).isFalse();
+class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryProbe> {
+    @Override
+    ContinuousDeliveryProbe getSpy() {
+        return spy(ContinuousDeliveryProbe.class);
     }
 
     @Test
-    void shouldKeepUsingJEP229Key() {
-        final ContinuousDeliveryProbe probe = spy(ContinuousDeliveryProbe.class);
-        assertThat(probe.key()).isEqualTo("jep-229");
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Test
+    void shouldBeRelatedToCode() {
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGHA() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
 
@@ -76,10 +76,11 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectNotConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
@@ -94,10 +95,11 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
@@ -113,10 +115,11 @@ class ContinuousDeliveryProbeTest {
     void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = new ContinuousDeliveryProbe();
+        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));

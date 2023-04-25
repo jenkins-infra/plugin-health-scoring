@@ -31,7 +31,6 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,8 +38,8 @@ public class UpdateCenterService {
     private final ObjectMapper objectMapper;
     private final String updateCenterURL;
 
-    public UpdateCenterService(@Value("${jenkins.update-center}") String updateCenterURL) {
-        this.objectMapper = Jackson2ObjectMapperBuilder.json().build();
+    public UpdateCenterService(ObjectMapper objectMapper, @Value("${jenkins.update-center}") String updateCenterURL) {
+        this.objectMapper = objectMapper;
         this.updateCenterURL = updateCenterURL;
     }
 

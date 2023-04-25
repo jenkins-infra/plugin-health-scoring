@@ -30,7 +30,6 @@ import java.util.NoSuchElementException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
@@ -47,15 +46,10 @@ public class DependabotPullRequestProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependabotPullRequestProbe.class);
 
     public static final String KEY = "dependabot-pull-requests";
-    public static final int ORDER = DependabotProbe.ORDER + 1;
+    public static final int ORDER = DependabotProbe.ORDER + 10;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult dependabotResult = plugin.getDetails().get(DependabotProbe.KEY);
-        if (dependabotResult == null || dependabotResult.status().equals(ResultStatus.FAILURE)) {
-            return ProbeResult.error(key(), "Dependabot not configured on the repository");
-        }
-
         try {
             final GitHub gh = context.getGitHub();
             final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
@@ -65,13 +59,15 @@ public class DependabotPullRequestProbe extends Probe {
                 .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
                 .count();
 
-            return ProbeResult.success(key(), "%d".formatted(count));
+            return count > 0 ?
+                ProbeResult.failure(key(), "%d open pull requests from Dependabot".formatted(count)) :
+                ProbeResult.success(key(), "No open pull request from dependabot");
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
             }
 
-            return ProbeResult.failure(key(), "Could not count pull requests");
+            return ProbeResult.error(key(), "Could not count dependabot pull requests");
         }
     }
 
@@ -83,5 +79,10 @@ public class DependabotPullRequestProbe extends Probe {
     @Override
     public String getDescription() {
         return "Reports the number of pull request currently opened by Dependabot";
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{DependabotProbe.KEY};
     }
 }

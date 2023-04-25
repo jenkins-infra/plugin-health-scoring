@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Order(value = UpForAdoptionProbe.ORDER)
 public class UpForAdoptionProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(UpForAdoptionProbe.class);
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final int ORDER = 0;
     public static final String KEY = "up-for-adoption";
 
     @Override

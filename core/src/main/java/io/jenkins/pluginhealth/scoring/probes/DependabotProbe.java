@@ -32,34 +32,31 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(DependabotProbe.ORDER)
 public class DependabotProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DependabotProbe.class);
-    public static final int ORDER = LastCommitDateProbe.ORDER + 1;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "dependabot";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (plugin.getDetails().get(SCMLinkValidationProbe.KEY) == null) {
-            LOGGER.error("Couldn't run {} on {} because previous SCMLinkValidationProbe has null value in database", key(), plugin.getName());
-            return ProbeResult.error(key(), "SCM link has not been validated yet");
-        }
         final Path scmRepository = context.getScmRepository();
         final Path githubConfig = scmRepository.resolve(".github");
+        if (Files.notExists(githubConfig)) {
+            return ProbeResult.failure(key(), "No GitHub configuration folder");
+        }
 
         try (Stream<Path> paths = Files
-            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path) && path.getFileName().toString().startsWith("dependabot"))) {
+            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path)
+                && path.getFileName().toString().startsWith("dependabot"))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), "Dependabot is configured"))
                 .orElseGet(() -> ProbeResult.failure(key(), "No configuration file for dependabot"));
         } catch (IOException ex) {
-            return ProbeResult.failure(key(), "No GitHub configuration folder");
+            return ProbeResult.error(key(), "Could not browse the plugin folder");
         }
     }
 
@@ -76,5 +73,10 @@ public class DependabotProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

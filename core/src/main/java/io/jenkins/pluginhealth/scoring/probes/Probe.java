@@ -24,43 +24,131 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the analyze which can be performed on a plugin
  */
 public abstract class Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Probe.class);
 
     /**
-     * Starts the analyze on a plugin.
-     * Should only be called by the {@link ProbeEngine#run()} method.
+     * Starts the analysis on a plugin.
+     * The implementation of the probe action is deferred to {@link Probe#doApply(Plugin, ProbeContext)}.
      *
-     * @param plugin  the plugin on which to perform the analyze
+     * @param plugin  the plugin on which to perform the analysis
      * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        return doApply(plugin, context);
+        if (shouldBeExecuted(plugin, context)) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
+            }
+            return doApply(plugin, context);
+        }
+        return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
+    }
+
+    private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
+        for (String requirementKey : this.getProbeResultRequirement()) {
+            final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
+            if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
+                LOGGER.info("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
+                return false;
+            }
+        }
+
+        final ProbeResult previousResult = plugin.getDetails().get(this.key());
+        if (previousResult == null) {
+            return true;
+        }
+        if (!this.requiresRelease() && !this.isSourceCodeRelated()) {
+            return true;
+        }
+        if (this.requiresRelease() &&
+            (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
+            return true;
+        }
+        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
+        if (this.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
+            LOGGER.error(
+                "{} requires last commit date for {} but was executed before the date time is registered in execution context",
+                this.key(), plugin.getName()
+            );
+        }
+        if (this.isSourceCodeRelated() &&
+            optionalLastCommit
+                .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
+                .orElse(false)) {
+            return true;
+        }
+
+        LOGGER.debug("{} does not meet requirement to be executed on {}", this.key(), plugin.getName());
+        return false;
     }
 
     /**
-     * Perform the analyze on a plugin
+     * Performs the analysis on a plugin.
+     * Based on the provided plugin and context, the method returns a non-null {@link ProbeResult}.
      *
-     * @param plugin  the plugin on which the analyze is done
+     * @param plugin  the plugin on which the analysis is done
      * @param context holder of information passed across the probes executed on a single plugin
-     * @return a ProbeResult representing the result of the analyze
+     * @return a ProbeResult representing the result of the analysis
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
+    /**
+     * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
+     * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
+     * By default, the requirement is an empty array. I cannot be null.
+     *
+     * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
+     */
+    public String[] getProbeResultRequirement() {
+        return new String[]{};
+    }
+
+    /**
+     * Returns the key identifier for the probe.
+     * This is how the different probes can be identified in the {@link Plugin#details} map.
+     *
+     * @return the identifier of the probe
+     */
     public abstract String key();
 
+    /**
+     * Returns a description of the action of the probe.
+     *
+     * @return the description of the probe
+     */
     public abstract String getDescription();
 
+    /**
+     * Returns a boolean value that specifies if the probe result can only be modified by a release of the plugin.
+     * If the probe result can be altered by a new release of the plugin, returns true, otherwise returns false.
+     *
+     * @return true if a release of the plugin is required to change the result of the probe execution. Otherwise, false.
+     */
     protected boolean requiresRelease() {
         return false;
     }
 
+    /**
+     * Determines if the probe requires modification of the plugin source code to change the result of its previous
+     * execution on the plugin.
+     *
+     * @return true if the probe result can only be changed from the previous execution if the source code of the
+     * plugin was changed. Otherwise, false.
+     */
     protected boolean isSourceCodeRelated() {
         return false;
     }

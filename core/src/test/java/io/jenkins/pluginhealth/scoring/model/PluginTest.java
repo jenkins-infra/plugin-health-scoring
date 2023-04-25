@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.spy;
 
 import java.time.ZonedDateTime;
@@ -58,7 +59,8 @@ class PluginTest {
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails()).containsEntry(probeKey, probeResult);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, probeResult));
     }
 
     @Test
@@ -74,6 +76,36 @@ class PluginTest {
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails()).containsEntry(probeKey, previousProbeResult);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, previousProbeResult));
+    }
+
+    @Test
+    void shouldOverrideSuccessfulPreviousResultWithFailure() {
+        final Plugin plugin = spy(Plugin.class);
+        final String probeKey = "foo";
+        final String probeResultMessage = "this is a message";
+
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(10));
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.FAILURE, ZonedDateTime.now());
+
+        plugin.addDetails(previousProbeResult);
+        plugin.addDetails(probeResult);
+
+        assertThat(plugin.getDetails()).hasSize(1);
+        assertThat(plugin.getDetails())
+            .containsExactly(entry(probeKey, probeResult));
+    }
+
+    @Test
+    void shouldRemoveEntryWhenNewStatusInError() {
+        final Plugin plugin = spy(Plugin.class);
+        final String probeKey = "foo";
+
+        plugin.addDetails(ProbeResult.success(probeKey, ""));
+        assertThat(plugin.getDetails()).hasSize(1);
+
+        plugin.addDetails(ProbeResult.error(probeKey, ""));
+        assertThat(plugin.getDetails()).isEmpty();
     }
 }

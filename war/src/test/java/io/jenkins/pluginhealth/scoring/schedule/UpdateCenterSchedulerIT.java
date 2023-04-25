@@ -66,19 +66,18 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     }
 
     @Test
+    // TODO: Reduce size of the data set.
     void shouldBeAbleToInsertPluginsIntoDB() throws IOException {
         upScheduler.updateDatabase();
-        pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1885);
     }
 
     @Test
+    // TODO: Reduce size of the data set.
     void shouldBeAbleToUpdatePluginsInDB() throws IOException {
         upScheduler.updateDatabase();
-        pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1885);
         upScheduler.updateDatabase();
-        pluginRepository.flush();
         assertThat(pluginRepository.count()).isEqualTo(1885);
     }
 }

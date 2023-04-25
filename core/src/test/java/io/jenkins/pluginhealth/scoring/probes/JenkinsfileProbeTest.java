@@ -26,13 +26,14 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -40,31 +41,50 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
-class JenkinsfileProbeTest {
-    @Test
-    void shouldNotRequireRelease() {
-        final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
-        assertThat(jenkinsfileProbe.requiresRelease()).isFalse();
+class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
+    @Override
+    JenkinsfileProbe getSpy() {
+        return spy(JenkinsfileProbe.class);
     }
 
     @Test
-    void shouldKeepUsingTheSameKey() {
-        final JenkinsfileProbe jenkinsfileProbe = spy(JenkinsfileProbe.class);
-        assertThat(jenkinsfileProbe.key()).isEqualTo("jenkinsfile");
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Test
+    void shouldBeRelatedToCode() {
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void shouldRespectRequirements() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid"))
+        );
+        final JenkinsfileProbe probe = getSpy();
+
+        for (int i = 0; i < 2; i++) {
+            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            verify(probe, never()).doApply(plugin, ctx);
+        }
     }
 
     @Test
     void shouldCorrectlyDetectMissingJenkinsfile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final JenkinsfileProbe probe = new JenkinsfileProbe();
+        final JenkinsfileProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(
             Files.createTempDirectory("foo")
@@ -77,10 +97,11 @@ class JenkinsfileProbeTest {
     void shouldCorrectlyDetectJenkinsfile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final JenkinsfileProbe probe = new JenkinsfileProbe();
+        final JenkinsfileProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, new ProbeResult(SCMLinkValidationProbe.KEY, "", ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(5))
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(
             Files.createFile(

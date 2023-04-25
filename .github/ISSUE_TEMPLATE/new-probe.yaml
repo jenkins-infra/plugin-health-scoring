@@ -7,14 +7,8 @@ body:
       value: |
         Thank you for taking the time to submit a new probe idea.
         Please know that we will take every submission in consideration, but not all idea might be implemented.
-  - type: input
-    id: title
-    attributes:
-      label: Title
-      description: "A clear and concise summary of the probe expected behavior."
-      placeholder: "Example: Retrieve the number of issue reported against the plugin."
-    validations:
-      required: true
+
+        Please make sure the title provided is a summary of the purpose of the desired probe.
   - type: textarea
     id: description
     attributes:
@@ -22,6 +16,5 @@ body:
       description: |
         Please describe as precisely as possible what data you are expected this new probe to fetch.
         If you can, please help us to know where is data can be found and how it should be use to score a plugin.
-      render: AsciiDoc
     validations:
       required: true

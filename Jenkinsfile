@@ -17,7 +17,22 @@ pipeline {
         JAVA_HOME = '/opt/jdk-17/'
       }
       steps {
-        sh './mvnw -V verify checkstyle:checkstyle spotbugs:spotbugs -Dmaven.test.failure.ignore -Dcheckstyle.failOnViolation=false -Dspotbugs.failOnError=false'
+        script {
+          infra.withArtifactCachingProxy() {
+            def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
+            sh """
+              ./mvnw -V \
+                --no-transfer-progress \
+                ${OPTS} \
+                verify \
+                checkstyle:checkstyle \
+                spotbugs:spotbugs \
+                -Dmaven.test.failure.ignore \
+                -Dcheckstyle.failOnViolation=false \
+                -Dspotbugs.failOnError=false
+            """
+          }
+        }
       }
 
       post {
@@ -27,7 +42,7 @@ pipeline {
             allowEmptyResults: false,
             testResults: '**/target/surefire-reports/*.xml, **/target/failsafe-reports/*.xml'
           )
-          publishCoverage adapters: [jacocoAdapter(mergeToOneReport: true, path: '**/target/site/**/jacoco.xml')]
+          recordCoverage(tools: [[parser: 'JACOCO', pattern: '**/target/site/**/jacoco.xml', mergeToOneReport: true]], sourceCodeRetention: 'MODIFIED')
           recordIssues enabledForFailure: true,
             tools: [mavenConsole(), java(), javaDoc()]
           recordIssues enabledForFailure: true,

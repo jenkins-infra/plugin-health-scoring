@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
@@ -54,12 +55,14 @@ public final class ProbeEngine {
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
     private final GithubConfiguration githubConfiguration;
+    private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration, PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
         this.githubConfiguration = githubConfiguration;
+        this.pluginDocumentationService = pluginDocumentationService;
     }
 
     /**
@@ -80,26 +83,10 @@ public final class ProbeEngine {
      * @throws IOException thrown when the update-center cannot be retrieved
      */
     public void runOn(Plugin plugin) throws IOException {
+        LOGGER.info("Start running probes on {}", plugin.getName());
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         runOn(plugin, updateCenter);
-    }
-
-    private boolean shouldExecuteProbe(Probe probe, ProbeResult previousResult, Plugin plugin, ProbeContext ctx) {
-        if (previousResult == null) {
-            return true;
-        }
-        if (probe.requiresRelease() && (previousResult.timestamp() != null)
-            && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp())) {
-            return true;
-        }
-        if (probe.isSourceCodeRelated() && ctx.getLastCommitDate().map(date -> previousResult.timestamp() != null
-            && previousResult.timestamp().isBefore(date)).orElse(false)) {
-            return true;
-        }
-        if (!probe.requiresRelease() && !probe.isSourceCodeRelated()) {
-            return true;
-        }
-        return false;
+        LOGGER.info("Probe engine has finished");
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
@@ -116,21 +103,13 @@ public final class ProbeEngine {
             LOGGER.error("Cannot create connection to GitHub", ex);
             return;
         }
+        probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
+
         probeService.getProbes().forEach(probe -> {
             try {
-                final ProbeResult previousResult = plugin.getDetails().get(probe.key());
-                if (shouldExecuteProbe(probe, previousResult, plugin, probeContext)) {
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Running {} on {}", probe.key(), plugin.getName());
-                    }
-                    final ProbeResult result = probe.apply(plugin, probeContext);
-                    if (result.status() != ResultStatus.ERROR) {
-                        plugin.addDetails(result);
-                    }
-                } else {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("{} requires a release of {} to be processed.", probe.key(), plugin.getName());
-                    }
+                final ProbeResult result = probe.apply(plugin, probeContext);
+                if (result.status() != ResultStatus.ERROR) {
+                    plugin.addDetails(result);
                 }
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);

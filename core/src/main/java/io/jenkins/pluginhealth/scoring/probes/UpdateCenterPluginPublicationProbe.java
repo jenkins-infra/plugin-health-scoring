@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 @Order(UpdateCenterPluginPublicationProbe.ORDER)
 public class UpdateCenterPluginPublicationProbe extends Probe {
     public static final String KEY = "update-center-plugin-publication-probe";
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 1;
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {

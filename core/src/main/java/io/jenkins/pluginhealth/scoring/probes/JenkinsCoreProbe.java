@@ -35,16 +35,12 @@ import org.springframework.stereotype.Component;
 @Order(JenkinsCoreProbe.ORDER)
 public class JenkinsCoreProbe extends Probe {
     public static final String KEY = "jenkins-version";
-    public static final int ORDER = InstallationStatProbe.ORDER + 1;
+    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter uc = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = uc.plugins().get(plugin.getName());
-
-        if (ucPlugin == null) {
-            return ProbeResult.failure(KEY, "Plugin is not in the update-center");
-        }
         return ProbeResult.success(KEY, ucPlugin.requiredCore());
     }
 
@@ -61,5 +57,10 @@ public class JenkinsCoreProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }

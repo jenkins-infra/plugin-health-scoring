@@ -28,10 +28,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.kohsuke.github.GHCheckRun;
 import org.kohsuke.github.GHRepository;
@@ -44,17 +45,18 @@ import org.springframework.stereotype.Component;
 @Order(CodeCoverageProbe.ORDER)
 public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
+    private static final int LINE_COVERAGE_THRESHOLD = 70;
+    private static final int BRANCH_COVERAGE_THRESHOLD = 60;
+
+    private static final String COVERAGE_TITLE_REGEXP =
+        "^Line(?: Coverage)?: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch(?: Coverage)?: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?\\.?$";
+    private static final Pattern COVERAGE_TITLE_PATTERN = Pattern.compile(COVERAGE_TITLE_REGEXP);
 
     public static final String KEY = "code-coverage";
-    public static final int ORDER = JenkinsfileProbe.ORDER + 100;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final ProbeResult jenkinsFileResult = plugin.getDetails().get(JenkinsfileProbe.KEY);
-        if (jenkinsFileResult == null || !jenkinsFileResult.status().equals(ResultStatus.SUCCESS)) {
-            return ProbeResult.error(key(), "Requires Jenkinsfile");
-        }
-
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
@@ -64,13 +66,29 @@ public class CodeCoverageProbe extends Probe {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
-                if (ghCheckRuns.size() != 1) {
-                    return ProbeResult.failure(key(), "Could not determine code coverage for plugin");
-                } else {
-                    return ProbeResult.success(key(), ghCheckRuns.get(0).getOutput().getTitle());
+                if (ghCheckRuns.size() == 0) {
+                    return ProbeResult.error(key(), "Could not determine code coverage for plugin");
                 }
+
+                double overall_line_coverage = 100;
+                double overall_branch_coverage = 100;
+                for (GHCheckRun checkRun : ghCheckRuns) {
+                    final Matcher matcher = COVERAGE_TITLE_PATTERN.matcher(checkRun.getOutput().getTitle());
+                    if (matcher.matches()) {
+                        final double line_coverage = Double.parseDouble(matcher.group("line"));
+                        final double branch_coverage = Double.parseDouble(matcher.group("branch"));
+                        overall_line_coverage = Math.min(overall_line_coverage, line_coverage);
+                        overall_branch_coverage = Math.min(overall_branch_coverage, branch_coverage);
+                    }
+                }
+                return overall_line_coverage >= LINE_COVERAGE_THRESHOLD && overall_branch_coverage >= BRANCH_COVERAGE_THRESHOLD ?
+                    ProbeResult.success(key(), "Line coverage is above " + LINE_COVERAGE_THRESHOLD + "%. Branch coverage is above " + BRANCH_COVERAGE_THRESHOLD + "%.") :
+                    ProbeResult.failure(key(),
+                        "Line coverage is " + (overall_line_coverage < LINE_COVERAGE_THRESHOLD ? "below " : "above ") + LINE_COVERAGE_THRESHOLD + "%. " +
+                            "Branch coverage is " + (overall_branch_coverage < BRANCH_COVERAGE_THRESHOLD ? "below " : "above ") + BRANCH_COVERAGE_THRESHOLD + "%."
+                    );
             } else {
-                return ProbeResult.failure(key(), "Cannot determine plugin repository");
+                return ProbeResult.error(key(), "Cannot determine plugin repository");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);
@@ -91,5 +109,15 @@ public class CodeCoverageProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{
+            SCMLinkValidationProbe.KEY,
+            JenkinsfileProbe.KEY,
+            UpdateCenterPluginPublicationProbe.KEY,
+            LastCommitDateProbe.KEY,
+        };
     }
 }

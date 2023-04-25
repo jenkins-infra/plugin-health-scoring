@@ -34,9 +34,12 @@ body {
   nav {
     grid-area: nav;
   }
+
   main {
     grid-area: main;
+    overflow-y: scroll;
   }
+
   footer {
     grid-area: footer;
   }
@@ -49,7 +52,7 @@ main {
   flex-direction: column;
   align-items: center;
 
-  section {
+  & > section {
     width: 90%;
     padding: .75rem 0;
   }
@@ -57,4 +60,12 @@ main {
 
 .grow {
   flex-grow: 1;
+}
+
+code.label {
+  display: inline-block;
+  background-color: var(--light-grey);
+  padding: .5rem;
+  margin: .1rem;
+  border-radius: calc(var(--table-border-radius) + 2px);
 }

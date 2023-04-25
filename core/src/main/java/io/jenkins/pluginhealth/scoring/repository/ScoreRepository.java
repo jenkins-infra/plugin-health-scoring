@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -41,11 +42,44 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     @Query(
         value = """
                 SELECT DISTINCT ON (s.plugin_id)
-                    s.plugin_id, s.value, s.computed_at, s.details, s.id
-                FROM scores s JOIN plugins p on s.plugin_id = p.id
+                    s.plugin_id,
+                    s.value,
+                    s.computed_at,
+                    s.details,
+                    s.id
+                FROM scores s
+                JOIN plugins p on s.plugin_id = p.id
                 ORDER BY s.plugin_id, s.computed_at DESC;
             """,
         nativeQuery = true
     )
     List<Score> findLatestScoreForAllPlugins();
+
+    @Query(
+        value = """
+            SELECT DISTINCT ON (s.plugin_id)
+                s.value
+            FROM scores s
+            ORDER BY s.plugin_id, s.computed_at DESC, s.value;
+            """,
+        nativeQuery = true
+    )
+    int[] getLatestScoreValueOfEveryPlugin();
+
+    @Modifying
+    @Query(
+        value = """
+        DELETE FROM scores
+        WHERE id NOT IN (
+            SELECT id
+            FROM (
+                SELECT id, ROW_NUMBER() OVER (PARTITION BY plugin_id ORDER BY computed_at DESC) AS row_num
+                FROM scores
+            ) s
+            WHERE row_num <= 5
+        );
+        """,
+        nativeQuery = true
+    )
+    int deleteOldScoreFromPlugin();
 }
