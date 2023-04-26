@@ -22,28 +22,32 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.repository;
+package io.jenkins.pluginhealth.scoring.schedule;
 
-import java.util.Optional;
+import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+@Component
+public class DeleteOldScoreScheduler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteOldScoreScheduler.class);
+    private final ScoreService scoreService;
 
-@Repository
-public interface PluginRepository extends JpaRepository<Plugin, Long> {
-    Optional<Plugin> findByName(String name);
+    public DeleteOldScoreScheduler(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
 
-    @Query(
-        value = """
-            SELECT count(id)
-            FROM plugins
-            WHERE
-              details -> ?1 ->> 'status' = ?2
-            """,
-        nativeQuery = true
-    )
-    long getProbeRawResult(String probeID, String status);
+    @Scheduled(cron = "@midnight", zone = "UTC")
+    public void deleteOldScores() {
+        LOGGER.info("Deleting old scores");
+
+        int numberOfRowsDeleted  = scoreService.deleteOldScores();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Deleted {} rows when deleting old scores", numberOfRowsDeleted);
+        }
+    }
 }

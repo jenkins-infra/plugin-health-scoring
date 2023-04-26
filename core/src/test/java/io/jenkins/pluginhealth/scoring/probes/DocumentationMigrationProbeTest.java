@@ -153,4 +153,79 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
     }
+
+    @Test
+    void shouldBeAbleToAcceptExtraSlashInDocumentationLink() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getPluginDocumentationLinks()).thenReturn(
+            Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/")
+        );
+
+        final DocumentationMigrationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+    }
+
+    @Test
+    void shouldBeAbleToAcceptTreeReference() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getPluginDocumentationLinks()).thenReturn(
+            Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/tree/main")
+        );
+
+        final DocumentationMigrationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+    }
+
+    @Test
+    void shouldBeAbleToAcceptBlobReference() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final String pluginName = "foo";
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getPluginDocumentationLinks()).thenReturn(
+            Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/blob/main/this/is/documentation/README.md")
+        );
+
+        final DocumentationMigrationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+    }
 }

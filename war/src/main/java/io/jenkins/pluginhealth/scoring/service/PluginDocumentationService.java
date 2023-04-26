@@ -67,5 +67,5 @@ public class PluginDocumentationService {
         }
     }
 
-    public record Link(String url) {}
+    record Link(String url) {}
 }
