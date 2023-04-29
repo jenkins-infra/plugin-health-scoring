@@ -35,7 +35,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void shouldBeExecutedAfterLasCommitDateProbe() {
+    void shouldBeExecutedAfterLastCommitDateProbe() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final HasUnreleasedProductionChangesProbe probe = getSpy();
@@ -49,66 +49,41 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
     @Test
     void shouldCheckIfTheUnreleasedCommitsExist() throws IOException, GitAPIException {
-        final Plugin plugin = mock(Plugin.class);
+       final Path repository = Files.createTempDirectory("test-foo-bar");
+
+       final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final HasUnreleasedProductionChangesProbe probe = getSpy();
 
         ZonedDateTime releaseTimestamp = ZonedDateTime.now();
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
-//        ref: https://www.vogella.com/tutorials/JGit/article.html
-//        creating a fake Git repository
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
 
-        Path parentDir = Paths.get("/path/to/repository");
-        //        create a commit
-//        https://stackoverflow.com/a/51151158
-        Git git = Git.init().setDirectory(parentDir.toFile()).call();
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+            final Path pom = Files.createFile(repository.resolve("pom.xml"));
+            final Path readme = Files.createFile(repository.resolve("README.md"));
+            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
+                .resolve("resources"));
+            final Path test = Files.createFile(srcMainResources.resolve("test.txt"));
 
-        // create files to add to the repo
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter("No One", "").call();
 
-        File file1 = new File(parentDir.toString(), "pom.xml");
-        File file2 = new File(parentDir.toString(), "README.md");
-        File directory = new File(parentDir+File.separator+"src"+ File.separator+"main"+File.separator+"resources"+File.separator+"test.txt");
+            git.add().addFilepattern("README.md").call();
+            git.commit().setMessage("Imports readme").setSign(false).setCommitter("No One", "").call();
 
-        file1.createNewFile();
-        file2.createNewFile();
-
-
-        AddCommand add = git.add();
-        // Stage all files in the repo
-        add.addFilepattern(file1.getPath());
-        add.addFilepattern(file2.getPath());
-        add.addFilepattern(directory.getPath());
-        add.call();
-
-        Repository repository = new FileRepositoryBuilder().setGitDir(parentDir.toFile()).build();
-
-        // create committer
-        PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-        PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(1).toInstant()));
-
-
-        Path filePath = Paths.get("/path/to/repository/pom.xml");
-        if (Files.exists(filePath)) {
-            System.out.println("pom.xml file exists!");
-        } else {
-            System.out.println("pom.xml file does not exist.");
+            git.add().addFilepattern("src/main").call();
+            git.commit().setMessage("Imports production files").setSign(false).setCommitter("No One", "").call();
         }
+        final HasUnreleasedProductionChangesProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
 
-        // commit file1
-        CommitCommand commit1 = git.commit();
-        commit1.setOnly(file1.getPath()).setCommitter(committer).
-            setMessage("added pom.xml").call();
-
-        // commit file2
-        CommitCommand commit2 = git.commit();
-        commit2.setOnly(file2.getPath()).setCommitter(committer).
-            setMessage("added README file").call();
-
-        // commit file3
-        CommitCommand commit3 = git.commit();
-        commit3.setOnly(directory.getPath()).setCommitter(committer).
-            setMessage("added the directory").call();
+        assertThat(result).usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
     }
 
 

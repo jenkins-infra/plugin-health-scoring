@@ -43,11 +43,11 @@ import java.util.regex.Matcher;
  * this probe will find number of unreleased commits in a repository
  */
 @Component
-@Order(value = LastCommitDateProbe.ORDER)
+@Order(value = HasUnreleasedProductionChangesProbe.ORDER)
 public class HasUnreleasedProductionChangesProbe  extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(HasUnreleasedProductionChangesProbe.class);
 
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "unreleased-production-changes";
 
     @Override
@@ -105,7 +105,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 
 
