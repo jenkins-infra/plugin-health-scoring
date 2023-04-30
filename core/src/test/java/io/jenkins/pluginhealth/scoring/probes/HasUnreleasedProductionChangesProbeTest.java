@@ -83,6 +83,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
+
             // returns a failure when the last commit date of any file in src/main folder is more recent than the plugin release timestamp
             // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/WalkAllCommits.java
             // a RevWalk allows to walk over commits based on some filtering that is defined
@@ -106,6 +107,10 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
                     LocalDateTime pluginReleaseDate = LocalDateTime.parse(plugin.getReleaseTimestamp().toString(), DateTimeFormatter.ISO_DATE_TIME);
                     assertThat(commitDate, greaterThan(pluginReleaseDate));
+                    assertThat(plugin)
+                        .usingRecursiveComparison()
+                        .comparingOnlyFields("releaseTimestamp")
+                        .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, ""));
                     count++;
                 }
                 System.out.println("Had " + count + " commits");
