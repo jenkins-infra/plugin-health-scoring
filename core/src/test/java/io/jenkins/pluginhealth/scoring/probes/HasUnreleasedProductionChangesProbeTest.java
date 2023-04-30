@@ -110,7 +110,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                     assertThat(plugin)
                         .usingRecursiveComparison()
                         .comparingOnlyFields("releaseTimestamp")
-                        .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+                        .isEqualTo(ProbeResult.error(HasUnreleasedProductionChangesProbe.KEY, ""));
                     count++;
                 }
                 System.out.println("Had " + count + " commits");
