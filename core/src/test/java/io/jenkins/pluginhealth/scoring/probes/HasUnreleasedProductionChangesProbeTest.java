@@ -5,6 +5,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -122,6 +123,57 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
 
     }
+
+    // check that a commit on pom.xml before the latest release is returning a SUCCESS.
+    @Test
+    void commitOnPomFileBeforeLatestReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            final Path pom = Files.createFile(repository.resolve("pom.xml"));
+
+            // creating commit
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
+
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+            for (RevCommit commit : git.log().call()) {
+                long timestamp = commit.getCommitTime();
+                String dateString = plugin.getReleaseTimestamp().toString();
+
+                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
+                Instant dateInstant = zonedDateTime.toInstant();
+
+                final ProbeResult result = probe.apply(plugin, ctx);
+                assertThat(commit.getFullMessage().equals("Imports pom.xml file"));
+                assert !timestampInstant.isBefore(dateInstant):result.failure("unreleased-production-changes", "unreleased-production-changes does not meet the criteria to be executed on null");
+
+
+            }
+
+
+        }
+    }
+
 
 
 }
