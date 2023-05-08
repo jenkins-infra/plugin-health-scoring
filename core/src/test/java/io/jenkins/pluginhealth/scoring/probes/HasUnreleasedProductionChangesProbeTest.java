@@ -3,12 +3,8 @@ package io.jenkins.pluginhealth.scoring.probes;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -25,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.*;
@@ -164,13 +161,9 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 Instant dateInstant = zonedDateTime.toInstant();
 
                 final ProbeResult result = probe.apply(plugin, ctx);
-                assertThat(commit.getFullMessage().equals("Imports pom.xml file"));
-                assert !timestampInstant.isBefore(dateInstant):result.failure("unreleased-production-changes", "unreleased-production-changes does not meet the criteria to be executed on null");
-
-
+                assertThat(commit.getFullMessage().equals("Imports pom.xml file")).isTrue();
+                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(true);
             }
-
-
         }
     }
 
