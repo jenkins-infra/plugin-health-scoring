@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.regex.Matcher;
 
@@ -60,7 +61,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
         final String folder = matcher.group("folder");
 
-        try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
+        try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
             final LogCommand logCommand = git.log().setMaxCount(1);
             if (folder != null) {
                 logCommand.addPath(folder);
