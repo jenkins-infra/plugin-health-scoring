@@ -3,16 +3,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -20,6 +10,19 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,7 +63,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
-        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path pom = Files.createFile(repository.resolve("pom.xml"));
             final Path readme = Files.createFile(repository.resolve("README.md"));
@@ -101,7 +104,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
                     // Convert to LocalDateTime in Asia/Calcutta timezone
                     LocalDateTime commitDate = LocalDateTime.ofInstant(instant, ZoneId.of("Asia/Calcutta"));
-                    System.out.println("timestamp to date= "+ commitDate);
+                    System.out.println("timestamp to date= " + commitDate);
 
                     LocalDateTime pluginReleaseDate = LocalDateTime.parse(plugin.getReleaseTimestamp().toString(), DateTimeFormatter.ISO_DATE_TIME);
                     assertThat(commitDate, greaterThan(pluginReleaseDate));
