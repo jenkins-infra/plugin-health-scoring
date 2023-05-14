@@ -167,6 +167,99 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         }
     }
 
+    @Test
+    void commitOnReadmeFileAfterReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
 
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            final Path pom = Files.createFile(repository.resolve("README.md"));
+
+            // creating commit
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(1).toInstant()));
+
+            git.add().addFilepattern("README.md").call();
+            git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+            for (RevCommit commit : git.log().call()) {
+                long timestamp = commit.getCommitTime();
+                String dateString = plugin.getReleaseTimestamp().toString();
+
+                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
+                Instant dateInstant = zonedDateTime.toInstant();
+
+                final ProbeResult result = probe.apply(plugin, ctx);
+                assertThat(commit.getFullMessage().equals("Updated README.md file")).isTrue();
+                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(true);
+            }
+        }
+    }
+
+    @Test
+    void checkThatCommitOnSrcPathBeforeReleaseDateReturnsSuccess() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final HasUnreleasedProductionChangesProbe hasUnreleasedProductionChangesProbe = mock(HasUnreleasedProductionChangesProbe.class);
+        when(hasUnreleasedProductionChangesProbe.apply(plugin, ctx)).thenReturn(ProbeResult.success("unreleased-production-changes", ""));
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
+                .resolve("resources"));
+            final Path test = Files.createFile(srcMainResources.resolve("test.txt"));
+
+            // creating commit
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
+
+            git.add().addFilepattern("src/main").call();
+            git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+            for (RevCommit commit : git.log().call()) {
+                long timestamp = commit.getCommitTime();
+                String dateString = plugin.getReleaseTimestamp().toString();
+
+                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
+                Instant dateInstant = zonedDateTime.toInstant();
+
+                final ProbeResult result = probe.apply(plugin, ctx);
+                assertThat(commit.getFullMessage().equals("Imports production files")).isTrue();
+                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(hasUnreleasedProductionChangesProbe.apply(plugin, ctx));
+            }
+        }
+    }
 
 }
