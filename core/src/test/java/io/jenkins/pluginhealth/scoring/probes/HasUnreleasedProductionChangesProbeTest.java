@@ -3,19 +3,23 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Files;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -89,7 +93,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             // a RevWalk allows to walk over commits based on some filtering that is defined
             Collection<Ref> allRefs = git.getRepository().getAllRefs().values();
 
-            try (RevWalk revWalk = new RevWalk( git.getRepository())) {
+            try (RevWalk revWalk = new RevWalk(git.getRepository())) {
                 for (Ref ref : allRefs) {
                     revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
                 }

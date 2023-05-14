@@ -24,6 +24,9 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.time.ZonedDateTime;
+import java.util.regex.Matcher;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
@@ -35,10 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.time.ZonedDateTime;
-import java.util.regex.Matcher;
 
 /**
  * Using the analysis done by {@link SCMLinkValidationProbe},
@@ -58,7 +57,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         if (!matcher.find()) {
             return ProbeResult.failure(key(), "The SCM link is not valid");
         }
-        final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
+        String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
         final String folder = matcher.group("folder");
 
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
