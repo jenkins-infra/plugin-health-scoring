@@ -3,14 +3,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.PersonIdent;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +12,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,7 +60,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
-        try(Git git = Git.init().setDirectory(repository.toFile()).call()){
+        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path pom = Files.createFile(repository.resolve("pom.xml"));
             final Path readme = Files.createFile(repository.resolve("README.md"));
@@ -87,13 +87,13 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             // a RevWalk allows to walk over commits based on some filtering that is defined
             Collection<Ref> allRefs = git.getRepository().getAllRefs().values();
 
-            try (RevWalk revWalk = new RevWalk( git.getRepository() )) {
-                for( Ref ref : allRefs ) {
-                    revWalk.markStart( revWalk.parseCommit( ref.getObjectId() ));
+            try (RevWalk revWalk = new RevWalk( git.getRepository())) {
+                for (Ref ref : allRefs) {
+                    revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
                 }
                 System.out.println("Walking all commits starting with " + allRefs.size() + " refs: " + allRefs);
                 int count = 0;
-                for( RevCommit commit : revWalk ) {
+                for (RevCommit commit : revWalk) {
                     System.out.println("Commit: " + commit);
                     System.out.println("Commit date: " + commit.getCommitTime());
                     System.out.println("plugin released date: " + plugin.getReleaseTimestamp());
@@ -101,7 +101,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
                     // Convert to LocalDateTime in Asia/Calcutta timezone
                     LocalDateTime commitDate = LocalDateTime.ofInstant(instant, ZoneId.of("Asia/Calcutta"));
-                    System.out.println("timestamp to date= "+commitDate);
+                    System.out.println("timestamp to date= "+ commitDate);
 
                     LocalDateTime pluginReleaseDate = LocalDateTime.parse(plugin.getReleaseTimestamp().toString(), DateTimeFormatter.ISO_DATE_TIME);
                     assertThat(commitDate, greaterThan(pluginReleaseDate));
@@ -137,7 +137,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
-        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path pom = Files.createFile(repository.resolve("pom.xml"));
 
@@ -182,7 +182,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
-        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path pom = Files.createFile(repository.resolve("README.md"));
 
@@ -230,7 +230,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
-        try(Git git = Git.init().setDirectory(repository.toFile()).call()) {
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
                 .resolve("resources"));
