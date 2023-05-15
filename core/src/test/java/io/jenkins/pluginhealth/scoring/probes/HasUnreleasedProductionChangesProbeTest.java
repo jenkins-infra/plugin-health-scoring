@@ -145,7 +145,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
-            final Path pom = Files.createFile(repository.resolve("pom.xml"));
+            Files.createFile(repository.resolve("pom.xml"));
 
             // creating commit
 
@@ -166,9 +166,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
                 Instant dateInstant = zonedDateTime.toInstant();
 
-                final ProbeResult result = probe.apply(plugin, ctx);
                 assertThat(commit.getFullMessage().equals("Imports pom.xml file")).isTrue();
-                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(true);
+                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(probe.apply(plugin, ctx).status());
             }
         }
     }
@@ -213,7 +212,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
                 final ProbeResult result = probe.apply(plugin, ctx);
                 assertThat(commit.getFullMessage().equals("Updated README.md file")).isTrue();
-                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(true);
+                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(probe.apply(plugin, ctx).status());
             }
         }
     }
@@ -224,9 +223,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
-        final HasUnreleasedProductionChangesProbe hasUnreleasedProductionChangesProbe = mock(HasUnreleasedProductionChangesProbe.class);
-        when(hasUnreleasedProductionChangesProbe.apply(plugin, ctx)).thenReturn(ProbeResult.success("unreleased-production-changes", ""));
 
         ZonedDateTime releaseTimestamp = ZonedDateTime.now();
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
@@ -250,20 +246,19 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
-            final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final HasUnreleasedProductionChangesProbe probe = new HasUnreleasedProductionChangesProbe();
 
             for (RevCommit commit : git.log().call()) {
                 long timestamp = commit.getCommitTime();
                 String dateString = plugin.getReleaseTimestamp().toString();
 
-                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
+                Instant commitDate = Instant.ofEpochSecond(timestamp);
                 DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
-                Instant dateInstant = zonedDateTime.toInstant();
+                Instant releaseDate = zonedDateTime.toInstant();
 
-                final ProbeResult result = probe.apply(plugin, ctx);
                 assertThat(commit.getFullMessage().equals("Imports production files")).isTrue();
-                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(hasUnreleasedProductionChangesProbe.apply(plugin, ctx));
+                assertThat(commitDate.isBefore(releaseDate)).isEqualTo(probe.apply(plugin, ctx).status());
             }
         }
     }
