@@ -57,7 +57,6 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         if (!matcher.find()) {
             return ProbeResult.failure(key(), "The SCM link is not valid");
         }
-        String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
         final String folder = matcher.group("folder");
 
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
