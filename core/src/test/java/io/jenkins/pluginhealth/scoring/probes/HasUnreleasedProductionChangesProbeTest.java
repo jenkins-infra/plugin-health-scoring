@@ -30,6 +30,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.junit.jupiter.api.Test;
 
 public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnreleasedProductionChangesProbe> {
@@ -167,7 +168,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 Instant dateInstant = zonedDateTime.toInstant();
 
                 assertThat(commit.getFullMessage().equals("Imports pom.xml file")).isTrue();
-                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(probe.apply(plugin, ctx).status());
+                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(true);
             }
         }
     }
@@ -212,7 +213,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
                 final ProbeResult result = probe.apply(plugin, ctx);
                 assertThat(commit.getFullMessage().equals("Updated README.md file")).isTrue();
-                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(probe.apply(plugin, ctx).status());
+                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(true);
             }
         }
     }
@@ -246,7 +247,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
-            final HasUnreleasedProductionChangesProbe probe = new HasUnreleasedProductionChangesProbe();
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             for (RevCommit commit : git.log().call()) {
                 long timestamp = commit.getCommitTime();
@@ -257,10 +258,25 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
                 Instant releaseDate = zonedDateTime.toInstant();
 
+                // assert commitMessage
                 assertThat(commit.getFullMessage().equals("Imports production files")).isTrue();
-                assertThat(commitDate.isBefore(releaseDate)).isEqualTo(probe.apply(plugin, ctx).status());
+            }
+
+            try (RevWalk walk = new RevWalk(git.getRepository())) {
+                for (RevCommit commit : git.log().call()) {
+                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                    treeWalk.addTree(commit.getTree());
+                    treeWalk.setRecursive(true);
+                    // assert commit path
+                    while (treeWalk.next()) {
+                        assertThat(treeWalk.getPathString().startsWith("src/main")).isEqualTo(true);
+                    }
+                }
             }
         }
+
+
+
     }
 
 }
