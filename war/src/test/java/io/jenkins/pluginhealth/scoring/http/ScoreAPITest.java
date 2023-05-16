@@ -34,6 +34,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
@@ -56,7 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
+@ImportAutoConfiguration({ProjectInfoAutoConfiguration.class, SecurityConfiguration.class})
 @WebMvcTest(
     controllers = ScoreAPI.class
 )
