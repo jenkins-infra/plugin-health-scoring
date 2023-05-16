@@ -40,7 +40,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(request ->
                 request
                     .requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/", "/probes", "/probes/*", "/scores", "/scores/*").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/scores", "/", "/probes", "/probes/*", "/scores", "/scores/*").permitAll()
                     .anyRequest().authenticated()
             );
         return http.build();
