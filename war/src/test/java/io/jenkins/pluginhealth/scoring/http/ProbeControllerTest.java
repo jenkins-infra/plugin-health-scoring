@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
@@ -51,7 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
+@ImportAutoConfiguration({ProjectInfoAutoConfiguration.class, SecurityConfiguration.class})
 @WebMvcTest(
     controllers = ProbesController.class
 )
