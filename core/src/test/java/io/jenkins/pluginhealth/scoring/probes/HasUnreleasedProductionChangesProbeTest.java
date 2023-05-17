@@ -88,47 +88,18 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
-
-            // returns a failure when the last commit date of any file in src/main folder is more recent than the plugin release timestamp
-            // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/api/WalkAllCommits.java
-            // a RevWalk allows to walk over commits based on some filtering that is defined
-            Collection<Ref> allRefs = git.getRepository().getAllRefs().values();
-
-            try (RevWalk revWalk = new RevWalk(git.getRepository())) {
-                for (Ref ref : allRefs) {
-                    revWalk.markStart(revWalk.parseCommit(ref.getObjectId()));
-                }
-                System.out.println("Walking all commits starting with " + allRefs.size() + " refs: " + allRefs);
-                int count = 0;
-                for (RevCommit commit : revWalk) {
-                    System.out.println("Commit: " + commit);
-                    System.out.println("Commit date: " + commit.getCommitTime());
-                    System.out.println("plugin released date: " + plugin.getReleaseTimestamp());
-                    Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
-
-                    // Convert to LocalDateTime in Asia/Calcutta timezone
-                    LocalDateTime commitDate = LocalDateTime.ofInstant(instant, ZoneId.of("Asia/Calcutta"));
-                    System.out.println("timestamp to date= " + commitDate);
-
-                    LocalDateTime pluginReleaseDate = LocalDateTime.parse(plugin.getReleaseTimestamp().toString(), DateTimeFormatter.ISO_DATE_TIME);
-                    assertThat(commitDate, greaterThan(pluginReleaseDate));
-                    assertThat(plugin)
-                        .usingRecursiveComparison()
-                        .comparingOnlyFields("releaseTimestamp")
-                        .isEqualTo(ProbeResult.error(HasUnreleasedProductionChangesProbe.KEY, ""));
-                    count++;
-                }
-                System.out.println("Had " + count + " commits");
-            }
-
         }
         final HasUnreleasedProductionChangesProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(result.error(HasUnreleasedProductionChangesProbe.KEY, ""));
+
 
     }
 
-    // check that a commit on pom.xml before the latest release is returning a SUCCESS.
     @Test
     void commitOnPomFileBeforeLatestReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
@@ -157,19 +128,12 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
 
-            for (RevCommit commit : git.log().call()) {
-                long timestamp = commit.getCommitTime();
-                String dateString = plugin.getReleaseTimestamp().toString();
-
-                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
-                Instant dateInstant = zonedDateTime.toInstant();
-
-                assertThat(commit.getFullMessage().equals("Imports pom.xml file")).isTrue();
-                assertThat(timestampInstant.isBefore(dateInstant)).isEqualTo(true);
-            }
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
         }
     }
 
@@ -201,20 +165,14 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
 
-            for (RevCommit commit : git.log().call()) {
-                long timestamp = commit.getCommitTime();
-                String dateString = plugin.getReleaseTimestamp().toString();
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
 
-                Instant timestampInstant = Instant.ofEpochSecond(timestamp);
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
-                Instant dateInstant = zonedDateTime.toInstant();
 
-                final ProbeResult result = probe.apply(plugin, ctx);
-                assertThat(commit.getFullMessage().equals("Updated README.md file")).isTrue();
-                assertThat(dateInstant.isBefore(timestampInstant)).isEqualTo(true);
-            }
         }
     }
 
@@ -247,32 +205,16 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
+
             final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
 
-            for (RevCommit commit : git.log().call()) {
-                long timestamp = commit.getCommitTime();
-                String dateString = plugin.getReleaseTimestamp().toString();
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
 
-                Instant commitDate = Instant.ofEpochSecond(timestamp);
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateString, formatter);
-                Instant releaseDate = zonedDateTime.toInstant();
 
-                // assert commitMessage
-                assertThat(commit.getFullMessage().equals("Imports production files")).isTrue();
-            }
-
-            try (RevWalk walk = new RevWalk(git.getRepository())) {
-                for (RevCommit commit : git.log().call()) {
-                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
-                    treeWalk.addTree(commit.getTree());
-                    treeWalk.setRecursive(true);
-                    // assert commit path
-                    while (treeWalk.next()) {
-                        assertThat(treeWalk.getPathString().startsWith("src/main")).isEqualTo(true);
-                    }
-                }
-            }
         }
 
 
