@@ -7,7 +7,24 @@
 
 <section data-layout-fragment="content">
     <h1 data-th-utext="'Score of <em>' + ${score.pluginName} + '</em> plugin'"></h1>
-    <div class="card score" data-th-text="${score.value}"></div>
+
+    <div class="plugin--details">
+        <div class="plugin--details--tab">
+            <ion-icon name="logo-github"></ion-icon>
+            <a data-th-href="${ score.scm }" data-th-text="${ score.scm }"></a>
+        </div>
+        <div class="plugin--details--tab">
+            <ion-icon name="version-tag"></ion-icon>
+            <span data-th-text="${ score.version }"></span>
+        </div>
+        <div class="plugin--details--tab">
+            <ion-icon name="calendar"></ion-icon>
+            <span data-th-text="${ #temporals.format(score.releaseTimestamp) }"></span>
+        </div>
+    </div>
+
+    <div class="card score" data-th-text="${score.value}">
+    </div>
 
     <h3>Details</h3>
     <table class="table">
