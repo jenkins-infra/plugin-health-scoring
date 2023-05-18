@@ -171,9 +171,11 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+        when(plugin.getScm()).thenReturn(scmLink);
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -206,8 +208,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
 
         }
-
-
 
     }
 
