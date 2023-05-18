@@ -176,7 +176,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
