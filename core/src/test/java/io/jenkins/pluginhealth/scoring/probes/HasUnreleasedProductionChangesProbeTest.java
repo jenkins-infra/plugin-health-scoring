@@ -47,6 +47,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
         ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
@@ -56,6 +57,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getScm()).thenReturn(scmLink);
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
@@ -85,8 +87,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(result.error(HasUnreleasedProductionChangesProbe.KEY, ""));
-
+            .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
 
     }
 
