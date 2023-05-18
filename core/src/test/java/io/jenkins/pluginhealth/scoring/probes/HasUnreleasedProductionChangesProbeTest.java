@@ -48,11 +48,12 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
 
@@ -95,14 +96,19 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String pluginName = "test-plugin";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
@@ -132,14 +138,17 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now();
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getScm()).thenReturn(scmLink);
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
@@ -160,8 +169,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status")
                 .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
-
-
         }
     }
 
@@ -205,8 +212,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status")
                 .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
-
-
         }
 
     }
