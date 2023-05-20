@@ -24,6 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.regex.Matcher;
 
@@ -68,15 +70,24 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             logCommand.addPath("src/");
 
             final RevCommit commit = logCommand.call().iterator().next();
-            if (commit == null) {
-                return ProbeResult.failure(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
+
+            if(commit == null) {
+                return ProbeResult.success(key(), "All the commits have been released successfully for the plugin.");
             }
+
+            Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                 commit.getAuthorIdent().getWhenAsInstant(),
                 commit.getAuthorIdent().getZoneId()
             );
+
+            if(zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                return ProbeResult.failure(key(), "Unreleased commits exists in the plugin");
+            }
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.toString());
+            return ProbeResult.success(key(), "All the commits have been released successfully for the plugin.");
         } catch (GitAPIException ex) {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
             return ProbeResult.error(key(), "Could not clone the plugin repository");

@@ -44,7 +44,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     @Test
     void shouldCheckIfTheUnreleasedCommitsExist() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
-
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
@@ -61,15 +60,14 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
-            final Path pom = Files.createFile(repository.resolve("pom.xml"));
-            final Path readme = Files.createFile(repository.resolve("README.md"));
+            Files.createFile(repository.resolve("pom.xml"));
+            Files.createFile(repository.resolve("README.md"));
             final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
                 .resolve("resources"));
-            final Path test = Files.createFile(srcMainResources.resolve("test.txt"));
+             Files.createFile(srcMainResources.resolve("test.txt"));
 
-            // create committer
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(1).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
 
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
@@ -87,14 +85,13 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+            .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
 
     }
 
     @Test
     void commitOnPomFileBeforeLatestReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
-
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
@@ -115,8 +112,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             Files.createFile(repository.resolve("pom.xml"));
 
-            // creating commit
-
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
             PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
 
@@ -136,7 +131,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     @Test
     void commitOnReadmeFileAfterReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
-
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
@@ -153,12 +147,12 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
-            final Path pom = Files.createFile(repository.resolve("README.md"));
+            Files.createFile(repository.resolve("README.md"));
 
             // creating commit
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(1).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
 
             git.add().addFilepattern("README.md").call();
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
@@ -176,7 +170,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     @Test
     void checkThatCommitOnSrcPathBeforeReleaseDateReturnsSuccess() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
-
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
@@ -195,16 +188,13 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
                 .resolve("resources"));
-            final Path test = Files.createFile(srcMainResources.resolve("test.txt"));
-
-            // creating commit
+            Files.createFile(srcMainResources.resolve("test.txt"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(7).toInstant()));
 
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
-
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             final ProbeResult result = probe.apply(plugin, ctx);
@@ -217,4 +207,119 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
     }
 
+    @Test
+    void ifCommitExistsOnPomFileAfterLatestReleaseItShouldFail() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String pluginName = "test-plugin";
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            Files.createFile(repository.resolve("pom.xml"));
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
+
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
+
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
+        }
+    }
+
+    @Test
+    void commitOnSrcPathAfterReleaseDateShouldFail() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
+                .resolve("resources"));
+            Files.createFile(srcMainResources.resolve("test.txt"));
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
+
+            git.add().addFilepattern("src/main").call();
+            git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
+
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
+        }
+
+    }
+
+    @Test
+    void commitOnReadmeFileBeforeReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            Files.createFile(repository.resolve("README.md"));
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(7).toInstant()));
+
+            git.add().addFilepattern("README.md").call();
+            git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
+
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+        }
+    }
 }
