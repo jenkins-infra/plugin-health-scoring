@@ -71,7 +71,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
             final RevCommit commit = logCommand.call().iterator().next();
 
-            if(commit == null) {
+            if (commit == null) {
                 return ProbeResult.success(key(), "All the commits have been released successfully for the plugin.");
             }
 
@@ -83,7 +83,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                 commit.getAuthorIdent().getZoneId()
             );
 
-            if(zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+            if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
                 return ProbeResult.failure(key(), "Unreleased commits exists in the plugin");
             }
             context.setLastCommitDate(commitDate);
