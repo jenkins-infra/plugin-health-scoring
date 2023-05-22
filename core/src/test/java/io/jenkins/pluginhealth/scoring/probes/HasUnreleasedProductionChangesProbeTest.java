@@ -49,9 +49,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
-
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -68,7 +66,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
              Files.createFile(srcMainResources.resolve("test.txt"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
@@ -99,9 +97,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
         final String pluginName = "test-plugin";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
-
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -115,7 +111,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             Files.createFile(repository.resolve("pom.xml"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusHours(1).toInstant()));
 
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
@@ -138,9 +134,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
-
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -152,10 +146,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             Files.createFile(repository.resolve("README.md"));
 
-            // creating commit
-
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
             git.add().addFilepattern("README.md").call();
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
@@ -178,8 +170,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
 
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -195,7 +186,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             Files.createFile(srcMainResources.resolve("test.txt"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(7).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusHours(1).toInstant()));
 
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
@@ -220,9 +211,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
         final String pluginName = "test-plugin";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
-
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -259,8 +248,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
 
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -276,7 +264,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             Files.createFile(srcMainResources.resolve("test.txt"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(7).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
@@ -300,9 +288,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
-        when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
-
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
@@ -315,7 +301,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             Files.createFile(repository.resolve("README.md"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(7).toInstant()));
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusHours(1).toInstant()));
 
             git.add().addFilepattern("README.md").call();
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
