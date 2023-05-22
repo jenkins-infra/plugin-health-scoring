@@ -97,7 +97,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
         final String pluginName = "test-plugin";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -174,7 +174,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
         when(plugin.getScm()).thenReturn(scmLink);
 
@@ -293,7 +293,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
-        ZonedDateTime releaseTimestamp = ZonedDateTime.now().minusHours(38);
+        ZonedDateTime releaseTimestamp = ZonedDateTime.now().plusHours(38);
         when(plugin.getReleaseTimestamp()).thenReturn(releaseTimestamp);
 
         when(plugin.getDetails()).thenReturn(Map.of(
