@@ -241,8 +241,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin"));
         }
     }
 
@@ -280,8 +280,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin"));
         }
 
     }
