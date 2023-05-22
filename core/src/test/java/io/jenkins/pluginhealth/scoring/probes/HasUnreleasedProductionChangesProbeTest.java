@@ -315,4 +315,40 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
+
+    @Test
+    void shouldSucceedWhenCommitOnTestSourcesAfterReleaseDate() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("test").resolve("java"));
+            Files.createFile(srcTestJava.resolve("TestA.java"));
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
+
+            git.add().addFilepattern("src/test").call();
+            git.commit().setMessage("Import test").setSign(false).setCommitter(committer).call();
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+            final ProbeResult result = probe.apply(plugin, ctx);
+
+            assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+            verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+        }
+    }
 }
