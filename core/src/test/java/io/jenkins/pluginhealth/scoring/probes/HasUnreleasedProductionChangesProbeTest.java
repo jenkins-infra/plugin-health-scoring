@@ -84,8 +84,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, ""));
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(result.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin"));
 
     }
 
@@ -117,15 +117,15 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
-
-            final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
-
-            assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
         }
+
+        final HasUnreleasedProductionChangesProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
     }
 
     @Test
@@ -201,8 +201,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(result.success(HasUnreleasedProductionChangesProbe.KEY, "All the commits have been released successfully for the plugin."));
         }
 
     }
