@@ -118,6 +118,4 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
     public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
-
-
 }

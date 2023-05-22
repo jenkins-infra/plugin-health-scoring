@@ -42,7 +42,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void shouldCheckIfTheUnreleasedCommitsExist() throws IOException, GitAPIException {
+    void shouldFailIfThereIsNotReleasedCommits() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -90,7 +90,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void commitOnPomFileBeforeLatestReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+    void shouldSucceedWhenCommitOnPomFileBeforeLatestReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -129,7 +129,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void commitOnReadmeFileAfterReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+    void shouldSucceedWhenCommitOnReadmeFileAfterReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -168,7 +168,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void checkThatCommitOnSrcPathBeforeReleaseDateReturnsSuccess() throws IOException, GitAPIException {
+    void shouldSucceedWhenCommitOnSrcMainPathBeforeReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -208,7 +208,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void ifCommitExistsOnPomFileAfterLatestReleaseItShouldFail() throws IOException, GitAPIException {
+    void shouldFailIfCommitExistsOnPomFileAfterLatestRelease() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -247,7 +247,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void commitOnSrcPathAfterReleaseDateShouldFail() throws IOException, GitAPIException {
+    void shouldFailWhenCommitOnSrcPathAfterReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -287,7 +287,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void commitOnReadmeFileBeforeReleaseDateShouldReturnSuccess() throws IOException, GitAPIException {
+    void shouldSucceedWhenCommitOnReadmeFileBeforeReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
