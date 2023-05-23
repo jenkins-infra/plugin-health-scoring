@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +47,7 @@ import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
+import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -88,6 +90,9 @@ class ScoreControllerTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey, ProbeResult.success(probeKey, "message")
         ));
+        when(plugin.getScm()).thenReturn("this-is-the-url-of-the-plugin-location");
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(1));
+        when(plugin.getVersion()).thenReturn(new VersionNumber("1.0"));
 
         final Score score = mock(Score.class);
         when(score.getPlugin()).thenReturn(plugin);
