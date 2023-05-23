@@ -24,9 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -35,7 +38,11 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -55,6 +62,12 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        List<String> productionPathsToCheckForCommits = new ArrayList<>();
+        List<String> commitFileList = new ArrayList<>();
+
+        productionPathsToCheckForCommits.add("pom.xml");
+        productionPathsToCheckForCommits.add("src/main");
+
         final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
         if (!matcher.find()) {
             return ProbeResult.failure(key(), "The SCM link is not valid");
@@ -66,13 +79,15 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             if (folder != null) {
                 logCommand.addPath(folder);
             }
-            logCommand.addPath("pom.xml");
-            logCommand.addPath("src/");
+
+            for(String path: productionPathsToCheckForCommits) {
+                logCommand.addPath(path);
+            }
 
             final RevCommit commit = logCommand.call().iterator().next();
 
             if (commit == null) {
-                return ProbeResult.success(key(), "All the commits have been released successfully for the plugin.");
+                return ProbeResult.success(key(), "All production modifications were released.");
             }
 
             Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
@@ -84,13 +99,28 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             );
 
             if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                return ProbeResult.failure(key(), "Unreleased commits exists in the plugin");
+                final TreeWalk walk = new TreeWalk(git.getRepository());
+                walk.setRecursive(true);
+                walk.addTree(commit.getTree());
+                while (walk.next())
+                    commitFileList.add(walk.getPathString());
+
+                return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
+                    +String.join(", ", commitFileList));
             }
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), "All the commits have been released successfully for the plugin.");
+            return ProbeResult.success(key(), "All production modifications were released.");
         } catch (GitAPIException ex) {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
             return ProbeResult.error(key(), "Could not clone the plugin repository");
+        } catch (CorruptObjectException e) {
+            throw new RuntimeException(e);
+        } catch (IncorrectObjectTypeException e) {
+            throw new RuntimeException(e);
+        } catch (MissingObjectException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

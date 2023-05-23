@@ -70,18 +70,16 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
 
-
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
         }
         final HasUnreleasedProductionChangesProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
+            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/test.txt"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -114,7 +112,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         }
 
         final HasUnreleasedProductionChangesProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -149,7 +146,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
@@ -188,7 +184,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
@@ -227,12 +222,11 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml"));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -266,12 +260,11 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/test.txt"));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
 
@@ -303,7 +296,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-            final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
