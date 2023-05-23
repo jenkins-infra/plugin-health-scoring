@@ -60,10 +60,9 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            Files.createFile(repository.resolve("README.md"));
             final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
                 .resolve("resources"));
-             Files.createFile(srcMainResources.resolve("test.txt"));
+            Files.createFile(srcMainResources.resolve("test.txt"));
 
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
             PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
@@ -71,8 +70,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
 
-            git.add().addFilepattern("README.md").call();
-            git.commit().setMessage("Imports readme").setSign(false).setCommitter(committer).call();
 
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
@@ -84,7 +81,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin"));
+            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -121,8 +118,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -156,8 +153,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -196,7 +193,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All the commits have been released successfully for the plugin."));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
 
@@ -235,7 +232,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin"));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -274,7 +271,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased commits exists in the plugin."));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
 
@@ -310,8 +307,8 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, ""));
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
