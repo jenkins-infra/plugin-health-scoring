@@ -62,17 +62,17 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
-        final String folder = matcher.group("folder");
         List<String> productionPathsToCheckForCommits = new ArrayList<>();
         List<String> commitFileList = new ArrayList<>();
 
         productionPathsToCheckForCommits.add("pom.xml");
         productionPathsToCheckForCommits.add("src/main");
 
+        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
         if (!matcher.find()) {
             return ProbeResult.failure(key(), "The SCM link is not valid");
         }
+        final String folder = matcher.group("folder");
 
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
             final LogCommand logCommand = git.log().setMaxCount(1);
@@ -104,7 +104,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     commitFileList.add(walk.getPathString());
 
                 return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
-                    + String.join(", ", commitFileList));
+                    +String.join(", ", commitFileList));
             }
             context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), "All production modifications were released.");
