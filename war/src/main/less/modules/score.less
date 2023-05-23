@@ -19,3 +19,41 @@ ion-icon {
     visibility: visible;
   }
 }
+
+.plugin--details {
+  font-size: .8rem;
+  margin-bottom: 1.5em;
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  .plugin--details--tab {
+    &:not(:last-of-type) {
+      margin-right: 16px;
+    }
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+
+
+    padding: .75em;
+    border-radius: 1em;
+
+    background-color: var(--light-grey);
+  }
+}
+
+.card.score {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  font-size: 3rem;
+  font-weight: 700;
+  width: 128px;
+  height: 128px;
+
+  border-radius: 1rem;
+  background-color: var(--light-grey);
+}
