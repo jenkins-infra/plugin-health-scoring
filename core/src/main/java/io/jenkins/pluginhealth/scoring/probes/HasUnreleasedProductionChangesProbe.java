@@ -89,7 +89,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             }
 
             Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
-            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                 commit.getAuthorIdent().getWhenAsInstant(),
