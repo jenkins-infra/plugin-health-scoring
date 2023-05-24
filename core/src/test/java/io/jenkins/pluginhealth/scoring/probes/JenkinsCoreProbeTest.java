@@ -39,7 +39,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
@@ -74,11 +73,11 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final JenkinsCoreProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).isNotNull();
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(result).extracting("id").isEqualTo(probe.key());
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.ERROR);
-        });
+        assertThat(result)
+            .isNotNull()
+            .extracting("id", "status")
+            .containsExactly(probe.key(), ResultStatus.ERROR);
+
         verify(probe, never()).doApply(plugin, ctx);
     }
 
@@ -107,10 +106,8 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).isNotNull();
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(result).extracting("id").isEqualTo(probe.key());
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.SUCCESS);
-            softly.assertThat(result).extracting("message").isEqualTo("2.361.1");
-        });
+        assertThat(result)
+            .extracting("id", "status", "message")
+            .containsExactly(probe.key(), ResultStatus.SUCCESS, "2.361.1");
     }
 }

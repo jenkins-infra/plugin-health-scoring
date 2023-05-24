@@ -191,6 +191,63 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
     @SuppressWarnings("unchecked")
     @Test
+    public void shouldBeSuccessfulWhenAboveThreshold() throws IOException {
+        final String pluginName = "mailer";
+        final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + pluginRepo;
+        final String defaultBranch = "main";
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(
+                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
+                    "42", defaultBranch
+                )
+            ),
+            Map.of(),
+            List.of()
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
+
+        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
+        final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
+        final GHCheckRun checkRun = mock(GHCheckRun.class);
+        final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
+        when(output.getTitle()).thenReturn("Line Coverage: 70.56% (+0.00%), Branch Coverage: 63.37% (+0.00%)");
+        when(checkRun.getOutput()).thenReturn(output);
+        when(checkRuns.toList()).thenReturn(
+            List.of(checkRun)
+        );
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
+            .thenReturn(checkRuns);
+
+        final CodeCoverageProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        verify(probe).doApply(plugin, ctx);
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage is above 70%. Branch coverage is above 60%."));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void shouldFailWhenRetrievedDetailsFromGitHubChecksInBelowMinimumOnBothCriteria() throws IOException {
         final String pluginName = "mailer";
         final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";

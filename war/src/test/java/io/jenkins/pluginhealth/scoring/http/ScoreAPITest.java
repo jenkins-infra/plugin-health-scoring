@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -31,10 +32,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
+import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
+import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -49,34 +56,120 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-@ImportAutoConfiguration(ProjectInfoAutoConfiguration.class)
+@ExtendWith({ SpringExtension.class, MockitoExtension.class })
+@ImportAutoConfiguration({ProjectInfoAutoConfiguration.class, SecurityConfiguration.class})
 @WebMvcTest(
     controllers = ScoreAPI.class
 )
 class ScoreAPITest {
     @MockBean private ScoreService scoreService;
+    @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
     @Autowired ObjectMapper mapper;
 
     @Test
     void shouldBeAbleToProvideScoresSummary() throws Exception {
-        final ScoreResult p1sr1 = new ScoreResult("foo", 1, 1);
-        final ScoreResult p2sr1 = new ScoreResult("foo", 1, 1);
-        final ScoreResult p2sr2 = new ScoreResult("bar", 0, .69f);
-        final ScoreResult p2sr3 = new ScoreResult("wiz", 0, .69f);
+        final String probe1Key = "probe-1",
+            probe2Key = "probe-2",
+            probe3Key = "probe-3",
+            scoring1Key = "scoring-1",
+            scoring2Key = "scoring-2";
 
-        final Map<String, ScoreService.ScoreSummary> summary = Map.of(
-            "plugin-1", new ScoreService.ScoreSummary(100, "1.0", Set.of(p1sr1), ZonedDateTime.now().minusMinutes(2)),
-            "plugin-2", new ScoreService.ScoreSummary(42, "2.0", Set.of(p2sr1, p2sr2, p2sr3), ZonedDateTime.now().minusMinutes(2))
+        final Plugin plugin1 = mock(Plugin.class);
+        when(plugin1.getDetails()).thenReturn(Map.of(
+            probe1Key, ProbeResult.success(probe1Key, "")
+        ));
+
+        final Plugin plugin2 = mock(Plugin.class);
+        when(plugin2.getDetails()).thenReturn(Map.of(
+            probe1Key, ProbeResult.success(probe1Key, ""),
+            probe2Key, ProbeResult.failure(probe2Key, ""),
+            probe3Key, ProbeResult.failure(probe3Key, "")
+        ));
+
+        final Scoring scoring1 = mock(Scoring.class);
+        when(scoring1.getScoreComponents()).thenReturn(Map.of(
+            probe1Key, 1f
+        ));
+        when(scoringService.get(scoring1Key)).thenReturn(Optional.of(scoring1));
+
+        final Scoring scoring2 = mock(Scoring.class);
+        when(scoring2.getScoreComponents()).thenReturn(Map.of(
+            probe2Key, 1f,
+            probe3Key, 1f
+        ));
+        when(scoringService.get(scoring2Key)).thenReturn(Optional.of(scoring2));
+
+        final ScoreResult p1sr1 = new ScoreResult(scoring1Key, 1, 1);
+        final ScoreResult p2sr1 = new ScoreResult(scoring1Key, 1, 1);
+        final ScoreResult p2sr2 = new ScoreResult(scoring2Key, 0, 1);
+
+        final Score score1 = new Score(plugin1, ZonedDateTime.now());
+        score1.addDetail(p1sr1);
+        final Score score2 = new Score(plugin2, ZonedDateTime.now());
+        score2.addDetail(p2sr1);
+        score2.addDetail(p2sr2);
+
+        final Map<String, Score> summary = Map.of(
+            "plugin-1", score1,
+            "plugin-2", score2
         );
         when(scoreService.getLatestScoresSummaryMap()).thenReturn(summary);
 
+        when(scoreService.getScoresStatistics()).thenReturn(new ScoreService.ScoreStatistics(
+            50, 0, 100, 100, 100, 100
+        ));
+
         mockMvc.perform(get("/api/scores"))
-            .andExpect(status().isOk())
             .andExpectAll(
+                status().isOk(),
                 content().contentType(MediaType.APPLICATION_JSON),
-                content().json(mapper.writeValueAsString(summary))
+                content().json("""
+                    {
+                        'plugins': {
+                            'plugin-1': {
+                                'value': 100,
+                                'details': {
+                                    'scoring-1': {
+                                        'value': 1,
+                                        'weight': 1,
+                                        'components': {
+                                            'probe-1': { 'value': 1, 'max': 1 }
+                                        }
+                                    }
+                                }
+                            },
+                            'plugin-2': {
+                                'value': 50,
+                                'details': {
+                                    'scoring-1': {
+                                        'value': 1,
+                                        'weight': 1,
+                                        'components': {
+                                            'probe-1': { 'value': 1, 'max': 1 }
+                                        }
+                                    },
+                                    'scoring-2': {
+                                        'value': 0,
+                                        'weight': 1,
+                                        'components': {
+                                            'probe-2': { 'value':  0, 'max': 1 },
+                                            'probe-3': { 'value':  0, 'max': 1 }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        'statistics': {
+                            'average': 50,
+                            'minimum': 0,
+                            'maximum': 100,
+                            'firstQuartile': 100,
+                            'median': 100,
+                            'thirdQuartile': 100
+                        }
+                    }
+                    """, false)
             );
     }
 }

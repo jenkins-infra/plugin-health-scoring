@@ -130,7 +130,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
     }
 
     @Test
-    void shouldFailIfCommunicationWithGitHubIsImpossible() throws IOException {
+    void shouldReturnsErrorIfCommunicationWithGitHubIsImpossible() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -152,7 +152,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.failure(PullRequestProbe.KEY, ""));
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
 
     }
 }

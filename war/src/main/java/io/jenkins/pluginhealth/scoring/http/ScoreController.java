@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,9 @@ public class ScoreController {
 
                 final PluginScoreView view = new PluginScoreView(
                     plugin.getName(),
+                    plugin.getScm(),
+                    plugin.getVersion().toString(),
+                    plugin.getReleaseTimestamp(),
                     score.getValue(),
                     probeResultViews,
                     scoreComponents
@@ -96,7 +100,7 @@ public class ScoreController {
             .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 
-    private record PluginScoreView(String pluginName,
+    private record PluginScoreView(String pluginName, String scm, String version, ZonedDateTime releaseTimestamp,
                                    long value,
                                    Map<String, ProbeResultView> probeResults,
                                    Collection<ScoreResultView> details) {
