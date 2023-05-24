@@ -340,4 +340,62 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
+
+    @Test
+    void whenAFileIsCommittedBeforeAndAfterReleaseDateOnlyFilesAfterReleaseDateShouldShow() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String pluginName = "test-plugin";
+
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            Files.createFile(repository.resolve("pom.xml"));
+
+            PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
+
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file after commit date").setSign(false).setCommitter(committer).call();
+
+            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
+            Files.createFile(srcTestJava.resolve("TestClass.java"));
+
+            PersonIdent committer2 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
+
+            git.add().addFilepattern("src/main").call();
+            git.commit().setMessage("Import main after commit  date").setSign(false).setCommitter(committer2).call();
+
+            PersonIdent committer3 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(7).toInstant()));
+
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer3).call();
+
+            Files.createFile(repository.resolve("README.md"));
+
+            PersonIdent committer4 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(10).toInstant()));
+
+            git.add().addFilepattern("README.md").call();
+            git.commit().setMessage("Updated README.md file after commit date").setSign(false).setCommitter(committer4).call();
+
+
+            final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/java/TestClass.java"));
+            verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+        }
+    }
 }
