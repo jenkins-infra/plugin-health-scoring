@@ -65,7 +65,8 @@ public class ContinuousDeliveryProbe extends Probe {
                     try {
                         return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        LOGGER.error("Couldn't not read {}", file, e);
+                        return new WorkflowDefinition(Map.of());
                     }
                 })
                 .anyMatch(wf ->
