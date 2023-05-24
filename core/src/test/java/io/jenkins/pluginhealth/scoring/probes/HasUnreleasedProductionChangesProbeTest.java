@@ -366,7 +366,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void whenAFileIsCommittedBeforeAndAfterReleaseDateOnlyFilesAfterReleaseDateShouldShow() throws IOException, GitAPIException {
+    void shouldBeAbleToDifferenciateFilesWithCommitsBeforeAndAfterReleaseDate() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -390,10 +390,10 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().minusDays(1).toInstant()));
 
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file after commit date").setSign(false).setCommitter(committer).call();
+           git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
 
             final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
-            Files.createFile(srcTestJava.resolve("TestClass.java"));
+            Files.createFile(srcTestJava.resolve("Hello.java"));
 
             PersonIdent committer2 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
@@ -412,13 +412,12 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("README.md").call();
             git.commit().setMessage("Updated README.md file after commit date").setSign(false).setCommitter(committer4).call();
 
-
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/java/TestClass.java"));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java"));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
