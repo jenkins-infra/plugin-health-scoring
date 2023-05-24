@@ -100,8 +100,9 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                 final TreeWalk walk = new TreeWalk(git.getRepository());
                 walk.setRecursive(true);
                 walk.addTree(commit.getTree());
-                while (walk.next())
+                while (walk.next()) {
                     commitFileList.add(walk.getPathString());
+                }
 
                 return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
                     + String.join(", ", commitFileList));
