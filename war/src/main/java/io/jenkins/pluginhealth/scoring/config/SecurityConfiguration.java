@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                         "/",
                         "/probes", "/probes/*",
                         "/scores", "/scores/*",
-                        "/actuator/*"
+                        "/actuator/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             );
