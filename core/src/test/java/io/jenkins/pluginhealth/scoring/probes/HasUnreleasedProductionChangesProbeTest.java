@@ -400,11 +400,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Import main after commit  date").setSign(false).setCommitter(committer2).call();
 
-            PersonIdent committer3 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(7).toInstant()));
-
-            git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer3).call();
-
             Files.createFile(repository.resolve("README.md"));
 
             PersonIdent committer4 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(10).toInstant()));
