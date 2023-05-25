@@ -71,7 +71,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -88,9 +88,10 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
-                .resolve("resources"));
-            Files.createFile(srcMainResources.resolve("test.txt"));
+            final Path srcMainResources = Files.createDirectories(
+                repository.resolve("src").resolve("main").resolve("resources")
+            );
+            Files.createFile(srcMainResources.resolve("index.jelly"));
 
             PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
@@ -111,11 +112,58 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
     }
 
     @Test
-    void shouldSucceedWhenCommitOnPomFileBeforeLatestReleaseDate() throws IOException, GitAPIException {
+    void shouldFailIfThereIsNotReleasedCommitsInModule() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        when(ctx.getScmRepository()).thenReturn(repository);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        final PersonIdent defaultCommitter = new PersonIdent(
+            "Not real person", "this is not a real email"
+        );
+
+        try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
+
+            Files.createFile(repository.resolve("pom.xml"));
+            final Path module = Files.createDirectory(repository.resolve("test-folder"));
+            Files.createFile(module.resolve("pom.xml"));
+            final Path srcMainResources = Files.createDirectories(
+                module.resolve("src").resolve("main").resolve("resources")
+            );
+            Files.createFile(srcMainResources.resolve("index.jelly"));
+
+            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
+
+            git.add().addFilepattern("pom.xml").call();
+            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+
+            git.add().addFilepattern("test-folder").call();
+            git.commit().setMessage("Imports module files").setSign(false).setCommitter(committer).call();
+
+        }
+        final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/test.txt"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
+
+    @Test
+    void shouldSucceedWhenCommitOnPomFileBeforeLatestReleaseDate() throws IOException, GitAPIException {
+        final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
@@ -155,7 +203,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -193,7 +241,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
@@ -235,7 +283,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
@@ -275,7 +323,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
@@ -317,7 +365,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -355,7 +403,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
@@ -394,7 +442,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
@@ -445,7 +493,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
@@ -493,7 +541,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
+        final String scmLink = "https://test-server/jenkinsci/test-repo";
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
