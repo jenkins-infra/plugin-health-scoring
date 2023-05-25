@@ -75,41 +75,46 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         final String folder = matcher.group("folder");
 
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
-            final LogCommand logCommand = git.log().setMaxCount(1);
+            final LogCommand logCommand = git.log();
             if (folder != null) {
                 logCommand.addPath(folder);
             }
 
             for (String path : productionPathsToCheckForCommits) { logCommand.addPath(path); }
 
-            final RevCommit commit = logCommand.call().iterator().next();
+            Iterable<RevCommit> commits = logCommand.call();
 
-            if (commit == null) {
+            if (commits == null) {
                 return ProbeResult.success(key(), "All production modifications were released.");
             }
 
-            Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
-            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+            for( RevCommit commit : commits ) {
+                Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
-            final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                commit.getAuthorIdent().getWhenAsInstant(),
-                commit.getAuthorIdent().getZoneId()
-            );
+                System.out.println(commit.getName() + " "+zonedDateTime);
 
-            if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                System.out.println("release timestamp= "+plugin.getReleaseTimestamp());
-                final TreeWalk walk = new TreeWalk(git.getRepository());
-                walk.setRecursive(true);
-                walk.addTree(commit.getTree());
-                while (walk.next()) {
-                    commitFileList.add(walk.getPathString());
-                    System.out.println(walk.getPathString() + " "+zonedDateTime);
+
+//                final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
+//                    commit.getAuthorIdent().getWhenAsInstant(),
+//                    commit.getAuthorIdent().getZoneId()
+//                );
+                if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                    System.out.println("release timestamp= "+plugin.getReleaseTimestamp());
+                    final TreeWalk walk = new TreeWalk(git.getRepository());
+                    walk.setRecursive(true);
+                    walk.addTree(commit.getTree());
+                    while (walk.next()) {
+                        commitFileList.add(walk.getPathString());
+                        System.out.println(walk.getPathString() + " "+zonedDateTime);
+                    }
+
+                    return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
+                        + String.join(", ", commitFileList));
                 }
-
-                return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
-                    + String.join(", ", commitFileList));
             }
-            context.setLastCommitDate(commitDate);
+
+//            context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), "All production modifications were released.");
         } catch (GitAPIException ex) {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
