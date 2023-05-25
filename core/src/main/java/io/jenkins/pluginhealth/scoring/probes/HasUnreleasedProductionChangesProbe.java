@@ -97,11 +97,13 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             );
 
             if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                System.out.println("release timestamp= "+plugin.getReleaseTimestamp());
                 final TreeWalk walk = new TreeWalk(git.getRepository());
                 walk.setRecursive(true);
                 walk.addTree(commit.getTree());
                 while (walk.next()) {
                     commitFileList.add(walk.getPathString());
+                    System.out.println(walk.getPathString() + " "+zonedDateTime);
                 }
 
                 return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "

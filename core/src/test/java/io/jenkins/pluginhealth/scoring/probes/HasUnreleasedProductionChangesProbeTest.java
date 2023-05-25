@@ -385,30 +385,23 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-
             PersonIdent defaultCommitter = new PersonIdent(git.getRepository());
-            PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(ZonedDateTime.now().minusDays(3).toInstant()));
-
+            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant().getEpochSecond(), 0);
             git.add().addFilepattern("pom.xml").call();
             git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
 
             final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
             Files.createFile(srcTestJava.resolve("Hello.java"));
-
-            PersonIdent committer2 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(2).toInstant()));
-
+            PersonIdent committer2 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(3).toInstant()));
             git.add().addFilepattern("src/main").call();
             git.commit().setMessage("Import main after commit  date").setSign(false).setCommitter(committer2).call();
 
             Files.createFile(repository.resolve("README.md"));
-
             PersonIdent committer3 = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusDays(3).toInstant()));
-
             git.add().addFilepattern("README.md").call();
             git.commit().setMessage("Updated README.md file after commit date").setSign(false).setCommitter(committer3).call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
-
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
