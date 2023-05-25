@@ -65,15 +65,13 @@ public class ContinuousDeliveryProbe extends Probe {
                     try {
                         return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
                     } catch (IOException e) {
-                        LOGGER.error("Couldn't not read {}", file, e);
+                        LOGGER.error("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
                         return new WorkflowDefinition(Map.of());
                     }
                 })
-                .anyMatch(wf ->
-                    wf.jobs().values().stream()
-                        .map(WorkflowJobDefinition::uses)
-                        .anyMatch(def -> def.startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml"))
-                ) ?
+                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
+                .flatMap(wf -> wf.jobs().values().stream())
+                .anyMatch(job -> job.uses().startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
                 ProbeResult.success(key(), "JEP-229 workflow definition found") :
                 ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
         } catch (IOException ex) {
