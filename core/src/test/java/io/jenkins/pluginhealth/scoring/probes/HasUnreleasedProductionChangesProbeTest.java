@@ -275,7 +275,6 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
-
     }
 
     @Test
@@ -340,9 +339,10 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
-            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
-                .resolve("resources"));
-            Files.createFile(srcMainResources.resolve("test.txt"));
+            final Path srcMainResources = Files.createDirectories(
+                repository.resolve("src").resolve("main").resolve("resources")
+            );
+            Files.createFile(srcMainResources.resolve("index.jelly"));
 
             PersonIdent committer = new PersonIdent(defaultCommitter, Date.from(plugin.getReleaseTimestamp().plusHours(1).toInstant()));
 
@@ -354,10 +354,9 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/test.txt"));
+                .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/index.jelly"));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
-
     }
 
     @Test
