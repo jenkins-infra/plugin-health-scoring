@@ -582,7 +582,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.failure(
                     HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java, src/main/java/AnotherClass.java"
+                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java"
                 ));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
