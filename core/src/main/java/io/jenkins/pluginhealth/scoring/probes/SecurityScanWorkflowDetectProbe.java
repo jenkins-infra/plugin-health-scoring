@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 @Order(value = SecurityScanWorkflowDetectProbe.ORDER)
 public class SecurityScanWorkflowDetectProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    public static final String KEY = "securityscanworkflowdetect";
+    public static final String KEY = "security-scan";
 
     private static final String SEARCH_LINE = "uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
