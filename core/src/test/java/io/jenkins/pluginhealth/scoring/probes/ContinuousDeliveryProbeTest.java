@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -95,39 +96,120 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
     void shouldBeAbleToDetectConfiguredRepository() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
-        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
-        Files.createFile(workflows.resolve("cd.yml"));
         when(ctx.getScmRepository()).thenReturn(repo);
 
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        final Path cdWorkflowDef = Files.createFile(workflows.resolve("continuous-delivery.yml"));
+
+        Files.write(cdWorkflowDef, List.of(
+            "name: Probably CD",
+            "jobs:",
+            "  maven-cd:",
+            "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v0"
+        ));
+
+        final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("JEP-229 workflow definition found");
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found"));
     }
 
     @Test
     void shouldBeAbleToDetectConfiguredRepositoryWithLongExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ContinuousDeliveryProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         final Path repo = Files.createTempDirectory("foo");
-        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
-        Files.createFile(workflows.resolve("cd.yaml"));
         when(ctx.getScmRepository()).thenReturn(repo);
 
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        final Path cdWorkflowDef = Files.createFile(workflows.resolve("continuous-delivery.yml"));
+
+        Files.write(cdWorkflowDef, List.of(
+            "name: Probably CD",
+            "jobs:",
+            "  another-name:",
+            "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v32"
+        ));
+
+        final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("JEP-229 workflow definition found");
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found"));
+    }
+
+    @Test
+    void shouldNotBeAbleToFindWorkflowDefinitionBasedOnFilename() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(repo);
+
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
+
+        Files.write(cdWorkflowDef, List.of(
+            "name: Probably Not CD",
+            "jobs:",
+            "  another-name:",
+            "    uses: this-is-not-the-workflow-you-are-looking-for"
+        ));
+
+        final ContinuousDeliveryProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition"));
+    }
+
+    @Test
+    void shouldBeAbleToSurviveInvalidWorkflowDefinition() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(repo);
+
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
+
+        Files.write(cdWorkflowDef, List.of(
+            "name: Probably Not CD"
+        ));
+
+        final ContinuousDeliveryProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition"));
     }
 }
