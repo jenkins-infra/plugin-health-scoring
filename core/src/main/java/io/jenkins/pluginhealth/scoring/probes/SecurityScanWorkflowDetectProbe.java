@@ -82,7 +82,7 @@ public class SecurityScanWorkflowDetectProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Checks for the presence of the line 'uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml' in the repository files located in the .github/workflows directory.";
+        return "Checks for the presence of the security scan workflow in the plugin repository";
     }
 
     @Override
