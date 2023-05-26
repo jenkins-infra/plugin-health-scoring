@@ -51,7 +51,6 @@ public class SecurityScanWorkflowDetectProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repository = context.getScmRepository();
         final Path workflowsPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
-        
         try (Stream<Path> paths = Files.walk(workflowsPath)) {
             List<String> fileNames = new ArrayList<>();
             
