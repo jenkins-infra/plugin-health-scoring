@@ -53,11 +53,9 @@ public class SecurityScanWorkflowDetectProbe extends Probe {
         final Path workflowsPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
         try (Stream<Path> paths = Files.walk(workflowsPath)) {
             List<String> fileNames = new ArrayList<>();
-            
             paths.filter(Files::isRegularFile)
                 .filter(this::containsSearchLine)
                 .forEach(path -> fileNames.add(path.toString()));
-            
             if (!fileNames.isEmpty()) {
                 String fileList = String.join(", ", fileNames);
                 return ProbeResult.success(key(), "The line is present in the following files: " + fileList);
