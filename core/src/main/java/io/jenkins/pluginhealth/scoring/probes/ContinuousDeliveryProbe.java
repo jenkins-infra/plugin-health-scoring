@@ -27,12 +27,15 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -53,15 +56,36 @@ public class ContinuousDeliveryProbe extends Probe {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
         try (Stream<Path> files = Files.find(githubWorkflow, 1,
-            (path, basicFileAttributes) -> Files.isRegularFile(path) && List.of("cd.yml", "cd.yaml").contains(path.getFileName().toString())
+            (path, basicFileAttributes) -> Files.isRegularFile(path)
         )) {
-            return files.findFirst().isPresent() ?
+            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+
+            return files
+                .map(file -> {
+                    try {
+                        return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
+                    } catch (IOException e) {
+                        LOGGER.error("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
+                        return new WorkflowDefinition(Map.of());
+                    }
+                })
+                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
+                .flatMap(wf -> wf.jobs().values().stream())
+                .anyMatch(job -> job.uses().startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
                 ProbeResult.success(key(), "JEP-229 workflow definition found") :
                 ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
         } catch (IOException ex) {
             LOGGER.warn("Could not walk {} Git clone in {}", plugin.getName(), repo, ex);
             return ProbeResult.error(key(), "Could not work plugin repository");
         }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowJobDefinition(String uses) {
     }
 
     @Override
@@ -81,6 +105,6 @@ public class ContinuousDeliveryProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 }
