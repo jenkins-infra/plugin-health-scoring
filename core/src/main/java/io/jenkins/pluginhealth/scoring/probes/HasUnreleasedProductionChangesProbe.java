@@ -29,7 +29,11 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -87,10 +91,10 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             productionPathsToCheckForCommits.add("pom.xml");
             productionPathsToCheckForCommits.add("src/main");
 
-            productionPathsToCheckForCommits.forEach(logCommand :: addPath);
+            productionPathsToCheckForCommits.forEach(logCommand:: addPath);
             Iterable<RevCommit> commits = logCommand.call();
 
-            for ( RevCommit commit : commits ) {
+            for( RevCommit commit : commits) {
                 Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
@@ -111,7 +115,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     df.setRepository(git.getRepository());
                     List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
 
-                    for ( DiffEntry entry : entries ) {
+                    for (DiffEntry entry : entries) {
                         if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
                             filesModifiedAfterRelease.add(entry.getNewPath());
                         }
@@ -129,7 +133,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                         }
                         else {
                             if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                                System.out.println(zonedDateTime +" "+treeWalk.getPathString());
+                                System.out.println(zonedDateTime + " " + treeWalk.getPathString());
                                 filesModifiedAfterRelease.add(treeWalk.getPathString());
                             }
                         }
