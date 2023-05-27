@@ -154,7 +154,7 @@ public class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<H
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at test-folder/pom.xml, test-folder/src/main/resources/index.jelly, pom.xml"));
+            .isEqualTo(ProbeResult.failure(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, test-folder/pom.xml, test-folder/src/main/resources/index.jelly"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 

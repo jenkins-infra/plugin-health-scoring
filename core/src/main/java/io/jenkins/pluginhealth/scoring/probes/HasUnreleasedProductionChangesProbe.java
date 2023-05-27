@@ -35,7 +35,6 @@ import java.util.regex.Matcher;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -49,7 +48,6 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -70,7 +68,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         List<String> productionPathsToCheckForCommits = new ArrayList<>();
-        Set<String> commitsAfterReleaseDate  = new HashSet<>();
+        Set<String> filesModifiedAfterRelease  = new HashSet<>();
 
         final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
         if (!matcher.find()) {
@@ -78,64 +76,71 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         }
         final String folder = matcher.group("folder");
 
-        productionPathsToCheckForCommits.add("pom.xml");
-        productionPathsToCheckForCommits.add(folder + "pom.xml");
-        productionPathsToCheckForCommits.add(folder + "src/main");
-
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
-            final LogCommand logCommand = git.log().setMaxCount(1);
+            final LogCommand logCommand = git.log();
+
             if (folder != null) {
-                logCommand.addPath(folder);
+                productionPathsToCheckForCommits.add(folder + "pom.xml");
+                productionPathsToCheckForCommits.add(folder + "src/main");
             }
+
+            productionPathsToCheckForCommits.add("pom.xml");
+            productionPathsToCheckForCommits.add("src/main");
+
             productionPathsToCheckForCommits.forEach(logCommand :: addPath);
             Iterable<RevCommit> commits = logCommand.call();
 
-            for( RevCommit commit : commits ) {
+            for ( RevCommit commit : commits ) {
                 Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
-                if(commit.getParentCount() > 0 ) {
+                if (commit.getParentCount() > 0 ) {
                     /*
                     *  if a previous commit exists, compare the difference
                     * */
 
-                    // https://stackoverflow.com/a/27375013/9493145
-
+                    ObjectId oldCommit = git.getRepository().resolve("HEAD^");
+                    ObjectId newCommit = git.getRepository().resolve("HEAD");
                     ObjectReader reader = git.getRepository().newObjectReader();
                     CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-                    ObjectId oldTree = git.getRepository().resolve( "HEAD^{tree}" ); // equals newCommit.getTree()
-                    oldTreeIter.reset( reader, oldTree );
+                    oldTreeIter.reset(reader, oldCommit);
                     CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-                    ObjectId newTree = git.getRepository().resolve( "HEAD~1^{tree}" ); // equals oldCommit.getTree()
-                    newTreeIter.reset( reader, newTree );
+                    newTreeIter.reset(reader, newCommit);
 
-                    DiffFormatter df = new DiffFormatter( new ByteArrayOutputStream() ); // use NullOutputStream.INSTANCE if you don't need the diff output
-                    df.setRepository( git.getRepository() );
-                    List<DiffEntry> entries = df.scan( oldTreeIter, newTreeIter );
+                    DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
+                    df.setRepository(git.getRepository());
+                    List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
 
-                    for( DiffEntry entry : entries ) {
-                        System.out.println( entry );
+                    for ( DiffEntry entry : entries ) {
+                        if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                            filesModifiedAfterRelease.add(entry.getNewPath());
+                        }
                     }
-
                 }
                 else {
-                    if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                        final TreeWalk walk = new TreeWalk(git.getRepository());
-                        walk.setRecursive(true);
-                        walk.addTree(commit.getTree());
-                        while (walk.next()) {
-                            commitsAfterReleaseDate.add(walk.getPathString());
-                        }
+                    ObjectId treeId = commit.getTree().getId();
+                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                    treeWalk.addTree(treeId);
+                    treeWalk.setRecursive(true);
 
+                    while (treeWalk.next()) {
+                        if (treeWalk.isSubtree()) {
+                            treeWalk.enterSubtree();
+                        }
+                        else {
+                            if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                                System.out.println(zonedDateTime +" "+treeWalk.getPathString());
+                                filesModifiedAfterRelease.add(treeWalk.getPathString());
+                            }
+                        }
                     }
                 }
-
             }
 
-            List<String> list = new ArrayList<>(commitsAfterReleaseDate);
+            List<String> list = new ArrayList<>(filesModifiedAfterRelease);
             Collections.sort(list);
 
-            ProbeResult result = commitsAfterReleaseDate.isEmpty() ?
+            ProbeResult result = filesModifiedAfterRelease.isEmpty() ?
                                 ProbeResult.success(key(), "All production modifications were released.") :
                                 ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
                                     +  String.join(",", list));
