@@ -24,25 +24,32 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.eclipse.jgit.api.DiffCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -63,10 +70,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         List<String> productionPathsToCheckForCommits = new ArrayList<>();
-        List<String> commitFileList = new ArrayList<>();
-
-        productionPathsToCheckForCommits.add("pom.xml");
-        productionPathsToCheckForCommits.add("src/main");
+        Set<String> commitsAfterReleaseDate  = new HashSet<>();
 
         final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
         if (!matcher.find()) {
@@ -74,48 +78,69 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
         }
         final String folder = matcher.group("folder");
 
+        productionPathsToCheckForCommits.add("pom.xml");
+        productionPathsToCheckForCommits.add(folder + "pom.xml");
+        productionPathsToCheckForCommits.add(folder + "src/main");
+
         try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
-            final LogCommand logCommand = git.log();
+            final LogCommand logCommand = git.log().setMaxCount(1);
             if (folder != null) {
                 logCommand.addPath(folder);
             }
-
-            for (String path : productionPathsToCheckForCommits) { logCommand.addPath(path); }
-
+            productionPathsToCheckForCommits.forEach(logCommand :: addPath);
             Iterable<RevCommit> commits = logCommand.call();
-
-            if (commits == null) {
-                return ProbeResult.success(key(), "All production modifications were released.");
-            }
 
             for( RevCommit commit : commits ) {
                 Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
-                System.out.println(commit.getName() + " "+zonedDateTime);
+                if(commit.getParentCount() > 0 ) {
+                    /*
+                    *  if a previous commit exists, compare the difference
+                    * */
 
+                    // https://stackoverflow.com/a/27375013/9493145
 
-//                final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-//                    commit.getAuthorIdent().getWhenAsInstant(),
-//                    commit.getAuthorIdent().getZoneId()
-//                );
-                if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                    System.out.println("release timestamp= "+plugin.getReleaseTimestamp());
-                    final TreeWalk walk = new TreeWalk(git.getRepository());
-                    walk.setRecursive(true);
-                    walk.addTree(commit.getTree());
-                    while (walk.next()) {
-                        commitFileList.add(walk.getPathString());
-                        System.out.println(walk.getPathString() + " "+zonedDateTime);
+                    ObjectReader reader = git.getRepository().newObjectReader();
+                    CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
+                    ObjectId oldTree = git.getRepository().resolve( "HEAD^{tree}" ); // equals newCommit.getTree()
+                    oldTreeIter.reset( reader, oldTree );
+                    CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
+                    ObjectId newTree = git.getRepository().resolve( "HEAD~1^{tree}" ); // equals oldCommit.getTree()
+                    newTreeIter.reset( reader, newTree );
+
+                    DiffFormatter df = new DiffFormatter( new ByteArrayOutputStream() ); // use NullOutputStream.INSTANCE if you don't need the diff output
+                    df.setRepository( git.getRepository() );
+                    List<DiffEntry> entries = df.scan( oldTreeIter, newTreeIter );
+
+                    for( DiffEntry entry : entries ) {
+                        System.out.println( entry );
                     }
 
-                    return ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
-                        + String.join(", ", commitFileList));
                 }
+                else {
+                    if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                        final TreeWalk walk = new TreeWalk(git.getRepository());
+                        walk.setRecursive(true);
+                        walk.addTree(commit.getTree());
+                        while (walk.next()) {
+                            commitsAfterReleaseDate.add(walk.getPathString());
+                        }
+
+                    }
+                }
+
             }
 
-//            context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), "All production modifications were released.");
+            List<String> list = new ArrayList<>(commitsAfterReleaseDate);
+            Collections.sort(list);
+
+            ProbeResult result = commitsAfterReleaseDate.isEmpty() ?
+                                ProbeResult.success(key(), "All production modifications were released.") :
+                                ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
+                                    +  String.join(",", list));
+
+            return result;
         } catch (GitAPIException ex) {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
             return ProbeResult.error(key(), "Could not clone the plugin repository");
