@@ -50,6 +50,8 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
@@ -103,13 +105,26 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     *  if a previous commit exists, compare the difference
                     * */
 
-                    ObjectId oldCommit = git.getRepository().resolve("HEAD^");
+                    ObjectId oldCommit = git.getRepository().resolve("HEAD~1");
                     ObjectId newCommit = git.getRepository().resolve("HEAD");
                     ObjectReader reader = git.getRepository().newObjectReader();
+
+                    // Create RevWalk objects for the old and new commits
+                    RevWalk oldWalk = new RevWalk(git.getRepository());
+                    RevWalk newWalk = new RevWalk(git.getRepository());
+
+                    // Parse the old and new commits
+                    RevCommit oldRevCommit = oldWalk.parseCommit(oldCommit);
+                    RevCommit newRevCommit = newWalk.parseCommit(newCommit);
+
+                    // Get the tree object associated with the old commit
+                    RevTree oldTree = oldRevCommit.getTree();
+
+                    // Create a CanonicalTreeParser for the old and new trees
                     CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-                    oldTreeIter.reset(reader, oldCommit);
+                    oldTreeIter.reset(reader, oldTree);
                     CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-                    newTreeIter.reset(reader, newCommit);
+                    newTreeIter.reset(reader, newRevCommit.getTree());
 
                     DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
                     df.setRepository(git.getRepository());
@@ -147,7 +162,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             ProbeResult result = filesModifiedAfterRelease.isEmpty() ?
                                 ProbeResult.success(key(), "All production modifications were released.") :
                                 ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
-                                    +  String.join(",", list));
+                                    +  String.join(", ", list));
 
             return result;
         } catch (GitAPIException ex) {
