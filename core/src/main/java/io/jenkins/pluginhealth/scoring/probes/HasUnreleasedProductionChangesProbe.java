@@ -105,6 +105,9 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     *  if a previous commit exists, compare the difference
                     * */
 
+                    System.out.println("in if");
+                    System.out.println(commit.getFullMessage());
+
                     ObjectId oldCommit = git.getRepository().resolve("HEAD~1");
                     ObjectId newCommit = git.getRepository().resolve("HEAD");
                     ObjectReader reader = git.getRepository().newObjectReader();
@@ -132,11 +135,14 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
                     for (DiffEntry entry : entries) {
                         if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                            System.out.println(entry.getNewPath());
                             filesModifiedAfterRelease.add(entry.getNewPath());
                         }
                     }
                 }
                 else {
+
+                    System.out.println("in else");
                     ObjectId treeId = commit.getTree().getId();
                     TreeWalk treeWalk = new TreeWalk(git.getRepository());
                     treeWalk.addTree(treeId);
