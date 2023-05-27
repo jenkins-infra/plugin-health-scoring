@@ -94,11 +94,11 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             productionPathsToCheckForCommits.forEach(logCommand:: addPath);
             Iterable<RevCommit> commits = logCommand.call();
 
-            for( RevCommit commit : commits) {
+            for (RevCommit commit : commits) {
                 Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 
-                if (commit.getParentCount() > 0 ) {
+                if (commit.getParentCount() > 0) {
                     /*
                     *  if a previous commit exists, compare the difference
                     * */
