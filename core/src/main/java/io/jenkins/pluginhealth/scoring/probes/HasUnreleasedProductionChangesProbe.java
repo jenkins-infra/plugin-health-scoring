@@ -144,6 +144,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                             tempCommitPath = treeWalk.getPathString();
                         }
                     }
+                    treeWalk.reset();
                 }
 
                 if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
