@@ -29,11 +29,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -86,12 +82,13 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             final LogCommand logCommand = git.log();
 
             if (folder != null) {
-                productionPathsToCheckForCommits.add(folder + "pom.xml");
-                productionPathsToCheckForCommits.add(folder + "src/main");
+                productionPathsToCheckForCommits.add(folder + "/pom.xml");
+                productionPathsToCheckForCommits.add(folder + "/src/main");
             }
-
-            productionPathsToCheckForCommits.add("pom.xml");
-            productionPathsToCheckForCommits.add("src/main");
+            else {
+                productionPathsToCheckForCommits.add("pom.xml");
+                productionPathsToCheckForCommits.add("src/main");
+            }
 
             productionPathsToCheckForCommits.forEach(logCommand:: addPath);
             Iterable<RevCommit> commits = logCommand.call();
@@ -99,14 +96,12 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             for (RevCommit commit : commits) {
                 Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+                String tempCommitPath = "";
 
                 if (commit.getParentCount() > 0) {
                     /*
                     *  if a previous commit exists, compare the difference
                     * */
-
-                    System.out.println("in if");
-                    System.out.println(commit.getFullMessage());
 
                     ObjectId oldCommit = git.getRepository().resolve("HEAD~1");
                     ObjectId newCommit = git.getRepository().resolve("HEAD");
@@ -134,31 +129,25 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
 
                     for (DiffEntry entry : entries) {
-                        if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                            System.out.println(entry.getNewPath());
-                            filesModifiedAfterRelease.add(entry.getNewPath());
-                        }
+                        tempCommitPath = entry.getNewPath();
                     }
                 }
                 else {
-
-                    System.out.println("in else");
-                    ObjectId treeId = commit.getTree().getId();
+                    RevTree tree = commit.getTree();
                     TreeWalk treeWalk = new TreeWalk(git.getRepository());
-                    treeWalk.addTree(treeId);
-                    treeWalk.setRecursive(true);
-
+                    treeWalk.addTree(tree);
+                    treeWalk.setRecursive(false);
                     while (treeWalk.next()) {
                         if (treeWalk.isSubtree()) {
                             treeWalk.enterSubtree();
-                        }
-                        else {
-                            if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                                System.out.println(zonedDateTime + " " + treeWalk.getPathString());
-                                filesModifiedAfterRelease.add(treeWalk.getPathString());
-                            }
+                        } else {
+                            tempCommitPath = treeWalk.getPathString();
                         }
                     }
+                }
+
+                if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
+                    filesModifiedAfterRelease.add(tempCommitPath);
                 }
             }
 
