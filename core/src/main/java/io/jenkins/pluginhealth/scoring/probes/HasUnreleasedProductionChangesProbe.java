@@ -29,8 +29,12 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Matcher;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -94,7 +98,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
             Iterable<RevCommit> commits = logCommand.call();
 
             for (RevCommit commit : commits) {
-                Instant instant = Instant.ofEpochSecond(commit.getCommitTime());
+                Instant instant = commit.getCommitterIdent().getWhenAsInstant();
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
                 String tempCommitPath = "";
 
@@ -104,16 +108,13 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     * */
 
                     ObjectId oldCommit = git.getRepository().resolve("HEAD~1");
-                    ObjectId newCommit = git.getRepository().resolve("HEAD");
                     ObjectReader reader = git.getRepository().newObjectReader();
 
                     // Create RevWalk objects for the old and new commits
                     RevWalk oldWalk = new RevWalk(git.getRepository());
-                    RevWalk newWalk = new RevWalk(git.getRepository());
 
                     // Parse the old and new commits
                     RevCommit oldRevCommit = oldWalk.parseCommit(oldCommit);
-                    RevCommit newRevCommit = newWalk.parseCommit(newCommit);
 
                     // Get the tree object associated with the old commit
                     RevTree oldTree = oldRevCommit.getTree();
@@ -122,7 +123,7 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
                     oldTreeIter.reset(reader, oldTree);
                     CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-                    newTreeIter.reset(reader, newRevCommit.getTree());
+                    newTreeIter.reset(reader, commit.getTree());
 
                     DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
                     df.setRepository(git.getRepository());
@@ -133,16 +134,13 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
                     }
                 }
                 else {
-                    RevTree tree = commit.getTree();
-                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
-                    treeWalk.addTree(tree);
-                    treeWalk.setRecursive(false);
+
+                    final TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                    treeWalk.setRecursive(true);
+                    treeWalk.addTree(commit.getTree());
+
                     while (treeWalk.next()) {
-                        if (treeWalk.isSubtree()) {
-                            treeWalk.enterSubtree();
-                        } else {
-                            tempCommitPath = treeWalk.getPathString();
-                        }
+                        tempCommitPath = treeWalk.getPathString();
                     }
                     treeWalk.reset();
                 }
