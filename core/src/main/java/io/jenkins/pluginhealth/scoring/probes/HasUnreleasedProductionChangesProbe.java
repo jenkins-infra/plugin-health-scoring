@@ -29,19 +29,19 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.errors.CorruptObjectException;
@@ -54,10 +54,13 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+
+import static io.jenkins.pluginhealth.scoring.probes.SCMLinkValidationProbe.GH_PATTERN;
 
 /**
  * Using the analysis done by {@link SCMLinkValidationProbe},
@@ -65,7 +68,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(value = HasUnreleasedProductionChangesProbe.ORDER)
-public class HasUnreleasedProductionChangesProbe  extends Probe {
+public class HasUnreleasedProductionChangesProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(HasUnreleasedProductionChangesProbe.class);
 
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
@@ -73,103 +76,64 @@ public class HasUnreleasedProductionChangesProbe  extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        List<String> productionPathsToCheckForCommits = new ArrayList<>();
-        Set<String> filesModifiedAfterRelease  = new HashSet<>();
-
-        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
+        Matcher matcher = GH_PATTERN.matcher(plugin.getScm());
         if (!matcher.find()) {
-            return ProbeResult.failure(key(), "The SCM link is not valid");
+            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories");
         }
+
         final String folder = matcher.group("folder");
+        final Set<String> files = new HashSet<>();
 
-        try (Git git = Git.init().setDirectory(context.getScmRepository().toFile()).call()) {
-            final LogCommand logCommand = git.log();
+        final List<String> paths = new ArrayList<>(3);
+        paths.add("pom.xml");
+        if (folder != null) {
+            paths.add(folder + "/pom.xml");
+            paths.add(folder + "/src/main");
+        } else {
+            paths.add("src/main");
+        }
 
-            if (folder != null) {
-                productionPathsToCheckForCommits.add(folder + "/pom.xml");
-                productionPathsToCheckForCommits.add(folder + "/src/main");
-            }
-            else {
-                productionPathsToCheckForCommits.add("pom.xml");
-                productionPathsToCheckForCommits.add("src/main");
-            }
-
-            productionPathsToCheckForCommits.forEach(logCommand:: addPath);
-            Iterable<RevCommit> commits = logCommand.call();
-
-            for (RevCommit commit : commits) {
-                Instant instant = commit.getCommitterIdent().getWhenAsInstant();
-                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
-                String tempCommitPath = "";
-
-                if (commit.getParentCount() > 0) {
-                    /*
-                    *  if a previous commit exists, compare the difference
-                    * */
-
-                    ObjectId oldCommit = git.getRepository().resolve("HEAD~1");
-                    ObjectReader reader = git.getRepository().newObjectReader();
-
-                    // Create RevWalk objects for the old and new commits
-                    RevWalk oldWalk = new RevWalk(git.getRepository());
-
-                    // Parse the old and new commits
-                    RevCommit oldRevCommit = oldWalk.parseCommit(oldCommit);
-
-                    // Get the tree object associated with the old commit
-                    RevTree oldTree = oldRevCommit.getTree();
-
-                    // Create a CanonicalTreeParser for the old and new trees
-                    CanonicalTreeParser oldTreeIter = new CanonicalTreeParser();
-                    oldTreeIter.reset(reader, oldTree);
-                    CanonicalTreeParser newTreeIter = new CanonicalTreeParser();
-                    newTreeIter.reset(reader, commit.getTree());
-
-                    DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-                    df.setRepository(git.getRepository());
-                    List<DiffEntry> entries = df.scan(oldTreeIter, newTreeIter);
-
-                    for (DiffEntry entry : entries) {
-                        tempCommitPath = entry.getNewPath();
-                    }
+        try (Git git = Git.open(context.getScmRepository().toFile())) {
+            LogCommand logCommand = git.log();
+            paths.forEach(logCommand::addPath);
+            for (RevCommit revCommit : logCommand.call()) {
+                Instant commitInstant = revCommit.getCommitterIdent().getWhenAsInstant();
+                if (commitInstant.isBefore(plugin.getReleaseTimestamp().toInstant())) {
+                    break;
                 }
-                else {
 
-                    final TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                if (revCommit.getParentCount() > 0) {
+                    RevCommit parent = revCommit.getParent(0);
+                    DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+                    diffFormatter.setRepository(git.getRepository());
+                    diffFormatter.scan(parent.getTree(), revCommit.getTree())
+                        .stream()
+                        .map(diffEntry -> diffEntry.getPath(DiffEntry.Side.NEW))
+                        .filter(s -> paths.stream().anyMatch(s::startsWith))
+                        .forEach(files::add);
+
+                } else {
+                    TreeWalk treeWalk = new TreeWalk(git.getRepository());
+                    treeWalk.addTree(revCommit.getTree());
                     treeWalk.setRecursive(true);
-                    treeWalk.addTree(commit.getTree());
 
                     while (treeWalk.next()) {
-                        tempCommitPath = treeWalk.getPathString();
+                        String path = treeWalk.getPathString();
+                        for (String s : paths) {
+                            if (path.startsWith(s)) {
+                                files.add(path);
+                            }
+                        }
                     }
-                    treeWalk.reset();
-                }
-
-                if (zonedDateTime.isAfter(plugin.getReleaseTimestamp())) {
-                    filesModifiedAfterRelease.add(tempCommitPath);
                 }
             }
 
-            List<String> list = new ArrayList<>(filesModifiedAfterRelease);
-            Collections.sort(list);
-
-            ProbeResult result = filesModifiedAfterRelease.isEmpty() ?
-                                ProbeResult.success(key(), "All production modifications were released.") :
-                                ProbeResult.failure(key(), "Unreleased production modifications might exist in the plugin source code at "
-                                    +  String.join(", ", list));
-
-            return result;
-        } catch (GitAPIException ex) {
-            LOGGER.error("There was an issue while cloning the plugin repository", ex);
-            return ProbeResult.error(key(), "Could not clone the plugin repository");
-        } catch (CorruptObjectException e) {
-            throw new RuntimeException(e);
-        } catch (IncorrectObjectTypeException e) {
-            throw new RuntimeException(e);
-        } catch (MissingObjectException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return files.isEmpty() ?
+                ProbeResult.success(KEY, "All production modifications were released.") :
+                ProbeResult.failure(KEY, "Unreleased production modifications might exist in the plugin source code at "
+                    + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+        } catch (IOException | GitAPIException ex) {
+            return ProbeResult.error(KEY, ex.getMessage());
         }
     }
 
