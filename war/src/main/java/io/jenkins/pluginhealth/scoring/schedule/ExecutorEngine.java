@@ -24,36 +24,16 @@
 
 package io.jenkins.pluginhealth.scoring.schedule;
 
-import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
-import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
-
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProbeEngineScheduler {
-    private final ExecutorEngine executorEngine;
+class ExecutorEngine {
+    private final Executor exec = Executors.newSingleThreadExecutor();
 
-    private final ProbeEngine probeEngine;
-    private final ScoringEngine scoringEngine;
-
-    public ProbeEngineScheduler(ExecutorEngine executorEngine, ProbeEngine probeEngine, ScoringEngine scoringEngine) {
-        this.executorEngine = executorEngine;
-        this.probeEngine = probeEngine;
-        this.scoringEngine = scoringEngine;
-    }
-
-    @Scheduled(cron = "${cron.probe-engine}", zone = "UTC")
-    public void run() {
-        executorEngine.run(() -> {
-            try {
-                probeEngine.run();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        executorEngine.run(scoringEngine::run);
+    public void run(Runnable task) {
+        exec.execute(task);
     }
 }
