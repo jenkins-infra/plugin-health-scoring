@@ -61,7 +61,11 @@ class PluginDocumentationServiceTest {
 
     @Test
     void shouldSurviveIncorrectlyConfiguredDocumentationURL() {
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, "this-is-not-a-correct-url");
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins("foo", "this-is-not-a-correct-url"),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map).isEmpty();
