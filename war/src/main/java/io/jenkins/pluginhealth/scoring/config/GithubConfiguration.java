@@ -31,7 +31,6 @@ import java.security.GeneralSecurityException;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import org.kohsuke.github.GHAppInstallation;
 import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
