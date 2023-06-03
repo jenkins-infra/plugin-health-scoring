@@ -31,7 +31,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
         try {
             Model model = mavenReader.read(new FileReader(plugin.getScm()+"/pom.xml"));
             for (Repository repository : getRepositories(model)) {
-                if(repository.getUrl().startsWith(path)) {
+                if(!(repository.getUrl().startsWith(path))) {
                     return ProbeResult.failure(KEY, "Third party repository detected in the plugin");
                 }
             }
