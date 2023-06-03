@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = ThirdPartyRepositoryDetectionProbe.ORDER)
 public class ThirdPartyRepositoryDetectionProbe extends Probe{
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
+
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
 
