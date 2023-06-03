@@ -29,20 +29,17 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
         final String path = "https://repo.jenkins-ci.org";
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
-            Model model = mavenReader.read(new FileReader(plugin.getScm()+"/pom.xml"));
+            Model model = mavenReader.read(new FileReader(context.getScmRepository()+"/pom.xml"));
             for (Repository repository : getRepositories(model)) {
                 if(!(repository.getUrl().startsWith(path))) {
-                    return ProbeResult.failure(KEY, "Third party repository detected in the plugin");
+                    return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("ex 1");
             return ProbeResult.error(KEY, e.getMessage());
         } catch (XmlPullParserException e) {
-            System.out.println("ex 2");
             return ProbeResult.error(KEY, e.getMessage());
         } catch (IOException e) {
-            System.out.println("ex 3");
             return ProbeResult.error(KEY, e.getMessage());
 
         }
@@ -55,11 +52,11 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
 
     @Override
     public String key() {
-        return null;
+        return KEY;
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Detects third-party repositories in a plugin.";
     }
 }

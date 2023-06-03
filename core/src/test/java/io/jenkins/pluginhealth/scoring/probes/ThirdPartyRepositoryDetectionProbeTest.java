@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -28,33 +30,71 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("pom-test-both-paths/pom.xml");
-
-        MavenXpp3Reader mavenReader = mock(MavenXpp3Reader.class);
-        Model mockModel = mock(Model.class);
-        List<Repository> repositoryList = mavenReader.read(inputStream).getRepositories();
-        when(mockModel.getRepositories()).thenReturn(repositoryList);
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-both-paths");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repository detected in the plugin"));
+            .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repositories detected in the plugin"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
     @Test
     void shouldPassIfNoThirdPartyRepositoriesDetected() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-correct-path");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "The plugin has no third party repositories"));
+            .isEqualTo(ProbeResult.success(ThirdPartyRepositoryDetectionProbe.KEY, "The plugin has no third party repositories"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
 
+    @Test
+    void shouldFailIfOnlyThirdPartyRepositoriesDetected() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-incorrect-path");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+
+        final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repositories detected in the plugin"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
+
+    @Test
+    void shouldPassIfNoRepositoriesDetected() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-no-repository-tag");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+
+        final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(ThirdPartyRepositoryDetectionProbe.KEY, "The plugin has no third party repositories"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
 
