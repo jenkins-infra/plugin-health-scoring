@@ -6,16 +6,11 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
