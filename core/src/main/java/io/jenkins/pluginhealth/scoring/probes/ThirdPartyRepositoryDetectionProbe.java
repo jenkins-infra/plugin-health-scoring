@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -36,10 +37,13 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
                 }
             }
         } catch (FileNotFoundException e) {
+            LOGGER.error("File not found at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
         } catch (XmlPullParserException e) {
+            LOGGER.error("Pom file could not be parsed at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
         } catch (IOException e) {
+            LOGGER.error("File reading exception at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
 
         }
@@ -58,5 +62,10 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
     @Override
     public String getDescription() {
         return "Detects third-party repositories in a plugin.";
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[] { SCMLinkValidationProbe.KEY};
     }
 }
