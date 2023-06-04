@@ -25,7 +25,7 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         return spy(ThirdPartyRepositoryDetectionProbe.class);
     }
 
-    static Stream<Arguments> pomPathAndProbeFailureTestParameters() {
+    static Stream<Arguments> pomPathFailureTestParameters() {
         return Stream.of(
             arguments(
                 Paths.get("src","test","resources","pom-test-both-paths")
@@ -40,7 +40,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
-
         when(plugin.getName()).thenReturn("foo-bar");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -53,7 +52,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
     void shouldPassIfNoThirdPartyRepositoriesDetected() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
         Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-correct-path");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
@@ -73,7 +71,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
     void shouldPassIfNoRepositoriesDetected() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
         Path resourceDirectory = Paths.get("src","test","resources","pom-test-no-repository-tag");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
@@ -90,11 +87,10 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
     }
 
     @ParameterizedTest
-    @MethodSource("pomPathAndProbeFailureTestParameters")
+    @MethodSource("pomPathFailureTestParameters")
     void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
