@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
-import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -26,19 +25,31 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         return spy(ThirdPartyRepositoryDetectionProbe.class);
     }
 
-    static Stream<Arguments> pomPathAndProbeResults() {
+    static Stream<Arguments> pomPathAndProbeSuccessTestParameters() {
+        return Stream.of(
+            arguments(
+                Paths.get("src","test","resources","pom-test-only-correct-path"),
+                new String[]{SCMLinkValidationProbe.KEY},
+                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
+            ),
+            arguments(
+                Paths.get("src","test","resources","pom-test-no-repository-tag"),
+                new String[]{SCMLinkValidationProbe.KEY},
+                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
+            )
+        );
+    }
+    static Stream<Arguments> pomPathAndProbeFailureTestParameters() {
         return Stream.of(
             arguments(
                 Paths.get("src","test","resources","pom-test-both-paths"),
-                "test-foo-bar",
                 new String[]{SCMLinkValidationProbe.KEY},
-                Map.of(ThirdPartyRepositoryDetectionProbe.KEY, ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repositories detected in the plugin"))
+                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             ),
             arguments(
                 Paths.get("src","test","resources","pom-test-only-incorrect-path"),
-                "test-foo-bar",
                 new String[]{SCMLinkValidationProbe.KEY},
-                Map.of(ThirdPartyRepositoryDetectionProbe.KEY, ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repositories detected in the plugin"))
+                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             )
         );
     }
@@ -71,6 +82,8 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")));
+        when(probe.getProbeResultRequirement()).thenReturn(new String [] {SCMLinkValidationProbe.KEY});
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -89,6 +102,8 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+        when(plugin.getDetails()).thenReturn(Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")));
+        when(probe.getProbeResultRequirement()).thenReturn(new String [] {SCMLinkValidationProbe.KEY});
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -98,19 +113,17 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
     }
 
     @ParameterizedTest
-    @MethodSource("pomPathAndProbeResults")
-    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String pluginName, String[] probeResultRequirement, Map<String, ProbeResult> details) {
+    @MethodSource("pomPathAndProbeFailureTestParameters")
+    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String[] probeResultRequirement, Map<String, ProbeResult> details) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         when(plugin.getDetails()).thenReturn(details);
 
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
-        when(plugin.getName()).thenReturn(pluginName);
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
         when(probe.getProbeResultRequirement()).thenReturn(probeResultRequirement);
-
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
