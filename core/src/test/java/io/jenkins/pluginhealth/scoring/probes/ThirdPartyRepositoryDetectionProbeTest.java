@@ -25,26 +25,13 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         return spy(ThirdPartyRepositoryDetectionProbe.class);
     }
 
-    static Stream<Arguments> pomPathAndProbeSuccessTestParameters() {
-        return Stream.of(
-            arguments(
-                Paths.get("src","test","resources","pom-test-only-correct-path"),
-                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
-            ),
-            arguments(
-                Paths.get("src","test","resources","pom-test-no-repository-tag"),
-                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
-            )
-        );
-    }
     static Stream<Arguments> pomPathAndProbeFailureTestParameters() {
         return Stream.of(
             arguments(
-                Paths.get("src","test","resources","pom-test-both-paths"),
-                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
+                Paths.get("src","test","resources","pom-test-both-paths")
             ),
             arguments(
-                Paths.get("src","test","resources","pom-test-only-incorrect-path"),
+                Paths.get("src","test","resources","pom-test-only-incorrect-path")
             )
         );
     }
@@ -55,7 +42,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo-bar");
-
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
@@ -68,12 +54,34 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-correct-path");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
-        when(plugin.getDetails()).thenReturn(details);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(ThirdPartyRepositoryDetectionProbe.KEY, "The plugin has no third party repositories"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
 
+    @Test
+    void shouldPassIfNoRepositoriesDetected() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-no-repository-tag");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+
+        final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
@@ -83,16 +91,17 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
 
     @ParameterizedTest
     @MethodSource("pomPathAndProbeFailureTestParameters")
-    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String[] probeResultRequirement, Map<String, ProbeResult> details) {
+    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        when(plugin.getDetails()).thenReturn(details);
 
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
-
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
