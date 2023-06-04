@@ -29,12 +29,10 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         return Stream.of(
             arguments(
                 Paths.get("src","test","resources","pom-test-only-correct-path"),
-                new String[]{SCMLinkValidationProbe.KEY},
                 Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             ),
             arguments(
                 Paths.get("src","test","resources","pom-test-no-repository-tag"),
-                new String[]{SCMLinkValidationProbe.KEY},
                 Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             )
         );
@@ -43,13 +41,10 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         return Stream.of(
             arguments(
                 Paths.get("src","test","resources","pom-test-both-paths"),
-                new String[]{SCMLinkValidationProbe.KEY},
                 Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             ),
             arguments(
                 Paths.get("src","test","resources","pom-test-only-incorrect-path"),
-                new String[]{SCMLinkValidationProbe.KEY},
-                Map.of(SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""))
             )
         );
     }
@@ -68,9 +63,8 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         verify(probe, never()).doApply(plugin, ctx);
     }
 
-    @ParameterizedTest
-    @MethodSource("pomPathAndProbeSuccessTestParameters")
-    void shouldPassIfNoThirdPartyRepositoriesDetected(Path resourceDirectory, String[] probeResultRequirement, Map<String, ProbeResult> details) {
+    @Test
+    void shouldPassIfNoThirdPartyRepositoriesDetected() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -79,7 +73,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
         when(plugin.getDetails()).thenReturn(details);
-        when(probe.getProbeResultRequirement()).thenReturn(probeResultRequirement);
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -99,7 +92,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
 
         final ThirdPartyRepositoryDetectionProbe probe = getSpy();
-        when(probe.getProbeResultRequirement()).thenReturn(probeResultRequirement);
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
