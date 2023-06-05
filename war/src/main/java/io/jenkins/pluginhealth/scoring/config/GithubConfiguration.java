@@ -25,111 +25,73 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.Instant;
-import java.util.stream.Collectors;
+import java.security.GeneralSecurityException;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import org.apache.tomcat.util.codec.binary.Base64;
-import org.kohsuke.github.GHApp;
-import org.kohsuke.github.GHAppInstallation;
-import org.kohsuke.github.GHAppInstallationToken;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.authorization.AppInstallationAuthorizationProvider;
+import org.kohsuke.github.extras.authorization.JWTTokenProvider;
 import org.kohsuke.github.extras.okhttp3.OkHttpGitHubConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "github")
-@Validated
+@Configuration
 public class GithubConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(GithubConfiguration.class);
 
-    @NotEmpty
-    private final String appId;
-    private final Path privateKeyPath;
-    @NotEmpty
-    private final String appInstallationName;
-    @Min(value = 5000, message = "TTL should not be shorter than 5_000ms")
-    @Max(value = 10 * 60 * 1000, message = "TTL cannot be longer than 10min")
-    private final long ttl;
+    private final ApplicationConfiguration configuration;
 
-    @ConstructorBinding
-    public GithubConfiguration(String appId, Path privateKeyPath, String appInstallationName, @DefaultValue("300000") long ttl) {
-        this.appId = appId;
-        this.privateKeyPath = privateKeyPath;
-        this.appInstallationName = appInstallationName;
-        this.ttl = ttl;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("GitHub API Client TTL: {}ms", ttl);
-            LOGGER.debug("Private Key Path: {} [valid: {}]", privateKeyPath, Files.exists(privateKeyPath) && Files.isReadable(privateKeyPath));
-        }
+    public GithubConfiguration(ApplicationConfiguration configuration) {
+        this.configuration = configuration;
     }
 
+    @Bean
     public GitHub getGitHub() throws IOException {
-        final GitHub ghApp = new GitHubBuilder().withJwtToken(createJWT()).build();
-        final GHAppInstallation ghAppInstall = getAppInstallation(ghApp);
-        final GHAppInstallationToken ghAppInstallationToken = ghAppInstall.createToken().create();
-        final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
-            new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
-        ).build();
-        return new GitHubBuilder()
-            .withConnector(new OkHttpGitHubConnector(httpClient))
-            .withAppInstallationToken(ghAppInstallationToken.getToken()).build();
-    }
+        final GitHubBuilder gitHubBuilder = new GitHubBuilder();
 
-    private GHAppInstallation getAppInstallation(GitHub ghApp) throws IOException {
-        final GHApp app = ghApp.getApp();
         try {
-            return app.getInstallationByOrganization(appInstallationName);
-        } catch (IOException e) {
-            return app.getInstallationByUser(appInstallationName);
+            final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
+                new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
+            ).build();
+            gitHubBuilder.withConnector(new OkHttpGitHubConnector(httpClient));
+        } catch (IOException ex) {
+            LOGGER.warn("Could not create cache folder for GitHub connection. Will work without.", ex);
         }
-    }
 
-    private RSAPrivateKey getKey() {
         try {
-            final String privateKeyPEM = Files.readAllLines(privateKeyPath, Charset.defaultCharset())
-                .stream()
-                .filter(line -> !line.startsWith("-----") && !line.endsWith("-----"))
-                .collect(Collectors.joining());
-            final byte[] encoded = Base64.decodeBase64(privateKeyPEM);
-            final KeyFactory kf = KeyFactory.getInstance("RSA");
-            final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-            return (RSAPrivateKey) kf.generatePrivate(keySpec);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Could not reconstruct the private key, the given algorithm could not be found");
-        } catch (InvalidKeySpecException e) {
-            LOGGER.error("Could not reconstruct the private key");
+            final Path privateKeyPath = configuration.gitHub().privateKeyPath();
+            if (Files.exists(privateKeyPath)) {
+                gitHubBuilder.withAuthorizationProvider(createAuthorizationProvider());
+            }
+        } catch (GeneralSecurityException | IOException ex) {
+            LOGGER.error("Could not create authenticated connection to GitHub.", ex);
         }
-        return null;
+
+        return gitHubBuilder.build();
     }
 
-    private String createJWT() {
-        Algorithm algorithm = Algorithm.RSA256(getKey());
-        return JWT.create()
-            .withIssuedAt(Instant.now().minusMillis(60 * 1000))  /* 60sec in past for clock drift */
-            .withExpiresAt(Instant.now().plusMillis(ttl))
-            .withIssuer(appId)
-            .sign(algorithm);
+    private AppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
+        final String appId = configuration.gitHub().appId();
+        final Path privateKeyPath = configuration.gitHub().privateKeyPath();
+        final String appInstallationName = configuration.gitHub().appInstallationName();
+
+        final JWTTokenProvider jwtTokenProvider = new JWTTokenProvider(appId, privateKeyPath);
+        return new AppInstallationAuthorizationProvider(
+            app -> {
+                try {
+                    return app.getInstallationByOrganization(appInstallationName);
+                } catch (GHFileNotFoundException ex) {
+                    return app.getInstallationByUser(appInstallationName);
+                }
+            },
+            jwtTokenProvider
+        );
     }
 }

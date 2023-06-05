@@ -46,8 +46,8 @@ public abstract class AbstractDBContainerTest {
                 "spring.datasource.url=" + DB_CONTAINER.getJdbcUrl(),
                 "spring.datasource.username=" + DB_CONTAINER.getUsername(),
                 "spring.datasource.password=" + DB_CONTAINER.getPassword(),
-                "cron.update-center=0 0 */2 * * *",
-                "cron.probe-engine=0 0 */2 * * *"
+                "app.cron.update-center=0 0 */2 * * *",
+                "app.cron.probe-engine=0 0 */2 * * *"
             ).applyTo(applicationContext);
         }
     }

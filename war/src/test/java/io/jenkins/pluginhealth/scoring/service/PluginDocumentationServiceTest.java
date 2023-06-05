@@ -30,6 +30,8 @@ import static org.assertj.core.api.Assertions.entry;
 import java.net.URL;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,12 @@ class PluginDocumentationServiceTest {
         final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
         assertThat(url).isNotNull();
 
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, url.toString());
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins("foo", url.toString()),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
@@ -54,7 +61,11 @@ class PluginDocumentationServiceTest {
 
     @Test
     void shouldSurviveIncorrectlyConfiguredDocumentationURL() {
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, "this-is-not-a-correct-url");
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins("foo", "this-is-not-a-correct-url"),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map).isEmpty();
