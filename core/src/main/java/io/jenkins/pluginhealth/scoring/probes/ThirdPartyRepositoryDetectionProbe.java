@@ -3,7 +3,10 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -19,9 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(value = ThirdPartyRepositoryDetectionProbe.ORDER)
-public class ThirdPartyRepositoryDetectionProbe extends Probe{
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
-
+public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
 
@@ -31,11 +32,16 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
             Model model = mavenReader.read(new FileReader(context.getScmRepository()+"/pom.xml"));
-            for (Repository repository : getRepositories(model)) {
-                if(!(repository.getUrl().startsWith(path))) {
+            Set<Repository> allRepositories = new HashSet<>();
+            allRepositories.addAll(model.getRepositories());
+            allRepositories.addAll(model.getPluginRepositories());
+
+            for (Repository repository : allRepositories) {
+                if (!repository.getUrl().startsWith(path)) {
                     return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
                 }
             }
+
         } catch (FileNotFoundException e) {
             LOGGER.error("File not found at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
@@ -48,10 +54,6 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{
 
         }
         return ProbeResult.success(KEY, "The plugin has no third party repositories");
-    }
-
-    private static List<Repository> getRepositories(Model model) {
-        return model.getRepositories();
     }
 
     @Override

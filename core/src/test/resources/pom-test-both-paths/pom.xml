@@ -54,5 +54,9 @@
 			<id>repo.jenkins-ci.org</id>
 			<url>https://repo.jenkins-ci.org/public/</url>
 		</pluginRepository>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>https://packages.atlassian.com/mvn/maven-external/</url>
+		</pluginRepository>
 	</pluginRepositories>
 </project>

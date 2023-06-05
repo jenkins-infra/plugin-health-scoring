@@ -40,4 +40,11 @@
 			</releases>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>https://packages.atlassian.com/mvn/maven-external/</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
