@@ -24,33 +24,19 @@
 
 package io.jenkins.pluginhealth.scoring.config;
 
-import java.io.IOException;
-import java.util.Objects;
+import java.nio.file.Path;
 
-import org.kohsuke.github.GitHub;
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.stereotype.Component;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
-@Component
-public class GitHubHealthIndicator extends AbstractHealthIndicator {
-    private final GitHub github;
-
-    public GitHubHealthIndicator(GitHub github) {
-        this.github = github;
+@ConfigurationProperties(prefix = "app")
+@Validated
+public record ApplicationConfiguration(@Valid Jenkins jenkins, @Valid GitHub gitHub) {
+    public record Jenkins(@NotBlank String updateCenter, @NotBlank String documentationUrls) {
     }
 
-    @Override
-    protected void doHealthCheck(Health.Builder builder) {
-        try {
-            if (Objects.isNull(github)) {
-                builder.down().withDetail("error", "GitHub object is null");
-            } else {
-                github.checkApiUrlValidity();
-                builder.up();
-            }
-        } catch (IOException ex) {
-            builder.down(ex);
-        }
+    public record GitHub(@NotBlank String appId, Path privateKeyPath, @NotBlank String appInstallationName) {
     }
 }

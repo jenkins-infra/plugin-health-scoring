@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URL;
 
+import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +44,13 @@ class UpdateCenterServiceTest {
     void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
         URL updateCenterURL = UpdateCenterServiceTest.class.getResource("/update-center/no-deprecation.json");
         assertThat(updateCenterURL).isNotNull();
-        UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, updateCenterURL.toString());
+
+        final ApplicationConfiguration configuration = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins(updateCenterURL.toString(), "foo"),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+
+        UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, configuration);
 
         UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         assertThat(updateCenter.plugins()).hasSize(25);

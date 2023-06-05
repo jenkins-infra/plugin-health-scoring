@@ -30,11 +30,12 @@ import java.net.URL;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,17 +43,16 @@ public class PluginDocumentationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginDocumentationService.class);
 
     private final ObjectMapper objectMapper;
-    private final String pluginDocumentationUrls;
+    private final ApplicationConfiguration configuration;
 
-    public PluginDocumentationService(ObjectMapper objectMapper,
-                                      @Value("${jenkins.documentation-urls}") String pluginDocumentationUrls) {
+    public PluginDocumentationService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
         this.objectMapper = objectMapper;
-        this.pluginDocumentationUrls = pluginDocumentationUrls;
+        this.configuration = configuration;
     }
 
     public Map<String, String> fetchPluginDocumentationUrl() {
         try {
-            final Map<String, Link> foo = objectMapper.readValue(new URL(pluginDocumentationUrls), new TypeReference<>() {});
+            final Map<String, Link> foo = objectMapper.readValue(new URL(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
             return foo.entrySet().stream()
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,
