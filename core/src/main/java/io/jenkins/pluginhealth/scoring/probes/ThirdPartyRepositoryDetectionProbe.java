@@ -25,7 +25,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final String path = "https://repo.jenkins-ci.org";
+        final String hostName = "https://repo.jenkins-ci.org";
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
             Model model = mavenReader.read(new FileReader(context.getScmRepository()+"/pom.xml"));
@@ -34,7 +34,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static
             allRepositories.addAll(model.getPluginRepositories());
 
             for (Repository repository : allRepositories) {
-                if (!repository.getUrl().startsWith(path)) {
+                if (!repository.getUrl().startsWith(hostName)) {
                     return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
                 }
             }
