@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 
-import io.jenkins.pluginhealth.scoring.config.GithubConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
@@ -36,6 +35,7 @@ import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
+import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,14 +54,14 @@ public final class ProbeEngine {
     private final ProbeService probeService;
     private final PluginService pluginService;
     private final UpdateCenterService updateCenterService;
-    private final GithubConfiguration githubConfiguration;
+    private final GitHub gitHub;
     private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GithubConfiguration githubConfiguration, PluginDocumentationService pluginDocumentationService) {
+    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GitHub gitHub, PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
-        this.githubConfiguration = githubConfiguration;
+        this.gitHub = gitHub;
         this.pluginDocumentationService = pluginDocumentationService;
     }
 
@@ -97,13 +97,8 @@ public final class ProbeEngine {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;
         }
-        try {
-            probeContext.setGitHub(githubConfiguration.getGitHub());
-        } catch (IOException ex) {
-            LOGGER.error("Cannot create connection to GitHub", ex);
-            return;
-        }
-        probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
+
+        probeContext.setGitHub(gitHub);
 
         probeService.getProbes().forEach(probe -> {
             try {

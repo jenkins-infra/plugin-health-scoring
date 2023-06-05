@@ -19,15 +19,17 @@ management:
       defaults.enabled: false
       gitHub.enabled: true
 
-jenkins.update-center: https://updates.jenkins.io/current/update-center.actual.json
-jenkins.documentation-urls: https://updates.jenkins.io/current/plugin-documentation-urls.json
-github:
-  app-id: ${GITHUB_APP_ID}
-  private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH}
-  app-installation-name: ${GITHUB_APP_INSTALLATION_NAME}
-cron:
-  update-center: ${UPDATE_CENTER_CRON}
-  probe-engine: ${PROBE_ENGINE_CRON}
+app:
+  jenkins:
+    update-center: https://updates.jenkins.io/current/update-center.actual.json
+    documentation-urls: https://updates.jenkins.io/current/plugin-documentation-urls.json
+  github:
+    app-id: ${GITHUB_APP_ID}
+    private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH}
+    app-installation-name: ${GITHUB_APP_INSTALLATION_NAME}
+  cron:
+    update-center: ${UPDATE_CENTER_CRON}
+    probe-engine: ${PROBE_ENGINE_CRON}
 
 ---
 
@@ -39,3 +41,4 @@ management:
   endpoint:
     health:
       show-components: always
+      show-details: always
