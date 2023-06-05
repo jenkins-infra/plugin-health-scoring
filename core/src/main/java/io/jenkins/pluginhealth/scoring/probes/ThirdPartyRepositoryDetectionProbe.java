@@ -22,10 +22,11 @@ import org.springframework.stereotype.Component;
 public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
+    final String hostName = "https://repo.jenkins-ci.org";
+
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final String hostName = "https://repo.jenkins-ci.org";
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try {
             Model model = mavenReader.read(new FileReader(context.getScmRepository()+"/pom.xml"));
