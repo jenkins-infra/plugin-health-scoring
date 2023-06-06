@@ -6,9 +6,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.jenkins-ci.plugins</groupId>
-		<artifactId>plugin</artifactId>
-		<version>4.58</version>
+		<groupId>test-group-id</groupId>
+		<artifactId>test-plugin</artifactId>
+		<version>1.0.1</version>
 		<relativePath> ../pom.xml </relativePath>
 	</parent>
 

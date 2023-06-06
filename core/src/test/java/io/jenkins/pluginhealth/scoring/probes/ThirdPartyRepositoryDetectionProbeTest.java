@@ -46,10 +46,6 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
             arguments(
                 Paths.get("src", "test", "resources", "pom-test-only-correct-path"),
                 "https://github.com/jenkinsci/test-plugin"
-            ),
-            arguments(
-                Paths.get("src", "test", "resources", "pom-test-no-repository-tag"),
-                "https://github.com/jenkinsci/test-plugin"
             )
         );
     }
@@ -108,6 +104,28 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
             .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "Third party repositories detected in the plugin"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
+
+    @Test
+    void shouldFailWhenNoRepositoriesDetected() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        String scm = "https://github.com/jenkinsci/test-plugin/plugin";
+
+        Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-correct-path");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+        ));
+        when(plugin.getScm()).thenReturn(scm);
+
+        final ThirdPartyRepositoryDetectionProbe probe = getSpy();
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(ThirdPartyRepositoryDetectionProbe.KEY, "No repositories detected"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
