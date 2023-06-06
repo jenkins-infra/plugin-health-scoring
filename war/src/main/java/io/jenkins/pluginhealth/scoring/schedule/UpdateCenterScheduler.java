@@ -46,7 +46,7 @@ public class UpdateCenterScheduler {
         this.pluginService = pluginService;
     }
 
-    @Scheduled(cron = "${cron.update-center}", zone = "UTC")
+    @Scheduled(cron = "${app.cron.update-center}", zone = "UTC")
     public void updateDatabase() throws IOException {
         LOGGER.info("Updating plugins from update-center");
         updateCenterService.fetchUpdateCenter()
