@@ -8,6 +8,7 @@ import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -19,7 +20,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(value = ThirdPartyRepositoryDetectionProbe.ORDER)
-public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
+public class ThirdPartyRepositoryDetectionProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
     final String hostName = "https://repo.jenkins-ci.org";
@@ -28,9 +30,9 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
+        Set<Repository> allRepositories = new HashSet<>();
         try {
-            Model model = mavenReader.read(new FileReader(context.getScmRepository()+"/pom.xml"));
-            Set<Repository> allRepositories = new HashSet<>();
+            Model model = mavenReader.read(new FileReader(context.getScmRepository() + "/pom.xml"));
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
 
@@ -51,7 +53,8 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe{    private static
             return ProbeResult.error(KEY, e.getMessage());
 
         }
-        return ProbeResult.success(KEY, "The plugin has no third party repositories");
+        return allRepositories.size()>0 ? ProbeResult.success(KEY, "The plugin has no third party repositories")
+            : ProbeResult.failure(KEY, "No repositories detected");
     }
 
     @Override
