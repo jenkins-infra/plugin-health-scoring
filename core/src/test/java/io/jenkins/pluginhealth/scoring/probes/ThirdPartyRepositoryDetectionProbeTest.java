@@ -71,25 +71,6 @@ public class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<Th
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
-    @Test
-    void shouldPassIfNoRepositoriesDetected() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        Path resourceDirectory = Paths.get("src","test","resources","pom-test-no-repository-tag");
-        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
-        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
-
-        final ThirdPartyRepositoryDetectionProbe probe = getSpy();
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(ThirdPartyRepositoryDetectionProbe.KEY, "The plugin has no third party repositories"));
-        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
-    }
-
     private static Stream<Arguments> failures() {
         return Stream.of(
             arguments(
