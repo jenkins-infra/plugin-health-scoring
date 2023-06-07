@@ -47,7 +47,9 @@ public class SecurityWarningScoring extends Scoring {
 
     @Override
     public Map<String, Float> getScoreComponents() {
-        return Map.of(KnownSecurityVulnerabilityProbe.KEY, 1f);
+        return Map.of(
+            KnownSecurityVulnerabilityProbe.KEY, 1f
+        );
     }
 
     @Override

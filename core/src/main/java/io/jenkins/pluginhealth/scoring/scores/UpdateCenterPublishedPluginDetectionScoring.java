@@ -47,7 +47,9 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
 
     @Override
     public Map<String, Float> getScoreComponents() {
-        return Map.of(UpdateCenterPluginPublicationProbe.KEY, 1f);
+        return Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, 1f
+        );
     }
 
     @Override

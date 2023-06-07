@@ -24,16 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
 import org.springframework.stereotype.Component;
@@ -42,33 +34,6 @@ import org.springframework.stereotype.Component;
 public class AdoptionScoring extends Scoring {
     private static final float COEFFICIENT = 0.8f;
     private static final String KEY = "adoption";
-
-    @Override
-    public ScoreResult apply(Plugin plugin) {
-        final ScoreResult result = super.apply(plugin);
-        if (result.value() == 0) {
-            return result;
-        }
-
-        final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
-        if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            final String message = lastCommitProbeResult.message();
-            final ZonedDateTime commitDateTime = ZonedDateTime.parse(message);
-
-            final Duration between = Duration.between(plugin.getReleaseTimestamp().toInstant(), commitDateTime.toInstant());
-            if (between.toDays() <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) { // Less than 6 months
-                return new ScoreResult(KEY, 1, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(365, ChronoUnit.DAYS).toDays()) { // Less than a year
-                return new ScoreResult(KEY, .75f, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) { // Less than 2 years
-                return new ScoreResult(KEY, .5f, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) { // Less than 4 years
-                return new ScoreResult(KEY, .25f, COEFFICIENT);
-            }
-        }
-
-        return new ScoreResult(KEY, 0, COEFFICIENT);
-    }
 
     @Override
     public String key() {

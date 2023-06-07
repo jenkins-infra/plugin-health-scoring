@@ -36,7 +36,6 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
 import org.junit.jupiter.api.Test;
@@ -57,22 +56,11 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.key()).isEqualTo("adoption");
-        assertThat(result.coefficient()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(0);
-    }
 
-    @Test
-    void shouldScoreZeroForPluginsWithNoLastCommit() {
-        final AdoptionScoring scoring = getSpy();
-        final Plugin plugin = mock(Plugin.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS))
-        );
-
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0);
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "coefficient")
+            .isEqualTo(new ScoreResult("adoption", 0, 0.8f));
     }
 
     @Test
@@ -83,80 +71,15 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(2));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(1f);
-    }
 
-    @Test
-    void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
-        final AdoptionScoring scoring = getSpy();
-        final Plugin plugin = mock(Plugin.class);
-
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(8));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
-            )
-        );
-
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.75f);
-    }
-
-    @Test
-    void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
-        final AdoptionScoring scoring = getSpy();
-        final Plugin plugin = mock(Plugin.class);
-
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(18));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
-            )
-        );
-
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.5f);
-    }
-
-    @Test
-    void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
-        final AdoptionScoring scoring = getSpy();
-        final Plugin plugin = mock(Plugin.class);
-
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(3));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
-            )
-        );
-
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.25f);
-    }
-
-    @Test
-    void shouldScoreZeroForPluginsWithCommitsMoreThanFourYearsOld() {
-        final AdoptionScoring scoring = getSpy();
-        final Plugin plugin = mock(Plugin.class);
-
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(4));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
-            )
-        );
-
-        final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "coefficient")
+            .isEqualTo(new ScoreResult("adoption", 1, 0.8f));
     }
 }
