@@ -53,7 +53,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
             return ProbeResult.error(KEY, e.getMessage());
 
         }
-        return allRepositories.size()>0 ? ProbeResult.success(KEY, "The plugin has no third party repositories")
+        return allRepositories.size() > 0 ? ProbeResult.success(KEY, "The plugin has no third party repositories")
             : ProbeResult.failure(KEY, "No repositories detected");
     }
 
