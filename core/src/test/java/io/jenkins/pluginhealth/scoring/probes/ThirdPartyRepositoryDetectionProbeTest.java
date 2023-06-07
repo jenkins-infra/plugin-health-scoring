@@ -81,7 +81,7 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
                 "https://github.com/jenkinsci/test-plugin"
             ),
             arguments(
-                Paths.get("src", "test", "resources", "pom-test-correct-repository-incorrect-pluginRepository"),
+                Paths.get("src", "test", "resources", "pom-test-parent-pom"),
                 "https://github.com/jenkinsci/test-plugin/plugin"
             )
         );
@@ -113,7 +113,7 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
         final ProbeContext ctx = mock(ProbeContext.class);
         String scm = "https://github.com/jenkinsci/test-plugin/plugin";
 
-        Path resourceDirectory = Paths.get("src","test","resources","pom-test-only-correct-path");
+        Path resourceDirectory = Paths.get("src", "test", "resources", "pom-test-no-repository-tag");
         String absolutePath = resourceDirectory.toFile().getAbsolutePath();
         when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
         when(plugin.getDetails()).thenReturn(Map.of(
