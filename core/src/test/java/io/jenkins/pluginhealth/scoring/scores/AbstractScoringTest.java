@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
@@ -59,7 +60,9 @@ public abstract class AbstractScoringTest<T extends Scoring> {
         final Plugin plugin = mock(Plugin.class);
         final T scoring = getSpy();
 
-        when(scoring.getScoreComponents()).thenReturn(Map.of("foo", 1f));
+        when(scoring.getScoreComponents()).thenReturn(
+            Set.of(new Scoring.ScoreComponent(new Scoring.Key("foo"), 1f))
+        );
         final ScoreResult score = scoring.apply(plugin);
 
         assertThat(score.key()).isEqualTo(scoring.key());

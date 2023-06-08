@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
@@ -46,9 +46,9 @@ public class DeprecatedPluginScoring extends Scoring {
     }
 
     @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            DeprecatedPluginProbe.KEY, 1f
+    public Set<ScoreComponent> getScoreComponents() {
+        return Set.of(
+            new ScoreComponent(new Key(DeprecatedPluginProbe.KEY), 1f)
         );
     }
 

@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -45,24 +45,15 @@ public abstract class Scoring {
      * @return a {@link ScoreResult} describing the plugin based on the ProbeResult and the scoring requirements.
      */
     public ScoreResult apply(Plugin plugin) {
-        final Map<String, Float> scoreComponents = this.getScoreComponents();
-        float max = 0;
-        float score = 0;
+        final float max = (float) this.getScoreComponents()
+            .stream()
+            .mapToDouble(ScoreComponent::point)
+            .sum();
 
-        for (Map.Entry<String, Float> component : scoreComponents.entrySet()) {
-            final float componentMaxValue = component.getValue();
-            if (componentMaxValue > 0) {
-                max += componentMaxValue;
-            }
-            final ProbeResult probeResult = plugin.getDetails().get(component.getKey());
-            if (probeResult != null) {
-                if (componentMaxValue > 0 && probeResult.status().equals(ResultStatus.SUCCESS)) {
-                    score += componentMaxValue;
-                } else if (probeResult.status().equals(ResultStatus.FAILURE) && componentMaxValue < 0) {
-                    score += componentMaxValue;
-                }
-            }
-        }
+        float score = (float) this.getScoreComponents()
+            .stream()
+            .mapToDouble(component -> component.score(plugin))
+            .sum();
 
         score = Math.round(Math.max(score, 0) / max * 100) / 100f;
         return new ScoreResult(key(), score, coefficient());
@@ -90,9 +81,58 @@ public abstract class Scoring {
      * The value is the value to be added to the score if the probe result is successful.
      * The value can be negative and in that case, the value will be considered in case the probe result is not
      *
-     * @return map of Probe key to evaluate and their maximum score
+     * @return set of ScoreComponent to evaluate to score a plugin
      */
-    public abstract Map<String, Float> getScoreComponents();
+    public abstract Set<ScoreComponent> getScoreComponents();
+
+    /**
+     * Represents what should be validated as probe result in the plugin details
+     *
+     * @param operator the operator implementation to use to check the plugin details
+     * @param point    the weight given to ScoreComponent if the operator is validated
+     */
+    public record ScoreComponent(Operator operator, float point) {
+        public ScoreComponent {
+            if (point <= 0) {
+                throw new IllegalArgumentException("Point argument of ScoreComponent must be positive");
+            }
+        }
+
+        public float score(Plugin plugin) {
+            return operator.test(plugin) ? point : 0;
+        }
+    }
+
+    private sealed interface Operator permits And, Key {
+        boolean test(Plugin plugin);
+    }
+
+    /**
+     * Validates the present and the success of the specific Probe in the plugins details.
+     *
+     * @param key the key of the Probe to be present and successful in the plugin details.
+     */
+    public record Key(String key) implements Operator {
+        @Override
+        public boolean test(Plugin plugin) {
+            final ProbeResult probeResult = plugin.getDetails().get(key);
+            return probeResult != null && probeResult.status().equals(ResultStatus.SUCCESS);
+        }
+    }
+
+    /**
+     * Represents a boolean AND between two operators.
+     * Both Operators have to be valid for this operator to be.
+     *
+     * @param operator1 the first operator of the expression
+     * @param operator2 the second operator of the expression
+     */
+    public record And(Operator operator1, Operator operator2) implements Operator {
+        @Override
+        public boolean test(Plugin plugin) {
+            return operator1.test(plugin) && operator2.test(plugin);
+        }
+    }
 
     /**
      * Returns a description of the scoring implementation.

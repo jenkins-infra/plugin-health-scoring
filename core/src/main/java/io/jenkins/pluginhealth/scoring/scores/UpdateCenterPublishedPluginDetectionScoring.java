@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
@@ -46,9 +46,9 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     }
 
     @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, 1f
+    public Set<ScoreComponent> getScoreComponents() {
+        return Set.of(
+            new ScoreComponent(new Key(UpdateCenterPluginPublicationProbe.KEY), 1f)
         );
     }
 

@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
@@ -46,9 +46,9 @@ public class AdoptionScoring extends Scoring {
     }
 
     @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            UpForAdoptionProbe.KEY, 1f
+    public Set<Scoring.ScoreComponent> getScoreComponents() {
+        return Set.of(
+            new ScoreComponent(new Key(UpForAdoptionProbe.KEY), 1f)
         );
     }
 

@@ -24,7 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
@@ -50,13 +50,15 @@ public class PluginMaintenanceScoring extends Scoring {
     }
 
     @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            JenkinsfileProbe.KEY, .65f,
-            DocumentationMigrationProbe.KEY, .15f,
-            DependabotProbe.KEY, .15f,
-            DependabotPullRequestProbe.KEY, -.15f,
-            ContinuousDeliveryProbe.KEY, .05f
+    public Set<ScoreComponent> getScoreComponents() {
+        return Set.of(
+            new ScoreComponent(new Key(JenkinsfileProbe.KEY), .65f),
+            new ScoreComponent(new Key(DocumentationMigrationProbe.KEY), .15f),
+            new ScoreComponent(
+                new And(new Key(DependabotProbe.KEY), new Key(DependabotPullRequestProbe.KEY)),
+                .15f
+            ),
+            new ScoreComponent(new Key(ContinuousDeliveryProbe.KEY), .05f)
         );
     }
 
