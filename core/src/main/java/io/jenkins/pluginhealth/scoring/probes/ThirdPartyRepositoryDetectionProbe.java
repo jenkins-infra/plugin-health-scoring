@@ -1,8 +1,9 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,23 +26,29 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
     final String hostName = "https://repo.jenkins-ci.org";
-
+//    final String parentPom = "https://raw.githubusercontent.com/jenkinsci/plugin-pom/master/pom.xml";
+    final String parentPom = "https://github.com/jenkinsci/plugin-pom/blob/master/pom.xml";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         Set<Repository> allRepositories = new HashSet<>();
+
         try {
             Model model = mavenReader.read(new FileReader(context.getScmRepository() + "/pom.xml"));
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
 
+            if (! model.getParent().getRelativePath().isBlank()) {
+                Model parentPomModel = parsePomFromUrl(model.getParent().getRelativePath());
+                allRepositories.addAll(parentPomModel.getRepositories());
+                allRepositories.addAll(parentPomModel.getPluginRepositories());
+            }
             for (Repository repository : allRepositories) {
                 if (!repository.getUrl().startsWith(hostName)) {
                     return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
                 }
             }
-
         } catch (FileNotFoundException e) {
             LOGGER.error("File not found at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
@@ -52,6 +59,8 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
             LOGGER.error("File reading exception at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
 
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return allRepositories.size() > 0 ? ProbeResult.success(KEY, "The plugin has no third party repositories")
             : ProbeResult.failure(KEY, "No repositories detected");
@@ -70,5 +79,21 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     @Override
     public String[] getProbeResultRequirement() {
         return new String[] { SCMLinkValidationProbe.KEY};
+    }
+
+    public Model parsePomFromUrl(String pomUrl) throws IOException, XmlPullParserException {
+        if(pomUrl.startsWith(("https"))) {
+            URL url = new URL(pomUrl);
+            try (InputStream inputStream = url.openStream()) {
+                MavenXpp3Reader reader = new MavenXpp3Reader();
+                return reader.read(inputStream);
+            }
+        }
+        else {
+            // for test cases
+            Path absolutePath = Paths.get(pomUrl).toAbsolutePath().normalize();
+            Model model = new MavenXpp3Reader().read(new FileReader(absolutePath.toString()));
+            return model;
+        }
     }
 }

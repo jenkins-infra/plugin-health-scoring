@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -81,7 +82,11 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
                 "https://github.com/jenkinsci/test-plugin"
             ),
             arguments(
-                Paths.get("src", "test", "resources", "pom-test-parent-pom"),
+                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-parent-fail/plugin"),
+                "https://github.com/jenkinsci/test-plugin/plugin"
+            ),
+            arguments(
+                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-child-fail/plugin"),
                 "https://github.com/jenkinsci/test-plugin/plugin"
             )
         );
@@ -89,7 +94,7 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
 
     @ParameterizedTest
     @MethodSource("failures")
-    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String scm) {
+    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String scm) throws MalformedURLException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
