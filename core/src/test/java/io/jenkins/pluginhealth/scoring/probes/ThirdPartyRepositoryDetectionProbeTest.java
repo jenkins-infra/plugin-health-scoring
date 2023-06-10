@@ -9,7 +9,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -47,6 +46,10 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
             arguments(
                 Paths.get("src", "test", "resources", "pom-test-only-correct-path"),
                 "https://github.com/jenkinsci/test-plugin"
+            ),
+            arguments(
+                Paths.get("src", "test", "resources", "pom-test-parent-child-no-third-party-repository-success", "plugin"),
+                "https://github.com/jenkinsci/test-plugin"
             )
         );
     }
@@ -82,11 +85,11 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
                 "https://github.com/jenkinsci/test-plugin"
             ),
             arguments(
-                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-parent-fail/plugin"),
+                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-parent-failure", "plugin"),
                 "https://github.com/jenkinsci/test-plugin/plugin"
             ),
             arguments(
-                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-child-fail/plugin"),
+                Paths.get("src", "test", "resources", "pom-test-third-party-probe-in-child-failure", "plugin"),
                 "https://github.com/jenkinsci/test-plugin/plugin"
             )
         );
@@ -94,7 +97,7 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
 
     @ParameterizedTest
     @MethodSource("failures")
-    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String scm) throws MalformedURLException {
+    void shouldFailIfThirdPartRepositoriesDetected(Path resourceDirectory, String scm) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -112,15 +115,25 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
-    @Test
-    void shouldFailWhenNoRepositoriesDetected() {
+    private static Stream<Arguments> failures2() {
+        return Stream.of(
+            arguments(
+                Paths.get("src", "test", "resources", "pom-test-no-repository-tag"),
+                "https://github.com/jenkinsci/test-plugin"
+            ),
+            arguments(
+                Paths.get("src", "test", "resources", "pom-test-parent-child-no-repository-tag-failure", "plugin"),
+                "https://github.com/jenkinsci/test-plugin"
+            )
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("failures2")
+    void shouldFailWhenNoRepositoriesDetected(Path resourceDirectory, String scm) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        String scm = "https://github.com/jenkinsci/test-plugin/plugin";
 
-        Path resourceDirectory = Paths.get("src", "test", "resources", "pom-test-no-repository-tag");
-        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
-        when(ctx.getScmRepository()).thenReturn(Path.of(absolutePath));
+        when(ctx.getScmRepository()).thenReturn(resourceDirectory);
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
         ));

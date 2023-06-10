@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This is a fake pom used for test cases
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>test.pom.group-id</groupId>
+	<artifactId>test-pom-artifact</artifactId>
+	<version>1.0.1</version>
+
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>https://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<changelist>9999-SNAPSHOT</changelist>
+		<jenkins.version>2.361.4</jenkins.version>
+	</properties>
+
+</project>
