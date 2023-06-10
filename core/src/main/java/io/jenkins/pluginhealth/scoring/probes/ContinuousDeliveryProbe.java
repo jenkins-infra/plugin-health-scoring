@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -71,7 +72,9 @@ public class ContinuousDeliveryProbe extends Probe {
                 })
                 .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
                 .flatMap(wf -> wf.jobs().values().stream())
-                .anyMatch(job -> job.uses().startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
+                .map(WorkflowJobDefinition::uses)
+                .filter(Objects::nonNull)
+                .anyMatch(def -> def.startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
                 ProbeResult.success(key(), "JEP-229 workflow definition found") :
                 ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
         } catch (IOException ex) {
