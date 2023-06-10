@@ -127,6 +127,7 @@ class ThirdPartyRepositoryDetectionProbeTest extends AbstractProbeTest<ThirdPart
             )
         );
     }
+
     @ParameterizedTest
     @MethodSource("failures2")
     void shouldFailWhenNoRepositoriesDetected(Path resourceDirectory, String scm) {

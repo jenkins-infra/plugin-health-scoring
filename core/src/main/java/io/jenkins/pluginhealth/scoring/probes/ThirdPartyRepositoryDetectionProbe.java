@@ -1,6 +1,9 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,19 +84,26 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
         return new String[] { SCMLinkValidationProbe.KEY};
     }
 
-    public Model parsePomFromUrl(String pomUrl) throws IOException, XmlPullParserException {
-        if(pomUrl.startsWith(("https"))) {
-            URL url = new URL(pomUrl);
-            try (InputStream inputStream = url.openStream()) {
-                MavenXpp3Reader reader = new MavenXpp3Reader();
-                return reader.read(inputStream);
+    public Model parsePomFromUrl(String pomUrl) {
+        Model model = null;
+        try {
+            if (pomUrl.startsWith(("https"))) {
+                URL url = new URL(pomUrl);
+                try (InputStream inputStream = url.openStream()) {
+                    MavenXpp3Reader reader = new MavenXpp3Reader();
+                    model = reader.read(inputStream);
+                }
             }
+            else {
+                // for test cases
+                Path absolutePath = Paths.get(pomUrl).toAbsolutePath().normalize();
+                model = new MavenXpp3Reader().read(new FileReader(absolutePath.toString()));
+            }
+        } catch (IOException e) {
+            LOGGER.error("File could not be found {}", e.getMessage());
+        } catch (XmlPullParserException e) {
+            LOGGER.error("Pom file could not be parsed {}", e.getMessage());
         }
-        else {
-            // for test cases
-            Path absolutePath = Paths.get(pomUrl).toAbsolutePath().normalize();
-            Model model = new MavenXpp3Reader().read(new FileReader(absolutePath.toString()));
-            return model;
-        }
+        return model;
     }
 }
