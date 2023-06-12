@@ -186,7 +186,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
     }
 
     @Test
-    void shouldBeAbleToSurviveInvalidWorkflowDefinition() throws Exception {
+    void shouldBeAbleToSurviveIncompleteWorkflowDefinition() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -202,6 +202,39 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
 
         Files.write(cdWorkflowDef, List.of(
             "name: Probably Not CD"
+        ));
+
+        final ContinuousDeliveryProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition"));
+    }
+
+    @Test
+    void shouldBeAbleToSurviveInvalidWorkflowDefinition() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(repo);
+
+        final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
+        final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
+
+        Files.write(cdWorkflowDef, List.of(
+            "name: Probably Not CD",
+            "jobs:",
+            "  build:",
+            "    runs-on: ubuntu",
+            "    steps:",
+            "      - users: foo-bar"
         ));
 
         final ContinuousDeliveryProbe probe = getSpy();
