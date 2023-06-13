@@ -102,10 +102,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
                 // for test cases
                 InputStream inputStream = new FileInputStream(pomUrl);
                 Reader reader = new InputStreamReader(inputStream, "UTF-8");
-                Path absolutePath = Paths.get(pomUrl).toAbsolutePath().normalize();
-                reader = new FileReader(absolutePath.toString());
                 model = new MavenXpp3Reader().read(reader);
-
             }
         } catch (IOException e) {
             LOGGER.error("File could not be found {}", e.getMessage());
