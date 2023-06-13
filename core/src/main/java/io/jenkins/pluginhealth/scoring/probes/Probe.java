@@ -50,15 +50,15 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        if (shouldBeExecuted(plugin, context)) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
-            }
-            try {
+        try {
+            if (shouldBeExecuted(plugin, context)) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
+                }
                 return doApply(plugin, context);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (IOException e) {
+            LOGGER.error("File Reading exception {}", e);
         }
         return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
     }

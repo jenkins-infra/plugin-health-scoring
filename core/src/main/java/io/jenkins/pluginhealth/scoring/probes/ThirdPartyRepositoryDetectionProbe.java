@@ -1,9 +1,12 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,11 +39,11 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         Set<Repository> allRepositories = new HashSet<>();
-        FileReader fileReader = null;
 
         try {
-            fileReader = new FileReader(context.getScmRepository() + "/pom.xml");
-            Model model = mavenReader.read(fileReader);
+            InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
+            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+            Model model = mavenReader.read(reader);
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
 
@@ -64,14 +67,6 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
             LOGGER.error("File reading exception at {}", plugin.getName());
             return ProbeResult.error(KEY, e.getMessage());
 
-        } finally {
-            if (fileReader!=null) {
-                try {
-                    fileReader.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
         return allRepositories.size() > 0 ? ProbeResult.success(KEY, "The plugin has no third party repositories")
             : ProbeResult.failure(KEY, "No repositories detected");
@@ -94,7 +89,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
 
     public Model parsePomFromUrl(String pomUrl) {
         Model model = null;
-        FileReader reader = null;
+
         try {
             if (pomUrl.startsWith(("https"))) {
                 URL url = new URL(pomUrl);
@@ -105,6 +100,8 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
             }
             else {
                 // for test cases
+                InputStream inputStream = new FileInputStream(pomUrl);
+                Reader reader = new InputStreamReader(inputStream, "UTF-8");
                 Path absolutePath = Paths.get(pomUrl).toAbsolutePath().normalize();
                 reader = new FileReader(absolutePath.toString());
                 model = new MavenXpp3Reader().read(reader);
@@ -114,14 +111,6 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
             LOGGER.error("File could not be found {}", e.getMessage());
         } catch (XmlPullParserException e) {
             LOGGER.error("Pom file could not be parsed {}", e.getMessage());
-        } finally {
-            if (reader != null ) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
         return model;
     }
