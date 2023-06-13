@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -53,7 +54,11 @@ public abstract class Probe {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
             }
-            return doApply(plugin, context);
+            try {
+                return doApply(plugin, context);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
     }
@@ -104,7 +109,7 @@ public abstract class Probe {
      * @param context holder of information passed across the probes executed on a single plugin
      * @return a ProbeResult representing the result of the analysis
      */
-    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
+    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context) throws IOException;
 
     /**
      * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
