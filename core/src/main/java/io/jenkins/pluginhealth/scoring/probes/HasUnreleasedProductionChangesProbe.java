@@ -47,8 +47,6 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -59,8 +57,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = HasUnreleasedProductionChangesProbe.ORDER)
 public class HasUnreleasedProductionChangesProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HasUnreleasedProductionChangesProbe.class);
-
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "unreleased-production-changes";
 
