@@ -28,7 +28,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
-    final String hostName = "https://repo.jenkins-ci.org";
+    private static final String JENKINS_CI_REPO_URL = "https://repo.jenkins-ci.org";
 //    final String parentPom = "https://raw.githubusercontent.com/jenkinsci/plugin-pom/master/pom.xml";
     final String parentPom = "https://github.com/jenkinsci/plugin-pom/blob/master/pom.xml";
 
@@ -37,9 +37,8 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         Set<Repository> allRepositories = new HashSet<>();
 
-        try {
-            InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
-            Reader reader = new InputStreamReader(inputStream, "UTF-8");
+        try(InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
+              Reader reader = new InputStreamReader(inputStream, "UTF-8")) {
             Model model = mavenReader.read(reader);
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
@@ -81,7 +80,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY};
+        return new String[] { SCMLinkValidationProbe.KEY };
     }
 
     public Model parsePomFromUrl(String pomUrl) {
