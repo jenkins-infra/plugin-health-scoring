@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 

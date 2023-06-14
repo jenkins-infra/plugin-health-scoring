@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,9 +26,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = ThirdPartyRepositoryDetectionProbe.ORDER)
 public class ThirdPartyRepositoryDetectionProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyRepositoryDetectionProbe.class);
     private static final String JENKINS_CI_REPO_URL = "https://repo.jenkins-ci.org";
 
     @Override
@@ -35,8 +36,8 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         Set<Repository> allRepositories = new HashSet<>();
 
-        try(InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
-              Reader reader = new InputStreamReader(inputStream, "UTF-8")) {
+        try (InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
+             Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
@@ -78,7 +79,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY };
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 
     public Model parsePomFromUrl(String pomUrl) {
@@ -91,11 +92,10 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
                     MavenXpp3Reader mavenReader = new MavenXpp3Reader();
                     model = mavenReader.read(inputStream);
                 }
-            }
-            else {
+            } else {
                 // for test cases
                 InputStream inputStream = new FileInputStream(pomUrl);
-                Reader reader = new InputStreamReader(inputStream, "UTF-8");
+                Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 model = new MavenXpp3Reader().read(reader);
             }
         } catch (IOException e) {
