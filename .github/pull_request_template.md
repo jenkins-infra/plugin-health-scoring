@@ -5,6 +5,8 @@
 
 ### Description
 
+Closes #issue-id.
+
 <!-- Comment:
  Provide a clear description of the content of the pull request.
  This includes documentation, link to issues, scenario of executions.
@@ -13,9 +15,17 @@
  Please explain how this pull request content will benefit the project.
 -->
 
+### Testing done
+
+<!-- Comment:
+  if there is no automatic test, please explain what you did to validate
+  the bugfix or the improvement.
+-->
+
+```[tasklist]
 ### Submitter checklist
 
-- [ ] If the issue exists, it is well described and linked in the description
+- [ ] If an issue exists, it is well described and linked in the description
 - [ ] The description of this pull request is detailed and explain why this pull request is needed
 - [ ] The changeset is on a specific branch
   - `feature/` for new feature, or improvements
@@ -27,3 +37,4 @@
 - [ ] Run `mvn verify` locally and all tests are passing successfully
   - It is OK to create a pull request which has failing tests if it is created as a draft, is to fix a bug and the first commit is the test to prove the existence of the bug.
 - [ ] There is no new warnings (checkstyle nor spotbugs) on the code
+```
