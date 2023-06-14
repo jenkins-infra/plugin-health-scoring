@@ -50,15 +50,11 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        try {
-            if (shouldBeExecuted(plugin, context)) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
-                }
-                return doApply(plugin, context);
+        if (shouldBeExecuted(plugin, context)) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
             }
-        } catch (IOException e) {
-            LOGGER.error("File Reading exception {}", e);
+            return doApply(plugin, context);
         }
         return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
     }
@@ -109,7 +105,7 @@ public abstract class Probe {
      * @param context holder of information passed across the probes executed on a single plugin
      * @return a ProbeResult representing the result of the analysis
      */
-    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context) throws IOException;
+    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
     /**
      * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in

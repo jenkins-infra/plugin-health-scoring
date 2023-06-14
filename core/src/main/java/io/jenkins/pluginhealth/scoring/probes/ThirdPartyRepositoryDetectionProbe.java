@@ -29,8 +29,6 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "third-party-repository-detection-probe";
     private static final String JENKINS_CI_REPO_URL = "https://repo.jenkins-ci.org";
-//    final String parentPom = "https://raw.githubusercontent.com/jenkinsci/plugin-pom/master/pom.xml";
-    final String parentPom = "https://github.com/jenkinsci/plugin-pom/blob/master/pom.xml";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -49,7 +47,7 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
                 allRepositories.addAll(parentPomModel.getPluginRepositories());
             }
             for (Repository repository : allRepositories) {
-                if (!repository.getUrl().startsWith(hostName)) {
+                if (!repository.getUrl().startsWith(JENKINS_CI_REPO_URL)) {
                     return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
                 }
             }
