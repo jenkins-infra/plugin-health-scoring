@@ -27,14 +27,7 @@ Closes #issue-id.
 
 - [ ] If an issue exists, it is well described and linked in the description
 - [ ] The description of this pull request is detailed and explain why this pull request is needed
-- [ ] The changeset is on a specific branch
-  - `feature/` for new feature, or improvements
-  - `fix/` for bug fixes
-  - `docs/` for any documentation changes
+- [ ] The changeset is on a specific branch. Using `feature/` for new feature, or improvements ; Using `fix/` for bug fixes ; Using `docs/` for any documentation changes.
 - [ ] If required, the documentation has been updated
-- [ ] There is automated tests to cover the code change / addition
-    - If there is no test, include an explanation why in the description
-- [ ] Run `mvn verify` locally and all tests are passing successfully
-  - It is OK to create a pull request which has failing tests if it is created as a draft, is to fix a bug and the first commit is the test to prove the existence of the bug.
-- [ ] There is no new warnings (checkstyle nor spotbugs) on the code
+- [ ] There is automated tests to cover the code change / addition or an explanation why there is no tests in the description.
 ```
