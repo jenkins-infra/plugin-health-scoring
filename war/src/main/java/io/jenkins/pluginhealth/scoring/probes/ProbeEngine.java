@@ -99,6 +99,7 @@ public final class ProbeEngine {
         }
 
         probeContext.setGitHub(gitHub);
+        probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
 
         probeService.getProbes().forEach(probe -> {
             try {
