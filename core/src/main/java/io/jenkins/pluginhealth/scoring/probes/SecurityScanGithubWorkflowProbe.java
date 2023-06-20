@@ -39,11 +39,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = SecurityScanGithubWorkflowProbe.ORDER)
+@Order(SecurityScanGithubWorkflowProbe.ORDER)
 public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-
     private static final String SEARCH_LINE = "uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
 
