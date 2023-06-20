@@ -39,8 +39,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = SecurityScanWorkflowDetectProbe.ORDER)
-public class SecurityScanWorkflowDetectProbe extends Probe {
+@Order(value = SecurityScanGithubWorkflowProbe.ORDER)
+public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
 

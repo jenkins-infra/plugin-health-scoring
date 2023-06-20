@@ -15,17 +15,17 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
-public class SecurityScanInGitHubWorkflowProbeTest extends AbstractProbeTest<SecurityScanInGitHubWorkflowProbe>{
+public class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScanGithubWorkflowProbe>{
     @Override
-    SecurityScanInGitHubWorkflowProbe getSpy() {
-        return spy(SecurityScanInGitHubWorkflowProbe.class);
+    SecurityScanGithubWorkflowProbe getSpy() {
+        return spy(SecurityScanGithubWorkflowProbe.class);
     }
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGitHubWorkflowConfigured() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanInGitHubWorkflowProbe probe = getSpy();
+        final SecurityScanGithubWorkflowProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
@@ -41,7 +41,7 @@ public class SecurityScanInGitHubWorkflowProbeTest extends AbstractProbeTest<Sec
     void shouldBeAbleToDetectRepositoryWithNoSecurityScanConfigured() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanInGitHubWorkflowProbe probe = getSpy();
+        final SecurityScanGithubWorkflowProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
