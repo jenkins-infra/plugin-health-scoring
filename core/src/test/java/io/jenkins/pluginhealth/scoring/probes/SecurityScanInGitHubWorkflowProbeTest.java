@@ -50,7 +50,6 @@ public class SecurityScanInGitHubWorkflowProbeTest extends AbstractProbeTest<Sec
 
         when(ctx.getScmRepository()).thenReturn(repo);
         Files.createDirectories(repo.resolve(".github/workflows"));
-        when(ctx.getScmRepository()).thenReturn(repo);
 
         final ProbeResult result = probe.apply(plugin, ctx);
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
