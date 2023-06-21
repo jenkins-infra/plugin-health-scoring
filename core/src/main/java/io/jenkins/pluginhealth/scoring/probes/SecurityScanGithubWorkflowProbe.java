@@ -28,13 +28,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -45,34 +50,53 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final String KEY = "security-scan";
     private static final String SEARCH_LINE = "uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityScanGithubWorkflowProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repository = context.getScmRepository();
-        final Path workflowsPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
-        try (Stream<Path> paths = Files.walk(workflowsPath)) {
-            List<String> fileNames = new ArrayList<>();
-            paths.filter(Files::isRegularFile)
-                .filter(this::containsSearchLine)
-                .forEach(path -> fileNames.add(path.toString()));
-            if (!fileNames.isEmpty()) {
-                String fileList = String.join(", ", fileNames);
-                return ProbeResult.success(key(), "The line is present in the following files: " + fileList);
-            } else {
-                return ProbeResult.failure(key(), "The line is not present in any file in the repository");
-            }
+        final Path workflowPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
+
+        if (! Files.exists(workflowPath)) {
+            return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin" );
+        }
+
+
+            try (Stream<Path> files = Files.find(workflowPath, 1,
+                (path, basicFileAttributes) -> Files.isRegularFile(path)
+            )) {
+                final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+
+                return files
+                    .map(file -> {
+                        try {
+                            return yaml.readValue(Files.newInputStream(file), SecurityScanGithubWorkflowProbe.WorkflowDefinition.class);
+                        } catch (IOException e) {
+                            LOGGER.error("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
+                            return new SecurityScanGithubWorkflowProbe.WorkflowDefinition(Map.of());
+                        }
+                    })
+                    .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
+                    .flatMap(wf -> wf.jobs().values().stream())
+                    .map(SecurityScanGithubWorkflowProbe.WorkflowJobDefinition::uses)
+                    .filter(Objects::nonNull)
+                    .anyMatch(def -> def.startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
+                    ProbeResult.success(key(), "GitHub workflow security scan is configured in the plugin") :
+                    ProbeResult.failure(key(), "GitHub workflow security scan is not configured in the plugin");
+
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
     }
 
-    private boolean containsSearchLine(Path file) {
-        try (Stream<String> lines = Files.lines(file)) {
-            return lines.anyMatch(line -> line.contains(SEARCH_LINE));
-        } catch (IOException e) {
-            return false;
-        }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowJobDefinition(String uses) {
     }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowDefinition(Map<String, SecurityScanGithubWorkflowProbe.WorkflowJobDefinition> jobs) {
+    }
+
 
     @Override
     public String key() {
@@ -81,7 +105,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Checks for the presence of the security scan workflow in the plugin repository";
+        return "Checks if Security Scan is configured in GitHub workflow";
     }
 
     @Override
