@@ -58,7 +58,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
         final Path workflowPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
 
         if (! Files.exists(workflowPath)) {
-            return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin" );
+            return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin");
         }
 
 
