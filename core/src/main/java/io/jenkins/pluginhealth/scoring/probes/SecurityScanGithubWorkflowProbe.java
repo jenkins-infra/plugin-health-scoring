@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
 public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-    private static final String SEARCH_LINE = "uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
+    public static final String SEARCH_LINE = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityScanGithubWorkflowProbe.class);
 
@@ -60,7 +60,6 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
         if (! Files.exists(workflowPath)) {
             return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin");
         }
-
 
             try (Stream<Path> files = Files.find(workflowPath, 1,
                 (path, basicFileAttributes) -> Files.isRegularFile(path)
@@ -80,7 +79,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
                     .flatMap(wf -> wf.jobs().values().stream())
                     .map(SecurityScanGithubWorkflowProbe.WorkflowJobDefinition::uses)
                     .filter(Objects::nonNull)
-                    .anyMatch(def -> def.startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
+                    .anyMatch(def -> def.startsWith(SEARCH_LINE)) ?
                     ProbeResult.success(key(), "GitHub workflow security scan is configured in the plugin") :
                     ProbeResult.failure(key(), "GitHub workflow security scan is not configured in the plugin");
 
