@@ -40,7 +40,7 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
-public class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScanGithubWorkflowProbe> {
+class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScanGithubWorkflowProbe> {
     @Override
     SecurityScanGithubWorkflowProbe getSpy() {
         return spy(SecurityScanGithubWorkflowProbe.class);
