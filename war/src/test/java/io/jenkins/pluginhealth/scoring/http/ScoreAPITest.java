@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.http;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -84,25 +85,31 @@ class ScoreAPITest {
         when(plugin2.getDetails()).thenReturn(Map.of(
             probe1Key, ProbeResult.success(probe1Key, ""),
             probe2Key, ProbeResult.failure(probe2Key, ""),
-            probe3Key, ProbeResult.failure(probe3Key, "")
+            probe3Key, ProbeResult.success(probe3Key, "")
         ));
 
-        final Scoring scoring1 = mock(Scoring.class);
+        final Scoring scoring1 = spy(Scoring.class);
         when(scoring1.getScoreComponents()).thenReturn(Map.of(
             probe1Key, 1f
         ));
+        when(scoring1.coefficient()).thenReturn(1f);
+        when(scoring1.key()).thenReturn(scoring1Key);
+        when(scoring1.description()).thenReturn("This evaluates the plugin's repository configuration");
         when(scoringService.get(scoring1Key)).thenReturn(Optional.of(scoring1));
 
-        final Scoring scoring2 = mock(Scoring.class);
+        final Scoring scoring2 = spy(Scoring.class);
         when(scoring2.getScoreComponents()).thenReturn(Map.of(
             probe2Key, 1f,
-            probe3Key, 1f
+            probe3Key, .5f
         ));
+        when(scoring2.coefficient()).thenReturn(1f);
+        when(scoring2.key()).thenReturn(scoring2Key);
+        when(scoring2.description()).thenReturn("This evaluates the plugin's code maintenance");
         when(scoringService.get(scoring2Key)).thenReturn(Optional.of(scoring2));
 
-        final ScoreResult p1sr1 = new ScoreResult(scoring1Key, 1, 1);
-        final ScoreResult p2sr1 = new ScoreResult(scoring1Key, 1, 1);
-        final ScoreResult p2sr2 = new ScoreResult(scoring2Key, 0, 1);
+        final ScoreResult p1sr1 = scoring1.apply(plugin1);
+        final ScoreResult p2sr1 = scoring1.apply(plugin2);
+        final ScoreResult p2sr2 = scoring2.apply(plugin2);
 
         final Score score1 = new Score(plugin1, ZonedDateTime.now());
         score1.addDetail(p1sr1);
@@ -129,35 +136,41 @@ class ScoreAPITest {
                         'plugins': {
                             'plugin-1': {
                                 'value': 100,
-                                'details': {
-                                    'scoring-1': {
-                                        'value': 1,
-                                        'weight': 1,
-                                        'components': {
-                                            'probe-1': { 'value': 1, 'max': 1 }
-                                        }
+                                'details': [
+                                    {
+                                        'name': 'scoring-1',
+                                        'value': 1.0,
+                                        'weight': 1.0,
+                                        'description': "This evaluates the plugin's repository configuration",
+                                        'components': [
+                                            { 'name': 'probe-1', 'value': 1.0, 'max': 1.0 }
+                                        ]
                                     }
-                                }
+                                ]
                             },
                             'plugin-2': {
-                                'value': 50,
-                                'details': {
-                                    'scoring-1': {
-                                        'value': 1,
-                                        'weight': 1,
-                                        'components': {
-                                            'probe-1': { 'value': 1, 'max': 1 }
-                                        }
+                                'value': 67,
+                                'details': [
+                                    {
+                                        'name': 'scoring-1',
+                                        'value': 1.0,
+                                        'weight': 1.0,
+                                        'description':  "This evaluates the plugin's repository configuration",
+                                        'components': [
+                                            { 'name': 'probe-1', 'value': 1.0, 'max': 1.0 }
+                                        ]
                                     },
-                                    'scoring-2': {
-                                        'value': 0,
-                                        'weight': 1,
-                                        'components': {
-                                            'probe-2': { 'value':  0, 'max': 1 },
-                                            'probe-3': { 'value':  0, 'max': 1 }
-                                        }
+                                    {
+                                        'name': 'scoring-2',
+                                        'value': .33,
+                                        'weight': 1.0,
+                                        'description': "This evaluates the plugin's code maintenance",
+                                        'components': [
+                                            {  'name': 'probe-2', 'value':  0, 'max': 1.0 },
+                                            {  'name': 'probe-3', 'value':  .5, 'max': .5 }
+                                        ]
                                     }
-                                }
+                                ]
                             }
                         },
                         'statistics': {
