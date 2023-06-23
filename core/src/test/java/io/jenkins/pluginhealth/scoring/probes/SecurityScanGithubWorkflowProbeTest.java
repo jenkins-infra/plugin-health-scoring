@@ -139,12 +139,12 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml@v2"));
+        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
         Files.write(workflowFile, List.of(
             "jobs:",
             "  security-scan:",
-            "    this-is-not-uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2"
+            "    uses: not-the-workflow-definition-we-are-lookgin-for@v1"
         ));
         when(ctx.getScmRepository()).thenReturn(repo);
 
@@ -165,7 +165,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml@v2"));
+        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
         Files.write(workflowFile, List.of(
             "jobs:",
@@ -191,7 +191,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml@v2"));
+        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
         Files.write(workflowFile, List.of(
             "jobs:",
