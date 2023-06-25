@@ -48,7 +48,7 @@ import org.springframework.stereotype.Component;
 public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-    public static final String SEARCH_LINE = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2";
+    public static final String SEARCH_LINE = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityScanGithubWorkflowProbe.class);
 
