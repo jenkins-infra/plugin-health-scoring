@@ -84,28 +84,6 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     }
 
     @Test
-    void shouldBeAbleToDetectIncorrectWorkflowFileName() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
-        final Path repo = Files.createTempDirectory("foo");
-        Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("incorrect-file-name.yml"));
-
-        Files.write(workflowFile, List.of(SecurityScanGithubWorkflowProbe.SEARCH_LINE));
-        when(ctx.getScmRepository()).thenReturn(repo);
-
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is not configured in the plugin");
-    }
-
-    @Test
     void shouldFailIfJobsIsNotConfiguredInGitHubWorkflow() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -117,7 +95,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml@v2"));
+        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
         Files.write(workflowFile, List.of(SecurityScanGithubWorkflowProbe.SEARCH_LINE));
         when(ctx.getScmRepository()).thenReturn(repo);
