@@ -84,34 +84,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     }
 
     @Test
-    void shouldFailIfJobsIsNotConfiguredInGitHubWorkflow() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
-        final Path repo = Files.createTempDirectory("foo");
-        Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
-        final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
-
-        Files.write(workflowFile, List.of(
-            "name: Test Security Scan Job",
-            "nojobs-configured:",
-            "  security-scan-name:",
-            "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml"
-        ));
-        when(ctx.getScmRepository()).thenReturn(repo);
-
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is not configured in the plugin");
-    }
-
-    @Test
-    void shouldNotFindIncorrectWorkflowDefinition() throws IOException {
+    void shouldNotFindSecurityScanConfiguredInGitHubWorkflow() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SecurityScanGithubWorkflowProbe probe = getSpy();
@@ -127,8 +100,8 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         Files.write(workflowFile, List.of(
             "name: Test Security Scan Job",
             "jobs:",
-            "  security-scan:",
-            "    uses: not-the-workflow-definition-we-are-looking-for@v1"
+            "  security-scan-name:",
+            "    uses: this-is-not-the-workflow-we-are-looking-for"
         ));
         when(ctx.getScmRepository()).thenReturn(repo);
 
@@ -165,7 +138,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     }
 
     @Test
-    void shouldSucceedIfWorkflowIsConfigured() throws IOException {
+    void shouldSucceedToFindWorkflowEvenWithVersion() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SecurityScanGithubWorkflowProbe probe = getSpy();
@@ -182,7 +155,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
             "name: Test Security Scan Job",
             "jobs:",
             "  security-scan:",
-            "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml"
+            "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v42"
         ));
         when(ctx.getScmRepository()).thenReturn(repo);
 
