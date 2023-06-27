@@ -24,13 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -53,26 +55,28 @@ public class ScoreAPI {
     @GetMapping(value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
     public ScoreReport getReport() {
         final ScoreService.ScoreStatistics stats = scoreService.getScoresStatistics();
-        record Tuple(String name, PluginScoreSummary summary) {
+        record Tuple(String name, PluginScore summary) {
         }
 
-        final Map<String, PluginScoreSummary> plugins = scoreService.getLatestScoresSummaryMap()
+        final Map<String, PluginScore> plugins = scoreService.getLatestScoresSummaryMap()
             .entrySet().stream()
-            .map(entry -> {
-                final var score = entry.getValue();
+            .map(pluginNameScoreEntry -> {
+                final Score score = pluginNameScoreEntry.getValue();
+                final String pluginName = pluginNameScoreEntry.getKey();
+
                 return new Tuple(
-                    entry.getKey(),
-                    new PluginScoreSummary(
+                    pluginName,
+                    new PluginScore(
                         score.getValue(),
                         score.getDetails().stream()
-                            .collect(Collectors.toMap(
-                                ScoreResult::key,
-                                scoreResult -> new PluginScoreDetail(
-                                    scoreResult.value(),
-                                    scoreResult.coefficient(),
-                                    getScoringComponents(scoreResult, score.getPlugin().getDetails())
-                                )
+                            .map(scoreResult -> new PluginScoreDetail(
+                                scoreResult.key(),
+                                scoreResult.value(),
+                                scoreResult.coefficient(),
+                                getScoringComponents(scoreResult, score.getPlugin().getDetails()),
+                                scoringService.get(scoreResult.key()).map(Scoring::description).orElse("")
                             ))
+                            .collect(Collectors.toList())
                     )
                 );
             })
@@ -80,35 +84,33 @@ public class ScoreAPI {
         return new ScoreReport(plugins, stats);
     }
 
-    private Map<String, PluginScoreDetailComponent> getScoringComponents(ScoreResult result,
-                                                                         Map<String, ProbeResult> probeResults) {
-        record Tuple(String name, Float value) {
-        }
-
-        return scoringService.get(result.key())
-            .map(scoring -> {
-                final Map<String, Float> scoreComponents = scoring.getScoreComponents();
-                return scoreComponents.entrySet().stream().map(e -> new Tuple(e.getKey(), e.getValue()));
+    private List<PluginScoreDetailComponent> getScoringComponents(ScoreResult scoreResult, Map<String, ProbeResult> pluginProbeResults) {
+        return scoringService.get(scoreResult.key())
+            .map(Scoring::getScoreComponents)
+            .orElse(Map.of())
+            .entrySet().stream()
+            .map(component -> {
+                final ProbeResult result = pluginProbeResults.get(component.getKey());
+                var val = result == null || result.status().equals(ResultStatus.FAILURE) ?
+                    0 : component.getValue();// TODO this is not ideal, we shouldn't have to recompute those.
+                return new PluginScoreDetailComponent(
+                    component.getKey(),
+                    val,
+                    component.getValue()
+                );
             })
-            .orElse(Stream.empty())
-            .collect(Collectors.toMap(
-                Tuple::name,
-                tuple -> new PluginScoreDetailComponent(
-                    probeResults.containsKey(tuple.name()) && probeResults.get(tuple.name()).status().equals(ResultStatus.SUCCESS) ? tuple.value() : 0,
-                    tuple.value()
-                )
-            ));
+            .toList();
     }
 
-    private record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
+    private record ScoreReport(Map<String, PluginScore> plugins, ScoreService.ScoreStatistics statistics) {
     }
 
-    private record PluginScoreSummary(long value, Map<String, PluginScoreDetail> details) {
+    private record PluginScore(long value, List<PluginScoreDetail> details) {
     }
 
-    private record PluginScoreDetail(float value, float weight, Map<String, PluginScoreDetailComponent> components) {
+    private record PluginScoreDetail(String name, float value, float weight, List<PluginScoreDetailComponent> components, String description) {
     }
 
-    private record PluginScoreDetailComponent(float value, float max) {
+    private record PluginScoreDetailComponent(String name, float value, float max) {
     }
 }
