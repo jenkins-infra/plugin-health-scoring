@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -48,14 +47,14 @@ import org.springframework.stereotype.Component;
 public class SecurityScanGithubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-    public static final String SEARCH_LINE = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
+    public static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER  = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityScanGithubWorkflowProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path repository = context.getScmRepository();
-        final Path workflowPath = Paths.get(repository.toString(), WORKFLOWS_DIRECTORY);
+        final Path workflowPath = repository.resolve(WORKFLOWS_DIRECTORY);
 
         if (! Files.exists(workflowPath)) {
             return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin");
@@ -71,7 +70,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
                         try {
                             return yaml.readValue(Files.newInputStream(file), SecurityScanGithubWorkflowProbe.WorkflowDefinition.class);
                         } catch (IOException e) {
-                            LOGGER.error("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
+                            LOGGER.warn("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
                             return new SecurityScanGithubWorkflowProbe.WorkflowDefinition(Map.of());
                         }
                     })
@@ -79,7 +78,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
                     .flatMap(wf -> wf.jobs().values().stream())
                     .map(SecurityScanGithubWorkflowProbe.WorkflowJobDefinition::uses)
                     .filter(Objects::nonNull)
-                    .anyMatch(def -> def.startsWith(SEARCH_LINE)) ?
+                    .anyMatch(def -> def.startsWith(SECURITY_SCAN_WORKFLOW_IDENTIFIER )) ?
                     ProbeResult.success(key(), "GitHub workflow security scan is configured in the plugin") :
                     ProbeResult.failure(key(), "GitHub workflow security scan is not configured in the plugin");
 
@@ -89,7 +88,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String uses) {
+    public record WorkflowJobDefinition(String uses) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
