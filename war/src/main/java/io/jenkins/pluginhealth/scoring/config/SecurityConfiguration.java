@@ -41,7 +41,7 @@ public class SecurityConfiguration {
                 request
                     .requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*").permitAll()
                     .requestMatchers(HttpMethod.GET,
-                        "/api/scores",
+                        "/api/scores", "/api/probes",
                         "/",
                         "/probes", "/probes/*",
                         "/scores", "/scores/*",
