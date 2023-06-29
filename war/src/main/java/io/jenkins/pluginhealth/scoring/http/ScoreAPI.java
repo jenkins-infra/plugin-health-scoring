@@ -92,7 +92,7 @@ public class ScoreAPI {
             .map(component -> {
                 final ProbeResult result = pluginProbeResults.get(component.getKey());
                 var val = result == null || result.status().equals(ResultStatus.FAILURE) ?
-                    0 : component.getValue();// TODO this is not ideal, we shouldn't have to recompute those.
+                    0 : component.getValue();
                 return new PluginScoreDetailComponent(
                     component.getKey(),
                     val,
