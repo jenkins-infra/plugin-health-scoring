@@ -24,9 +24,11 @@
 
 package io.jenkins.pluginhealth.scoring.utility;
 
+import java.nio.file.Path;
+
 import io.jenkins.pluginhealth.scoring.probes.Probe;
 
 public abstract class GitHubWorkflowReader extends Probe {
-    public abstract String getWorkflowDefinition();
+    public abstract String getWorkflowDefinition(Path githubWorkflow);
 }
 

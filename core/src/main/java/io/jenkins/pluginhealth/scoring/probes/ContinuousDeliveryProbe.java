@@ -49,25 +49,25 @@ public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
     private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
+    private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
     final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
-    private Path githubWorkflow = Path.of("");
-    private Path repo = Path.of("");
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        repo = context.getScmRepository();
-        githubWorkflow = repo.resolve(".github/workflows");
+        final Path repo = context.getScmRepository();
+        final Path githubWorkflow = repo.resolve(WORKFLOWS_DIRECTORY);
+
         if (Files.notExists(githubWorkflow)) {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
-        return getWorkflowDefinition().startsWith(MAVEN_CD_FILE_PATH) ?
+        return getWorkflowDefinition(githubWorkflow).startsWith(MAVEN_CD_FILE_PATH) ?
             ProbeResult.success(key(), "JEP-229 workflow definition found") :
             ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
     }
 
     @Override
-    public String getWorkflowDefinition() {
-        try (Stream<Path> files = Files.find(githubWorkflow, 1,
+    public String getWorkflowDefinition(Path worflowPath) {
+        try (Stream<Path> files = Files.find(worflowPath, 1,
             (path, basicFileAttributes) -> Files.isRegularFile(path)
         )) {
             final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
@@ -85,7 +85,7 @@ public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
                 .map(WorkflowJobDefinition::uses)
                 .collect(Collectors.joining(","));
         } catch (IOException e) {
-            LOGGER.warn("Could not walk {} Git clone in {} as {}", key(), repo, e);
+            LOGGER.warn("Could not walk {} Git clone {}", key(), e);
             return "";
         }
     }
