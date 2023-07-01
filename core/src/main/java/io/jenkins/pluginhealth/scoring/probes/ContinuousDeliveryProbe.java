@@ -48,10 +48,10 @@ import org.springframework.stereotype.Component;
 public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
-    private static Path githubWorkflow = Path.of("");
-    private static Path repo = Path.of("");
-    final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
     private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
+    final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
+    private Path githubWorkflow = Path.of("");
+    private Path repo = Path.of("");
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
