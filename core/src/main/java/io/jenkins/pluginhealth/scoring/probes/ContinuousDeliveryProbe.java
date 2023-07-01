@@ -28,11 +28,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.utility.GitHubWorkflowReader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,18 +45,28 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(ContinuousDeliveryProbe.ORDER)
-public class ContinuousDeliveryProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
+public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
+    private static Path githubWorkflow = Path.of("");
+    private static Path repo = Path.of("");
+    final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repo = context.getScmRepository();
-        final Path githubWorkflow = repo.resolve(".github/workflows");
+        repo = context.getScmRepository();
+        githubWorkflow = repo.resolve(".github/workflows");
         if (Files.notExists(githubWorkflow)) {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
+        return getWorkflowDefinition().startsWith(MAVEN_CD_FILE_PATH) ?
+            ProbeResult.success(key(), "JEP-229 workflow definition found") :
+            ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
+    }
+
+    @Override
+    public String getWorkflowDefinition() {
         try (Stream<Path> files = Files.find(githubWorkflow, 1,
             (path, basicFileAttributes) -> Files.isRegularFile(path)
         )) {
@@ -66,29 +77,17 @@ public class ContinuousDeliveryProbe extends Probe {
                     try {
                         return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
                     } catch (IOException e) {
-                        LOGGER.error("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
+                        LOGGER.error("Couldn't not read {} for {} on {}", file, key(), e);
                         return new WorkflowDefinition(Map.of());
                     }
-                })
-                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
+                }).filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
                 .flatMap(wf -> wf.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
-                .filter(Objects::nonNull)
-                .anyMatch(def -> def.startsWith("jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml")) ?
-                ProbeResult.success(key(), "JEP-229 workflow definition found") :
-                ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
-        } catch (IOException ex) {
-            LOGGER.warn("Could not walk {} Git clone in {}", plugin.getName(), repo, ex);
-            return ProbeResult.error(key(), "Could not work plugin repository");
+                .collect(Collectors.joining(","));
+        } catch (IOException e) {
+            LOGGER.warn("Could not walk {} Git clone in {} as {}", key(), repo, e);
+            return "";
         }
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String uses) {
     }
 
     @Override
@@ -108,6 +107,14 @@ public class ContinuousDeliveryProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowJobDefinition(String uses) {
     }
 }

@@ -1,60 +1,32 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Jenkins Infra
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package io.jenkins.pluginhealth.scoring.utility;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import io.jenkins.pluginhealth.scoring.probes.Probe;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-public abstract class GitHubWorkflowReader {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubWorkflowReader.class);
-
-    final Path WORKFLOWS_DIRECTORY = Path.of(".github/workflows");
-
-    public List<String> getJobDetail() {
-
-        try (Stream<Path> files = Files.find(WORKFLOWS_DIRECTORY, 1,
-            (path, $) -> Files.isRegularFile(path)
-        )) {
-            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-
-            return files.map(file -> {
-                try {
-                    return yaml.readValue(Files.newInputStream(file), GitHubWorkflowReader.WorkflowDefinition.class);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }). filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
-                .flatMap(wf -> wf.jobs().values().stream())
-                .map(GitHubWorkflowReader.WorkflowJobDefinition::uses)
-                .collect(Collectors.toList());
-
-
-        }catch (IOException e) {
-            LOGGER.error("Could not read {} in {} because {}", WORKFLOWS_DIRECTORY.getFileName(), this.getClass().getSimpleName(), e );
-        }
-        return new ArrayList<>();
-    }
-
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record WorkflowJobDefinition(String uses) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowDefinition(Map<String, GitHubWorkflowReader.WorkflowJobDefinition> jobs) {
-    }
-
+public abstract class GitHubWorkflowReader extends Probe {
+    public abstract String getWorkflowDefinition();
 }
 

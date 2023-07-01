@@ -61,7 +61,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
         }
 
             try (Stream<Path> files = Files.find(workflowPath, 1,
-                (path, basicFileAttributes) -> Files.isRegularFile(path)
+                (path, $) -> Files.isRegularFile(path)
             )) {
                 final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
 
@@ -78,7 +78,7 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
                     .flatMap(wf -> wf.jobs().values().stream())
                     .map(SecurityScanGithubWorkflowProbe.WorkflowJobDefinition::uses)
                     .filter(Objects::nonNull)
-                    .anyMatch(def -> def.startsWith(SECURITY_SCAN_WORKFLOW_IDENTIFIER )) ?
+                    .anyMatch(def -> def.startsWith(SECURITY_SCAN_WORKFLOW_IDENTIFIER)) ?
                     ProbeResult.success(key(), "GitHub workflow security scan is configured in the plugin") :
                     ProbeResult.failure(key(), "GitHub workflow security scan is not configured in the plugin");
 
