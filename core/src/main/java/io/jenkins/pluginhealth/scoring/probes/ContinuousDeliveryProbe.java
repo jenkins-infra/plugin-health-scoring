@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
-    final static String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
+    public static String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
 
     @Override
     public String key() {
