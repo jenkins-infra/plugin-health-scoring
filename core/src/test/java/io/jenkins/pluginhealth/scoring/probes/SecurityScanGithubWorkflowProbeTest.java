@@ -61,7 +61,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
 
         final ProbeResult result = probe.apply(plugin, ctx);
         assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("GitHub workflow directory could not be found in the plugin");
+        assertThat(result.message()).isEqualTo("Plugin has no GitHub Action configured");
     }
 
     @Test

@@ -24,71 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.utility.GitHubWorkflowReader;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(ContinuousDeliveryProbe.ORDER)
-public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
+public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContinuousDeliveryProbe.class);
-    private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
     final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
-
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repo = context.getScmRepository();
-        final Path githubWorkflow = repo.resolve(WORKFLOWS_DIRECTORY);
-
-        if (Files.notExists(githubWorkflow)) {
-            return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
-        }
-        return getWorkflowDefinition(githubWorkflow).startsWith(MAVEN_CD_FILE_PATH) ?
-            ProbeResult.success(key(), "JEP-229 workflow definition found") :
-            ProbeResult.failure(key(), "Could not find JEP-229 workflow definition");
-    }
-
-    @Override
-    public String getWorkflowDefinition(Path worflowPath) {
-        try (Stream<Path> files = Files.find(worflowPath, 1,
-            (path, basicFileAttributes) -> Files.isRegularFile(path)
-        )) {
-            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-
-            return files
-                .map(file -> {
-                    try {
-                        return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
-                    } catch (IOException e) {
-                        LOGGER.error("Couldn't not read {} for {} on {}", file, key(), e);
-                        return new WorkflowDefinition(Map.of());
-                    }
-                }).filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
-                .flatMap(wf -> wf.jobs().values().stream())
-                .map(WorkflowJobDefinition::uses)
-                .collect(Collectors.joining(","));
-        } catch (IOException e) {
-            LOGGER.warn("Could not walk {} Git clone {}", key(), e);
-            return "";
-        }
-    }
 
     @Override
     public String key() {
@@ -101,6 +45,21 @@ public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
     }
 
     @Override
+    public String getWorkflowDefinition() {
+        return MAVEN_CD_FILE_PATH;
+    }
+
+    @Override
+    public String getFailureMessage() {
+        return "Could not find JEP-229 workflow definition";
+    }
+
+    @Override
+    public String getSuccessMessage() {
+        return "JEP-229 workflow definition found";
+    }
+
+    @Override
     protected boolean isSourceCodeRelated() {
         return true;
     }
@@ -108,13 +67,5 @@ public class ContinuousDeliveryProbe extends GitHubWorkflowReader {
     @Override
     public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String uses) {
     }
 }

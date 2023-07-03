@@ -24,68 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(SecurityScanGithubWorkflowProbe.ORDER)
-public class SecurityScanGithubWorkflowProbe extends Probe {
+public class SecurityScanGithubWorkflowProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
     public static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
-    private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityScanGithubWorkflowProbe.class);
-
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repository = context.getScmRepository();
-        final Path workflowPath = repository.resolve(WORKFLOWS_DIRECTORY);
-
-        if (!Files.exists(workflowPath)) {
-            return ProbeResult.failure(key(), "GitHub workflow directory could not be found in the plugin");
-        }
-
-        try (Stream<Path> files = Files.find(workflowPath, 1,
-            (path, $) -> Files.isRegularFile(path)
-        )) {
-            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-
-            return files
-                .map(file -> {
-                    try {
-                        return yaml.readValue(Files.newInputStream(file), SecurityScanGithubWorkflowProbe.WorkflowDefinition.class);
-                    } catch (IOException e) {
-                        LOGGER.warn("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
-                        return new SecurityScanGithubWorkflowProbe.WorkflowDefinition(Map.of());
-                    }
-                })
-                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
-                .flatMap(wf -> wf.jobs().values().stream())
-                .map(SecurityScanGithubWorkflowProbe.WorkflowJobDefinition::uses)
-                .filter(Objects::nonNull)
-                .anyMatch(def -> def.startsWith(SECURITY_SCAN_WORKFLOW_IDENTIFIER)) ?
-                ProbeResult.success(key(), "GitHub workflow security scan is configured in the plugin") :
-                ProbeResult.failure(key(), "GitHub workflow security scan is not configured in the plugin");
-
-        } catch (IOException e) {
-            return ProbeResult.error(key(), e.getMessage());
-        }
-    }
 
     @Override
     public String key() {
@@ -98,6 +45,21 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
     }
 
     @Override
+    public String getWorkflowDefinition() {
+        return SECURITY_SCAN_WORKFLOW_IDENTIFIER;
+    }
+
+    @Override
+    public String getFailureMessage() {
+        return "GitHub workflow security scan is not configured in the plugin";
+    }
+
+    @Override
+    public String getSuccessMessage() {
+        return "GitHub workflow security scan is configured in the plugin";
+    }
+
+    @Override
     protected boolean isSourceCodeRelated() {
         return true;
     }
@@ -107,11 +69,4 @@ public class SecurityScanGithubWorkflowProbe extends Probe {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record WorkflowJobDefinition(String uses) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowDefinition(Map<String, SecurityScanGithubWorkflowProbe.WorkflowJobDefinition> jobs) {
-    }
 }
