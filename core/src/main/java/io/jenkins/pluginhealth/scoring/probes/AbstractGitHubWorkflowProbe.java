@@ -62,10 +62,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
              boolean isWorkflowConfigured = files
                 .map(file -> readWorkflowFile(file))
-                /**
-                 * Checks if the map is null or empty. This means no GitHub action is defined.
-                 * */
-                .filter(workflow -> workflow.jobs() != null && !workflow.jobs().isEmpty())
+                .filter(workflow -> isWorkflowJobsNullOrEmpty(workflow))
                 .flatMap(workflow -> workflow.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
                 .filter(Objects::nonNull)
@@ -125,6 +122,16 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      * */
     public abstract String getSuccessMessage();
 
+    /**
+     * Checks if the map is null or empty. This means no GitHub action is defined.
+     * */
+    private boolean isWorkflowJobsNullOrEmpty(WorkflowDefinition workflow) {
+        return workflow.jobs() != null && !workflow.jobs().isEmpty();
+    }
+
+    /**
+     * @return a String array of probes that should be executed before AbstractGitHubWorkflowProbe
+     * */
     @Override
     public String[] getProbeResultRequirement() {
         return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
