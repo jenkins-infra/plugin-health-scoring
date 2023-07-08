@@ -67,7 +67,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
                  * */
                 .filter(workflow -> workflow.jobs() != null && !workflow.jobs().isEmpty())
                 .flatMap(workflow -> workflow.jobs().values().stream())
-                .map(WorkflowJobDefinition::specificJobDefinition)
+                .map(WorkflowJobDefinition::uses)
                 .filter(Objects::nonNull)
                 .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
 
@@ -112,7 +112,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      *  @return a String i.e, returns one GitHub action configured at a time.
      * **/
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String specificJobDefinition) {
+    private record WorkflowJobDefinition(String uses) {
     }
 
     /**
@@ -124,5 +124,10 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      * @return a success message
      * */
     public abstract String getSuccessMessage();
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
+    }
 
 }

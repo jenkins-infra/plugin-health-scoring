@@ -41,17 +41,17 @@ import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
-class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScanGithubWorkflowProbe> {
+class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
     @Override
-    SecurityScanGithubWorkflowProbe getSpy() {
-        return spy(SecurityScanGithubWorkflowProbe.class);
+    SecurityScanProbe getSpy() {
+        return spy(SecurityScanProbe.class);
     }
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGitHubWorkflowConfigured() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
+        final SecurityScanProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -68,7 +68,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     void shouldBeAbleToDetectRepositoryWithNoSecurityScanConfigured() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
+        final SecurityScanProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -87,7 +87,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     void shouldNotFindSecurityScanConfiguredInGitHubWorkflow() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
+        final SecurityScanProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -114,7 +114,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     void shouldSucceedIfSecurityScanIsConfigured() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
+        final SecurityScanProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
@@ -141,7 +141,7 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
     void shouldSucceedToFindWorkflowEvenWithVersion() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanGithubWorkflowProbe probe = getSpy();
+        final SecurityScanProbe probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
