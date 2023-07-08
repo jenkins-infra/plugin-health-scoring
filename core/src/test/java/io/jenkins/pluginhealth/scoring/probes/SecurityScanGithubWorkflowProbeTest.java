@@ -163,7 +163,5 @@ class SecurityScanGithubWorkflowProbeTest extends AbstractProbeTest<SecurityScan
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("GitHub workflow security scan is configured in the plugin");
     }
-
-
 }
 

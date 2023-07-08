@@ -41,8 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractGitHubWorkflowProbe extends Probe {
-
-    public static final String KEY = "abstract-github-workflow";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGitHubWorkflowProbe.class);
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
 
@@ -55,9 +53,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
 
-        try (Stream<Path> files = Files.find(workflowPath, 1,
-            (path, $) -> Files.isRegularFile(path)
-        )) {
+        try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
             final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
 
             return files
@@ -76,20 +72,9 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
                 .anyMatch(def -> def.startsWith(getWorkflowDefinition())) ?
                 ProbeResult.success(key(), getSuccessMessage()) :
                 ProbeResult.failure(key(), getFailureMessage());
-
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
-    }
-
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Abstract implementation of GitHub Workflow";
     }
 
     /**
@@ -100,11 +85,11 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     public abstract String getWorkflowDefinition();
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
+    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record WorkflowJobDefinition(String uses) {
+    private record WorkflowJobDefinition(String uses) {
     }
 
     public abstract String getFailureMessage();

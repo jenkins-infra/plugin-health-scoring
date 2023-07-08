@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class SecurityScanGithubWorkflowProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-    public static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
+    private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 
     @Override
     public String key() {
@@ -68,5 +68,4 @@ public class SecurityScanGithubWorkflowProbe extends AbstractGitHubWorkflowProbe
     public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
-
 }
