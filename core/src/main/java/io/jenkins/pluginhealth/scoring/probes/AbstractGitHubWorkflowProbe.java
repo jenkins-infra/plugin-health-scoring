@@ -40,6 +40,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is an abstract class that looks for desired configuration in the files present in GitHub Workflows directory.
+ *
+ * @return The class returns success when the configuration is found, otherwise returns a failure.
+ */
+
 public abstract class AbstractGitHubWorkflowProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGitHubWorkflowProbe.class);
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
@@ -54,24 +60,20 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         }
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
-            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-
-            return files
-                .map(file -> {
-                    try {
-                        return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
-                    } catch (IOException e) {
-                        LOGGER.warn("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
-                        return new WorkflowDefinition(Map.of());
-                    }
-                })
-                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
-                .flatMap(wf -> wf.jobs().values().stream())
-                .map(WorkflowJobDefinition::uses)
+             boolean isWorkflowConfigured = files
+                .map(file -> readWorkflowFile(file))
+                /**
+                 * Checks if the map is null or empty. This means no GitHub action is defined.
+                 * */
+                .filter(workflow -> workflow.jobs() != null && !workflow.jobs().isEmpty())
+                .flatMap(workflow -> workflow.jobs().values().stream())
+                .map(WorkflowJobDefinition::specificJobDefinition)
                 .filter(Objects::nonNull)
-                .anyMatch(def -> def.startsWith(getWorkflowDefinition())) ?
-                ProbeResult.success(key(), getSuccessMessage()) :
-                ProbeResult.failure(key(), getFailureMessage());
+                .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
+
+            return isWorkflowConfigured ?
+                    ProbeResult.success(key(), getSuccessMessage()) :
+                    ProbeResult.failure(key(), getFailureMessage());
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
@@ -84,16 +86,43 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      */
     public abstract String getWorkflowDefinition();
 
+    /**
+     * This method reads the files in GitHub Workflow directory using ObjectMapper
+     *
+     *  @return a map of all the GitHub Actions defined in the file.
+     * */
+    private WorkflowDefinition readWorkflowFile(Path filePath) {
+        final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+        try {
+            return yaml.readValue(Files.newInputStream(filePath), WorkflowDefinition.class);
+        } catch (IOException e) {
+            LOGGER.warn("Couldn't not read {} for {} on {}", filePath, key(), e);
+            return new WorkflowDefinition(Map.of());
+        }
+    }
+
+    /**
+     * @return a map of all the GitHub Actions defined in the file.
+     * */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
     }
 
+    /**
+     *  @return a String i.e, returns one GitHub action configured at a time.
+     * **/
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String uses) {
+    private record WorkflowJobDefinition(String specificJobDefinition) {
     }
 
+    /**
+     * @return a failure message
+     * */
     public abstract String getFailureMessage();
 
+    /**
+     * @return a success message
+     * */
     public abstract String getSuccessMessage();
 
 }
