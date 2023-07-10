@@ -99,16 +99,32 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      */
     public abstract String getWorkflowDefinition();
 
+    /**
+     * Ignores all other fields present in the yaml file.
+     *
+     * @return only the value of "jobs" field in the file
+     * */
     @JsonIgnoreProperties(ignoreUnknown = true)
     record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
     }
 
+    /**
+     * Ignores all other fields present in the yaml file.
+     *
+     * @return only the value of "uses" field in the file
+     * */
     @JsonIgnoreProperties(ignoreUnknown = true)
     record WorkflowJobDefinition(String uses) {
     }
 
+    /**
+     * @return a failure message
+     */
     public abstract String getFailureMessage();
 
+    /**
+     * @return a success message
+     * */
     public abstract String getSuccessMessage();
 
 }
