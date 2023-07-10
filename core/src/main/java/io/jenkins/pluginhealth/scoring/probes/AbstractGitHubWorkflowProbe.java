@@ -72,6 +72,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
                 ProbeResult.success(key(), getSuccessMessage()) :
                 ProbeResult.failure(key(), getFailureMessage());
         } catch (IOException e) {
+            LOGGER.warn("Couldn't not read file at {} on {}", key(), e);
             return ProbeResult.error(key(), e.getMessage());
         }
     }
