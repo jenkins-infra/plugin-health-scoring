@@ -8,6 +8,7 @@
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
+ * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
@@ -32,7 +33,7 @@ import org.springframework.stereotype.Component;
 public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "jep-229";
-    public static final String MAVEN_CD_FILE_PATH = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
+    private static final String CD_WORKFLOW_IDENTIFIER = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
 
     @Override
     public String key() {
@@ -46,7 +47,7 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
 
     @Override
     public String getWorkflowDefinition() {
-        return MAVEN_CD_FILE_PATH;
+        return CD_WORKFLOW_IDENTIFIER;
     }
 
     @Override
@@ -64,8 +65,4 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
         return true;
     }
 
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
-    }
 }

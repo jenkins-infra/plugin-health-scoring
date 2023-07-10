@@ -28,11 +28,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(SecurityScanGithubWorkflowProbe.ORDER)
-public class SecurityScanGithubWorkflowProbe extends AbstractGitHubWorkflowProbe {
+@Order(SecurityScanProbe.ORDER)
+public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "security-scan";
-    public static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
+    private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 
     @Override
     public String key() {
@@ -63,10 +63,4 @@ public class SecurityScanGithubWorkflowProbe extends AbstractGitHubWorkflowProbe
     protected boolean isSourceCodeRelated() {
         return true;
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
-    }
-
 }

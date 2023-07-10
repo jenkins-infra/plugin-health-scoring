@@ -40,9 +40,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractGitHubWorkflowProbe extends Probe {
+/**
+ * This is an abstract class that looks for desired configuration in the files present in GitHub Workflows directory.
+ *
+ * @return The class returns success when the configuration is found, otherwise returns a failure.
+ */
 
-    public static final String KEY = "abstract-github-workflow";
+public abstract class AbstractGitHubWorkflowProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGitHubWorkflowProbe.class);
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
 
@@ -55,41 +59,21 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
             return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
         }
 
-        try (Stream<Path> files = Files.find(workflowPath, 1,
-            (path, $) -> Files.isRegularFile(path)
-        )) {
-            final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
-
-            return files
-                .map(file -> {
-                    try {
-                        return yaml.readValue(Files.newInputStream(file), WorkflowDefinition.class);
-                    } catch (IOException e) {
-                        LOGGER.warn("Couldn't not read {} for {} on {}", file, key(), plugin.getName(), e);
-                        return new WorkflowDefinition(Map.of());
-                    }
-                })
-                .filter(wf -> wf.jobs() != null && !wf.jobs().isEmpty())
-                .flatMap(wf -> wf.jobs().values().stream())
+        try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
+            boolean isWorkflowConfigured = files
+                .map(file -> readWorkflowFile(file))
+                .filter(workflow -> isWorkflowJobsNullOrEmpty(workflow))
+                .flatMap(workflow -> workflow.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
                 .filter(Objects::nonNull)
-                .anyMatch(def -> def.startsWith(getWorkflowDefinition())) ?
+                .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
+
+            return isWorkflowConfigured ?
                 ProbeResult.success(key(), getSuccessMessage()) :
                 ProbeResult.failure(key(), getFailureMessage());
-
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
-    }
-
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Abstract implementation of GitHub Workflow";
     }
 
     /**
@@ -100,31 +84,61 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     public abstract String getWorkflowDefinition();
 
     /**
-     * Ignores all other fields present in the yaml file.
+     * This method reads the files in GitHub Workflow directory using ObjectMapper
      *
-     * @return only the value of "jobs" field in the file
+     *  @return a map of all the GitHub Actions defined in the file.
      * */
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
+    private WorkflowDefinition readWorkflowFile(Path filePath) {
+        final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
+        try {
+            return yaml.readValue(Files.newInputStream(filePath), WorkflowDefinition.class);
+        } catch (IOException e) {
+            LOGGER.warn("Couldn't not read {} for {} on {}", filePath, key(), e);
+            return new WorkflowDefinition(Map.of());
+        }
     }
 
     /**
      * Ignores all other fields present in the yaml file.
      *
-     * @return only the value of "uses" field in the file
+     * @return only the value of "jobs" field in the file.
      * */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record WorkflowJobDefinition(String uses) {
+    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
+    }
+
+    /**
+     * Ignores all other fields present in the yaml file.
+     *
+     * @return only the value of "uses" field in the file.
+     * */
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record WorkflowJobDefinition(String uses) {
     }
 
     /**
      * @return a failure message
-     */
+     * */
     public abstract String getFailureMessage();
 
     /**
      * @return a success message
      * */
     public abstract String getSuccessMessage();
+
+    /**
+     * Checks if the map is null or empty. This means no GitHub action is defined.
+     * */
+    private boolean isWorkflowJobsNullOrEmpty(WorkflowDefinition workflow) {
+        return workflow.jobs() != null && !workflow.jobs().isEmpty();
+    }
+
+    /**
+     * @return a String array of probes that should be executed before AbstractGitHubWorkflowProbe
+     * */
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
+    }
 
 }
