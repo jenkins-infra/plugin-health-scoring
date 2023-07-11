@@ -24,41 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Order(DependabotProbe.ORDER)
-public class DependabotProbe extends Probe {
+public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "dependabot";
-
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path scmRepository = context.getScmRepository();
-        final Path githubConfig = scmRepository.resolve(".github");
-        if (Files.notExists(githubConfig)) {
-            return ProbeResult.failure(key(), "No GitHub configuration folder");
-        }
-
-        try (Stream<Path> paths = Files
-            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path)
-                && path.getFileName().toString().startsWith("dependabot"))) {
-            return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), "Dependabot is configured"))
-                .orElseGet(() -> ProbeResult.failure(key(), "No configuration file for dependabot"));
-        } catch (IOException ex) {
-            return ProbeResult.error(key(), "Could not browse the plugin folder");
-        }
-    }
 
     @Override
     public String key() {
@@ -71,12 +44,17 @@ public class DependabotProbe extends Probe {
     }
 
     @Override
-    protected boolean isSourceCodeRelated() {
-        return true;
+    public String getBotToDetect() {
+        return "dependabot";
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+    public String getSuccessMessage() {
+        return "Dependabot is configured";
+    }
+
+    @Override
+    public String getFailureMessage() {
+        return "No configuration file for dependabot";
     }
 }
