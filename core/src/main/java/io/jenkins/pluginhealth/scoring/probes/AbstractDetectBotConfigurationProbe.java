@@ -35,7 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractDetectBotConfigurationProbe extends Probe{
+public abstract class AbstractDetectBotConfigurationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectBotConfigurationProbe.class);
 
     @Override

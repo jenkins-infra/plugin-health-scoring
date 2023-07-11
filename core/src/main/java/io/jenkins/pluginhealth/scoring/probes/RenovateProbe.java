@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "renovate";
+
     @Override
     public String key() {
         return KEY;
