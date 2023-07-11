@@ -8,6 +8,11 @@ import org.springframework.stereotype.Component;
 public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "renovate";
+    public static final String BOT_NAME = "renovate";
+
+    RenovateProbe(String botName) {
+        super(botName);
+    }
 
     @Override
     public String key() {
@@ -17,20 +22,5 @@ public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
     @Override
     public String getDescription() {
         return "Check if Renovate is configured in the plugin";
-    }
-
-    @Override
-    public String getBotToDetect() {
-        return "renovate";
-    }
-
-    @Override
-    public String getSuccessMessage() {
-        return "Renovate is configured";
-    }
-
-    @Override
-    public String getFailureMessage() {
-        return "No configuration file for Renovate";
     }
 }

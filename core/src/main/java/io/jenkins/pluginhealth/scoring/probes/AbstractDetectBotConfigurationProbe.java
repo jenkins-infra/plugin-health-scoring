@@ -37,6 +37,11 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDetectBotConfigurationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectBotConfigurationProbe.class);
+    private final String botName;
+
+    AbstractDetectBotConfigurationProbe(String botName) {
+        this.botName = botName;
+    }
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -44,15 +49,15 @@ public abstract class AbstractDetectBotConfigurationProbe extends Probe {
         final Path githubConfig = scmRepository.resolve(".github");
         if (Files.notExists(githubConfig)) {
             LOGGER.error("No GitHub configuration folder at {} ", key());
-            return ProbeResult.failure(key(), "No GitHub configuration folder");
+            return ProbeResult.failure(key(), "No GitHub configuration folder found");
         }
 
         try (Stream<Path> paths = Files
             .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path)
-                && path.getFileName().toString().startsWith(getBotToDetect()))) {
+                && path.getFileName().toString().startsWith(botName))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), getSuccessMessage()))
-                .orElseGet(() -> ProbeResult.failure(key(), getFailureMessage()));
+                .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
+                .orElseGet(() -> ProbeResult.failure(key(), String.format("No configuration file for %s", botName)));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder at {} on {} ", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
@@ -63,16 +68,6 @@ public abstract class AbstractDetectBotConfigurationProbe extends Probe {
     public String getDescription() {
         return "Abstract Probe to detect the bot configuration made in a plugin";
     }
-
-    /**
-     * @return the name of the bot to verify the configuration
-     * */
-    public abstract String getBotToDetect();
-
-    public abstract String getSuccessMessage();
-
-    public abstract String getFailureMessage();
-
     @Override
     protected boolean isSourceCodeRelated() {
         return true;

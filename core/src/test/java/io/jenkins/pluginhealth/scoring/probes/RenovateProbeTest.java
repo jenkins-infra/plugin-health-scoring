@@ -1,6 +1,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     @Override
     RenovateProbe getSpy() {
-        return spy(RenovateProbe.class);
+        return spy(new RenovateProbe("renovate"));
     }
 
     @Test
@@ -63,7 +64,11 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
 
         final RenovateProbe probe = getSpy();
         for (int i = 0; i < 6; i++) {
-            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "renovate does not meet the criteria to be executed on null"));
+
             verify(probe, never()).doApply(plugin, ctx);
         }
     }
@@ -81,7 +86,11 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(repo);
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(RenovateProbe.KEY, "No GitHub configuration folder found"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
     @Test
@@ -101,7 +110,10 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
 
         when(ctx.getScmRepository()).thenReturn(repo);
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

@@ -33,6 +33,10 @@ public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "dependabot";
 
+    DependabotProbe(String botName) {
+        super(botName);
+    }
+
     @Override
     public String key() {
         return KEY;
@@ -41,20 +45,5 @@ public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
     @Override
     public String getDescription() {
         return "Checks if dependabot is configured on a plugin.";
-    }
-
-    @Override
-    public String getBotToDetect() {
-        return "dependabot";
-    }
-
-    @Override
-    public String getSuccessMessage() {
-        return "Dependabot is configured";
-    }
-
-    @Override
-    public String getFailureMessage() {
-        return "No configuration file for dependabot";
     }
 }
