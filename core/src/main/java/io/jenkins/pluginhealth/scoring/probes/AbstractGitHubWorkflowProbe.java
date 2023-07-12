@@ -78,7 +78,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     }
 
     /**
-     * Returns the path to the GitHub Workflow definition which should be use in one of the actions of the plugin repository.
+     * Returns the path to the GitHub Workflow definition which should be used in one of the actions of the plugin repository.
      *
      * @return the workflow definition used in one of the jobs of one of the actions of the plugin repository.
      */
