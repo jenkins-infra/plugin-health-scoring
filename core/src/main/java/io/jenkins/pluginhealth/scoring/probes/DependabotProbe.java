@@ -34,7 +34,7 @@ public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
     public static final String KEY = "dependabot";
 
     DependabotProbe(String botName) {
-        super(botName);
+        super("dependabot");
     }
 
     @Override

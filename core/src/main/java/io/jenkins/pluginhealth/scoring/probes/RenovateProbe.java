@@ -10,7 +10,7 @@ public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
     public static final String KEY = "renovate";
 
     RenovateProbe(String botName) {
-        super(botName);
+        super("renovate");
     }
 
     @Override
