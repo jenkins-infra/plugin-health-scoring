@@ -60,7 +60,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
             boolean isWorkflowConfigured = files
-                .map(file -> parseWorkflowFile (file))
+                .map(file -> parseWorkflowFile(file))
                 .filter(workflow -> hasWorkflowJobs(workflow))
                 .flatMap(workflow -> workflow.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
@@ -88,7 +88,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      *
      *  @return a partial object mapping of the Yaml content of the file provided in the argument.
      * */
-    private WorkflowDefinition parseWorkflowFile (Path filePath) {
+    private WorkflowDefinition parseWorkflowFile(Path filePath) {
         final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
         try {
             return yaml.readValue(Files.newInputStream(filePath), WorkflowDefinition.class);
