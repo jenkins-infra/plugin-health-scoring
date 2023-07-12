@@ -68,6 +68,7 @@ public abstract class AbstractDetectBotConfigurationProbe extends Probe {
     public String getDescription() {
         return "Abstract Probe to detect the bot configuration made in a plugin";
     }
+
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
