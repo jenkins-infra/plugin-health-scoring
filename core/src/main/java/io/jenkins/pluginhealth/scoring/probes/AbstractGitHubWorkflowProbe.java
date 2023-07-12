@@ -41,12 +41,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract class that looks for desired configuration in the files present in GitHub Workflows directory.
- *
- * @return The class returns success when the configuration is found, otherwise returns a failure.
+ * Abstract Probe allows to search for the usage of a particular workflow usage within a project's GitHub workflows directory.
  */
 
 public abstract class AbstractGitHubWorkflowProbe extends Probe {
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGitHubWorkflowProbe.class);
     private static final String WORKFLOWS_DIRECTORY = ".github/workflows";
 
@@ -61,8 +60,8 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
             boolean isWorkflowConfigured = files
-                .map(file -> readWorkflowFile(file))
-                .filter(workflow -> isWorkflowJobsNullOrEmpty(workflow))
+                .map(file -> parseWorkflowFile (file))
+                .filter(workflow -> hasWorkflowJobs(workflow))
                 .flatMap(workflow -> workflow.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
                 .filter(Objects::nonNull)
@@ -80,16 +79,16 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     /**
      * Returns the path to the GitHub Workflow definition which should be used in one of the actions of the plugin repository.
      *
-     * @return the workflow definition used in one of the jobs of one of the actions of the plugin repository.
+     * @return the path of the workflow we are searching for.
      */
     public abstract String getWorkflowDefinition();
 
     /**
-     * This method reads the files in GitHub Workflow directory using ObjectMapper
+     * This method it reads a file, parses its Yaml content, and maps it to an object.
      *
-     *  @return a map of all the GitHub Actions defined in the file.
+     *  @return a partial object mapping of the Yaml content of the file provided in the argument.
      * */
-    private WorkflowDefinition readWorkflowFile(Path filePath) {
+    private WorkflowDefinition parseWorkflowFile (Path filePath) {
         final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
         try {
             return yaml.readValue(Files.newInputStream(filePath), WorkflowDefinition.class);
@@ -100,18 +99,14 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     }
 
     /**
-     * Ignores all other fields present in the yaml file.
-     *
-     * @return only the value of "jobs" field in the file.
+     * Partial object mapping of a GitHub workflow YAML file, containing only the "jobs" that are defined in it.
      * */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
     }
 
     /**
-     * Ignores all other fields present in the yaml file.
-     *
-     * @return only the value of "uses" field in the file.
+     * Partial Object mapping of a GitHub workflow job definition, containing only the "uses" field of its YAML content.
      * */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowJobDefinition(String uses) {
@@ -130,7 +125,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     /**
      * Checks if the map is null or empty. This means no GitHub action is defined.
      * */
-    private boolean isWorkflowJobsNullOrEmpty(WorkflowDefinition workflow) {
+    private boolean hasWorkflowJobs(WorkflowDefinition workflow) {
         return workflow.jobs() != null && !workflow.jobs().isEmpty();
     }
 
@@ -142,4 +137,8 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
+    }
 }

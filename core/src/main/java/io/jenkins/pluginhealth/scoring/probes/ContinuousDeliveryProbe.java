@@ -28,10 +28,13 @@ package io.jenkins.pluginhealth.scoring.probes;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe checks if continuous delivery (CD) workflow is configured in the GitHub Actions
+ * */
 @Component
 @Order(ContinuousDeliveryProbe.ORDER)
 public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+    public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER + 20;
     public static final String KEY = "jep-229";
     private static final String CD_WORKFLOW_IDENTIFIER = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
 
@@ -58,11 +61,6 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
     @Override
     public String getSuccessMessage() {
         return "JEP-229 workflow definition found";
-    }
-
-    @Override
-    protected boolean isSourceCodeRelated() {
-        return true;
     }
 
 }

@@ -27,10 +27,13 @@ package io.jenkins.pluginhealth.scoring.probes;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe checks if Jenkins-infra security scan is configured in the GitHub Actions
+ * **/
 @Component
 @Order(SecurityScanProbe.ORDER)
 public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+    public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER + 10;
     public static final String KEY = "security-scan";
     private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 
@@ -57,10 +60,5 @@ public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     @Override
     public String getSuccessMessage() {
         return "GitHub workflow security scan is configured in the plugin";
-    }
-
-    @Override
-    protected boolean isSourceCodeRelated() {
-        return true;
     }
 }

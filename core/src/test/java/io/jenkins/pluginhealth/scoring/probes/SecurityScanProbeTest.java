@@ -39,9 +39,27 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
+
+    Plugin plugin = null;
+    ProbeContext ctx = null;
+    SecurityScanProbe probe = null;
+
+    @BeforeEach
+    public void init() {
+        plugin = mock(Plugin.class);
+        ctx = mock(ProbeContext.class);
+        probe = getSpy();
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+        ));
+    }
+
     @Override
     SecurityScanProbe getSpy() {
         return spy(SecurityScanProbe.class);
@@ -49,14 +67,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGitHubWorkflowConfigured() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
 
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -66,14 +76,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoSecurityScanConfigured() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
         when(ctx.getScmRepository()).thenReturn(repo);
@@ -85,14 +87,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldNotFindSecurityScanConfiguredInGitHubWorkflow() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
@@ -112,14 +106,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldSucceedIfSecurityScanIsConfigured() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
@@ -139,14 +125,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldSucceedToFindWorkflowEvenWithVersion() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final SecurityScanProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
