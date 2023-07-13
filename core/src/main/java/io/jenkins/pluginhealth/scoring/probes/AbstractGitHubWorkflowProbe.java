@@ -41,9 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract Probe allows to search for the usage of a particular workflow usage within a project's GitHub workflows directory.
+ * Abstract Probe allowing to search for the usage of a particular workflow within a project's GitHub workflows directory.
  */
-
 public abstract class AbstractGitHubWorkflowProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGitHubWorkflowProbe.class);
@@ -87,7 +86,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      * This method it reads a file, parses its Yaml content, and maps it to an object.
      *
      *  @return a partial object mapping of the Yaml content of the file provided in the argument.
-     * */
+     */
     private WorkflowDefinition parseWorkflowFile(Path filePath) {
         final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
         try {
@@ -100,31 +99,31 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
     /**
      * Partial object mapping of a GitHub workflow YAML file, containing only the "jobs" that are defined in it.
-     * */
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
     }
 
     /**
      * Partial Object mapping of a GitHub workflow job definition, containing only the "uses" field of its YAML content.
-     * */
+     */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowJobDefinition(String uses) {
     }
 
     /**
      * @return a failure message
-     * */
+     */
     public abstract String getFailureMessage();
 
     /**
      * @return a success message
-     * */
+     */
     public abstract String getSuccessMessage();
 
     /**
      * Checks if the map is null or empty. This means no GitHub action is defined.
-     * */
+     */
     private boolean hasWorkflowJobs(WorkflowDefinition workflow) {
         return workflow.jobs() != null && !workflow.jobs().isEmpty();
     }

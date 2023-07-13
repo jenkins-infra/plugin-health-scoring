@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This probe checks if Jenkins-infra security scan is configured in the GitHub Actions
- * **/
+ */
 @Component
 @Order(SecurityScanProbe.ORDER)
 public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {

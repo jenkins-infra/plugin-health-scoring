@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This probe checks if continuous delivery (CD) workflow is configured in the GitHub Actions
- * */
+ */
 @Component
 @Order(ContinuousDeliveryProbe.ORDER)
 public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
