@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     @Override
     RenovateProbe getSpy() {
-        return spy(new RenovateProbe("renovate"));
+        return spy(new RenovateProbe());
     }
 
     @Test
