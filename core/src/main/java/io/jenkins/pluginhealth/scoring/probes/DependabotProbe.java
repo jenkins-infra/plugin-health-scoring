@@ -33,7 +33,7 @@ public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "dependabot";
 
-    DependabotProbe(String botName) {
+    DependabotProbe() {
         super("dependabot");
     }
 
