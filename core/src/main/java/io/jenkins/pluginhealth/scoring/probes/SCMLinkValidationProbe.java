@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 public class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/)";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
@@ -86,7 +86,7 @@ public class SCMLinkValidationProbe extends Probe {
         }
 
         try {
-            context.getGitHub().getRepository(matcher.group("repo"));
+            context.getGitHub().getRepository(matcher.group("repo").split("/")[0]);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
