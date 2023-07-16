@@ -44,7 +44,7 @@ import org.springframework.stereotype.Component;
 public class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/)";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
