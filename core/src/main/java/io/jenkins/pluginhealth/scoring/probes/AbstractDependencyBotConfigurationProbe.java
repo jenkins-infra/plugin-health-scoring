@@ -56,21 +56,15 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
             return ProbeResult.failure(key(), "No GitHub configuration folder found");
         }
 
-        try (Stream<Path> paths = Files
-            .find(githubConfig, 1, (path, basicFileAttributes) -> Files.isRegularFile(path)
-                && path.getFileName().toString().startsWith(botName))) {
+        try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
+         Files.isRegularFile(path) && path.getFileName().toString().startsWith(botName))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
                 .orElseGet(() -> ProbeResult.failure(key(), String.format("%s is not configured", botName)));
         } catch (IOException ex) {
-            LOGGER.error("Could not browse the plugin folder at {} on {} ", key(), ex);
+            LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
         }
-    }
-
-    @Override
-    public String getDescription() {
-        return "Abstract Probe to detect the bot configuration made in a plugin";
     }
 
     @Override
@@ -82,5 +76,4 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
-
 }
