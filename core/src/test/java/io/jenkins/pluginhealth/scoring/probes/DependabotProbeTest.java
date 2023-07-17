@@ -113,7 +113,6 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
             .comparingOnlyFields("id", "message", "status")
             .isEqualTo(ProbeResult.failure(DependabotProbe.KEY, "No GitHub configuration folder found"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
-
     }
 
     @Test
