@@ -43,10 +43,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
-
-    Plugin plugin = null;
-    ProbeContext ctx = null;
-    SecurityScanProbe probe = null;
+    private Plugin plugin;
+    private ProbeContext ctx;
+    private SecurityScanProbe probe;
 
     @BeforeEach
     public void init() {
@@ -142,4 +141,3 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         assertThat(result.message()).isEqualTo("GitHub workflow security scan is configured in the plugin");
     }
 }
-

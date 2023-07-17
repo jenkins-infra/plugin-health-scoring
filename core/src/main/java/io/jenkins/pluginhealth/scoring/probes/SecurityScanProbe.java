@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(SecurityScanProbe.ORDER)
 public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
-    public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER + 10;
+    public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER;
     public static final String KEY = "security-scan";
     private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 

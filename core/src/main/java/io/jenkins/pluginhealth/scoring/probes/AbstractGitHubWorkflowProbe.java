@@ -85,7 +85,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     /**
      * This method it reads a file, parses its Yaml content, and maps it to an object.
      *
-     *  @return a partial object mapping of the Yaml content of the file provided in the argument.
+     * @return a partial object mapping of the Yaml content of the file provided in the argument.
      */
     private WorkflowDefinition parseWorkflowFile(Path filePath) {
         final ObjectMapper yaml = new ObjectMapper(new YAMLFactory());
@@ -130,7 +130,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
     /**
      * @return a String array of probes that should be executed before AbstractGitHubWorkflowProbe
-     * */
+     */
     @Override
     public String[] getProbeResultRequirement() {
         return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
