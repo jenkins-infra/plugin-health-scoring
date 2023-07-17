@@ -3,14 +3,18 @@ package io.jenkins.pluginhealth.scoring.probes;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/*
+* Looks for Renovate bot configuration in a plugin.
+* Extends `AbstractDependencyBotConfigurationProbe` class to implement most of the features.
+*/
 @Component
 @Order(RenovateProbe.ORDER)
-public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
     public static final String KEY = "renovate";
 
     RenovateProbe() {
-        super("renovate");
+        super(KEY);
     }
 
     @Override
@@ -20,6 +24,6 @@ public class RenovateProbe extends AbstractDetectBotConfigurationProbe {
 
     @Override
     public String getDescription() {
-        return "Check if Renovate is configured in the plugin";
+        return "Checks if Renovate is configured in a plugin.";
     }
 }

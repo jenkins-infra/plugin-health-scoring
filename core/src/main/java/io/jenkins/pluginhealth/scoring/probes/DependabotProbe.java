@@ -27,14 +27,18 @@ package io.jenkins.pluginhealth.scoring.probes;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/*
+ * This probe looks for Dependabot configuration in a plugin.
+ * Extends `AbstractDependencyBotConfigurationProbe` class to implement most of the features.
+ */
 @Component
 @Order(DependabotProbe.ORDER)
-public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
     public static final String KEY = "dependabot";
 
     DependabotProbe() {
-        super("dependabot");
+        super(KEY);
     }
 
     @Override
@@ -44,6 +48,6 @@ public class DependabotProbe extends AbstractDetectBotConfigurationProbe {
 
     @Override
     public String getDescription() {
-        return "Checks if dependabot is configured on a plugin.";
+        return "Checks if Dependabot is configured on a plugin.";
     }
 }

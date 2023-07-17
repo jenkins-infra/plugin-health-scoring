@@ -35,11 +35,15 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractDetectBotConfigurationProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDetectBotConfigurationProbe.class);
+/*
+* An abstract class that looks for bot configuration files in a repository
+*/
+public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     private final String botName;
 
-    AbstractDetectBotConfigurationProbe(String botName) {
+    AbstractDependencyBotConfigurationProbe(String botName) {
         this.botName = botName;
     }
 
@@ -57,7 +61,7 @@ public abstract class AbstractDetectBotConfigurationProbe extends Probe {
                 && path.getFileName().toString().startsWith(botName))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
-                .orElseGet(() -> ProbeResult.failure(key(), String.format("No configuration file for %s", botName)));
+                .orElseGet(() -> ProbeResult.failure(key(), String.format("%s is not configured", botName)));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder at {} on {} ", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
