@@ -28,14 +28,14 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * This probe checks if continuous delivery (CD) workflow is configured in the GitHub Actions
+ * This probe checks if Jenkins-infra security scan is configured in the GitHub Actions
  */
 @Component
-@Order(ContinuousDeliveryProbe.ORDER)
-public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
+@Order(SecurityScanProbe.ORDER)
+public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER;
-    public static final String KEY = "jep-229";
-    private static final String CD_WORKFLOW_IDENTIFIER = "jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml";
+    public static final String KEY = "security-scan";
+    private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 
     @Override
     public String key() {
@@ -44,22 +44,21 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
 
     @Override
     public String getDescription() {
-        return "Checks if JEP-229 (Continuous Delivery) has been activated on the plugin";
+        return "Checks if Security Scan is configured in GitHub workflow";
     }
 
     @Override
     public String getWorkflowDefinition() {
-        return CD_WORKFLOW_IDENTIFIER;
+        return SECURITY_SCAN_WORKFLOW_IDENTIFIER;
     }
 
     @Override
     public String getFailureMessage() {
-        return "Could not find JEP-229 workflow definition";
+        return "GitHub workflow security scan is not configured in the plugin";
     }
 
     @Override
     public String getSuccessMessage() {
-        return "JEP-229 workflow definition found";
+        return "GitHub workflow security scan is configured in the plugin";
     }
-
 }
