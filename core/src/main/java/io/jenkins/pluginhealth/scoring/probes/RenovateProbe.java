@@ -14,7 +14,7 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     public static final String KEY = "renovate";
 
     RenovateProbe() {
-        super(KEY);
+        super("renovate");
     }
 
     @Override

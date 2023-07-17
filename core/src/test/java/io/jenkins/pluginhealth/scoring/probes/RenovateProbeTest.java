@@ -1,6 +1,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -11,11 +12,15 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     @Override
@@ -33,33 +38,50 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
+    static Stream<Arguments> probeResults() {
+        return Stream.of(
+            arguments(// Nothing
+                Map.of(),
+                0f
+            ),
+            arguments(
+                Map.of(
+                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
+                )
+            ),
+            arguments(
+                Map.of(
+                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                    LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
+                )
+            ),
+            arguments(
+                Map.of(
+                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+                )
+            ),
+            arguments(
+                Map.of(
+                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
+                    SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+                )
+            ),
+            arguments(
+                Map.of(
+                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
+                )
+            )
+        );
+    }
     @SuppressWarnings("unchecked")
-    @Test
-    void shouldRequireValidSCMAndLastCommit() {
+    @ParameterizedTest
+    @MethodSource("probeResults")
+    void shouldRequireValidSCMAndLastCommit(Map<String, ProbeResult> details) {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
-            ),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-            ),
-            Map.of(
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-            ),
-            Map.of(
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
-                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-            ),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-            )
-        );
+        when(plugin.getDetails()).thenReturn(details);
 
         final RenovateProbe probe = getSpy();
         for (int i = 0; i < 6; i++) {

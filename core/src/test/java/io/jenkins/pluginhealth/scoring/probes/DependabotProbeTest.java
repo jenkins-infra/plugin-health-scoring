@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
 class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
     @Override
     DependabotProbe getSpy() {
-        return spy(new DependabotProbe());
+        return spy(DependabotProbe.class);
     }
 
     @Test
