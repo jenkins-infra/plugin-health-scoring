@@ -37,8 +37,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An abstract class that looks for bot configuration files in a repository.
- *
- * @param "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc.
  */
 public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
@@ -49,7 +47,7 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     /**
      * The constructor gets initialized with botName when extended.
      *
-     * @param botName
+     * @param botName A "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc
      */
     AbstractDependencyBotConfigurationProbe(String botName) {
         this.botName = botName;
