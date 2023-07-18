@@ -42,6 +42,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
+    /*
+    * A "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc.
+    * The subclass passes the "botName" through the super constructor.
+    */
     private final String botName;
 
     AbstractDependencyBotConfigurationProbe(String botName) {
