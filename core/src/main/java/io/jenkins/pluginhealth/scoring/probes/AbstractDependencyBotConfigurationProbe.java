@@ -35,19 +35,22 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
-* An abstract class that looks for bot configuration files in a repository.
-* Bots automate the repetitive PRs that are made on regular basis.
-*/
+/**
+ * An abstract class that looks for bot configuration files in a repository.
+ *
+ * @param "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc.
+ */
 public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    /*
-    * A "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc.
-    * The subclass passes the "botName" through the super constructor.
-    */
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+
     private final String botName;
 
+    /**
+     * The constructor gets initialized with botName when extended.
+     *
+     * @param botName
+     */
     AbstractDependencyBotConfigurationProbe(String botName) {
         this.botName = botName;
     }
@@ -62,7 +65,7 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-         Files.isRegularFile(path) && path.getFileName().toString().startsWith(botName))) {
+            Files.isRegularFile(path) && path.getFileName().toString().startsWith(botName))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
                 .orElseGet(() -> ProbeResult.failure(key(), String.format("%s is not configured", botName)));
