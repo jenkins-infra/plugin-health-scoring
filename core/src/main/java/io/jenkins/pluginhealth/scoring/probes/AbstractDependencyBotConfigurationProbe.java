@@ -36,7 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
-* An abstract class that looks for bot configuration files in a repository
+* An abstract class that looks for bot configuration files in a repository.
+* Bots automate the repetitive PRs that are made on regular basis.
 */
 public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);

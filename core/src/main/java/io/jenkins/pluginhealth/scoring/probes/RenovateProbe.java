@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 /*
 * Looks for Renovate bot configuration in a plugin.
 * Extends `AbstractDependencyBotConfigurationProbe` class to implement most of the features.
+*
+* Renovate makes PRs to update dependencies in the plugin.
 */
 @Component
 @Order(RenovateProbe.ORDER)
@@ -14,7 +16,7 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     public static final String KEY = "renovate";
 
     RenovateProbe() {
-        super("renovate");
+        super(KEY);
     }
 
     @Override

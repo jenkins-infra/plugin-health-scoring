@@ -41,8 +41,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     static Stream<Arguments> probeResults() {
         return Stream.of(
             arguments(// Nothing
-                Map.of(),
-                0f
+                Map.of()
             ),
             arguments(
                 Map.of(
@@ -74,6 +73,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
             )
         );
     }
+
     @SuppressWarnings("unchecked")
     @ParameterizedTest
     @MethodSource("probeResults")
