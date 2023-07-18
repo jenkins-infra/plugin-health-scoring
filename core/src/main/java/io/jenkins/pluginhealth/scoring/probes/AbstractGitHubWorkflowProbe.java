@@ -59,8 +59,8 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
             boolean isWorkflowConfigured = files
-                .map(file -> parseWorkflowFile(file))
-                .filter(workflow -> hasWorkflowJobs(workflow))
+                .map(this::parseWorkflowFile)
+                .filter(this::hasWorkflowJobs)
                 .flatMap(workflow -> workflow.jobs().values().stream())
                 .map(WorkflowJobDefinition::uses)
                 .filter(Objects::nonNull)
@@ -70,17 +70,10 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
                 ProbeResult.success(key(), getSuccessMessage()) :
                 ProbeResult.failure(key(), getFailureMessage());
         } catch (IOException e) {
-            LOGGER.warn("Couldn't not read file at {} on {}", key(), e);
+            LOGGER.warn("Couldn't not read file for plugin {} during probe {}", plugin.getName(), key(), e);
             return ProbeResult.error(key(), e.getMessage());
         }
     }
-
-    /**
-     * Returns the path to the GitHub Workflow definition which should be used in one of the actions of the plugin repository.
-     *
-     * @return the path of the workflow we are searching for.
-     */
-    public abstract String getWorkflowDefinition();
 
     /**
      * This method it reads a file, parses its Yaml content, and maps it to an object.
@@ -92,9 +85,16 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         try {
             return yaml.readValue(Files.newInputStream(filePath), WorkflowDefinition.class);
         } catch (IOException e) {
-            LOGGER.warn("Couldn't not read {} for {} on {}", filePath, key(), e);
+            LOGGER.warn("Couldn't not read {} for probe {}", filePath, key(), e);
             return new WorkflowDefinition(Map.of());
         }
+    }
+
+    /**
+     * Checks if the map is null or empty. This means no GitHub action is defined.
+     */
+    private boolean hasWorkflowJobs(WorkflowDefinition workflow) {
+        return workflow.jobs() != null && !workflow.jobs().isEmpty();
     }
 
     /**
@@ -112,23 +112,6 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     }
 
     /**
-     * @return a failure message
-     */
-    public abstract String getFailureMessage();
-
-    /**
-     * @return a success message
-     */
-    public abstract String getSuccessMessage();
-
-    /**
-     * Checks if the map is null or empty. This means no GitHub action is defined.
-     */
-    private boolean hasWorkflowJobs(WorkflowDefinition workflow) {
-        return workflow.jobs() != null && !workflow.jobs().isEmpty();
-    }
-
-    /**
      * @return a String array of probes that should be executed before AbstractGitHubWorkflowProbe
      */
     @Override
@@ -140,4 +123,21 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     protected boolean isSourceCodeRelated() {
         return true;
     }
+
+    /**
+     * Returns the path to the GitHub Workflow definition which should be used in one of the actions of the plugin repository.
+     *
+     * @return the path of the workflow we are searching for.
+     */
+    public abstract String getWorkflowDefinition();
+
+    /**
+     * @return a failure message
+     */
+    public abstract String getFailureMessage();
+
+    /**
+     * @return a success message
+     */
+    public abstract String getSuccessMessage();
 }
