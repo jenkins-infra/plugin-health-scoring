@@ -104,7 +104,7 @@ public class SCMLinkValidationProbe extends Probe {
             File directory = new File(scm);
             List <String> folderPaths = searchPomFiles(directory, pluginName);
             for (String path : folderPaths) {
-                context.setGitHub(GitHubBuilder.fromPropertyFile(path));
+                // make the folder paths available to ProbeContext here.
             }
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
