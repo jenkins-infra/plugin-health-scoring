@@ -74,7 +74,6 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         );
     }
 
-    @SuppressWarnings("unchecked")
     @ParameterizedTest
     @MethodSource("probeResults")
     void shouldRequireValidSCMAndLastCommit(Map<String, ProbeResult> details) {
@@ -84,14 +83,12 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         when(plugin.getDetails()).thenReturn(details);
 
         final RenovateProbe probe = getSpy();
-        for (int i = 0; i < 6; i++) {
-            assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "renovate does not meet the criteria to be executed on null"));
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "renovate does not meet the criteria to be executed on null"));
 
-            verify(probe, never()).doApply(plugin, ctx);
-        }
+        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test
