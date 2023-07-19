@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -42,6 +44,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.kohsuke.github.GitHubBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -96,11 +99,13 @@ public class SCMLinkValidationProbe extends Probe {
             return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
         }
 
-        File directory = new File(scm);
-        searchPomFiles(directory, pluginName);
-
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
+            File directory = new File(scm);
+            List <String> folderPaths = searchPomFiles(directory, pluginName);
+            for (String path : folderPaths) {
+                context.setGitHub(GitHubBuilder.fromPropertyFile(path));
+            }
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
