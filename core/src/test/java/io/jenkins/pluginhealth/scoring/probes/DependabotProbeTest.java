@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -37,7 +38,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
@@ -87,7 +87,10 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
 
         final DependabotProbe probe = getSpy();
         for (int i = 0; i < 6; i++) {
-            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
+            assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.error(DependabotProbe.KEY, "dependabot does not meet the criteria to be executed on null"));
             verify(probe, never()).doApply(plugin, ctx);
         }
     }
@@ -105,7 +108,11 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(repo);
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(DependabotProbe.KEY, "No GitHub configuration folder found"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
     @Test
@@ -125,7 +132,10 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
 
         when(ctx.getScmRepository()).thenReturn(repo);
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured"));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }
