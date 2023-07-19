@@ -24,13 +24,19 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -44,7 +50,7 @@ import org.springframework.stereotype.Component;
 public class SCMLinkValidationProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
 
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
@@ -55,7 +61,7 @@ public class SCMLinkValidationProbe extends Probe {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.error(key(), "The plugin SCM link is empty");
         }
-        return fromSCMLink(context, plugin.getScm());
+        return fromSCMLink(context, plugin.getScm(), plugin.getName());
     }
 
     @Override
@@ -76,7 +82,7 @@ public class SCMLinkValidationProbe extends Probe {
         return true;
     }
 
-    private ProbeResult fromSCMLink(ProbeContext context, String scm) {
+    private ProbeResult fromSCMLink(ProbeContext context, String scm, String pluginName) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             if (LOGGER.isDebugEnabled()) {
@@ -85,8 +91,11 @@ public class SCMLinkValidationProbe extends Probe {
             return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
         }
 
+        File directory = new File(scm);
+        searchPomFiles(directory, pluginName);
+
         try {
-            context.getGitHub().getRepository(matcher.group("repo").split("/")[0]);
+            context.getGitHub().getRepository(matcher.group("repo"));
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
@@ -96,5 +105,39 @@ public class SCMLinkValidationProbe extends Probe {
     @Override
     public String[] getProbeResultRequirement() {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
+    }
+
+    public static List<String> searchPomFiles(File directory, String pluginName) {
+        File[] files = directory.listFiles();
+        List<String> list = new ArrayList<>();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    searchPomFiles(file, pluginName);
+                } else {
+                    list.add(getSCMFolderPath(file.getAbsolutePath(), pluginName));
+                }
+            }
+        }
+        return list;
+    }
+
+    public static String getSCMFolderPath(String filePath, String pluginName) {
+        if(filePath.startsWith("pom.xml")){
+            MavenXpp3Reader mavenReader = new MavenXpp3Reader();
+            try(Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
+                Model model = mavenReader.read(reader);
+                if(model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+                    return filePath + "/pom.xml";
+                }
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (XmlPullParserException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return filePath;
     }
 }
