@@ -24,7 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,11 +128,11 @@ public class SCMLinkValidationProbe extends Probe {
     }
 
     public static String getSCMFolderPath(String filePath, String pluginName) {
-        if(filePath.startsWith("pom.xml")){
+        if (filePath.startsWith("pom.xml")) {
             MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-            try(Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
+            try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
                 Model model = mavenReader.read(reader);
-                if(model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+                if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
                     return filePath + "/pom.xml";
                 }
             } catch (FileNotFoundException e) {
