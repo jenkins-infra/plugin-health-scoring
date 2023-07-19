@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(AbstractDependencyBotConfigurationProbe.ORDER)
 public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
-    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
     public static final String KEY = "renovate";
 
     RenovateProbe() {

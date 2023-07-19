@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(AbstractDependencyBotConfigurationProbe.ORDER)
 public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
-    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
     public static final String KEY = "dependabot";
 
     DependabotProbe() {
