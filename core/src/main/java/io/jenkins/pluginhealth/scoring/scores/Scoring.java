@@ -103,8 +103,22 @@ public abstract class Scoring {
         }
     }
 
-    private sealed interface Operator permits And, Key {
+    public sealed interface Operator permits And, Key {
+        /**
+         * Tests that the plugin is conforming to the Operator requirement.
+         *
+         * @param plugin the plugin to test
+         * @return true if the plugin conforms to the operator requirement.
+         */
         boolean test(Plugin plugin);
+
+
+        /**
+         * Provides a human readable form of the operator.
+         *
+         * @return the human readable form of the operator.
+         */
+        String display();
     }
 
     /**
@@ -117,6 +131,11 @@ public abstract class Scoring {
         public boolean test(Plugin plugin) {
             final ProbeResult probeResult = plugin.getDetails().get(key);
             return probeResult != null && probeResult.status().equals(ResultStatus.SUCCESS);
+        }
+
+        @Override
+        public String display() {
+            return key;
         }
     }
 
@@ -131,6 +150,11 @@ public abstract class Scoring {
         @Override
         public boolean test(Plugin plugin) {
             return operator1.test(plugin) && operator2.test(plugin);
+        }
+
+        @Override
+        public String display() {
+            return "( " + operator1.display() + " && " + operator2.display() + " )";
         }
     }
 
