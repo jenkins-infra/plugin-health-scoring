@@ -47,7 +47,7 @@ public abstract class Scoring {
     public ScoreResult apply(Plugin plugin) {
         final float max = (float) this.getScoreComponents()
             .stream()
-            .mapToDouble(ScoreComponent::point)
+            .mapToDouble(ScoreComponent::weight)
             .sum();
 
         float score = (float) this.getScoreComponents()
@@ -89,17 +89,17 @@ public abstract class Scoring {
      * Represents what should be validated as probe result in the plugin details
      *
      * @param operator the operator implementation to use to check the plugin details
-     * @param point    the weight given to ScoreComponent if the operator is validated
+     * @param weight   the weight given to ScoreComponent if the operator is validated
      */
-    public record ScoreComponent(Operator operator, float point) {
+    public record ScoreComponent(Operator operator, float weight) {
         public ScoreComponent {
-            if (point <= 0) {
-                throw new IllegalArgumentException("Point argument of ScoreComponent must be positive");
+            if (weight <= 0) {
+                throw new IllegalArgumentException("The weight argument of ScoreComponent must be positive");
             }
         }
 
         public float score(Plugin plugin) {
-            return operator.test(plugin) ? point : 0;
+            return operator.test(plugin) ? weight : 0;
         }
     }
 
