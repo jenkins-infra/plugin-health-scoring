@@ -57,7 +57,7 @@ public class LastCommitDateProbe extends Probe {
             return ProbeResult.failure(key(), "The SCM link is not valid");
         }
         final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
-        final String folder = matcher.group("folder");
+        final String folder = context.getScmFolderPath();
 
         try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
             final LogCommand logCommand = git.log().setMaxCount(1);

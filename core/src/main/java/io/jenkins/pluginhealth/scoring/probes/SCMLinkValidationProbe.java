@@ -102,10 +102,8 @@ public class SCMLinkValidationProbe extends Probe {
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             File directory = new File(scm);
-            List <String> folderPaths = searchPomFiles(directory, pluginName);
-            for (String path : folderPaths) {
-                // make the folder paths available to ProbeContext here.
-            }
+            String folderPath = searchPomFiles(directory, pluginName);
+            context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid");
@@ -117,19 +115,18 @@ public class SCMLinkValidationProbe extends Probe {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 
-    public static List<String> searchPomFiles(File directory, String pluginName) {
+    public static String searchPomFiles(File directory, String pluginName) {
         File[] files = directory.listFiles();
-        List<String> list = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
                     searchPomFiles(file, pluginName);
                 } else {
-                    list.add(getSCMFolderPath(file.getAbsolutePath(), pluginName));
+                    return getSCMFolderPath(file.getAbsolutePath(), pluginName);
                 }
             }
         }
-        return list;
+        return null;
     }
 
     public static String getSCMFolderPath(String filePath, String pluginName) {
@@ -140,12 +137,10 @@ public class SCMLinkValidationProbe extends Probe {
                 if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
                     return filePath + "/pom.xml";
                 }
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Pom file not found for {}", pluginName);
             } catch (XmlPullParserException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Could not parse pom file for {}", pluginName);
             }
         }
         return filePath;

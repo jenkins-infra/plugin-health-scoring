@@ -45,6 +45,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
+    private String scmFolderPath;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -86,6 +87,14 @@ public class ProbeContext {
     public Optional<String> getRepositoryName(String scm) {
         final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
+    }
+
+    public String getScmFolderPath() {
+        return scmFolderPath;
+    }
+
+    public void setScmFolderPath(String scmFolderPath) {
+        this.scmFolderPath = scmFolderPath;
     }
 
     /* default */ void cleanUp() throws IOException {

@@ -66,8 +66,7 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
         if (!matcher.find()) {
             return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories");
         }
-
-        final String folder = matcher.group("folder");
+        final String folder = context.getScmFolderPath();
         final Set<String> files = new HashSet<>();
 
         final List<String> paths = new ArrayList<>(3);
