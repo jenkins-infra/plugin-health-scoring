@@ -28,7 +28,6 @@ import java.io.IOException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -92,7 +91,7 @@ public final class ProbeEngine {
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
         final ProbeContext probeContext;
         try {
-            probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
+            probeContext = probeService.getProbeContext(plugin, updateCenter);
         } catch (IOException ex) {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;
@@ -104,7 +103,7 @@ public final class ProbeEngine {
         probeService.getProbes().forEach(probe -> {
             try {
                 final ProbeResult result = probe.apply(plugin, probeContext);
-                if (result.status() != ResultStatus.ERROR) {
+                if (result.status() != ProbeResult.Status.ERROR) {
                     plugin.addDetails(result);
                 }
             } catch (Throwable t) {

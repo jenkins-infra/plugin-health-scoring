@@ -35,28 +35,53 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.kohsuke.github.GitHub;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProbeContext {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProbeContext.class);
+
+    private final Plugin plugin;
     private final UpdateCenter updateCenter;
-    private final Path scmRepository;
+    private Path scmRepository;
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
 
-    public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
+    public ProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
+        this.plugin = plugin;
         this.updateCenter = updateCenter;
-        this.scmRepository = Files.createTempDirectory(pluginName);
     }
 
     public UpdateCenter getUpdateCenter() {
         return updateCenter;
     }
 
-    public Path getScmRepository() {
-        return scmRepository;
+    public void setScmRepository(String scm) {
+        if (scmRepository != null) {
+            throw new IllegalArgumentException("The Git repository of this plugin was already cloned.");
+        }
+        final String pluginName = this.plugin.getName();
+        try {
+            final Path repo = Files.createTempDirectory(pluginName);
+            try (var ignored = Git.cloneRepository().setURI(scm).setDirectory(repo.toFile()).call()) {
+                this.scmRepository = repo;
+            } catch(GitAPIException e) {
+                LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Could not create temporary folder for plugin {}", pluginName, e);
+        }
+    }
+
+    public Optional<Path> getScmRepository() {
+        return Optional.ofNullable(scmRepository);
     }
 
     public Optional<ZonedDateTime> getLastCommitDate() {
@@ -89,10 +114,12 @@ public class ProbeContext {
     }
 
     /* default */ void cleanUp() throws IOException {
-        try (Stream<Path> paths = Files.walk(this.scmRepository)) {
-            paths.sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
+        if (scmRepository != null) {
+            try (Stream<Path> paths = Files.walk(this.scmRepository)) {
+                paths.sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            }
         }
     }
 }

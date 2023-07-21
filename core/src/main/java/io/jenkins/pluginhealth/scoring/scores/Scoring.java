@@ -28,7 +28,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
 /**
@@ -56,9 +55,9 @@ public abstract class Scoring {
             }
             final ProbeResult probeResult = plugin.getDetails().get(component.getKey());
             if (probeResult != null) {
-                if (componentMaxValue > 0 && probeResult.status().equals(ResultStatus.SUCCESS)) {
+                if (componentMaxValue > 0 && probeResult.status().equals(ProbeResult.Status.SUCCESS)) {
                     score += componentMaxValue;
-                } else if (probeResult.status().equals(ResultStatus.FAILURE) && componentMaxValue < 0) {
+                } else if (componentMaxValue < 0) {
                     score += componentMaxValue;
                 }
             }

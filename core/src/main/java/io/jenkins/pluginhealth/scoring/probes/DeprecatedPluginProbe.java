@@ -44,16 +44,15 @@ public class DeprecatedPluginProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
         if (updateCenter.deprecations().containsKey(plugin.getName())) {
-            return ProbeResult.failure(key(), updateCenter.deprecations().get(plugin.getName()).url());
+            return ProbeResult.success(key(), updateCenter.deprecations().get(plugin.getName()).url());
         }
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
         if (updateCenterPlugin == null) {
-            return ProbeResult.failure(key(), "This plugin is not in update-center");
+            return ProbeResult.error(key(), "This plugin is not in update-center");
         }
-        if (updateCenterPlugin.labels().contains("deprecated")) {
-            return ProbeResult.failure(key(), "This plugin is marked as deprecated");
-        }
-        return ProbeResult.success(key(), "This plugin is NOT deprecated");
+        return updateCenterPlugin.labels().contains("deprecated") ?
+            ProbeResult.success(key(), "This plugin is marked as deprecated") :
+            ProbeResult.success(key(), "This plugin is NOT deprecated");
     }
 
     @Override

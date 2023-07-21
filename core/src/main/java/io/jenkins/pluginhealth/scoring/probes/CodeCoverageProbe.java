@@ -45,8 +45,6 @@ import org.springframework.stereotype.Component;
 @Order(CodeCoverageProbe.ORDER)
 public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
-    private static final int LINE_COVERAGE_THRESHOLD = 70;
-    private static final int BRANCH_COVERAGE_THRESHOLD = 60;
 
     private static final String COVERAGE_TITLE_REGEXP =
         "^Line(?: Coverage)?: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch(?: Coverage)?: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?\\.?$";
@@ -67,7 +65,7 @@ public class CodeCoverageProbe extends Probe {
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
                 if (ghCheckRuns.size() == 0) {
-                    return ProbeResult.error(key(), "Could not determine code coverage for plugin");
+                    return ProbeResult.error(key(), "Could not determine code coverage for plugin.");
                 }
 
                 double overall_line_coverage = 100;
@@ -81,14 +79,10 @@ public class CodeCoverageProbe extends Probe {
                         overall_branch_coverage = Math.min(overall_branch_coverage, branch_coverage);
                     }
                 }
-                return overall_line_coverage >= LINE_COVERAGE_THRESHOLD && overall_branch_coverage >= BRANCH_COVERAGE_THRESHOLD ?
-                    ProbeResult.success(key(), "Line coverage is above " + LINE_COVERAGE_THRESHOLD + "%. Branch coverage is above " + BRANCH_COVERAGE_THRESHOLD + "%.") :
-                    ProbeResult.failure(key(),
-                        "Line coverage is " + (overall_line_coverage < LINE_COVERAGE_THRESHOLD ? "below " : "above ") + LINE_COVERAGE_THRESHOLD + "%. " +
-                            "Branch coverage is " + (overall_branch_coverage < BRANCH_COVERAGE_THRESHOLD ? "below " : "above ") + BRANCH_COVERAGE_THRESHOLD + "%."
-                    );
+
+                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + ". Branch coverage: " + overall_branch_coverage);
             } else {
-                return ProbeResult.error(key(), "Cannot determine plugin repository");
+                return ProbeResult.error(key(), "Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);

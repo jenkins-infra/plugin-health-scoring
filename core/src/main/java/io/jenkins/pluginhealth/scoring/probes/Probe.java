@@ -29,7 +29,6 @@ import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public abstract class Probe {
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
         for (String requirementKey : this.getProbeResultRequirement()) {
             final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
-            if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
+            if (probeResult == null) {
                 LOGGER.info("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
                 return false;
             }
@@ -107,11 +106,11 @@ public abstract class Probe {
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
     /**
-     * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
+     * List of probe key to be present in the {@link Plugin#getDetails()} map and to be {@link ProbeResult.Status#SUCCESS} in
      * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
      * By default, the requirement is an empty array. I cannot be null.
      *
-     * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
+     * @return array of {@link Probe#key()} to be present in {@link Plugin#getDetails()}.
      */
     public String[] getProbeResultRequirement() {
         return new String[]{};
@@ -119,7 +118,7 @@ public abstract class Probe {
 
     /**
      * Returns the key identifier for the probe.
-     * This is how the different probes can be identified in the {@link Plugin#details} map.
+     * This is how the different probes can be identified in the {@link Plugin#getDetails()} map.
      *
      * @return the identifier of the probe
      */

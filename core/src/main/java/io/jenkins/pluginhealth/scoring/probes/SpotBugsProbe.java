@@ -58,16 +58,16 @@ public class SpotBugsProbe extends Probe {
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")).toList();
                 if (ghCheckRuns.size() != 1) {
-                    return ProbeResult.failure(key(), "SpotBugs not found in build configuration");
+                    return ProbeResult.success(key(), "SpotBugs not found in build configuration.");
                 } else {
-                    return ProbeResult.success(key(), "SpotBugs found in build configuration");
+                    return ProbeResult.success(key(), "SpotBugs found in build configuration.");
                 }
             } else {
-                return ProbeResult.failure(key(), "Cannot determine plugin repository");
+                return ProbeResult.error(key(), "Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get SpotBugs check");
+            return ProbeResult.error(key(), "Could not get SpotBugs check.");
         }
     }
 

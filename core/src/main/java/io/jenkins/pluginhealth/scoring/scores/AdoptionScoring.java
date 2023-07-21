@@ -31,7 +31,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
@@ -51,7 +50,7 @@ public class AdoptionScoring extends Scoring {
         }
 
         final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
-        if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ResultStatus.SUCCESS)) {
+        if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ProbeResult.Status.SUCCESS)) {
             final String message = lastCommitProbeResult.message();
             final ZonedDateTime commitDateTime = ZonedDateTime.parse(message);
 

@@ -43,13 +43,17 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repository = context.getScmRepository();
+        if (context.getScmRepository().isEmpty()) {
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
+        }
+
+        final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files
             .find(repository, 1, (file, basicFileAttributes) -> Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))
         ) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), "Jenkinsfile found"))
-                .orElseGet(() -> ProbeResult.failure(key(), "No Jenkinsfile found"));
+                .orElseGet(() -> ProbeResult.success(key(), "No Jenkinsfile found"));
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
@@ -75,6 +79,6 @@ public class JenkinsfileProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 }

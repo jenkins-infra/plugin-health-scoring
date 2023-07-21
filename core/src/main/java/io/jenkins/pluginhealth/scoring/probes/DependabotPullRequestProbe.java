@@ -60,7 +60,7 @@ public class DependabotPullRequestProbe extends Probe {
                 .count();
 
             return count > 0 ?
-                ProbeResult.failure(key(), "%d open pull requests from Dependabot".formatted(count)) :
+                ProbeResult.success(key(), "%d open pull requests from Dependabot".formatted(count)) :
                 ProbeResult.success(key(), "No open pull request from dependabot");
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {

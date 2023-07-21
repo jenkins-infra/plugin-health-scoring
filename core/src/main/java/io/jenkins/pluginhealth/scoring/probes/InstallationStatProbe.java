@@ -41,7 +41,9 @@ public class InstallationStatProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = updateCenter.plugins().get(plugin.getName());
-        return ProbeResult.success(KEY, "%d".formatted(ucPlugin.popularity()));
+        return ucPlugin != null ?
+            ProbeResult.success(key(), "%d".formatted(ucPlugin.popularity())) :
+            ProbeResult.error(key(), "Could not find plugin " + plugin.getName() + " in Update Center.");
     }
 
     @Override

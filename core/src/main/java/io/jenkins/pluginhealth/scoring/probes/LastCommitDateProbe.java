@@ -24,8 +24,9 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
-import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -52,21 +53,19 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
-        if (!matcher.find()) {
-            return ProbeResult.failure(key(), "The SCM link is not valid");
+        if (context.getScmRepository().isEmpty()) {
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
         }
-        final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
-        final String folder = matcher.group("folder");
-
-        try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
+        final Path scmRepository = context.getScmRepository().get();
+        try (Git git = Git.open(scmRepository.toFile())) {
             final LogCommand logCommand = git.log().setMaxCount(1);
-            if (folder != null) {
+            // TODO Work with the folder in the context. See https://github.com/jenkins-infra/plugin-health-scoring/pull/351
+            /*if (folder != null) {
                 logCommand.addPath(folder);
-            }
+            }*/
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
-                return ProbeResult.failure(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
+                return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                 commit.getAuthorIdent().getWhenAsInstant(),
@@ -74,9 +73,9 @@ public class LastCommitDateProbe extends Probe {
             );
             context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), commitDate.toString());
-        } catch (GitAPIException ex) {
-            LOGGER.error("There was an issue while cloning the plugin repository", ex);
-            return ProbeResult.failure(key(), "Could not clone the plugin repository");
+        } catch (IOException | GitAPIException ex) {
+            LOGGER.error("There was an issue while accessing the plugin repository", ex);
+            return ProbeResult.error(key(), "Could not access the plugin repository.");
         }
     }
 
@@ -102,6 +101,6 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
+        return new String[] { SCMLinkValidationProbe.KEY };
     }
 }

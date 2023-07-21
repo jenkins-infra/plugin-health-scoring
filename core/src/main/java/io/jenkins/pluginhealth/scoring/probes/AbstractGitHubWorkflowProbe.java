@@ -50,11 +50,14 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repository = context.getScmRepository();
+        if (context.getScmRepository().isEmpty()) {
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
+        }
+        final Path repository = context.getScmRepository().get();
         final Path workflowPath = repository.resolve(WORKFLOWS_DIRECTORY);
 
         if (!Files.exists(workflowPath)) {
-            return ProbeResult.failure(key(), "Plugin has no GitHub Action configured");
+            return ProbeResult.success(key(), "Plugin has no GitHub Action configured");
         }
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
@@ -68,7 +71,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
 
             return isWorkflowConfigured ?
                 ProbeResult.success(key(), getSuccessMessage()) :
-                ProbeResult.failure(key(), getFailureMessage());
+                ProbeResult.success(key(), getFailureMessage());
         } catch (IOException e) {
             LOGGER.warn("Couldn't not read file for plugin {} during probe {}", plugin.getName(), key(), e);
             return ProbeResult.error(key(), e.getMessage());

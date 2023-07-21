@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
@@ -94,7 +93,7 @@ public class ScoreAPI {
             .collect(Collectors.toMap(
                 Tuple::name,
                 tuple -> new PluginScoreDetailComponent(
-                    probeResults.containsKey(tuple.name()) && probeResults.get(tuple.name()).status().equals(ResultStatus.SUCCESS) ? tuple.value() : 0,
+                    probeResults.containsKey(tuple.name()) && probeResults.get(tuple.name()).status().equals(ProbeResult.Status.SUCCESS) ? tuple.value() : 0,
                     tuple.value()
                 )
             ));

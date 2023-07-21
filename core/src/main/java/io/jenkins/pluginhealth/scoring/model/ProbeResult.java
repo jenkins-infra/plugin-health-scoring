@@ -34,8 +34,8 @@ import java.util.Objects;
  * @param message represents a summary of the result
  * @param status  represents the state of the analyze performed
  */
-public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
-    public ProbeResult(String id, String message, ResultStatus status) {
+public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp) {
+    public ProbeResult(String id, String message, Status status) {
         this(id, message, status, ZonedDateTime.now());
     }
 
@@ -53,15 +53,15 @@ public record ProbeResult(String id, String message, ResultStatus status, ZonedD
     }
 
     public static ProbeResult success(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.SUCCESS);
-    }
-
-    public static ProbeResult failure(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.FAILURE);
+        return new ProbeResult(id, message, Status.SUCCESS);
     }
 
     public static ProbeResult error(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.ERROR);
+        return new ProbeResult(id, message, Status.ERROR);
+    }
+
+    public enum Status {
+        SUCCESS, ERROR
     }
 }
 

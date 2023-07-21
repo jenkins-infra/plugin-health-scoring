@@ -53,9 +53,13 @@ public class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.error(key(), "The plugin SCM link is empty");
+            return ProbeResult.error(key(), "The plugin SCM link is empty.");
         }
-        return fromSCMLink(context, plugin.getScm());
+        final ProbeResult probeResult = fromSCMLink(context, plugin.getScm());
+        if (probeResult.status().equals(ProbeResult.Status.SUCCESS)) {
+            context.setScmRepository(plugin.getScm());
+        }
+        return probeResult;
     }
 
     @Override
@@ -82,14 +86,14 @@ public class SCMLinkValidationProbe extends Probe {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} is not respecting the SCM URL Template", scm);
             }
-            return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
+            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
 
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            return ProbeResult.success(key(), "The plugin SCM link is valid");
+            return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
-            return ProbeResult.failure(key(), "The plugin SCM link is invalid");
+            return ProbeResult.error(key(), "The plugin SCM link is invalid.");
         }
     }
 
