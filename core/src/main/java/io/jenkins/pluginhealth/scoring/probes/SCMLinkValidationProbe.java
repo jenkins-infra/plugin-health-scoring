@@ -30,8 +30,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -96,7 +100,7 @@ public class SCMLinkValidationProbe extends Probe {
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             File directory = new File(scm);
-            String folderPath = searchPomFiles(directory, pluginName);
+            String folderPath = searchPomFiles(directory, pluginName, scm);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -109,34 +113,33 @@ public class SCMLinkValidationProbe extends Probe {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 
-    public static String searchPomFiles(File directory, String pluginName) {
+    public static String searchPomFiles(File directory, String pluginName, String scm) {
         File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    searchPomFiles(file, pluginName);
-                } else {
-                    return getSCMFolderPath(file.getAbsolutePath(), pluginName);
-                }
+        for(File file: files) {
+            try (Stream<Path> paths = Files.find(file.toPath(), 1, (path, $) ->
+                file.isDirectory())) {
+                return paths.findFirst()
+                    .map(filePath -> searchPomFiles(file, pluginName, scm))
+                    .orElseGet(() -> getSCMFolderPath(file.getAbsolutePath(), pluginName, scm));
+            } catch (IOException ex) {
+                LOGGER.error("Could not browse the folder during probe {}", pluginName, ex);
             }
         }
-        return null;
+        return scm;
     }
 
-    public static String getSCMFolderPath(String filePath, String pluginName) {
-        if (filePath.startsWith("pom.xml")) {
-            MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-            try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
-                Model model = mavenReader.read(reader);
-                if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
-                    return filePath + "/pom.xml";
-                }
-            } catch (IOException e) {
-                LOGGER.error("Pom file not found for {}", pluginName);
-            } catch (XmlPullParserException e) {
-                LOGGER.error("Could not parse pom file for {}", pluginName);
+    public static String getSCMFolderPath(String filePath, String pluginName, String scm) {
+        MavenXpp3Reader mavenReader = new MavenXpp3Reader();
+        try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
+            Model model = mavenReader.read(reader);
+            if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+                return Paths.get("pom.xml").getParent().toString();
             }
+        } catch (IOException e) {
+            LOGGER.error("Pom file not found for {}", pluginName, e);
+        } catch (XmlPullParserException e) {
+            LOGGER.error("Could not parse pom file for {}", pluginName, e);
         }
-        return filePath;
+        return scm;
     }
 }
