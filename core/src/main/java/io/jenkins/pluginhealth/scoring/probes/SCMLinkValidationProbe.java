@@ -115,7 +115,10 @@ public class SCMLinkValidationProbe extends Probe {
 
     public static String searchPomFiles(File directory, String pluginName, String scm) {
         File[] files = directory.listFiles();
-        for(File file: files) {
+        if (files == null) {
+            return scm;
+        }
+        for (File file : files) {
             try (Stream<Path> paths = Files.find(file.toPath(), 1, (path, $) ->
                 file.isDirectory())) {
                 return paths.findFirst()
@@ -133,7 +136,7 @@ public class SCMLinkValidationProbe extends Probe {
         try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
             if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
-                return Paths.get("pom.xml").getParent().toString();
+                return filePath;
             }
         } catch (IOException e) {
             LOGGER.error("Pom file not found for {}", pluginName, e);
