@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,6 +62,13 @@ public class Plugin {
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
 
+    public List<Map<String, String>> getIssueTracker() {
+        return issueTracker;
+    }
+
+    @Column(name = "issue_tracker")
+    private List<Map<String, String>> issueTracker;
+
     @Column(columnDefinition = "jsonb")
     @Type(value = JsonType.class)
     private final Map<String, ProbeResult> details = new HashMap<>();
@@ -68,11 +76,12 @@ public class Plugin {
     public Plugin() {
     }
 
-    public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp) {
+    public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp, List<Map<String, String>> issueTrackers) {
         this.name = name;
         this.version = version;
         this.scm = scm;
         this.releaseTimestamp = releaseTimestamp;
+        this.issueTracker = issueTrackers;
     }
 
     public String getName() {

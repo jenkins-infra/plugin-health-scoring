@@ -26,13 +26,14 @@ package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 
 import hudson.util.VersionNumber;
 
 public record Plugin(String name, VersionNumber version, String scm,
                      ZonedDateTime releaseTimestamp, List<String> labels,
-                     int popularity, String requiredCore, String defaultBranch) {
+                     int popularity, String requiredCore, String defaultBranch, List<Map<String, String>> issueTrackers) {
     public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
-        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
+        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp(), this.issueTrackers());
     }
 }
