@@ -120,7 +120,7 @@ public class SCMLinkValidationProbe extends Probe {
      * @param scm the valid scm link
      * @return folderPath from the scm
      */
-    public static String searchPomFiles(File directory, String pluginName, String scm) {
+    private static String searchPomFiles(File directory, String pluginName, String scm) {
         File[] files = directory.listFiles();
         if (files == null) {
             return scm;
@@ -146,7 +146,7 @@ public class SCMLinkValidationProbe extends Probe {
      * @param scm the valid scm link
      * @return filePath if it valid or return the scm itself
      * */
-    public static String getSCMFolderPath(String filePath, String pluginName, String scm) {
+    private static String getSCMFolderPath(String filePath, String pluginName, String scm) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
