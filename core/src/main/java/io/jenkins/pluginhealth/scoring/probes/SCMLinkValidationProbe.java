@@ -112,6 +112,14 @@ public class SCMLinkValidationProbe extends Probe {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 
+    /**
+     * Searches for Pom files in every directory available in the repository
+     *
+     * @param directory in the scm
+     * @param pluginName the name of the plugin
+     * @param scm the valid scm link
+     * @return folderPath from the scm
+     */
     public static String searchPomFiles(File directory, String pluginName, String scm) {
         File[] files = directory.listFiles();
         if (files == null) {
@@ -130,6 +138,14 @@ public class SCMLinkValidationProbe extends Probe {
         return scm;
     }
 
+    /**
+     * Searches for folder path in the scm. The correct pom file is validated using the value of packaging and artifact id.
+     *
+     * @param filePath the path of the file to validate for the correct pom
+     * @param pluginName the name of the plugin
+     * @param scm the valid scm link
+     * @return filePath if it valid or return the scm itself
+     * */
     public static String getSCMFolderPath(String filePath, String pluginName, String scm) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
