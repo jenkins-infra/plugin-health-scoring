@@ -71,6 +71,7 @@ class ProbeEngineTest {
         when(updateCenterService.fetchUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
+            List.of(),
             List.of()
         ));
     }

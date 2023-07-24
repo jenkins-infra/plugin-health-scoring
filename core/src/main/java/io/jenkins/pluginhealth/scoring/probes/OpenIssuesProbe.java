@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @Order(value = OpenIssuesProbe.ORDER)
 public class OpenIssuesProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenIssuesProbe.class);
-
     public static final String KEY = "open-issue";
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
@@ -30,7 +29,7 @@ public class OpenIssuesProbe extends Probe {
                 return ProbeResult.success(key(), String.format("%d open issues found", getGitHubIssues()));
             }
         }
-        return ProbeResult.failure(key(), String.format("Update center issue tracker could not be found"));
+        return ProbeResult.failure(key(), "Update center issue tracker could not be found");
     }
 
     private static List<String> getIssueTracker(Plugin plugin, ProbeContext context) {

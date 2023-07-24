@@ -118,6 +118,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
@@ -162,6 +163,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -219,6 +221,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -276,6 +279,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -333,6 +337,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -390,6 +395,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -447,6 +453,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
                 )
             ),
             Map.of(),
+            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
