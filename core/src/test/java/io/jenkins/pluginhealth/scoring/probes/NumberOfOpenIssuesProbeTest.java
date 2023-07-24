@@ -17,10 +17,10 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 
-public class OpenIssuesProbeTest extends AbstractProbeTest<OpenIssuesProbe> {
+public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesProbe> {
     @Override
-    OpenIssuesProbe getSpy() {
-        return spy(OpenIssuesProbe.class);
+    NumberOfOpenIssuesProbe getSpy() {
+        return spy(NumberOfOpenIssuesProbe.class);
     }
 
     @Test
@@ -35,11 +35,11 @@ public class OpenIssuesProbeTest extends AbstractProbeTest<OpenIssuesProbe> {
             )
         );
 
-        final OpenIssuesProbe probe = getSpy();
+        final NumberOfOpenIssuesProbe probe = getSpy();
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(OpenIssuesProbe.KEY, "open-issue does not meet the criteria to be executed on null"));
+            .isEqualTo(ProbeResult.error(NumberOfOpenIssuesProbe.KEY, "open-issue does not meet the criteria to be executed on null"));
         verify(probe, never()).doApply(plugin, ctx);
     }
 
@@ -78,13 +78,13 @@ public class OpenIssuesProbeTest extends AbstractProbeTest<OpenIssuesProbe> {
             )
         ));
 
-        final OpenIssuesProbe probe = getSpy();
+        final NumberOfOpenIssuesProbe probe = getSpy();
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/accurev-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(OpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
     }
 
@@ -115,13 +115,13 @@ public class OpenIssuesProbeTest extends AbstractProbeTest<OpenIssuesProbe> {
             )
         ));
 
-        final OpenIssuesProbe probe = getSpy();
+        final NumberOfOpenIssuesProbe probe = getSpy();
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/active-directory-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(OpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
     }
 
@@ -152,13 +152,13 @@ public class OpenIssuesProbeTest extends AbstractProbeTest<OpenIssuesProbe> {
             )
         ));
 
-        final OpenIssuesProbe probe = getSpy();
+        final NumberOfOpenIssuesProbe probe = getSpy();
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/advanced-installer-msi-builder-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(OpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
     }
 }

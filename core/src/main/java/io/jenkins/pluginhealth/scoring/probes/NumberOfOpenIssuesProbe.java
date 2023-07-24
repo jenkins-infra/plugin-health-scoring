@@ -12,16 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe counts the total number of open issues in GitHub and JIRA
+ */
 @Component
-@Order(value = OpenIssuesProbe.ORDER)
-public class OpenIssuesProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenIssuesProbe.class);
+@Order(value = NumberOfOpenIssuesProbe.ORDER)
+public class NumberOfOpenIssuesProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NumberOfOpenIssuesProbe.class);
     public static final String KEY = "open-issue";
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        List<String> issueTracker = getIssueTracker(plugin, context);
+        List<String> issueTracker = getIssueTracker(context);
         for (String type : issueTracker) {
             if (type.equals("jira")) {
                 return ProbeResult.success(key(), String.format("%d open issues found", getJiraIssues()));
@@ -33,7 +36,13 @@ public class OpenIssuesProbe extends Probe {
         return ProbeResult.failure(key(), "Update center issue tracker could not be found");
     }
 
-    private static List<String> getIssueTracker(Plugin plugin, ProbeContext context) {
+    /**
+     * Get issueTracker data from UpdateCenter and filter the type
+     *
+     * @param {@link io.jenkins.pluginhealth.scoring.probes#ProbeContext} the context data for the probe
+     * @return a list which contains a map of issue tracker type
+     */
+    private static List<String> getIssueTracker(ProbeContext context) {
         return context.getUpdateCenter()
             .issueTrackers().stream()
             .flatMap(map -> map.entrySet().stream())
@@ -42,10 +51,16 @@ public class OpenIssuesProbe extends Probe {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Get total number of JIRA issues in a plugin
+     * */
     private static int getJiraIssues() {
         return 0;
     }
 
+    /**
+     * Get total number of GitHub issues in a plugin
+     * */
     private static int getGitHubIssues() {
         return 0;
     }
