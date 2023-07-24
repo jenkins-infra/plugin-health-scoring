@@ -32,8 +32,8 @@ import hudson.util.VersionNumber;
 
 public record Plugin(String name, VersionNumber version, String scm,
                      ZonedDateTime releaseTimestamp, List<String> labels,
-                     int popularity, String requiredCore, String defaultBranch, List<Map<String, String>> issueTrackers) {
+                     int popularity, String requiredCore, String defaultBranch) {
     public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
-        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp(), this.issueTrackers());
+        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
     }
 }

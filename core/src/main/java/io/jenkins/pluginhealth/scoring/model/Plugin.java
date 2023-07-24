@@ -62,13 +62,6 @@ public class Plugin {
     @Column(name = "release_timestamp")
     private ZonedDateTime releaseTimestamp;
 
-    public List<Map<String, String>> getIssueTracker() {
-        return issueTracker;
-    }
-
-    @Column(name = "issue_tracker")
-    private List<Map<String, String>> issueTracker;
-
     @Column(columnDefinition = "jsonb")
     @Type(value = JsonType.class)
     private final Map<String, ProbeResult> details = new HashMap<>();
@@ -76,12 +69,11 @@ public class Plugin {
     public Plugin() {
     }
 
-    public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp, List<Map<String, String>> issueTrackers) {
+    public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp) {
         this.name = name;
         this.version = version;
         this.scm = scm;
         this.releaseTimestamp = releaseTimestamp;
-        this.issueTracker = issueTrackers;
     }
 
     public String getName() {

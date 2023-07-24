@@ -34,8 +34,7 @@ public class OpenIssuesProbe extends Probe {
     }
 
     private static List<String> getIssueTracker(Plugin plugin, ProbeContext context) {
-        return context.getUpdateCenter().plugins()
-            .get(plugin.getIssueTracker())
+        return context.getUpdateCenter()
             .issueTrackers().stream()
             .flatMap(map -> map.entrySet().stream())
             .filter(entry -> entry.getKey().equals("type"))
