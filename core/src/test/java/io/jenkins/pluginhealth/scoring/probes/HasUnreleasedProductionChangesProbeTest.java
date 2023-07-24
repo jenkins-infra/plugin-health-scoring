@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -126,6 +127,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
+        when(ctx.getScmFolderPath()).thenReturn("test-folder");
+
         when(plugin.getScm()).thenReturn(scmLink);
 
         final PersonIdent defaultCommitter = new PersonIdent(
