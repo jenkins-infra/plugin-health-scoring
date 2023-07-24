@@ -1,6 +1,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -21,8 +22,8 @@ public class OpenIssuesProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         List<String> issueTracker = getIssueTracker(plugin, context);
-        for (String type: issueTracker) {
-            if(type.equals("jira")) {
+        for (String type : issueTracker) {
+            if (type.equals("jira")) {
                 return ProbeResult.success(key(), String.format("%d open issues found", getJiraIssues()));
             }
             else if (type.equals("github")) {
