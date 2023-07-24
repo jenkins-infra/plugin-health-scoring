@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Map;
 
 import hudson.util.VersionNumber;
 
