@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -63,36 +63,15 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
-            ),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-            ),
-            Map.of(
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-            ),
-            Map.of(
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
-                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-            ),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-            )
-        );
+        when(plugin.getName()).thenReturn("foo");
+        when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
         final DependabotProbe probe = getSpy();
-        for (int i = 0; i < 6; i++) {
-            assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.error(DependabotProbe.KEY, "dependabot does not meet the criteria to be executed on null"));
-            verify(probe, never()).doApply(plugin, ctx);
-        }
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.error(DependabotProbe.KEY, "There is no local repository for plugin " + plugin.getName() + "."));
     }
 
     @Test
@@ -101,17 +80,13 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(DependabotProbe.KEY, "No GitHub configuration folder found"));
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "No GitHub configuration folder found."));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -121,21 +96,16 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));
 
         Files.createFile(github.resolve("dependabot.yml"));
-
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured"));
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured."));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

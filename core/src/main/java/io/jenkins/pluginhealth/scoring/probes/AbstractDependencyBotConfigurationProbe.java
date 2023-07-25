@@ -62,14 +62,14 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         final Path githubConfig = scmRepository.resolve(".github");
         if (Files.notExists(githubConfig)) {
             LOGGER.error("No GitHub configuration folder at {} ", key());
-            return ProbeResult.success(key(), "No GitHub configuration folder found");
+            return ProbeResult.success(key(), "No GitHub configuration folder found.");
         }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && path.getFileName().toString().startsWith(botName))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
-                .orElseGet(() -> ProbeResult.success(key(), String.format("%s is not configured", botName)));
+                .map(file -> ProbeResult.success(key(), String.format("%s is configured.", botName)))
+                .orElseGet(() -> ProbeResult.success(key(), String.format("%s is not configured.", botName)));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
@@ -79,10 +79,5 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }
