@@ -53,8 +53,8 @@ public class ContributingGuidelinesProbe extends Probe {
                 && ("CONTRIBUTING.md".equalsIgnoreCase(file.getFileName().toString())
                 || "CONTRIBUTING.adoc".equalsIgnoreCase(file.getFileName().toString())))) {
             return paths.findAny()
-                .map(file -> ProbeResult.success(key(), "Contributing guidelines found"))
-                .orElseGet(() -> ProbeResult.success(key(), "No contributing guidelines found"));
+                .map(file -> ProbeResult.success(key(), "Contributing guidelines found."))
+                .orElseGet(() -> ProbeResult.success(key(), "No contributing guidelines found."));
         } catch (IOException e) {
             return ProbeResult.error(key(), e.getMessage());
         }
@@ -73,10 +73,5 @@ public class ContributingGuidelinesProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

@@ -33,10 +33,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
@@ -63,14 +63,13 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repository = Files.createTempDirectory(plugin.getName());
-        when(ctx.getScmRepository()).thenReturn(repository);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found."));
     }
 
     @Test
@@ -80,16 +79,14 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repository = Files.createTempDirectory(plugin.getName());
         Files.createFile(repository.resolve("CONTRIBUTING.md"));
-        when(ctx.getScmRepository()).thenReturn(repository);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found."));
     }
 
     @Test
@@ -99,15 +96,13 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         final ContributingGuidelinesProbe probe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repository = Files.createTempDirectory(plugin.getName());
         Files.createFile(Files.createDirectory(repository.resolve("docs")).resolve("CONTRIBUTING.md"));
-        when(ctx.getScmRepository()).thenReturn(repository);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found."));
     }
 }
