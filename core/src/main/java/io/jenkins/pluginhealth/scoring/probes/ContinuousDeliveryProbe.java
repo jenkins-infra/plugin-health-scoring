@@ -54,12 +54,12 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
 
     @Override
     public String getFailureMessage() {
-        return "Could not find JEP-229 workflow definition";
+        return "Could not find JEP-229 workflow definition.";
     }
 
     @Override
     public String getSuccessMessage() {
-        return "JEP-229 workflow definition found";
+        return "JEP-229 workflow definition found.";
     }
 
 }

@@ -57,7 +57,7 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         final Path workflowPath = repository.resolve(WORKFLOWS_DIRECTORY);
 
         if (!Files.exists(workflowPath)) {
-            return ProbeResult.success(key(), "Plugin has no GitHub Action configured");
+            return ProbeResult.success(key(), "Plugin has no GitHub Action configured.");
         }
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
@@ -112,14 +112,6 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     private record WorkflowJobDefinition(String uses) {
-    }
-
-    /**
-     * @return a String array of probes that should be executed before AbstractGitHubWorkflowProbe
-     */
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 
     @Override
