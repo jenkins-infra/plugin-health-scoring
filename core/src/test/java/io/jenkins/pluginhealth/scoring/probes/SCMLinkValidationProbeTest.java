@@ -196,6 +196,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
         when(ctx.getGitHub()).thenReturn(gh);
+        when(p1.getName()).thenReturn("test-repo");
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
