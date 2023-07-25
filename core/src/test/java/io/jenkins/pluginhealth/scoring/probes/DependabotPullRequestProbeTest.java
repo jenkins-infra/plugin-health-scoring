@@ -69,7 +69,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         when(plugin.getDetails()).thenReturn(
             Map.of(),
-            Map.of(DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""))
+            Map.of(DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""))
         );
 
         final DependabotPullRequestProbe probe = getSpy();
@@ -114,7 +114,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "No open pull request from dependabot"));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "No open pull request from dependabot."));
     }
 
     @Test
@@ -153,7 +153,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(DependabotPullRequestProbe.KEY, "2 open pull requests from Dependabot"));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2 open pull requests from Dependabot."));
     }
 
     @Test
@@ -178,6 +178,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests"));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests."));
     }
 }

@@ -60,14 +60,14 @@ public class DependabotPullRequestProbe extends Probe {
                 .count();
 
             return count > 0 ?
-                ProbeResult.success(key(), "%d open pull requests from Dependabot".formatted(count)) :
-                ProbeResult.success(key(), "No open pull request from dependabot");
+                ProbeResult.success(key(), "%d open pull requests from Dependabot.".formatted(count)) :
+                ProbeResult.success(key(), "No open pull request from dependabot.");
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
             }
 
-            return ProbeResult.error(key(), "Could not count dependabot pull requests");
+            return ProbeResult.error(key(), "Could not count dependabot pull requests.");
         }
     }
 
