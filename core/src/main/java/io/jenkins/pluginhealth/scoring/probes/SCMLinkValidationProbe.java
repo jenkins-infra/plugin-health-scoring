@@ -32,6 +32,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -53,12 +54,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = SCMLinkValidationProbe.ORDER)
 public class SCMLinkValidationProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
-
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)";
-    public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)";
+    public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -98,8 +98,8 @@ public class SCMLinkValidationProbe extends Probe {
 
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            File directory = new File(scm);
-            String folderPath = searchPomFiles(directory, pluginName, scm);
+            String repo = matcher.group("repo");
+            String folderPath = searchPomFiles(Paths.get(repo), pluginName, scm);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -115,48 +115,29 @@ public class SCMLinkValidationProbe extends Probe {
     /**
      * Searches for Pom files in every directory available in the repository
      *
-     * @param directory in the scm
+     * @param directory  in the scm
      * @param pluginName the name of the plugin
-     * @param scm the valid scm link
-     * @return folderPath from the scm
+     * @param scm        the valid scm link
+     * @return folderPath if it valid or return the scm itself
      */
-    private static String searchPomFiles(File directory, String pluginName, String scm) {
-        File[] files = directory.listFiles();
-        if (files == null) {
-            return scm;
-        }
-        for (File file : files) {
-            try (Stream<Path> paths = Files.find(file.toPath(), 1, (path, $) ->
-                file.isDirectory())) {
-                return paths.findFirst()
-                    .map(filePath -> searchPomFiles(file, pluginName, scm))
-                    .orElseGet(() -> getSCMFolderPath(file.getAbsolutePath(), pluginName, scm));
-            } catch (IOException ex) {
-                LOGGER.error("Could not browse the folder during probe {}", pluginName, ex);
-            }
-        }
-        return scm;
-    }
-
-    /**
-     * Searches for folder path in the scm. The correct pom file is validated using the value of packaging and artifact id.
-     *
-     * @param filePath the path of the file to validate for the correct pom
-     * @param pluginName the name of the plugin
-     * @param scm the valid scm link
-     * @return filePath if it valid or return the scm itself
-     * */
-    private static String getSCMFolderPath(String filePath, String pluginName, String scm) {
+    private String searchPomFiles(Path directory, String pluginName, String scm) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-        try (Reader reader = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8)) {
-            Model model = mavenReader.read(reader);
-            if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
-                return filePath;
+
+        try (Stream<Path> paths = Files.find(directory, 1, (path, $) ->
+            path.getFileName().toString().equals("pom.xml")
+        )) {
+            try (Reader reader = new InputStreamReader(new FileInputStream((File) paths), StandardCharsets.UTF_8)) {
+                Model model = mavenReader.read(reader);
+                if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+                    return directory.toString();
+                }
+            } catch (IOException e) {
+                LOGGER.error("Pom file not found for {}", pluginName, e);
+            } catch (XmlPullParserException e) {
+                LOGGER.error("Could not parse pom file for {}", pluginName, e);
             }
         } catch (IOException e) {
-            LOGGER.error("Pom file not found for {}", pluginName, e);
-        } catch (XmlPullParserException e) {
-            LOGGER.error("Could not parse pom file for {}", pluginName, e);
+            LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
         return scm;
     }
