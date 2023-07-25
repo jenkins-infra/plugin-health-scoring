@@ -41,6 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe is looking for the Code Coverage records, using GitHub API for Checks, on the default branch of the plugin.
+ */
 @Component
 @Order(CodeCoverageProbe.ORDER)
 public class CodeCoverageProbe extends Probe {
@@ -80,7 +83,7 @@ public class CodeCoverageProbe extends Probe {
                     }
                 }
 
-                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + ". Branch coverage: " + overall_branch_coverage);
+                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.");
             } else {
                 return ProbeResult.error(key(), "Cannot determine plugin repository.");
             }
@@ -103,15 +106,5 @@ public class CodeCoverageProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{
-            SCMLinkValidationProbe.KEY,
-            JenkinsfileProbe.KEY,
-            UpdateCenterPluginPublicationProbe.KEY,
-            LastCommitDateProbe.KEY,
-        };
     }
 }
