@@ -32,6 +32,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -149,5 +152,58 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is invalid");
+    }
+
+    @Test
+    void shouldReturnCorrectScmFolderPath() throws IOException {
+        final Plugin p1 = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final GitHub gh = mock(GitHub.class);
+        final String repositoryName = "jenkinsci/test-repo";
+
+        Path parentDirectory = Files.createTempDirectory("jenkinsci");
+        Path directoryPath = parentDirectory.resolve("test-repo");
+        final Path tempDirectory1 = Files.createDirectories(directoryPath.resolve("nested-directory-1"));
+        final Path pomFile1 = Files.createFile(tempDirectory1.resolve("pom.xml"));
+        final Path tempDirectory2 = Files.createDirectories(directoryPath.resolve("nested-directory-2"));
+        final Path pomFile2 = Files.createFile(tempDirectory2.resolve("pom.xml"));
+
+        Files.write(pomFile1,
+            """
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                     
+                      <groupId>test-group</groupId>
+                      <artifactId>test-repo</artifactId>
+                      <packaging>pom</packaging>
+                </project>                             
+                """.getBytes()
+        );
+
+        Files.write(pomFile2,
+            """
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                     
+                      <groupId>test-group</groupId>
+                      <artifactId>test-repo</artifactId>
+                      <packaging>hpi</packaging>
+                </project>                             
+                """.getBytes()
+        );
+
+        when(p1.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(p1.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+
+        final SCMLinkValidationProbe probe = getSpy();
+        final ProbeResult r1 = probe.apply(p1, ctx);
+
+        assertThat(ctx.getScmFolderPath()).isEqualTo("test-repo");
+        assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
+
     }
 }

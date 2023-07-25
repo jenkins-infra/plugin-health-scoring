@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -95,7 +94,6 @@ public class SCMLinkValidationProbe extends Probe {
             }
             return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
         }
-
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             String repo = matcher.group("repo");
@@ -121,24 +119,28 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private String searchPomFiles(Path directory, String pluginName, String scm) {
-        MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-
-        try (Stream<Path> paths = Files.find(directory, 1, (path, $) ->
+        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
             path.getFileName().toString().equals("pom.xml")
         )) {
-            try (Reader reader = new InputStreamReader(new FileInputStream((File) paths), StandardCharsets.UTF_8)) {
-                Model model = mavenReader.read(reader);
-                if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
-                    return directory.toString();
-                }
-            } catch (IOException e) {
-                LOGGER.error("Pom file not found for {}", pluginName, e);
-            } catch (XmlPullParserException e) {
-                LOGGER.error("Could not parse pom file for {}", pluginName, e);
-            }
+            return paths.filter(pom -> pomFileMatchesPlugin(pom, pluginName)).toString();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
         return scm;
+    }
+
+    private boolean pomFileMatchesPlugin(Path pomFile, String pluginName) {
+        MavenXpp3Reader mavenReader = new MavenXpp3Reader();
+        try (Reader reader = new InputStreamReader(new FileInputStream(pomFile.toFile()), StandardCharsets.UTF_8)) {
+            Model model = mavenReader.read(reader);
+            if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+                return true;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Pom file not found for {}", pluginName, e);
+        } catch (XmlPullParserException e) {
+            LOGGER.error("Could not parse pom file for {}", pluginName, e);
+        }
+        return false;
     }
 }
