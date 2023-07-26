@@ -86,19 +86,14 @@ public class SCMLinkValidationProbe extends Probe {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("{} is not respecting the SCM URL Template", scm);
             }
-            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.");
+            return ProbeResult.success(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
 
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
-            return ProbeResult.error(key(), "The plugin SCM link is invalid.");
+            return ProbeResult.error(key(), "Cannot confirm plugin repository for " + scm);
         }
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
 }
