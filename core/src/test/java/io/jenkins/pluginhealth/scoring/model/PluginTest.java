@@ -52,8 +52,8 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.FAILURE, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
@@ -69,8 +69,8 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
@@ -81,13 +81,13 @@ class PluginTest {
     }
 
     @Test
-    void shouldOverrideSuccessfulPreviousResultWithFailure() {
+    void shouldOverrideSuccessfulPreviousResultWithSUCCESS() {
         final Plugin plugin = spy(Plugin.class);
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.SUCCESS, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ResultStatus.FAILURE, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);

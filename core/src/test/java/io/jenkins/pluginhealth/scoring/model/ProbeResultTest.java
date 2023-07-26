@@ -33,32 +33,32 @@ import org.junit.jupiter.api.Test;
 class ProbeResultTest {
     @Test
     void shouldBeEqualsWithSameStatusAndIdAndMessage() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1));
-        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ResultStatus.SUCCESS, ZonedDateTime.now());
+        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1));
+        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now());
 
         assertThat(result1).isEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentMessages() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1));
-        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ResultStatus.SUCCESS, ZonedDateTime.now());
+        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1));
+        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ProbeResult.Status.SUCCESS, ZonedDateTime.now());
 
         assertThat(result1).isNotEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentStatues() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1));
-        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ResultStatus.FAILURE, ZonedDateTime.now());
+        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1));
+        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.ERROR, ZonedDateTime.now());
 
         assertThat(result1).isNotEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentMessagesAndStatues() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1));
-        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ResultStatus.FAILURE, ZonedDateTime.now());
+        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1));
+        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ProbeResult.Status.ERROR, ZonedDateTime.now());
 
         assertThat(result1).isNotEqualTo(result2);
     }
