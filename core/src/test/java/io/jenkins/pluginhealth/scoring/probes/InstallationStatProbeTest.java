@@ -26,9 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.assertj.core.api.SoftAssertions;
@@ -58,24 +55,24 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
         assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void shouldRequirePluginToBeInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(
+        final String pluginName = "foo";
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
-            Map.of(
-                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "")
-            )
-        );
+            Map.of(),
+            List.of()
+        ));
 
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
-        for (int i = 0; i < 2; i++) {
-            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
-            verify(probe, never()).doApply(plugin, ctx);
-        }
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(InstallationStatProbe.KEY, "Could not find plugin " + pluginName + " in Update Center."));
     }
 
     @Test
@@ -102,7 +99,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result).isNotNull();
-            softly.assertThat(result).extracting("status").isEqualTo(ResultStatus.SUCCESS);
+            softly.assertThat(result).extracting("status").isEqualTo(ProbeResult.Status.SUCCESS);
             softly.assertThat(result).extracting("message").isEqualTo("100");
         });
     }

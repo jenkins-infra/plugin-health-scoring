@@ -55,9 +55,4 @@ public class InstallationStatProbe extends Probe {
     public String getDescription() {
         return "This probe registers the latest installation count stat for a specific plugin.";
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
-    }
 }
