@@ -1,26 +1,18 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 
 public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     @Override
@@ -38,57 +30,35 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
-    static Stream<Arguments> probeResults() {
-        return Stream.of(
-            arguments(// Nothing
-                Map.of()
-            ),
-            arguments(
-                Map.of(
-                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
-                )
-            ),
-            arguments(
-                Map.of(
-                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                    LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-                )
-            ),
-            arguments(
-                Map.of(
-                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-                )
-            ),
-            arguments(
-                Map.of(
-                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, ""),
-                    SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-                )
-            ),
-            arguments(
-                Map.of(
-                    SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
-                    LastCommitDateProbe.KEY, ProbeResult.failure(LastCommitDateProbe.KEY, "")
-                )
-            )
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("probeResults")
-    void shouldRequireValidSCMAndLastCommit(Map<String, ProbeResult> details) {
+    @Test
+    void shouldSurvivePluginWithoutLocalRepository() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(details);
+        when(plugin.getName()).thenReturn("foo");
+        when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
         final RenovateProbe probe = getSpy();
         assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "There is no local repository for plugin " + plugin.getName() + "."));
+    }
+
+    @Test
+    void shouldDetectMissingGitHubActionFolder() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final RenovateProbe probe = getSpy();
+
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+        assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "renovate does not meet the criteria to be executed on null"));
-
-        verify(probe, never()).doApply(plugin, ctx);
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "No GitHub configuration folder found."));
     }
 
     @Test
@@ -97,18 +67,14 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final RenovateProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
-        when(ctx.getScmRepository()).thenReturn(repo);
+        Files.createDirectory(repo.resolve(".github"));
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(RenovateProbe.KEY, "No GitHub configuration folder found"));
-        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is not configured."));
     }
 
     @Test
@@ -117,21 +83,15 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final RenovateProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));
 
         Files.createFile(github.resolve("renovate.json"));
-
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured"));
-        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured."));
     }
 }
