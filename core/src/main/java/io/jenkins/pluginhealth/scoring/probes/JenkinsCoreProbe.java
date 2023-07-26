@@ -60,9 +60,4 @@ public class JenkinsCoreProbe extends Probe {
     protected boolean requiresRelease() {
         return true;
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[] { UpdateCenterPluginPublicationProbe.KEY };
-    }
 }
