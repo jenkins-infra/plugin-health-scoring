@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -72,7 +73,7 @@ public class LastCommitDateProbe extends Probe {
                 commit.getAuthorIdent().getZoneId()
             );
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.toString());
+            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE));
         } catch (IOException | GitAPIException ex) {
             LOGGER.error("There was an issue while accessing the plugin repository", ex);
             return ProbeResult.error(key(), "Could not access the plugin repository.");
@@ -97,10 +98,5 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY };
     }
 }

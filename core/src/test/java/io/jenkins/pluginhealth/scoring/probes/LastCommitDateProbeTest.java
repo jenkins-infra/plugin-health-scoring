@@ -26,20 +26,24 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
+import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.junit.jupiter.api.Test;
 
 class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
@@ -58,82 +62,47 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         assertThat(getSpy().isSourceCodeRelated()).isFalse();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void shouldBeExecutedAfterSCMLinkValidation() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "")
-            )
-        );
+        final String pluginName = "foo";
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, ""));
-        verify(probe, never()).doApply(plugin, ctx);
-
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, ""));
-        verify(probe, never()).doApply(plugin, ctx);
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, "There is no local repository for plugin " + pluginName + "."));
     }
 
     @Test
-    void shouldReturnSuccessStatusOnValidSCM() throws IOException {
+    void shouldReturnSuccessStatusOnValidSCM() throws IOException, GitAPIException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
-        );
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/parameterized-trigger-plugin.git");
-        when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
-        final ProbeResult r = probe.apply(plugin, ctx);
+        final Path repo = Files.createTempDirectory(UUID.randomUUID().toString());
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        assertThat(r.id()).isEqualTo("last-commit-date");
-        assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
-    }
+        final ZoneId commitZoneId = ZoneId.of("GMT");
+        final ZonedDateTime commitDate = ZonedDateTime.now(commitZoneId).minusHours(1).minusMinutes(2);
 
-    @Test
-    void shouldReturnSuccessStatusOnValidSCMWithSubFolder() throws IOException {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final LastCommitDateProbe probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success("scm", "The plugin SCM link is valid"))
-        );
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/aws-java-sdk-plugin/aws-java-sdk-logs");
-        when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory(UUID.randomUUID().toString()));
-        final ProbeResult r = probe.apply(plugin, ctx);
-
-        assertThat(r.id()).isEqualTo("last-commit-date");
-        assertThat(r.status()).isEqualTo(ResultStatus.SUCCESS);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldRespectRequirements() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid"))
-        );
-        final LastCommitDateProbe probe = getSpy();
-
-        for (int i = 0; i < 2; i++) {
-            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
-            verify(probe, never()).doApply(plugin, ctx);
+        try (Git git = Git.init().setDirectory(repo.toFile()).call()) {
+            git.commit()
+                .setAllowEmpty(true)
+                .setSign(false)
+                .setMessage("This commit")
+                .setCommitter(new PersonIdent("Foo", "foo@bar.xyz", commitDate.toInstant(), commitZoneId))
+                .call();
         }
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, commitDate.format(DateTimeFormatter.ISO_DATE)));
     }
 }
