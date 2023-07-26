@@ -51,7 +51,7 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
     }
 
     @Test
-    void shouldFailIfPluginIsNotInUpdateCenterMap() {
+    void shouldFailIfPluginIsNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -69,11 +69,11 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center"));
+            .isEqualTo(ProbeResult.error(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center."));
     }
 
     @Test
-    void shouldSucceedIfPluginIsInUpdateCenterMap() {
+    void shouldSucceedIfPluginIsInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -93,6 +93,6 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center"));
+            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center."));
     }
 }
