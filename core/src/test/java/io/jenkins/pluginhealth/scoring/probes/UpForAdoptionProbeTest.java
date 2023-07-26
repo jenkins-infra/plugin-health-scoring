@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
@@ -67,8 +66,11 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         ));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption."));
     }
 
     @Test
@@ -85,8 +87,11 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         ));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."));
     }
 
     @Test
@@ -95,7 +100,6 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn("foo");
-
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
@@ -104,7 +108,10 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
 
         final UpForAdoptionProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(UpForAdoptionProbe.KEY, "This plugin is not in the update-center."));
     }
 }
