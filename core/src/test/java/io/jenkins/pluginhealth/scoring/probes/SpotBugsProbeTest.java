@@ -74,14 +74,8 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
@@ -99,9 +93,10 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
+            .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(SpotBugsProbe.KEY, "Cannot determine plugin repository"));
+            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Cannot determine plugin repository."));
     }
 
     @SuppressWarnings("unchecked")
@@ -119,11 +114,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
@@ -153,7 +143,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs found in build configuration"));
+            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs found in build configuration."));
     }
 
     @SuppressWarnings("unchecked")
@@ -171,11 +161,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
@@ -201,6 +186,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(SpotBugsProbe.KEY, "SpotBugs not found in build configuration"));
+            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs not found in build configuration."));
     }
 }

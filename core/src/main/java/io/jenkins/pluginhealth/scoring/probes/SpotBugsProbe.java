@@ -85,9 +85,4 @@ public class SpotBugsProbe extends Probe {
     protected boolean isSourceCodeRelated() {
         return true;
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
-    }
 }
