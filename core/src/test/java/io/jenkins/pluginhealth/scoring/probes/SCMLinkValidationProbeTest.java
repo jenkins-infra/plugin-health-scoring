@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -162,6 +163,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         when(p1.getDetails()).thenReturn(Map.of(
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
+        when(ctx.getScmRepository()).thenReturn(Path.of("core/src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
         when(ctx.getGitHub()).thenReturn(github);
         GHRepository repository = mock(GHRepository.class);
         when(github.getRepository(repositoryName)).thenReturn(repository);

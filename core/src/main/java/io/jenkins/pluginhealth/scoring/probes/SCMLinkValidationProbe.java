@@ -96,8 +96,7 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            String repo = matcher.group("repo").split("/")[1];
-            String folderPath = searchPomFiles(Paths.get(repo), pluginName, scm);
+            String folderPath = searchPomFiles(context.getScmRepository(), pluginName, scm);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -131,7 +130,7 @@ public class SCMLinkValidationProbe extends Probe {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(pomFile.toFile()), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
-            if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId()) {
+            if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId())) {
                 return true;
             }
         } catch (IOException e) {
