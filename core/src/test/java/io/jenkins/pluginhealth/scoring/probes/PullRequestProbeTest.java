@@ -27,14 +27,12 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -53,11 +51,6 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
     }
 
     @Test
-    void shouldUsePullRequestKey() {
-        assertThat(getSpy().key()).isEqualTo("pull-request");
-    }
-
-    @Test
     void shouldNotRequireNewRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
     }
@@ -68,31 +61,17 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
     }
 
     @Test
-    void shouldHaveDescription() {
-        assertThat(getSpy().getDescription()).isNotBlank();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldNotRunWithInvalidSCMLink() {
+    void shouldSurviveInvalidSCMLink() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(
-                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, "not valid")
-            )
-        );
+        when(plugin.getName()).thenReturn("foo-bar");
 
         final PullRequestProbe probe = getSpy();
-        for (int i = 0; i < 2; i++) {
-            assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status")
-                .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
-            verify(probe, never()).doApply(plugin, ctx);
-        }
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot find repository for foo-bar"));
     }
 
     @Test
@@ -103,9 +82,6 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "valid")
-        ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
@@ -136,9 +112,6 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
 
         final GitHub gh = mock(GitHub.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "valid")
-        ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
@@ -151,8 +124,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
 
         assertThat(result)
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, ""));
-
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot access repository " + plugin.getScm()));
     }
 }
