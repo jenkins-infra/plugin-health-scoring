@@ -54,11 +54,11 @@ public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
 
     @Override
     public String getFailureMessage() {
-        return "GitHub workflow security scan is not configured in the plugin";
+        return "GitHub workflow security scan is not configured in the plugin.";
     }
 
     @Override
     public String getSuccessMessage() {
-        return "GitHub workflow security scan is configured in the plugin";
+        return "GitHub workflow security scan is configured in the plugin.";
     }
 }

@@ -33,11 +33,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,11 +51,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         plugin = mock(Plugin.class);
         ctx = mock(ProbeContext.class);
         probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
     }
 
     @Override
@@ -66,22 +60,27 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoGitHubWorkflowConfigured() throws IOException {
-        when(ctx.getScmRepository()).thenReturn(Files.createTempDirectory("foo"));
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("Plugin has no GitHub Action configured");
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "Plugin has no GitHub Action configured."));
     }
 
     @Test
     void shouldBeAbleToDetectRepositoryWithNoSecurityScanConfigured() throws IOException {
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is not configured in the plugin");
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin."));
     }
 
     @Test
@@ -96,11 +95,13 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             "  security-scan-name:",
             "    uses: this-is-not-the-workflow-we-are-looking-for"
         ));
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is not configured in the plugin");
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin."));
     }
 
     @Test
@@ -115,11 +116,13 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             "  this-is-a-valid-security-scan:",
             "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml"
         ));
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is configured in the plugin");
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin."));
     }
 
     @Test
@@ -134,10 +137,12 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             "  security-scan:",
             "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v42"
         ));
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ProbeResult result = probe.apply(plugin, ctx);
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("GitHub workflow security scan is configured in the plugin");
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin."));
     }
 }
