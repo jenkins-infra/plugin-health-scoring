@@ -48,9 +48,7 @@ public class JenkinsfileProbe extends Probe {
         }
 
         final Path repository = context.getScmRepository().get();
-        try (Stream<Path> paths = Files
-            .find(repository, 1, (file, basicFileAttributes) -> Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))
-        ) {
+        try (Stream<Path> paths = Files.find(repository, 1, (file, $) -> Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))) {
             return paths.findFirst()
                 .map(file -> ProbeResult.success(key(), "Jenkinsfile found"))
                 .orElseGet(() -> ProbeResult.success(key(), "No Jenkinsfile found"));
@@ -75,10 +73,5 @@ public class JenkinsfileProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 }
