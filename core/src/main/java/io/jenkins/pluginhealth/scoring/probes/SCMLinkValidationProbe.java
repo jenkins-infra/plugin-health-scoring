@@ -31,12 +31,8 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -121,8 +117,9 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private String searchPomFiles(Path directory, String pluginName, String scm) {
-        try (Stream<Path> paths = Files.find(directory, 2, (path, $) -> directory.getFileName().toString().equals("pom.xml"))) {
-            return paths.filter(pom -> pomFileMatchesPlugin(directory.resolve("pom.xml"), pluginName)).toString();
+        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
+            Files.isRegularFile(path.resolve("pom.xml")) && path.getFileName().toString().equals("pom.xml"))) {
+            return paths.filter(pom -> pomFileMatchesPlugin(pom, pluginName)).toString();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }

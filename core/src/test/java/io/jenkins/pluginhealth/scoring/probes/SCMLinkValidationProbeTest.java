@@ -173,7 +173,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
 
-        assertThat(ctx.getScmFolderPath()).isEqualTo("test-nested-dir-2");
+        assertThat(ctx.getScmFolderPath()).isEqualTo("src/test/resources/jenkinsci/test-repo/test-nested-dir-1/test-nested-dir-2");
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
 
