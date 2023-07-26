@@ -163,7 +163,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
         when(ctx.getGitHub()).thenReturn(github);
-        GHRepository repository = ctx.getGitHub().getRepository(repositoryName);
+        GHRepository repository = mock(GHRepository.class);
         when(github.getRepository(repositoryName)).thenReturn(repository);
 
         when(p1.getName()).thenReturn("test-repo");
@@ -171,7 +171,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
 
-        assertThat(ctx.getScmFolderPath()).isEqualTo("test-repo");
+        assertThat(ctx.getScmFolderPath()).isEqualTo("test-nested-dir-2");
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
 

@@ -119,9 +119,7 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private String searchPomFiles(Path directory, String pluginName, String scm) {
-        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
-            path.getFileName().toString().equals("pom.xml")
-        )) {
+        try (Stream<Path> paths = Files.find(directory, 2, (path, $) -> path.getFileName().toString().equals("pom.xml"))) {
             return paths.filter(pom -> pomFileMatchesPlugin(pom, pluginName)).toString();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
@@ -133,7 +131,7 @@ public class SCMLinkValidationProbe extends Probe {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(pomFile.toFile()), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
-            if (model.getPackaging().equals("hpi") && model.getArtifactId().equals(pluginName)) {
+            if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId()) {
                 return true;
             }
         } catch (IOException e) {
