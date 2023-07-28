@@ -97,9 +97,9 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            Optional<Path> fileName = searchPomFiles(context.getScmRepository(), pluginName);
-            String folderPath = new File(fileName.toString()).getParentFile().getName();
-            System.out.println("folderPath= "+folderPath);
+            Optional<Path> file = searchPomFiles(context.getScmRepository(), pluginName);
+            String folderPath = file.isPresent() ? new File(file.toString()).getParentFile().getName() : null;
+            System.out.println("folderPath= " + folderPath);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -120,16 +120,17 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private Optional<Path> searchPomFiles(Path directory, String pluginName) {
+        Optional<Path> fileName = Optional.empty();
         try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
             path.getFileName().toString().equals("pom.xml"))) {
-            return paths
+            fileName = paths
                 .peek(path -> System.out.println("will filter " + path))
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
                 .findFirst();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
-        return null;
+        return fileName;
     }
 
     private boolean pomFileMatchesPlugin(Path pomDirectory, String pluginName) {
