@@ -26,8 +26,9 @@ package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
+import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -44,29 +45,29 @@ public class AdoptionScoring extends Scoring {
 
     @Override
     public ScoreResult apply(Plugin plugin) {
-        final ScoreResult result = super.apply(plugin);
-        if (result.value() == 0) {
-            return result;
+        final ProbeResult upForAdoptionResult = plugin.getDetails().get(UpForAdoptionProbe.KEY);
+        if (upForAdoptionResult == null || "This plugin is up for adoption.".equals(upForAdoptionResult.message())) {
+            return new ScoreResult(key(), 0, coefficient(), upForAdoptionResult != null ? List.of(upForAdoptionResult) : List.of());
         }
 
         final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
-        if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ProbeResult.Status.SUCCESS)) {
+        if (lastCommitProbeResult != null) {
             final String message = lastCommitProbeResult.message();
-            final ZonedDateTime commitDateTime = ZonedDateTime.parse(message);
+            final ZonedDateTime commitDateTime = ZonedDateTime.parse(message, DateTimeFormatter.ISO_DATE_TIME);
 
             final Duration between = Duration.between(plugin.getReleaseTimestamp().toInstant(), commitDateTime.toInstant());
             if (between.toDays() <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) { // Less than 6 months
-                return new ScoreResult(KEY, 1, COEFFICIENT);
+                return new ScoreResult(KEY, 1, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
             } else if (between.toDays() < Duration.of(365, ChronoUnit.DAYS).toDays()) { // Less than a year
-                return new ScoreResult(KEY, .75f, COEFFICIENT);
+                return new ScoreResult(KEY, .75f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
             } else if (between.toDays() < Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) { // Less than 2 years
-                return new ScoreResult(KEY, .5f, COEFFICIENT);
+                return new ScoreResult(KEY, .5f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
             } else if (between.toDays() < Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) { // Less than 4 years
-                return new ScoreResult(KEY, .25f, COEFFICIENT);
+                return new ScoreResult(KEY, .25f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
             }
         }
-
-        return new ScoreResult(KEY, 0, COEFFICIENT);
+        List<ProbeResult> reasons = lastCommitProbeResult != null ? List.of(upForAdoptionResult, lastCommitProbeResult) : List.of(upForAdoptionResult);
+        return new ScoreResult(KEY, 0, COEFFICIENT, reasons);
     }
 
     @Override
@@ -77,13 +78,6 @@ public class AdoptionScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
-    }
-
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            UpForAdoptionProbe.KEY, 1f
-        );
     }
 
     @Override

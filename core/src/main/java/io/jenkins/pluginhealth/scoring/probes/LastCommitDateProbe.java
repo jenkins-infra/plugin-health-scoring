@@ -73,7 +73,7 @@ public class LastCommitDateProbe extends Probe {
                 commit.getAuthorIdent().getZoneId()
             );
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE));
+            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {
             LOGGER.error("There was an issue while accessing the plugin repository", ex);
             return ProbeResult.error(key(), "Could not access the plugin repository.");

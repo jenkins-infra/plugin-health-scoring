@@ -103,6 +103,6 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, commitDate.format(DateTimeFormatter.ISO_DATE)));
+            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, commitDate.format(DateTimeFormatter.ISO_DATE_TIME)));
     }
 }

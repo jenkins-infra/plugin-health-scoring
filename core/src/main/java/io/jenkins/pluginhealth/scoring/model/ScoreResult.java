@@ -24,9 +24,10 @@
 
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.util.List;
 import java.util.Objects;
 
-public record ScoreResult(String key, float value, float coefficient) {
+public record ScoreResult(String key, float value, float coefficient, List<ProbeResult> reasons) {
     public ScoreResult {
         if (value > 1 || coefficient > 1) {
             throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");

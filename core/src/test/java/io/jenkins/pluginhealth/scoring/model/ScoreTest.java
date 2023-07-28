@@ -28,6 +28,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,15 +43,15 @@ class ScoreTest {
 
         assertThat(score.getValue()).isEqualTo(0);
 
-        score.addDetail(new ScoreResult("foo", 1, .4f));
+        score.addDetail(new ScoreResult("foo", 1, .4f, List.of()));
         assertThat(score.getDetails().size()).isEqualTo(1);
         assertThat(score.getValue()).isEqualTo(100);
 
-        score.addDetail(new ScoreResult("bar", 0, .2f));
+        score.addDetail(new ScoreResult("bar", 0, .2f, List.of()));
         assertThat(score.getDetails().size()).isEqualTo(2);
         assertThat(score.getValue()).isEqualTo(67);
 
-        score.addDetail(new ScoreResult("wiz", 1, .3f));
+        score.addDetail(new ScoreResult("wiz", 1, .3f, List.of()));
         assertThat(score.getDetails().size()).isEqualTo(3);
         assertThat(score.getValue()).isEqualTo(78);
     }

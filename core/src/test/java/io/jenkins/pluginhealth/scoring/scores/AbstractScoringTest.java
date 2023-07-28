@@ -25,15 +25,7 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.util.Map;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 public abstract class AbstractScoringTest<T extends Scoring> {
@@ -47,26 +39,5 @@ public abstract class AbstractScoringTest<T extends Scoring> {
     @Test
     void shouldHaveDescription() {
         assertThat(getSpy().description()).isNotBlank();
-    }
-
-    @Test
-    void shouldNotHaveNullNotEmptyRequirements() {
-        assertThat(getSpy().getScoreComponents()).isNotEmpty();
-    }
-
-    @Test
-    void shouldReturnNonNullScoreResult() {
-        final Plugin plugin = mock(Plugin.class);
-        final T scoring = getSpy();
-
-        when(scoring.getScoreComponents()).thenReturn(Map.of("foo", 1f));
-        final ScoreResult score = scoring.apply(plugin);
-
-        assertThat(score.key()).isEqualTo(scoring.key());
-        SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(score.key()).isEqualTo(scoring.key());
-            softly.assertThat(score.coefficient()).isEqualTo(scoring.coefficient());
-            softly.assertThat(score.value()).isEqualTo(0f);
-        });
     }
 }
