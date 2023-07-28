@@ -122,8 +122,10 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         when(p1.getDetails()).thenReturn(Map.of(
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
+        when(p1.getName()).thenReturn("mailer-plugin");
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, ctx);
@@ -195,8 +197,6 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-incorrect-nested-dir-1"));
         when(ctx.getGitHub()).thenReturn(github);
-        GHRepository repository = mock(GHRepository.class);
-        when(github.getRepository(repositoryName)).thenReturn(repository);
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
