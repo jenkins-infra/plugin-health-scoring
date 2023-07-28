@@ -154,28 +154,28 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
     @Test
     void shouldReturnCorrectScmFolderPath() throws IOException {
-        final Plugin p1 = mock(Plugin.class);
+        final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
 
-        when(p1.getScm()).thenReturn("https://github.com/" + repositoryName);
-        when(p1.getDetails()).thenReturn(Map.of(
+        when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(plugin.getDetails()).thenReturn(Map.of(
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
+        when(plugin.getName()).thenReturn("test-repo");
+
         when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
         when(ctx.getGitHub()).thenReturn(github);
         GHRepository repository = mock(GHRepository.class);
         when(github.getRepository(repositoryName)).thenReturn(repository);
 
-        when(p1.getName()).thenReturn("test-repo");
-
         final SCMLinkValidationProbe probe = getSpy();
-        final ProbeResult r1 = probe.apply(p1, ctx);
+        final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(ctx.getScmFolderPath()).isEqualTo("test-nested-dir-2");
-        assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
 
     }
 }

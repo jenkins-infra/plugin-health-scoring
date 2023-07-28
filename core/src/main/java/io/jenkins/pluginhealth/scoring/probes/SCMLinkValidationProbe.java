@@ -31,6 +31,8 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -117,16 +119,19 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private String searchPomFiles(Path directory, String pluginName, String scm) {
-        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
-            Files.isRegularFile(path.resolve("pom.xml")) && path.getFileName().toString().equals("pom.xml"))) {
-            return paths.filter(pom -> pomFileMatchesPlugin(pom, pluginName)).toString();
+        Optional<Path> filteredPath = null;
+        try (Stream<Path> paths = Files.find(directory.resolve("pom.xml"), 1, (path, $) ->
+            Files.isRegularFile(path) && path.getFileName().toString().equals("pom.xml"))) {
+            filteredPath = paths.findFirst().filter(pom -> pomFileMatchesPlugin(pom, pluginName));
+            System.out.println("filteredPath= "+filteredPath);
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
-        return scm;
+        return filteredPath.toString();
     }
 
     private boolean pomFileMatchesPlugin(Path pomFile, String pluginName) {
+        System.out.println("in pomFileMatchesPlugin");
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(pomFile.toFile()), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
