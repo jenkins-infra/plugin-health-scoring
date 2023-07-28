@@ -24,8 +24,11 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.springframework.stereotype.Component;
@@ -36,6 +39,21 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     public static final String KEY = "update-center-plugin-publication";
 
     @Override
+    public ScoreResult apply(Plugin plugin) {
+        final ProbeResult updateCenterResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
+        if (updateCenterResult == null) {
+            return new ScoreResult(key(), 0, coefficient(), List.of());
+        }
+
+        return new ScoreResult(
+            key(),
+            "This plugin is still actively published by the update-center.".equals(updateCenterResult.message()) ? 1 : 0,
+            coefficient(),
+            List.of(updateCenterResult)
+        );
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -43,11 +61,6 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
-    }
-
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(UpdateCenterPluginPublicationProbe.KEY, 1f);
     }
 
     @Override
