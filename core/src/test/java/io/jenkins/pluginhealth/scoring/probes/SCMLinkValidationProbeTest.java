@@ -25,7 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -179,6 +178,5 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
         verify(probe, atMostOnce()).doApply(plugin, ctx);
-
     }
 }

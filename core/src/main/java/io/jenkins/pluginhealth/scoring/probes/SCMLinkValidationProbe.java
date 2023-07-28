@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -96,7 +97,9 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            String folderPath = searchPomFiles(context.getScmRepository(), pluginName, scm);
+            Optional<Path> fileName = searchPomFiles(context.getScmRepository(), pluginName);
+            String folderPath = new File(fileName.toString()).getParentFile().getName();
+            System.out.println("folderPath= "+folderPath);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -114,25 +117,24 @@ public class SCMLinkValidationProbe extends Probe {
      *
      * @param directory  in the scm
      * @param pluginName the name of the plugin
-     * @param scm        the valid scm link
      * @return folderPath if it valid or return the scm itself
      */
-    private String searchPomFiles(Path directory, String pluginName, String scm) {
-        try (Stream<Path> paths = Files.find(directory.resolve("pom.xml"), 1, (path, $) ->
-            Files.isRegularFile(path) && path.getFileName().toString().equals("pom.xml"))) {
-            Optional<Path> filteredPath = paths.findFirst().filter(pom -> pomFileMatchesPlugin(pom, pluginName));
-            System.out.println("filteredPath= " + filteredPath);
-            return filteredPath.toString();
+    private Optional<Path> searchPomFiles(Path directory, String pluginName) {
+        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
+            path.getFileName().toString().equals("pom.xml"))) {
+            return paths
+                .peek(path -> System.out.println("will filter " + path))
+                .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
+                .findFirst();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
         return null;
     }
 
-    private boolean pomFileMatchesPlugin(Path pomFile, String pluginName) {
-        System.out.println("in pomFileMatchesPlugin");
+    private boolean pomFileMatchesPlugin(Path pomDirectory, String pluginName) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-        try (Reader reader = new InputStreamReader(new FileInputStream(pomFile.toFile()), StandardCharsets.UTF_8)) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(pomDirectory.toFile()), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
             if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId())) {
                 return true;
