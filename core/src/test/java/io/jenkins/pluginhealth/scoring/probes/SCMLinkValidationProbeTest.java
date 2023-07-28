@@ -36,15 +36,18 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ResultStatus;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.mockito.Mockito;
 
 class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProbe> {
     @Override
@@ -160,9 +163,10 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     @Test
     void shouldReturnCorrectScmFolderPath() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
+        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
+        ProbeContext contextSpy = spy(ctx);
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -170,27 +174,27 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         ));
         when(plugin.getName()).thenReturn("test-repo");
 
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
-        when(ctx.getGitHub()).thenReturn(github);
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
+        when(contextSpy.getGitHub()).thenReturn(github);
         GHRepository repository = mock(GHRepository.class);
         when(github.getRepository(repositoryName)).thenReturn(repository);
 
         final SCMLinkValidationProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
-        verify(ctx, atLeast(1)).setScmFolderPath(anyString());
+        final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(ctx.getScmFolderPath()).isEqualTo("test-nested-dir-2");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-nested-dir-2");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
-        verify(probe, atMostOnce()).doApply(plugin, ctx);
+        verify(probe, atMostOnce()).doApply(plugin, contextSpy);
     }
 
     @Test
-    void shouldNotReturnInCorrectScmFolderPath() {
+    void shouldNotReturnInCorrectScmFolderPath() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
+        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
+        ProbeContext contextSpy = spy(ctx);
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -198,15 +202,15 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         ));
         when(plugin.getName()).thenReturn("test-repo");
 
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-incorrect-nested-dir-1"));
-        when(ctx.getGitHub()).thenReturn(github);
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-incorrect-nested-dir-1"));
+        when(contextSpy.getGitHub()).thenReturn(github);
 
         final SCMLinkValidationProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
+        final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(ctx.getScmFolderPath()).isEqualTo("");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo("");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
-        verify(probe, atMostOnce()).doApply(plugin, ctx);
+        verify(probe, atMostOnce()).doApply(plugin, contextSpy);
     }
 }

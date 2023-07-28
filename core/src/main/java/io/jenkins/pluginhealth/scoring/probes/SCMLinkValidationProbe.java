@@ -99,7 +99,6 @@ public class SCMLinkValidationProbe extends Probe {
             context.getGitHub().getRepository(matcher.group("repo"));
             Optional<Path> file = searchPomFiles(context.getScmRepository(), pluginName);
             String folderPath = file.isPresent() ? new File(file.toString()).getParentFile().getName() : "";
-            System.out.println("folderPath= " + folderPath);
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid");
         } catch (IOException ex) {
@@ -124,7 +123,6 @@ public class SCMLinkValidationProbe extends Probe {
         try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
             path.getFileName().toString().equals("pom.xml"))) {
             fileName = paths
-                .peek(path -> System.out.println("will filter " + path))
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
                 .findFirst();
         } catch (IOException e) {
