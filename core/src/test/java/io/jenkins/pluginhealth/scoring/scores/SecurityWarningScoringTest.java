@@ -33,7 +33,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
@@ -51,7 +50,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.FAILURE)
+            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123, link-to-security-advisory")
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -81,7 +80,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, new ProbeResult(KnownSecurityVulnerabilityProbe.KEY, "", ResultStatus.SUCCESS)
+            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "Plugin is OK")
         ));
 
         final ScoreResult result = scoring.apply(plugin);

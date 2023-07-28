@@ -24,8 +24,11 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
 import org.springframework.stereotype.Component;
@@ -36,6 +39,21 @@ public class SecurityWarningScoring extends Scoring {
     private static final String KEY = "security";
 
     @Override
+    public ScoreResult apply(Plugin plugin) {
+        final ProbeResult knownSecurityResult = plugin.getDetails().get(KnownSecurityVulnerabilityProbe.KEY);
+        if (knownSecurityResult == null) {
+            return new ScoreResult(key(), 0, coefficient(), List.of());
+        }
+
+        return new ScoreResult(
+            key(),
+            "Plugin is OK".equals(knownSecurityResult.message()) ? 1 : 0,
+            coefficient(),
+            List.of(knownSecurityResult)
+        );
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -43,11 +61,6 @@ public class SecurityWarningScoring extends Scoring {
     @Override
     public float coefficient() {
         return COEFFICIENT;
-    }
-
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(KnownSecurityVulnerabilityProbe.KEY, 1f);
     }
 
     @Override
