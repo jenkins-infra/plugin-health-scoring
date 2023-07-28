@@ -25,6 +25,8 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -175,6 +177,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
+        verify(ctx, atLeast(1)).setScmFolderPath(anyString());
 
         assertThat(ctx.getScmFolderPath()).isEqualTo("test-nested-dir-2");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
@@ -183,7 +186,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     }
 
     @Test
-    void shouldNotReturnInCorrectScmFolderPath() throws IOException {
+    void shouldNotReturnInCorrectScmFolderPath() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub github = mock(GitHub.class);
