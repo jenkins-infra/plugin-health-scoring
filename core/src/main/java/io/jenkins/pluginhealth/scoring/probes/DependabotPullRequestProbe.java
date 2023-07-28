@@ -80,9 +80,4 @@ public class DependabotPullRequestProbe extends Probe {
     public String getDescription() {
         return "Reports the number of pull request currently opened by Dependabot";
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{DependabotProbe.KEY};
-    }
 }

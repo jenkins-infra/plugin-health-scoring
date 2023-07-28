@@ -58,14 +58,6 @@ public abstract class Probe {
     }
 
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
-        for (String requirementKey : this.getProbeResultRequirement()) {
-            final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
-            if (probeResult == null) {
-                LOGGER.info("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
-                return false;
-            }
-        }
-
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {
             return true;
@@ -104,17 +96,6 @@ public abstract class Probe {
      * @return a ProbeResult representing the result of the analysis
      */
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
-
-    /**
-     * List of probe key to be present in the {@link Plugin#getDetails()} map and to be {@link ProbeResult.Status#SUCCESS} in
-     * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
-     * By default, the requirement is an empty array. I cannot be null.
-     *
-     * @return array of {@link Probe#key()} to be present in {@link Plugin#getDetails()}.
-     */
-    public String[] getProbeResultRequirement() {
-        return new String[]{};
-    }
 
     /**
      * Returns the key identifier for the probe.

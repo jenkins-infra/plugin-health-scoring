@@ -45,9 +45,4 @@ abstract class AbstractProbeTest<T extends Probe> {
     void shouldHaveDescription() {
         assertThat(getSpy().getDescription()).isNotBlank();
     }
-
-    @Test
-    void shouldNotHaveNullRequirement() {
-        assertThat(getSpy().getProbeResultRequirement()).isNotNull();
-    }
 }

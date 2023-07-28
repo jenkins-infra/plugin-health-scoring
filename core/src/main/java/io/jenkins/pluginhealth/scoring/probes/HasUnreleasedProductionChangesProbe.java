@@ -140,9 +140,4 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
          */
         return false;
     }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
-    }
 }
