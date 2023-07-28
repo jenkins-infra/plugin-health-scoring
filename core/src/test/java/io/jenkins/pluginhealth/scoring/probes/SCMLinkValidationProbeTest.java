@@ -25,8 +25,6 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -47,7 +45,6 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.mockito.Mockito;
 
 class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProbe> {
     @Override
