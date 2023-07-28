@@ -31,7 +31,6 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,15 +118,15 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it valid or return the scm itself
      */
     private String searchPomFiles(Path directory, String pluginName, String scm) {
-        Optional<Path> filteredPath = null;
         try (Stream<Path> paths = Files.find(directory.resolve("pom.xml"), 1, (path, $) ->
             Files.isRegularFile(path) && path.getFileName().toString().equals("pom.xml"))) {
-            filteredPath = paths.findFirst().filter(pom -> pomFileMatchesPlugin(pom, pluginName));
-            System.out.println("filteredPath= "+filteredPath);
+            Optional<Path> filteredPath = paths.findFirst().filter(pom -> pomFileMatchesPlugin(pom, pluginName));
+            System.out.println("filteredPath= " + filteredPath);
+            return filteredPath.toString();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
         }
-        return filteredPath.toString();
+        return null;
     }
 
     private boolean pomFileMatchesPlugin(Path pomFile, String pluginName) {
