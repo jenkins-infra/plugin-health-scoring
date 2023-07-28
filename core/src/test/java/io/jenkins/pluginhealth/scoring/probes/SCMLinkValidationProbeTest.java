@@ -201,7 +201,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(ctx.getScmFolderPath()).isEqualTo(null);
+        assertThat(ctx.getScmFolderPath()).isEqualTo("");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
         verify(probe, atMostOnce()).doApply(plugin, ctx);
