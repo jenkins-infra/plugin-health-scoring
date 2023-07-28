@@ -33,7 +33,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
@@ -51,7 +50,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.SUCCESS)
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.")
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -81,7 +80,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.FAILURE)
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.")
         ));
 
         final ScoreResult result = scoring.apply(plugin);
