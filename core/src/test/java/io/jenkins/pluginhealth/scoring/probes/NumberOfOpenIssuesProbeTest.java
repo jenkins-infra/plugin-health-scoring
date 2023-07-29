@@ -8,16 +8,21 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 
 public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesProbe> {
+
     @Override
     NumberOfOpenIssuesProbe getSpy() {
         return spy(NumberOfOpenIssuesProbe.class);
@@ -106,11 +111,11 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
             List.of(
                 Map.of(
                     "reportUrl",
-                    "https://www.jenkins.io/participate/report-issue/redirect/#22024",
+                    "https://www.jenkins.io/participate/report-issue/redirect/#18331",
                     "type",
                     "jira",
                     "viewUrl",
-                    "https://issues.jenkins.io/issues/?jql=component=22024"
+                    "https://issues.jenkins.io/issues/?jql=component=18331"
                 )
             )
         ));
@@ -126,16 +131,26 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
     }
 
     @Test
-    void shouldBeAbleToFindNumberOfOpenIssuesInGH() {
+   void shouldBeAbleToFindNumberOfOpenIssuesInGH() throws IOException {
+        final String pluginName = "cloudevents";
+        final String repository = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + repository;
+
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(
             Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
                 UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
             )
         );
 
+        when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
@@ -143,22 +158,29 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
             List.of(
                 Map.of(
                     "reportUrl",
-                    "https://github.com/jenkinsci/advanced-installer-msi-builder-plugin/issues/new/choose",
+                    "https://github.com/" + repository + "/issues/new/choose",
                     "type",
                     "github",
                     "viewUrl",
-                    "https://github.com/jenkinsci/advanced-installer-msi-builder-plugin/issues"
+                    "https://github.com/" + repository + "/issues"
                 )
             )
         ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));
+        when(gh.getRepository(repository)).thenReturn(ghRepository);
+        when(ghRepository.getOpenIssueCount()).thenReturn(6);
 
         final NumberOfOpenIssuesProbe probe = getSpy();
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/advanced-installer-msi-builder-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found"));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
+
     }
 }
+
+
+

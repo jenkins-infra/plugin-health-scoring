@@ -1,12 +1,15 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.kohsuke.github.GHRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -20,20 +23,20 @@ import org.springframework.stereotype.Component;
 public class NumberOfOpenIssuesProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(NumberOfOpenIssuesProbe.class);
     public static final String KEY = "open-issue";
-    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        List<String> issueTracker = getIssueTracker(context);
-        for (String type : issueTracker) {
-            if (type.equals("jira")) {
-                return ProbeResult.success(key(), String.format("%d open issues found", getJiraIssues()));
-            }
-            else if (type.equals("github")) {
-                return ProbeResult.success(key(), String.format("%d open issues found", getGitHubIssues()));
-            }
-        }
-        return ProbeResult.failure(key(), "Update center issue tracker could not be found");
+        List<String> issueTracker = getIssueTrackerType(context);
+        return issueTracker.stream()
+            .filter(type -> type.equals("jira"))
+            .findFirst()
+            .map(type -> getJiraIssues())
+            .orElseGet(() -> issueTracker.stream()
+                .filter(type -> type.equals("github"))
+                .findFirst()
+                .map(type -> getGitHubIssues(context, plugin.getScm()))
+                .orElse(ProbeResult.failure(key(), "Update center issue tracker could not be found")));
     }
 
     /**
@@ -42,7 +45,7 @@ public class NumberOfOpenIssuesProbe extends Probe {
      * @param {@link io.jenkins.pluginhealth.scoring.probes#ProbeContext} the context data for the probe
      * @return a list which contains a map of issue tracker type
      */
-    private static List<String> getIssueTracker(ProbeContext context) {
+    private List<String> getIssueTrackerType(ProbeContext context) {
         return context.getUpdateCenter()
             .issueTrackers().stream()
             .flatMap(map -> map.entrySet().stream())
@@ -52,19 +55,27 @@ public class NumberOfOpenIssuesProbe extends Probe {
     }
 
     /**
-     * Get total number of JIRA issues in a plugin
+     * Get total number of open JIRA issues in a plugin
      * */
-    private static int getJiraIssues() {
-        return 0;
+    private ProbeResult getJiraIssues() {
+        return null;
     }
 
     /**
-     * Get total number of GitHub issues in a plugin
+     * Get total number of open GitHub issues in a plugin
      * */
-    private static int getGitHubIssues() {
-        return 0;
+    private ProbeResult getGitHubIssues(ProbeContext context, String scm) {
+        try {
+            final Optional<String> repositoryName = context.getRepositoryName(scm);
+            if (repositoryName.isPresent()) {
+                final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+                return ProbeResult.success(key(), String.format("%d open issues found", ghRepository.getOpenIssueCount()));
+            }
+        } catch (IOException ex) {
+            return ProbeResult.error(key(), "Could not read GitHub open issues");
+        }
+        return ProbeResult.failure(key(), String.format("GitHub repository could not be found"));
     }
-
 
     @Override
     public String key() {
@@ -78,7 +89,7 @@ public class NumberOfOpenIssuesProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
+        return new String[]{SCMLinkValidationProbe.KEY, UpdateCenterPluginPublicationProbe.KEY};
     }
 
 }
