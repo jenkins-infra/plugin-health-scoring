@@ -1,6 +1,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -17,11 +18,16 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
-public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesProbe> {
+class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesProbe> {
 
     @Override
     NumberOfOpenIssuesProbe getSpy() {
@@ -29,14 +35,29 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
     }
 
     @Test
-    void shouldNotRunWithInvalidUpdateCenter() {
+    void shouldNotRunWithInvalidProbeResultRequirement() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getDetails()).thenReturn(
             Map.of(),
             Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
                 UpdateCenterPluginPublicationProbe.KEY, ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "")
+            ),
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""),
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
             )
         );
 
@@ -49,12 +70,19 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
     }
 
     @Test
-    void shouldBeAbleToFindNumberOfOpenIssuesInBothJiraGH() {
+    void shouldBeAbleToFindNumberOfOpenIssuesInBothJiraGH() throws IOException {
+        final String pluginName = "maven-repo-cleaner";
+        final String repository = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + repository;
+
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getDetails()).thenReturn(
             Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
                 UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
             )
         );
@@ -66,40 +94,56 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
             List.of(
                 Map.of(
                     "reportUrl",
-                    "https://www.jenkins.io/participate/report-issue/redirect/#15525",
+                    "https://www.jenkins.io/participate/report-issue/redirect/#15979",
                     "type",
                     "jira",
                     "viewUrl",
-                    "https://issues.jenkins.io/issues/?jql=component=15525"
+                    "https://issues.jenkins.io/issues/?jql=component=15979"
                 ),
                 Map.of(
                     "reportUrl",
-                    "https://github.com/jenkinsci/accurev-plugin/issues/new/choose",
+                    "https://github.com/jenkinsci/maven-repo-cleaner-plugin/issues/new/choose",
                     "type",
                     "github",
                     "viewUrl",
-                    "https://github.com/jenkinsci/accurev-plugin/issues"
+                    "https://github.com/jenkinsci/maven-repo-cleaner-plugin/issues"
                 )
             )
         ));
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(scmLink)).thenReturn(Optional.of(repository));
+        when(gh.getRepository(repository)).thenReturn(ghRepository);
+        when(ghRepository.getOpenIssueCount()).thenReturn(10);
 
         final NumberOfOpenIssuesProbe probe = getSpy();
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/accurev-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found in JIRA. 10 open issues found in GitHub."));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
     }
 
     @Test
-    void shouldBeAbleToFindNumberOfOpenIssuesInJira() {
+    void shouldBeAbleToFindNumberOfOpenIssuesOnlyInJira() throws JsonProcessingException {
+        final String pluginName = "mailer";
+        final String repository = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + repository;
+
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        JsonNode jsonNode = mock(JsonNode.class);
+        RestTemplate restTemplate = mock(RestTemplate.class);
+        ResponseEntity responseEntity = mock(ResponseEntity.class);
+
+        final String jsonString = "{\"expand\":\"names,schema\",\"startAt\":0,\"maxResults\":50,\"total\":1,\"issues\":[]}";
 
         when(plugin.getDetails()).thenReturn(
             Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
                 UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
             )
         );
@@ -120,25 +164,30 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
             )
         ));
 
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getRepositoryName(scmLink)).thenReturn(Optional.of(repository));
+        when(restTemplate.getForEntity(anyString(), anyString().getClass())).thenReturn(responseEntity);
+        when(responseEntity.getBody()).thenReturn(jsonString);
+        when(jsonNode.get(anyString())).thenReturn(new ObjectMapper().readTree(jsonString));
+
         final NumberOfOpenIssuesProbe probe = getSpy();
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/active-directory-plugin");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "67 open issues found in JIRA."));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
     }
 
     @Test
-   void shouldBeAbleToFindNumberOfOpenIssuesInGH() throws IOException {
+   void shouldBeAbleToFindNumberOfOpenIssuesOnlyInGH() throws IOException {
         final String pluginName = "cloudevents";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
 
@@ -176,7 +225,7 @@ public class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenI
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found"));
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found in GitHub."));
         verify(probe, atMostOnce()).doApply(plugin, ctx);
 
     }
