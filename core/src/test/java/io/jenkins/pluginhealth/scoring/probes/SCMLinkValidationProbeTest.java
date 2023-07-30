@@ -94,7 +94,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         assertThat(r1.status()).isEqualTo(ResultStatus.ERROR);
         assertThat(r2.status()).isEqualTo(ResultStatus.ERROR);
-        assertThat(r1.message()).isEqualTo("The plugin SCM link is empty");
+        assertThat(r1.message()).isEqualTo("The plugin SCM link is empty.");
     }
 
     @Test
@@ -110,7 +110,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(r1.message()).isEqualTo("SCM link doesn't match GitHub plugin repositories");
+        assertThat(r1.message()).isEqualTo("SCM link doesn't match GitHub plugin repositories.");
     }
 
     @Test
@@ -133,7 +133,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(r1.message()).isEqualTo("The plugin SCM link is valid");
+        assertThat(r1.message()).isEqualTo("The plugin SCM link is valid.");
     }
 
     @Test
@@ -154,7 +154,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final ProbeResult r1 = probe.apply(p1, ctx);
 
         assertThat(r1.status()).isEqualTo(ResultStatus.FAILURE);
-        assertThat(r1.message()).isEqualTo("The plugin SCM link is invalid");
+        assertThat(r1.message()).isEqualTo("The plugin SCM link is invalid.");
     }
 
     @Test
@@ -181,8 +181,8 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-nested-dir-2");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
-        verify(probe, atMostOnce()).doApply(plugin, contextSpy);
+        assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
+        verify(probe).doApply(plugin, contextSpy);
     }
 
     @Test
@@ -207,7 +207,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
 
         assertThat(contextSpy.getScmFolderPath()).isEqualTo("");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("The plugin SCM link is valid");
-        verify(probe, atMostOnce()).doApply(plugin, contextSpy);
+        assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
+        verify(probe).doApply(plugin, contextSpy);
     }
 }

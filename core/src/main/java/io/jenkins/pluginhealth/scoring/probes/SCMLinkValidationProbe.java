@@ -64,7 +64,7 @@ public class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.error(key(), "The plugin SCM link is empty");
+            return ProbeResult.error(key(), "The plugin SCM link is empty.");
         }
         return fromSCMLink(context, plugin.getScm(), plugin.getName());
     }
@@ -91,18 +91,18 @@ public class SCMLinkValidationProbe extends Probe {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{} is not respecting the SCM URL Template", scm);
+                LOGGER.debug("{} is not respecting the SCM URL Template.", scm);
             }
-            return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories");
+            return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             Optional<Path> file = searchPomFiles(context.getScmRepository(), pluginName);
             String folderPath = file.isPresent() ? new File(file.toString()).getParentFile().getName() : "";
             context.setScmFolderPath(folderPath);
-            return ProbeResult.success(key(), "The plugin SCM link is valid");
+            return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
-            return ProbeResult.failure(key(), "The plugin SCM link is invalid");
+            return ProbeResult.failure(key(), "The plugin SCM link is invalid.");
         }
     }
 
@@ -126,7 +126,7 @@ public class SCMLinkValidationProbe extends Probe {
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
                 .findFirst();
         } catch (IOException e) {
-            LOGGER.error("Could not browse the folder during probe {}", pluginName, e);
+            LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
         }
         return fileName;
     }
@@ -139,9 +139,9 @@ public class SCMLinkValidationProbe extends Probe {
                 return true;
             }
         } catch (IOException e) {
-            LOGGER.error("Pom file not found for {}", pluginName, e);
+            LOGGER.error("Pom file not found for {}.", pluginName, e);
         } catch (XmlPullParserException e) {
-            LOGGER.error("Could not parse pom file for {}", pluginName, e);
+            LOGGER.error("Could not parse pom file for {}.", pluginName, e);
         }
         return false;
     }
