@@ -161,8 +161,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
-        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
-        ProbeContext contextSpy = spy(ctx);
+        ProbeContext contextSpy = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -205,6 +204,32 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
         assertThat(contextSpy.getScmFolderPath()).isEqualTo("");
+        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
+        verify(probe).doApply(plugin, contextSpy);
+    }
+
+    @Test
+    void shouldFindRootScmFolderPath() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final GitHub github = mock(GitHub.class);
+        final String repositoryName = "jenkinsci/test-repo";
+        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
+        ProbeContext contextSpy = spy(ctx);
+
+        when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
+        when(plugin.getName()).thenReturn("test-repo");
+
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo"));
+        when(contextSpy.getGitHub()).thenReturn(github);
+
+        final SCMLinkValidationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, contextSpy);
+
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-repo");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);
