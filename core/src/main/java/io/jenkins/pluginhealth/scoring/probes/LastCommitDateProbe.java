@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -71,7 +72,7 @@ public class LastCommitDateProbe extends Probe {
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                 commit.getAuthorIdent().getWhenAsInstant(),
                 commit.getAuthorIdent().getZoneId()
-            );
+            ).truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {

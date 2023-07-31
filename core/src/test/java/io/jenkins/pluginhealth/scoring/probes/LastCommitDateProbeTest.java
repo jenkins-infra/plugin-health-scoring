@@ -35,6 +35,8 @@ import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -89,7 +91,9 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         final ZoneId commitZoneId = ZoneId.of("GMT");
-        final ZonedDateTime commitDate = ZonedDateTime.now(commitZoneId).minusHours(1).minusMinutes(2);
+        final ZonedDateTime commitDate = ZonedDateTime.now(commitZoneId)
+            .minusHours(1).minusMinutes(2)
+            .truncatedTo(ChronoUnit.SECONDS);
 
         try (Git git = Git.init().setDirectory(repo.toFile()).call()) {
             git.commit()
