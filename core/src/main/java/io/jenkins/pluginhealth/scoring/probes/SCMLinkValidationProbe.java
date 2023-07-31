@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -97,8 +96,11 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            Optional<Path> pluginPathInRepository  = findPluginPom(context.getScmRepository(), pluginName);
-            String folderPath = pluginPathInRepository.map(path -> path.getParent().getFileName().toString()).orElse("");
+            Optional<Path> pluginPathInRepository  = findPluginPom(context.getScmRepository(), pluginName, context.getRepositoryName(scm).get().split("/")[1]);
+            String folderPath = pluginPathInRepository
+                .flatMap(path -> Optional.ofNullable(path.getParent()))
+                .map(parent -> parent.getFileName().toString())
+                .orElseGet(() -> pluginPathInRepository.map(Path::toString).orElse(""));
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
@@ -118,16 +120,17 @@ public class SCMLinkValidationProbe extends Probe {
      * @param pluginName the name of the plugin
      * @return folderPath if it is valid
      */
-    private Optional<Path> findPluginPom(Path directory, String pluginName) {
-        try (Stream<Path> paths = Files.find(directory, 2, (path, $) ->
+    private Optional<Path> findPluginPom(Path directory, String pluginName, String rootDirectory) {
+        try (Stream<Path> paths = Files.find(directory, Integer.MAX_VALUE, (path, $) ->
             path.getFileName().toString().equals("pom.xml"))) {
             return paths
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
-                .findFirst();
+                .findFirst()
+                .or(() -> Optional.of(Path.of(rootDirectory)));
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
         }
-        return null;
+        return Optional.of(Path.of(rootDirectory));
     }
 
     private boolean pomFileMatchesPlugin(Path pomDirectory, String pluginName) {
