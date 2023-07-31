@@ -77,12 +77,11 @@ public class ProbesController {
         return modelAndView;
     }
 
-    record ProbeDetails(String id, String description, String[] requirements) {
+    record ProbeDetails(String id, String description) {
         static ProbeDetails map(Probe probe) {
             return new ProbeDetails(
                 probe.key(),
-                probe.getDescription(),
-                probe.getProbeResultRequirement()
+                probe.getDescription()
             );
         }
     }
