@@ -25,6 +25,8 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -52,23 +54,23 @@ import org.springframework.web.client.RestTemplate;
 public class NumberOfOpenIssuesProbe extends Probe {
     public static final String KEY = "open-issue";
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
-    public static final String JIRA_HOST = "https://issues.jenkins.io/";
-    public static final String JIRA_API_PATH = "rest/api/latest/search";
+    private static final String JIRA_HOST = "https://issues.jenkins.io/rest/api/latest/search?";
     private static final Logger LOGGER = LoggerFactory.getLogger(NumberOfOpenIssuesProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        List<String> issueTracker = getIssueTrackerType(context);
+        List<String> issueTracker = getIssueTrackerData(context, IssueTrackerKeysEnum.TYPE.getKey());
 
         if (issueTracker.size() > 1) {
             return ProbeResult.success(key(),
-                getJiraIssues(context, plugin.getScm(), plugin.getName()).message().concat(" ") +
+                getJiraIssues(issueTracker, plugin.getScm(), plugin.getName()).message().concat(" ") +
                 getGitHubIssues(context, plugin.getScm(), plugin.getName()).message());
         }
+
         return issueTracker.stream()
             .filter(item -> item.equals("jira"))
             .findFirst()
-            .map(entry -> getJiraIssues(context, plugin.getScm(), plugin.getName()))
+            .map(entry -> getJiraIssues(getIssueTrackerData(context, IssueTrackerKeysEnum.VIEW.getKey()), plugin.getScm(), plugin.getName()))
             .orElseGet(() -> issueTracker.stream()
                 .filter(item -> item.equals("github"))
                 .findFirst()
@@ -82,11 +84,11 @@ public class NumberOfOpenIssuesProbe extends Probe {
      * @param context the probe context data
      * @return a list which contains a map of issue tracker type
      */
-    private List<String> getIssueTrackerType(ProbeContext context) {
+    private List<String> getIssueTrackerData(ProbeContext context, String filter) {
         return context.getUpdateCenter()
             .issueTrackers().stream()
             .flatMap(map -> map.entrySet().stream())
-            .filter(map -> map.getKey().equals("type"))
+            .filter(map -> map.getKey().equals(filter))
             .map(map -> map.getValue())
             .collect(Collectors.toList());
     }
@@ -94,12 +96,10 @@ public class NumberOfOpenIssuesProbe extends Probe {
     /**
      * Get total number of open JIRA issues in a plugin
      */
-    private ProbeResult getJiraIssues(ProbeContext context, String scm, String pluginName) {
+    private ProbeResult getJiraIssues(List<String> issueTrackerData, String scm, String pluginName) {
         try {
-            Optional<String> repository = context.getRepositoryName(scm);
-            String api = JIRA_HOST + JIRA_API_PATH + "?jql=component="
-                + (repository.isPresent() ? context.getRepositoryName(scm).get().split("/")[1] : "")
-                + " AND status=open";
+            URL url = new URL(issueTrackerData.get(0));
+            String api = JIRA_HOST + url.getQuery() + " AND status=open";
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
@@ -112,6 +112,8 @@ public class NumberOfOpenIssuesProbe extends Probe {
             LOGGER.error("Cannot map JSON returned by JIRA API for plugin {}.", pluginName, e);
         } catch (JsonProcessingException e) {
             LOGGER.error("Cannot process JSON returned by JIRA API for plugin {}.", pluginName, e);
+        } catch (MalformedURLException e) {
+            LOGGER.error("Cannot process malformed URL for plugin {}.", pluginName, e);
         }
         return ProbeResult.failure(key(), String.format("Cannot fetch information from JIRA API for plugin %s.", pluginName));
     }
@@ -146,5 +148,23 @@ public class NumberOfOpenIssuesProbe extends Probe {
     @Override
     public String[] getProbeResultRequirement() {
         return new String[]{SCMLinkValidationProbe.KEY, UpdateCenterPluginPublicationProbe.KEY};
+    }
+
+    private enum IssueTrackerKeysEnum {
+        REPORT("reportUrl"),
+        TYPE("type"),
+        VIEW("viewUrl");
+
+        private final String key;
+
+        IssueTrackerKeysEnum(String key) {
+            this.key = key;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+
     }
 }

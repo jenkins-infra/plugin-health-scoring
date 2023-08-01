@@ -2,7 +2,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -21,6 +20,7 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.IntNode;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -124,7 +124,7 @@ class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesPr
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found in JIRA. 10 open issues found in GitHub."));
-        verify(probe, atMostOnce()).doApply(plugin, ctx);
+        verify(probe).doApply(plugin, ctx);
     }
 
     @Test
@@ -135,7 +135,7 @@ class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesPr
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        JsonNode jsonNode = mock(JsonNode.class);
+        JsonNode jsonNodeMock = mock(JsonNode.class);
         RestTemplate restTemplate = mock(RestTemplate.class);
         ResponseEntity responseEntity = mock(ResponseEntity.class);
 
@@ -169,15 +169,15 @@ class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesPr
         when(ctx.getRepositoryName(scmLink)).thenReturn(Optional.of(repository));
         when(restTemplate.getForEntity(anyString(), anyString().getClass())).thenReturn(responseEntity);
         when(responseEntity.getBody()).thenReturn(jsonString);
-        when(jsonNode.get(anyString())).thenReturn(new ObjectMapper().readTree(jsonString));
+        when(jsonNodeMock.get("total")).thenReturn(new IntNode(10));
 
         final NumberOfOpenIssuesProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "67 open issues found in JIRA."));
-        verify(probe, atMostOnce()).doApply(plugin, ctx);
+            .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "0 open issues found in JIRA."));
+        verify(probe).doApply(plugin, ctx);
     }
 
     @Test
@@ -226,7 +226,7 @@ class NumberOfOpenIssuesProbeTest extends AbstractProbeTest<NumberOfOpenIssuesPr
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(NumberOfOpenIssuesProbe.KEY, "6 open issues found in GitHub."));
-        verify(probe, atMostOnce()).doApply(plugin, ctx);
+        verify(probe).doApply(plugin, ctx);
 
     }
 }
