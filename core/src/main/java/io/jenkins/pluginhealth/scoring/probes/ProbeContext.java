@@ -45,6 +45,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
+    private Map<String, String> issueTrackerType;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -86,6 +87,14 @@ public class ProbeContext {
     public Optional<String> getRepositoryName(String scm) {
         final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
+    }
+
+    public void setIssueTrack(Map<String, String> issueTrackerType) {
+        this.issueTrackerType = issueTrackerType;
+    }
+
+    public Map<String, String> getIssueTrackerType() {
+        return issueTrackerType;
     }
 
     /* default */ void cleanUp() throws IOException {
