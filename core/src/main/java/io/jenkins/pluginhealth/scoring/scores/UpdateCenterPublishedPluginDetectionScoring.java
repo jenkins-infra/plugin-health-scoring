@@ -25,10 +25,9 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.List;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.springframework.stereotype.Component;
@@ -39,17 +38,37 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     public static final String KEY = "update-center-plugin-publication";
 
     @Override
-    public ScoreResult apply(Plugin plugin) {
-        final ProbeResult updateCenterResult = plugin.getDetails().get(UpdateCenterPluginPublicationProbe.KEY);
-        if (updateCenterResult == null) {
-            return new ScoreResult(key(), 0, coefficient(), List.of());
-        }
+    public List<Changelog> getChangelog() {
+        return List.of(
+            new Changelog() {
+                @Override
+                public String getDescription() {
+                    return "Plugin should be present in the update-center to be distributed.";
+                }
 
-        return new ScoreResult(
-            key(),
-            "This plugin is still actively published by the update-center.".equals(updateCenterResult.message()) ? 1 : 0,
-            coefficient(),
-            List.of(updateCenterResult)
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(UpdateCenterPluginPublicationProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine if the plugin is part of the update-center."));
+                    }
+
+                    return switch (probeResult.message()) {
+                        case "This plugin is still actively published by the update-center." ->
+                            new ChangelogResult(1, getWeight(), List.of("The plugin appears in the update-center."));
+                        case "This plugin's publication has been stopped by the update-center." ->
+                            new ChangelogResult(1, getWeight(), List.of("Ths plugin is not part of the update-center."));
+                        default ->
+                            new ChangelogResult(-5, getWeight(), List.of("Cannot determine if the plugin is part of the update-center or not.", probeResult.message()));
+
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 1;
+                }
+            }
         );
     }
 
@@ -59,7 +78,7 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
     }
 

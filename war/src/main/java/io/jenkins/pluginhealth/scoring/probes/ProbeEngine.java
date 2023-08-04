@@ -102,10 +102,7 @@ public final class ProbeEngine {
 
         probeService.getProbes().forEach(probe -> {
             try {
-                final ProbeResult result = probe.apply(plugin, probeContext);
-                if (result.status() != ProbeResult.Status.ERROR) {
-                    plugin.addDetails(result);
-                }
+                probe.apply(plugin, probeContext);
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
             }

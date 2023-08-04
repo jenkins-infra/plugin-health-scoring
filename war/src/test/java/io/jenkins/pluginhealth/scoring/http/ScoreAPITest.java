@@ -31,17 +31,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
-import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -63,7 +62,6 @@ import org.springframework.test.web.servlet.MockMvc;
 )
 class ScoreAPITest {
     @MockBean private ScoreService scoreService;
-    @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
     @Autowired ObjectMapper mapper;
 
@@ -76,33 +74,25 @@ class ScoreAPITest {
             scoring2Key = "scoring-2";
 
         final Plugin plugin1 = mock(Plugin.class);
+        final ProbeResult p1Probe1Result = ProbeResult.success(probe1Key, "The plugin has a Jenkinsfile");
         when(plugin1.getDetails()).thenReturn(Map.of(
-            probe1Key, ProbeResult.success(probe1Key, "")
+            probe1Key, p1Probe1Result
         ));
 
         final Plugin plugin2 = mock(Plugin.class);
+        final ProbeResult p2Probe1Result = ProbeResult.success(probe1Key, "The plugin has a Jenkinsfile");
+        final ProbeResult p2Probe2Result = ProbeResult.success(probe2Key, "The plugin does not use dependabot");
+        final ProbeResult p2Probe3Result = ProbeResult.success(probe3Key, "The plugin does not use renovate");
         when(plugin2.getDetails()).thenReturn(Map.of(
-            probe1Key, ProbeResult.success(probe1Key, ""),
-            probe2Key, ProbeResult.failure(probe2Key, ""),
-            probe3Key, ProbeResult.failure(probe3Key, "")
+            probe1Key, p2Probe1Result,
+            probe2Key, p2Probe2Result,
+            probe3Key, p2Probe3Result
         ));
 
-        final Scoring scoring1 = mock(Scoring.class);
-        when(scoring1.getScoreComponents()).thenReturn(Map.of(
-            probe1Key, 1f
-        ));
-        when(scoringService.get(scoring1Key)).thenReturn(Optional.of(scoring1));
-
-        final Scoring scoring2 = mock(Scoring.class);
-        when(scoring2.getScoreComponents()).thenReturn(Map.of(
-            probe2Key, 1f,
-            probe3Key, 1f
-        ));
-        when(scoringService.get(scoring2Key)).thenReturn(Optional.of(scoring2));
-
-        final ScoreResult p1sr1 = new ScoreResult(scoring1Key, 1, 1);
-        final ScoreResult p2sr1 = new ScoreResult(scoring1Key, 1, 1);
-        final ScoreResult p2sr2 = new ScoreResult(scoring2Key, 0, 1);
+        // TODO
+        final ScoreResult p1sr1 = new ScoreResult(scoring1Key, 1, 1, Set.of());
+        final ScoreResult p2sr1 = new ScoreResult(scoring1Key, 1, 1, Set.of());
+        final ScoreResult p2sr2 = new ScoreResult(scoring2Key, 0, 1, Set.of());
 
         final Score score1 = new Score(plugin1, ZonedDateTime.now());
         score1.addDetail(p1sr1);
@@ -134,7 +124,7 @@ class ScoreAPITest {
                                         'value': 1,
                                         'weight': 1,
                                         'components': {
-                                            'probe-1': { 'value': 1, 'max': 1 }
+                                            'probe-1': { 'passed': true, 'description': 1 }
                                         }
                                     }
                                 }
@@ -146,15 +136,15 @@ class ScoreAPITest {
                                         'value': 1,
                                         'weight': 1,
                                         'components': {
-                                            'probe-1': { 'value': 1, 'max': 1 }
+                                            'probe-1': { 'passed': true, 'description': 1 }
                                         }
                                     },
                                     'scoring-2': {
                                         'value': 0,
                                         'weight': 1,
                                         'components': {
-                                            'probe-2': { 'value':  0, 'max': 1 },
-                                            'probe-3': { 'value':  0, 'max': 1 }
+                                            'probe-2': { 'passed': false, 'description':  0 },
+                                            'probe-3': { 'passed': false, 'description':  0 }
                                         }
                                     }
                                 }

@@ -24,13 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
-
-import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
-import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
-import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
-import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
-import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -40,17 +34,27 @@ public class PluginMaintenanceScoring extends Scoring {
     private static final String KEY = "repository-configuration";
 
     @Override
+    public List<Changelog> getChangelog() {
+        return List.of(
+            // JenkinsFile presence
+            // Documentation migration done
+            // Dependabot and not dependency pull requests
+            // Renovate and no dependency pull requests
+            // ContinuousDelivery JEP
+        );
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
     }
 
-    @Override
-    public Map<String, Float> getScoreComponents() {
+    /*public Map<String, Float> getScoreComponents() {
         return Map.of(
             JenkinsfileProbe.KEY, .65f,
             DocumentationMigrationProbe.KEY, .15f,
@@ -58,7 +62,7 @@ public class PluginMaintenanceScoring extends Scoring {
             DependabotPullRequestProbe.KEY, -.15f,
             ContinuousDeliveryProbe.KEY, .05f
         );
-    }
+    }*/
 
     @Override
     public String description() {

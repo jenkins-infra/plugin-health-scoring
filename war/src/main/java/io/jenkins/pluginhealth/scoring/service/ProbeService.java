@@ -96,10 +96,10 @@ public class ProbeService {
 
     public Map<String, ProbeView> getProbesView() {
         return getProbes().stream()
-            .map(probe -> new ProbeView(probe.key(), probe.getDescription(), probe.getProbeResultRequirement()))
+            .map(probe -> new ProbeView(probe.key(), probe.getDescription()))
             .collect(Collectors.toMap(ProbeView::key, p -> p));
     }
 
-    public record ProbeView(String key, String description, String[] requirements) {
+    public record ProbeView(String key, String description) {
     }
 }

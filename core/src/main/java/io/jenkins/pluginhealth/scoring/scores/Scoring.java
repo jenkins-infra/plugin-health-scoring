@@ -24,6 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
@@ -38,7 +47,47 @@ public abstract class Scoring {
      * @param plugin the plugin to score
      * @return a {@link ScoreResult} describing the plugin based on the ProbeResult and the scoring requirements.
      */
-    public abstract ScoreResult apply(Plugin plugin);
+    public final ScoreResult apply(Plugin plugin) {
+        return getChangelog().stream()
+            .map(changelog -> changelog.getScore(plugin.getDetails()))
+            .collect(new Collector<ChangelogResult, ScoreResult, ScoreResult>() {
+                @Override
+                public Supplier<ScoreResult> supplier() {
+                    return () -> new ScoreResult(key(), 0, weight(), Set.of());
+                }
+
+                @Override
+                public BiConsumer<ScoreResult, ChangelogResult> accumulator() {
+                    return (scoreResult, changelogResult) -> scoreResult.reasons().add(changelogResult);
+                }
+
+                @Override
+                public BinaryOperator<ScoreResult> combiner() {
+                    return (scoreResult1, scoreResult2) -> {
+                        scoreResult1.reasons().addAll(scoreResult2.reasons());
+                        return scoreResult1;
+                    };
+                }
+
+                @Override
+                public Function<ScoreResult, ScoreResult> finisher() {
+                    return scoreResult -> {
+                        final double sum = scoreResult.reasons().stream()
+                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() / changelogResult.weight()))
+                            .sum();
+                        final double weight = scoreResult.reasons().stream()
+                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
+                            .sum();
+                        return new ScoreResult(key(), Math.round(100 * (sum / weight)), weight(), scoreResult.reasons());
+                    };
+                }
+
+                @Override
+                public Set<Characteristics> characteristics() {
+                    return Set.of(Characteristics.IDENTITY_FINISH);
+                }
+            });
+    }
 
     /**
      * Returns the key identifier for the scoring implementation.
@@ -53,7 +102,7 @@ public abstract class Scoring {
      *
      * @return the weight of the scoring implementation.
      */
-    public abstract float coefficient();
+    public abstract float weight();
 
     /**
      * Returns a description of the scoring implementation.
@@ -62,7 +111,14 @@ public abstract class Scoring {
      */
     public abstract String description();
 
-    public String name() {
+    /**
+     * Provides the list of elements evaluated for this scoring.
+     *
+     * @return the list of {@link Changelog} considered for this score category of a plugin.
+     */
+    public abstract List<Changelog> getChangelog();
+
+    public final String name() {
         return getClass().getSimpleName();
     }
 }

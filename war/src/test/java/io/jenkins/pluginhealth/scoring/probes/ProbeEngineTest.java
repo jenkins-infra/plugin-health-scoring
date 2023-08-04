@@ -44,7 +44,6 @@ import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -87,7 +86,7 @@ class ProbeEngineTest {
 
         when(probe.doApply(plugin, ctx)).thenReturn(expectedResult);
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -113,7 +112,7 @@ class ProbeEngineTest {
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.key()).thenReturn(probeKey);
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -131,7 +130,7 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            "probe", new ProbeResult("probe", "message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
+            "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
         when(plugin.getName()).thenReturn("foo");
 
@@ -139,7 +138,7 @@ class ProbeEngineTest {
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.isSourceCodeRelated()).thenReturn(true);
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -154,10 +153,10 @@ class ProbeEngineTest {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ProbeResult result = new ProbeResult("probe", "message", ResultStatus.SUCCESS);
+        final ProbeResult result = new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            "probe", new ProbeResult("probe", "message", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
+            "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
         when(plugin.getName()).thenReturn("foo");
 
@@ -167,7 +166,7 @@ class ProbeEngineTest {
         when(probe.isSourceCodeRelated()).thenReturn(true);
         when(probe.doApply(plugin, ctx)).thenReturn(result);
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -187,13 +186,13 @@ class ProbeEngineTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))));
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))));
 
         when(probe.key()).thenReturn(probeKey);
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -214,14 +213,14 @@ class ProbeEngineTest {
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey,
-            new ProbeResult(probeKey, "this is ok", ResultStatus.SUCCESS, ZonedDateTime.now().minusDays(1))
+            new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
 
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
         when(probe.key()).thenReturn(probeKey);
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -242,7 +241,7 @@ class ProbeEngineTest {
 
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar"));
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
@@ -281,7 +280,7 @@ class ProbeEngineTest {
         when(probeOne.key()).thenReturn("foo");
         when(probeOne.doApply(plugin, ctx)).thenReturn(ProbeResult.success("foo", "This is ok"));
 
-        when(probeService.getProbeContext(anyString(), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probeOne, probeTwo));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 

@@ -25,10 +25,9 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.List;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
 import org.springframework.stereotype.Component;
@@ -39,17 +38,31 @@ public class SecurityWarningScoring extends Scoring {
     private static final String KEY = "security";
 
     @Override
-    public ScoreResult apply(Plugin plugin) {
-        final ProbeResult knownSecurityResult = plugin.getDetails().get(KnownSecurityVulnerabilityProbe.KEY);
-        if (knownSecurityResult == null) {
-            return new ScoreResult(key(), 0, coefficient(), List.of());
-        }
+    public List<Changelog> getChangelog() {
+        return List.of(
+            new Changelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must not have on-going security advisory.";
+                }
 
-        return new ScoreResult(
-            key(),
-            "Plugin is OK".equals(knownSecurityResult.message()) ? 1 : 0,
-            coefficient(),
-            List.of(knownSecurityResult)
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(KnownSecurityVulnerabilityProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
+                    }
+                    if ("Plugin is OK".equals(probeResult.message())) {
+                        return new ChangelogResult(1, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
+                    }
+                    return new ChangelogResult(0, getWeight(), List.of("Plugin seem to have on-going security advisory.", probeResult.message()));
+                }
+
+                @Override
+                public int getWeight() {
+                    return 1;
+                }
+            }
         );
     }
 
@@ -59,7 +72,7 @@ public class SecurityWarningScoring extends Scoring {
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
     }
 

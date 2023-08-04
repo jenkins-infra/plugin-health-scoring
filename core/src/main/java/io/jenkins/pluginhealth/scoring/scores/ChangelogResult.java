@@ -22,30 +22,16 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.List;
 
-import io.jenkins.pluginhealth.scoring.scores.ChangelogResult;
-
-public record ScoreResult(String key, float value, float weight, Set<ChangelogResult> reasons) {
-    public ScoreResult {
-        if (weight > 1) {
-            throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ScoreResult that = (ScoreResult) o;
-        return key.equals(that.key);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(key);
-    }
+/**
+ * Describes the evaluation from a {@link Changelog} on a specific plugin.
+ *
+ * @param score   the score representing the points granted to the plugin
+ * @param weight  the weight of the score
+ * @param reasons the list of string explaining the score granted to the plugin
+ */
+public record ChangelogResult(float score, float weight, List<String> reasons) {
 }

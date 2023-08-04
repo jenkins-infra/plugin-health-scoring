@@ -56,7 +56,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("security");
-        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0f);
     }
 
@@ -70,7 +70,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("security");
-        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0f);
     }
 
@@ -86,7 +86,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("security");
-        assertThat(result.coefficient()).isEqualTo(1f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(1f);
     }
 }

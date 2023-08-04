@@ -25,14 +25,15 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.probes.HasUnreleasedProductionChangesProbe;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
@@ -43,31 +44,154 @@ public class AdoptionScoring extends Scoring {
     private static final float COEFFICIENT = 0.8f;
     private static final String KEY = "adoption";
 
+    private static abstract class TimeSinceLastCommitChangelog extends Changelog {
+        public final Duration getTimeBetweenLastCommitAndNow(String lastCommitDateMessage) {
+            final ZoneId utc = ZoneId.of("UTC");
+            final ZonedDateTime commitDate = ZonedDateTime
+                .parse(lastCommitDateMessage, DateTimeFormatter.ISO_DATE_TIME)
+                .withZoneSameInstant(utc);
+            final ZonedDateTime now = ZonedDateTime.now(utc);
+            return Duration.between(now, commitDate);
+        }
+
+        @Override
+        public final int getWeight() {
+            return 1;
+        }
+    }
+
     @Override
-    public ScoreResult apply(Plugin plugin) {
-        final ProbeResult upForAdoptionResult = plugin.getDetails().get(UpForAdoptionProbe.KEY);
-        if (upForAdoptionResult == null || "This plugin is up for adoption.".equals(upForAdoptionResult.message())) {
-            return new ScoreResult(key(), 0, coefficient(), upForAdoptionResult != null ? List.of(upForAdoptionResult) : List.of());
-        }
+    public List<Changelog> getChangelog() {
+        return List.of(
+            new Changelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must not be marked as up for adoption.";
+                }
 
-        final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
-        if (lastCommitProbeResult != null) {
-            final String message = lastCommitProbeResult.message();
-            final ZonedDateTime commitDateTime = ZonedDateTime.parse(message, DateTimeFormatter.ISO_DATE_TIME);
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult upForAdoptionResult = probeResults.get(UpForAdoptionProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(upForAdoptionResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine if the plugin is up for adoption."));
+                    }
 
-            final Duration between = Duration.between(plugin.getReleaseTimestamp().toInstant(), commitDateTime.toInstant());
-            if (between.toDays() <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) { // Less than 6 months
-                return new ScoreResult(KEY, 1, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
-            } else if (between.toDays() < Duration.of(365, ChronoUnit.DAYS).toDays()) { // Less than a year
-                return new ScoreResult(KEY, .75f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
-            } else if (between.toDays() < Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) { // Less than 2 years
-                return new ScoreResult(KEY, .5f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
-            } else if (between.toDays() < Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) { // Less than 4 years
-                return new ScoreResult(KEY, .25f, COEFFICIENT, List.of(upForAdoptionResult, lastCommitProbeResult));
+                    return switch (upForAdoptionResult.message()) {
+                        case "This plugin is not up for adoption." ->
+                            new ChangelogResult(1, weight(), List.of("The plugin is marked as up for adoption"));
+                        case "This plugin is up for adoption." ->
+                            new ChangelogResult(0, weight(), List.of("The plugin is not marked as up for adoption"));
+                        default -> new ChangelogResult(-10, weight(), List.of());
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 5;
+                }
+            },
+            new TimeSinceLastCommitChangelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must have a commit in the last 6 months.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+
+                    if (getTimeBetweenLastCommitAndNow(probeResult.message()).toDays() <= Duration.of(6, ChronoUnit.MONTHS).toDays()) {
+                        return new ChangelogResult(1, weight(), List.of("At least one commit happened in the last 6 months."));
+                    }
+                    return new ChangelogResult(0, weight(), List.of("No commit in the last 6 months."));
+                }
+            },
+            new TimeSinceLastCommitChangelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must have a commit in the last year";
+                }
+
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    if (getTimeBetweenLastCommitAndNow(probeResult.message()).toDays() <= Duration.of(1, ChronoUnit.YEARS).toDays()) {
+                        return new ChangelogResult(.75f, weight(), List.of("At least one commit happened in the last year."));
+                    }
+                    return new ChangelogResult(0, weight(), List.of("No commit in the last year."));
+                }
+            },
+            new TimeSinceLastCommitChangelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must have a commit in the last 2 years.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    if (getTimeBetweenLastCommitAndNow(probeResult.message()).toDays() <= Duration.of(2, ChronoUnit.YEARS).toDays()) {
+                        return new ChangelogResult(.5f, weight(), List.of("At least one commit happened in the last 2 years."));
+                    }
+                    return new ChangelogResult(0, weight(), List.of("No commit in the last 2 years."));
+                }
+            },
+            new TimeSinceLastCommitChangelog() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must have a commit in the last 4 years.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    if (getTimeBetweenLastCommitAndNow(probeResult.message()).toDays() <= Duration.of(4, ChronoUnit.YEARS).toDays()) {
+                        return new ChangelogResult(.25f, weight(), List.of("At least one commit happened in the last 4 years."));
+                    }
+                    return new ChangelogResult(0, weight(), List.of("No commit in the last 4 years."));
+                }
+            },
+            new Changelog() {
+                @Override
+                public String getDescription() {
+                    return "Plugin should not have unreleased changes on production code.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(HasUnreleasedProductionChangesProbe.KEY);
+                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine if the plugin has unreleased production changes."));
+                    }
+
+                    if ("All production modifications were released.".equals(probeResult.message())) {
+                        return new ChangelogResult(1, getWeight(), List.of("The plugins does not have unreleased changes on productions code."));
+                    }
+
+                    if (probeResult.message().startsWith("Unreleased production modifications might exist")) {
+                        return new ChangelogResult(0, getWeight(), List.of("The plugins might have unreleased changes on productions code.", probeResult.message()));
+                    }
+                    return new ChangelogResult(-5, getWeight(), List.of("Cannot determine if the plugin has unreleased production changes or not.", probeResult.message()));
+                }
+
+                @Override
+                public int getWeight() {
+                    return 2;
+                }
             }
-        }
-        List<ProbeResult> reasons = lastCommitProbeResult != null ? List.of(upForAdoptionResult, lastCommitProbeResult) : List.of(upForAdoptionResult);
-        return new ScoreResult(KEY, 0, COEFFICIENT, reasons);
+        );
     }
 
     @Override
@@ -76,9 +200,10 @@ public class AdoptionScoring extends Scoring {
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
     }
+
 
     @Override
     public String description() {

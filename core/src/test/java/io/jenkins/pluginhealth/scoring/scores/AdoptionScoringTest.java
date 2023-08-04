@@ -58,7 +58,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
     }
 
@@ -75,7 +75,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
     }
 

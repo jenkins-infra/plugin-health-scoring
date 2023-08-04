@@ -31,6 +31,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -63,21 +64,21 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
             ),
             arguments(// All bad
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 0f
             ),
             arguments(// All bad with open dependabot pull request
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 0f
             ),
@@ -94,9 +95,9 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
             arguments(// Only Jenkinsfile
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .65f
             ),
@@ -104,9 +105,9 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .65f
             ),
@@ -115,25 +116,25 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .8f
             ),
             arguments(// Jenkinsfile and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .7f
             ),
             arguments(// Jenkinsfile and documentation
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .8f
@@ -142,9 +143,9 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .7f
             ),
@@ -154,82 +155,82 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .85f
             ),
             arguments(// Dependabot only with no open pull requests
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .15f
             ),
             arguments(// CD only
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .05f
             ),
             arguments(// Dependabot with no open pull request and CD
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
-                    DocumentationMigrationProbe.KEY, ProbeResult.failure(DocumentationMigrationProbe.KEY, "")
+                    DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .2f
             ),
             arguments(// Dependabot with no open pull request and documentation
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .3f
             ),
             arguments(// Documentation migration only
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .15f
             ),
             arguments(// Documentation migration and Dependabot but with open pull requests
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
-                    DependabotPullRequestProbe.KEY, ProbeResult.failure(DependabotPullRequestProbe.KEY, "1"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1"),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .15f
             ),
             arguments(// Documentation migration and Dependabot with no open pull requests
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0"),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.failure(ContinuousDeliveryProbe.KEY, ""),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
                 .3f
             ),
             arguments(// Documentation migration and CD
                 Map.of(
-                    JenkinsfileProbe.KEY, ProbeResult.failure(JenkinsfileProbe.KEY, ""),
-                    DependabotProbe.KEY, ProbeResult.failure(DependabotProbe.KEY, ""),
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, ""),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""),
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
@@ -248,13 +249,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
 
         final ScoreResult result = scoring.apply(plugin);
 
-        assertThat(result.key())
-            .withFailMessage(() -> "Score key should be '%s'".formatted(KEY))
-            .isEqualTo(KEY);
-        assertThat(result.coefficient())
-            .withFailMessage(() -> "Score coefficient should be '%f'".formatted(COEFFICIENT))
-            .isEqualTo(COEFFICIENT);
-        assertThat(result.value())
-            .isEqualTo(value);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("key", "value", "weight")
+            .isEqualTo(new ScoreResult(KEY, value, COEFFICIENT, Set.of()));
     }
 }

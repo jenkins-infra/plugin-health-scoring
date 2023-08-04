@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -70,9 +71,10 @@ public class LastCommitDateProbe extends Probe {
                 return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                commit.getAuthorIdent().getWhenAsInstant(),
-                commit.getAuthorIdent().getZoneId()
-            ).truncatedTo(ChronoUnit.SECONDS);
+                    commit.getAuthorIdent().getWhenAsInstant(),
+                    commit.getAuthorIdent().getZoneId()
+                ).withZoneSameInstant(ZoneId.of("UTC"))
+                .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
             return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {

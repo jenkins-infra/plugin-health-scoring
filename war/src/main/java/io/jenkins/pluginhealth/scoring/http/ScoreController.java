@@ -77,7 +77,7 @@ public class ScoreController {
                     ))
                     .collect(Collectors.toMap(ProbeResultView::key, value -> value));
                 final List<ScoreResultView> scoreComponents = score.getDetails().stream()
-                    .map(result -> new ScoreResultView(result.key(), result.value(), result.coefficient()))
+                    .map(result -> new ScoreResultView(result.key(), result.value(), result.weight()))
                     .toList();
                 final Map<String, ScoringService.ScoreView> scores = scoringService.getScoringsView();
                 final Map<String, ProbeService.ProbeView> probes = probeService.getProbesView();

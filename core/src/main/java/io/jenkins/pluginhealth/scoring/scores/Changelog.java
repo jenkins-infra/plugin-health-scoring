@@ -22,30 +22,33 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.model;
+package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.scores.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-public record ScoreResult(String key, float value, float weight, Set<ChangelogResult> reasons) {
-    public ScoreResult {
-        if (weight > 1) {
-            throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");
-        }
-    }
+public abstract class Changelog {
+    /**
+     * Provides a human readable description of the behavior of the Changelog.
+     *
+     * @return the description of the implementation.
+     */
+    public abstract String getDescription();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ScoreResult that = (ScoreResult) o;
-        return key.equals(that.key);
-    }
+    /**
+     * Evaluates the provided {@link ProbeResult} map against the requirement for this implementation
+     * and returns a {@link ChangelogResult} describing the evaluation.
+     *
+     * @param probeResults the plugin's {@link ProbeResult} map
+     * @return a {@link ChangelogResult} describing the evaluation done based on the provided {@link ProbeResult} map
+     */
+    public abstract ChangelogResult getScore(Map<String, ProbeResult> probeResults);
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(key);
-    }
+    /**
+     * The weight of this Changelog
+     *
+     * @return an integer representing the importance of the current Changelog implementation.
+     */
+    public abstract int getWeight();
 }

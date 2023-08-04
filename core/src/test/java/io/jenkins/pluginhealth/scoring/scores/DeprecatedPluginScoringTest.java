@@ -56,7 +56,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(1f);
     }
 
@@ -70,7 +70,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0f);
     }
 
@@ -86,7 +86,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0f);
     }
 }

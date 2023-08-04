@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -98,7 +99,7 @@ class ScoreControllerTest {
         when(score.getPlugin()).thenReturn(plugin);
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(
-            new ScoreResult(scoreKey, .42f, 1f)
+            new ScoreResult(scoreKey, .42f, 1f, Set.of())
         ));
 
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));
