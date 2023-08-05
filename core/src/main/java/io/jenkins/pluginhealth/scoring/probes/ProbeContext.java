@@ -89,7 +89,7 @@ public class ProbeContext {
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
     }
 
-    public void setIssueTrack(Map<String, String> issueTrackerType) {
+    public void setIssueTrackType(Map<String, String> issueTrackerType) {
         this.issueTrackerType = issueTrackerType;
     }
 

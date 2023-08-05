@@ -27,9 +27,10 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -39,62 +40,46 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 
-class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCenterPluginPublicationProbe> {
+class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDetectionProbe> {
     @Override
-    UpdateCenterPluginPublicationProbe getSpy() {
-        return spy(UpdateCenterPluginPublicationProbe.class);
+    IssueTrackerDetectionProbe getSpy() {
+        return spy(IssueTrackerDetectionProbe.class);
     }
 
     @Test
-    void shouldNotRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
-    @Test
-    void shouldFailIfPluginIsNotInUpdateCenterMap() {
+    void shouldDetectIssueTrackerInPlugin() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
+        final ProbeContext ctx =spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of(), List.of())));;
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
         final String pluginName = "foo";
 
-        when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            Collections.emptyList(),
-            Collections.emptyList()
-        ));
-
-        final UpdateCenterPluginPublicationProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
-
-        assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center"));
-    }
-
-    @Test
-    void shouldSucceedIfPluginIsInUpdateCenterMap() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final String pluginName = "foo";
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
 
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                pluginName, null, null, null, List.of(), 0, "2.361.1", "main", List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                List.of(issueTrackerGithub, issueTrackerJira)
             )),
             Map.of(),
             List.of(),
             List.of()
         ));
 
-        final UpdateCenterPluginPublicationProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
+        final IssueTrackerDetectionProbe probe = getSpy();
 
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center"));
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+
+        assert(ctx.getIssueTrackerType()).equals(Map.of("github","https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        verify(probe).doApply(plugin, ctx);
     }
+
 }

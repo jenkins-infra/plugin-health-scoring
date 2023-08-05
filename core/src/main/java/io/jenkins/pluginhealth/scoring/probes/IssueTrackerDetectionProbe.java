@@ -41,14 +41,7 @@ class IssueTrackerDetectionProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        Map<String, String> issueTrackerType = context.getUpdateCenter()
-            .issueTrackers().stream()
-            .collect(Collectors.toMap(
-                issueTracker -> issueTracker.get("type"),
-                issueTracker -> issueTracker.get("viewUrl")
-            ));
-
-        context.setIssueTrack(issueTrackerType);
+        context.setIssueTrackType(getIssueTrackerData(context.getUpdateCenter().plugins()));
         return ProbeResult.success(key(), "Issue tracker detected and returned successfully.");
     }
 
@@ -66,4 +59,12 @@ class IssueTrackerDetectionProbe extends Probe {
     public String[] getProbeResultRequirement() {
         return new String[]{UpdateCenterPluginPublicationProbe.KEY};
     }
+
+    private Map<String, String> getIssueTrackerData(Map<String, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin> plugin) {
+        return plugin.values().stream()
+            .flatMap(entry -> entry.getIssueTrackers().stream())
+            .collect(Collectors.toMap(io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers::type,
+                io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers::viewUrl));
+    }
+
 }
