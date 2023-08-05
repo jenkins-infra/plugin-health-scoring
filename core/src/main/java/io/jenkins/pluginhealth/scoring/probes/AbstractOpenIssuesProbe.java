@@ -63,9 +63,7 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[] {
-            SCMLinkValidationProbe.KEY, IssueTrackerDetectionProbe.KEY
-        };
+        return new String[] {SCMLinkValidationProbe.KEY, IssueTrackerDetectionProbe.KEY};
     }
 
     /**
@@ -90,7 +88,7 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
             }
             URL url = new URL(viewJiraIssuesUrl);
             String api = JIRA_HOST + url.getQuery() + " AND status=open";
-            System.out.println("api = " + api);
+
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
             ObjectMapper objectMapper = new ObjectMapper();

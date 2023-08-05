@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
 @Order(value = IssueTrackerDetectionProbe.ORDER)
 class IssueTrackerDetectionProbe extends Probe {
     public static final String KEY = "issue-tracker-detection";
-    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100 ;
+    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {

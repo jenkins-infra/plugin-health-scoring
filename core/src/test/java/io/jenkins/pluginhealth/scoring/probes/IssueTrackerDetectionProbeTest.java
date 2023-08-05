@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -49,7 +50,7 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
     @Test
     void shouldDetectIssueTrackerInPlugin() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx =spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of(), List.of())));;
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of(), List.of())));;
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
         final String pluginName = "foo";
@@ -78,7 +79,7 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert(ctx.getIssueTrackerType()).equals(Map.of("github","https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("github", "https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
