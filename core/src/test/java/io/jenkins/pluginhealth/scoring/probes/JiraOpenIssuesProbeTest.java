@@ -27,12 +27,15 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +97,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
     }
 
     @Test
-    void shouldBeAbleToFindNumberOfOpenIssuesInJira() throws UnsupportedEncodingException {
+    void shouldBeAbleToFindNumberOfOpenIssuesInJira() {
         final String pluginName = "mailer";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
@@ -122,7 +125,6 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
                 List.of(issueTrackerJira)
             )),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

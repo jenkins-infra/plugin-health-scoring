@@ -91,7 +91,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
                 )
             ),
             Map.of(),
-            List.of(),
             List.of()
         ));
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
@@ -134,7 +133,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
                 )
             ),
             Map.of(),
-            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
@@ -187,7 +185,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
                 )
             ),
             Map.of(),
-            List.of(),
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);

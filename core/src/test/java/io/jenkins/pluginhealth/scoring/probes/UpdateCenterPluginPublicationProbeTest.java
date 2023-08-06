@@ -60,7 +60,6 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -85,7 +84,6 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
                 pluginName, null, null, null, List.of(), 0, "2.361.1", "main", List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
             )),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

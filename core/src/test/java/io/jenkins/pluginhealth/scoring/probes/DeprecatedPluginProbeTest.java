@@ -65,7 +65,6 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
             Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main",
                     List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
             Map.of("bar", new Deprecation("find-the-reason-here")),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -85,7 +84,6 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
             Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main",
                 List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
             Map.of("bar", new Deprecation("find-the-reason-here"), "foo", new Deprecation("this-is-the-reason")),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -108,7 +106,6 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
                     List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))
             ),
             Map.of(),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -131,7 +128,6 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 

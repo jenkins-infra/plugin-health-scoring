@@ -113,7 +113,6 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
                 List.of(issueTrackerGithub)
             )),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

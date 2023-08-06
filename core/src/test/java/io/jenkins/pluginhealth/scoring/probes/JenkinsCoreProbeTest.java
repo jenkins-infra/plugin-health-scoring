@@ -67,7 +67,6 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
-            List.of(),
             List.of()
         ));
 
@@ -101,7 +100,6 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
                 )
             ),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

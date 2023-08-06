@@ -50,7 +50,7 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
     @Test
     void shouldDetectIssueTrackerInPlugin() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of(), List.of())));;
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
         final String pluginName = "foo";
@@ -68,7 +68,6 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
                 List.of(issueTrackerGithub, issueTrackerJira)
             )),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

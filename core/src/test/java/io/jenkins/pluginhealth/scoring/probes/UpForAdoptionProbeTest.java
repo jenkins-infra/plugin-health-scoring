@@ -64,7 +64,6 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
             Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"), 0, "", "main",
                 List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
             Collections.emptyMap(),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -84,7 +83,6 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
             Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"), 0, "", "main",
                 List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
             Collections.emptyMap(),
-            Collections.emptyList(),
             Collections.emptyList()
         ));
 
@@ -103,7 +101,6 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

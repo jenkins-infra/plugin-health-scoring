@@ -95,7 +95,6 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
                 new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(pluginName, null, null, null, List.of(), 100, "", "main", List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))
             ),
             Map.of(),
-            List.of(),
             List.of()
         ));
 

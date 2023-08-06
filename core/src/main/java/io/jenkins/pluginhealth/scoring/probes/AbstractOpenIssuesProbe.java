@@ -51,7 +51,6 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOpenIssuesProbe.class);
     RestTemplate restTemplate = new RestTemplate();
 
-
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         Map<String, BiFunction<Plugin, ProbeContext, ProbeResult>> trackerMethods = createTrackerMethods();

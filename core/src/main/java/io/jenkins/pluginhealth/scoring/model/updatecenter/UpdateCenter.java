@@ -29,8 +29,6 @@ import java.util.Map;
 
 public record UpdateCenter(Map<String, Plugin> plugins,
                            Map<String, Deprecation> deprecations,
-                           List<SecurityWarning> warnings,
-                           List<Map<String, String>> issueTrackers
-
+                           List<SecurityWarning> warnings
 ) {
 }
