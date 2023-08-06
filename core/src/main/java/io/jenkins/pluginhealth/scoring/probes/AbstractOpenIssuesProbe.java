@@ -49,6 +49,8 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
     public static final int ORDER = IssueTrackerDetectionProbe.ORDER + 100;
     private static final String JIRA_HOST = "https://issues.jenkins.io/rest/api/latest/search?";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractOpenIssuesProbe.class);
+    RestTemplate restTemplate = new RestTemplate();
+
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -89,7 +91,6 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
             URL url = new URL(viewJiraIssuesUrl);
             String api = JIRA_HOST + url.getQuery() + " AND status=open";
 
-            RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = response.getBody();

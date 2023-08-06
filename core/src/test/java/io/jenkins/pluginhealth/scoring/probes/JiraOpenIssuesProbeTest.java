@@ -25,11 +25,9 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -43,12 +41,17 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
 class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
+
+    @InjectMocks
+    JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
 
     @Override
     JiraOpenIssuesProbe getSpy() {
@@ -95,10 +98,11 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         final String pluginName = "mailer";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
-        RestTemplate restTemplate = mock(RestTemplate.class);
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+        final RestTemplate mockedRestTemplate = mock(RestTemplate.class);
+        final ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
 
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira =
             new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
@@ -126,18 +130,25 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getIssueTrackerType()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
 
-        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(mockedRestTemplate).build();
         server.expect(requestTo("https://issues.jenkins.io/rest/api/latest/search?jql=component%3D18331%20AND%20status%3Dopen"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(jsonString, MediaType.APPLICATION_JSON));
 
-        final JiraOpenIssuesProbe probe = getSpy();
+        when(mockedResponseEntity.getBody()).thenReturn(jsonString);
 
-        assertThat(probe.apply(plugin, ctx))
+        when(mockedRestTemplate.getForEntity(
+                anyString(),
+                any(Class.class)
+            ))
+            .thenReturn(mockedResponseEntity);
+
+        jiraOpenIssuesProbe.restTemplate = mockedRestTemplate;
+
+        assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JiraOpenIssuesProbe.KEY, "0 open issues found in JIRA."));
-        verify(probe).doApply(plugin, ctx);
+            .isEqualTo(ProbeResult.success(JiraOpenIssuesProbe.KEY, "10 open issues found in JIRA."));
     }
 
 }
