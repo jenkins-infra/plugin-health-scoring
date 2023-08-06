@@ -25,10 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,6 +42,26 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
     @Override
     IssueTrackerDetectionProbe getSpy() {
         return spy(IssueTrackerDetectionProbe.class);
+    }
+
+    @Test
+    void shouldNotRunWithInvalidProbeResultRequirement() {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(),
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.failure(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(IssueTrackerDetectionProbe.KEY, "issue-tracker-detection does not meet the criteria to be executed on null"));
+        verify(probe, never()).doApply(plugin, ctx);
     }
 
     @Test
@@ -79,6 +96,74 @@ class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDete
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
         assert Objects.equals(ctx.getIssueTrackerType(), Map.of("github", "https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
+    void shouldDetectForOnlyGHInIssueTracker() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
+        final String pluginName = "foo";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                    List.of(issueTrackerGithub)
+            )),
+            Map.of(),
+            List.of()
+        ));
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+
+        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("github", "https://github.com/foo-plugin/issues"));
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
+    void shouldDetectForOnlyJIRAInIssueTracker() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
+        final String pluginName = "foo";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                List.of(issueTrackerJira)
+            )),
+            Map.of(),
+            List.of()
+        ));
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+
+        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 

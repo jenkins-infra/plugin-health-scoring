@@ -59,7 +59,7 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
         if (getOpenIssues != null) {
             return getOpenIssues.apply(plugin, context);
         }
-        return ProbeResult.failure(key(), String.format("Could not find a valid issue tracker type for plugin {}", plugin.getName()));
+        return ProbeResult.error(key(), String.format("Cannot not find a valid issue tracker type for plugin {}", plugin.getName()));
     }
 
     @Override
@@ -88,7 +88,7 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
                 return ProbeResult.failure(key(), String.format("JIRA issues is not configured for %s plugin.", pluginName));
             }
             URL url = new URL(viewJiraIssuesUrl);
-            String api = JIRA_HOST + url.getQuery() + " AND status=open";
+            String api = JIRA_HOST.concat(url.getQuery()).concat(" AND status=open");
 
             ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -103,7 +103,7 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
         } catch (MalformedURLException e) {
             LOGGER.error("Cannot process malformed URL for plugin {}.", pluginName, e);
         }
-        return ProbeResult.failure(key(), String.format("Cannot fetch information from JIRA API for plugin %s.", pluginName));
+        return ProbeResult.error(key(), String.format("Cannot fetch information from JIRA API for plugin %s.", pluginName));
     }
 
     /**
