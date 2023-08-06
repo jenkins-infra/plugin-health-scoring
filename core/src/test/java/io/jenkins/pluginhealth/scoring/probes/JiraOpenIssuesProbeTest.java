@@ -48,7 +48,7 @@ import org.springframework.web.client.RestTemplate;
 class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
 
     @InjectMocks
-    JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
+     JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
 
     @Override
     JiraOpenIssuesProbe getSpy() {
@@ -104,7 +104,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira =
             new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
 
-        final String jsonString = "{\"expand\":\"names,schema\",\"startAt\":0,\"maxResults\":50,\"total\":10,\"issues\":[]}";
+        final String JSONString = "{\"expand\":\"names,schema\",\"startAt\":0,\"maxResults\":50,\"total\":10,\"issues\":[]}";
 
         when(plugin.getDetails()).thenReturn(
             Map.of(
@@ -126,7 +126,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getIssueTrackerType()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
 
-        when(mockedResponseEntity.getBody()).thenReturn(jsonString);
+        when(mockedResponseEntity.getBody()).thenReturn(JSONString);
 
         when(mockedRestTemplate.getForEntity(
                 anyString(),
@@ -142,4 +142,55 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
             .isEqualTo(ProbeResult.success(JiraOpenIssuesProbe.KEY, "10 open issues found in JIRA."));
     }
 
+    @Test
+    void shouldReturnErrorWhenJIRAReturnsErrors() {
+        final String pluginName = "foo";
+        final String repository = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + repository;
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final RestTemplate mockedRestTemplate = mock(RestTemplate.class);
+        final ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
+
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira =
+            new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=0", "https://www.jenkins.io/participate/report-issue/redirect/#0");
+
+        final String errorJSONString = "{\"errorMessages\":[\"A value with ID '0' does not exist for the field 'component'.\"],\"errors\":{}}";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+                IssueTrackerDetectionProbe.KEY, ProbeResult.success(IssueTrackerDetectionProbe.KEY, "")
+            )
+        );
+
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                List.of(issueTrackerJira)
+            )),
+            Map.of(),
+            List.of()
+        ));
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getIssueTrackerType()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=0"));
+
+        when(mockedResponseEntity.getBody()).thenReturn(errorJSONString);
+
+        when(mockedRestTemplate.getForEntity(
+            anyString(),
+            any(Class.class)
+        )).thenReturn(mockedResponseEntity);
+
+        jiraOpenIssuesProbe.restTemplate = mockedRestTemplate;
+
+        assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(JiraOpenIssuesProbe.KEY, "Error returned from JIRA API for plugin foo. [\"A value with ID '0' does not exist for the field 'component'.\"]"));
+    }
 }
+

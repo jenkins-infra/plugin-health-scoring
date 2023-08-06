@@ -82,10 +82,10 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
     /**
      * Get total number of open JIRA issues in a plugin
      */
-    protected ProbeResult getJiraIssues(String viewJiraIssuesUrl, String pluginName) {
+    private ProbeResult getJiraIssues(String viewJiraIssuesUrl, String pluginName) {
         try {
             if (viewJiraIssuesUrl.isEmpty()) {
-                return ProbeResult.failure(key(), String.format("JIRA issues is not configured for %s plugin.", pluginName));
+                return ProbeResult.failure(key(), String.format("JIRA issues not found in Update Center for %s plugin.", pluginName));
             }
             URL url = new URL(viewJiraIssuesUrl);
             String api = JIRA_HOST.concat(url.getQuery()).concat(" AND status=open");
@@ -94,6 +94,10 @@ public abstract class AbstractOpenIssuesProbe extends Probe {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = response.getBody();
             JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+
+            if (jsonNode.get("errorMessages") != null) {
+                return ProbeResult.error(key(), String.format("Error returned from JIRA API for plugin %s. %s", pluginName, jsonNode.get("errorMessages")));
+            }
             int openJIRAIssues = jsonNode.get("total").asInt();
             return ProbeResult.success(key(), String.format("%d open issues found in JIRA.", openJIRAIssues));
         } catch (JsonMappingException e) {
