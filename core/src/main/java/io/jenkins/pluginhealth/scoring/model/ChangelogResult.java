@@ -22,16 +22,18 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.scores;
+package io.jenkins.pluginhealth.scoring.model;
 
 import java.util.List;
+
+import io.jenkins.pluginhealth.scoring.scores.Changelog;
 
 /**
  * Describes the evaluation from a {@link Changelog} on a specific plugin.
  *
- * @param score   the score representing the points granted to the plugin
+ * @param score   the score representing the points granted to the plugin, out of 100 (one hundred).
  * @param weight  the weight of the score
  * @param reasons the list of string explaining the score granted to the plugin
  */
-public record ChangelogResult(float score, float weight, List<String> reasons) {
+public record ChangelogResult(int score, float weight, List<String> reasons) {
 }

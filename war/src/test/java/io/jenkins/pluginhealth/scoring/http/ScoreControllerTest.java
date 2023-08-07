@@ -98,7 +98,7 @@ class ScoreControllerTest {
         when(score.getPlugin()).thenReturn(plugin);
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(
-            new ScoreResult(scoreKey, .42f, 1f, Set.of())
+            new ScoreResult(scoreKey, 42, 1f, Set.of())
         ));
 
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));

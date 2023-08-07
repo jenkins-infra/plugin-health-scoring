@@ -27,6 +27,8 @@ package io.jenkins.pluginhealth.scoring.scores;
 import java.util.List;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
@@ -47,13 +49,13 @@ public class SecurityWarningScoring extends Scoring {
                 }
 
                 @Override
-                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
                     final ProbeResult probeResult = probeResults.get(KnownSecurityVulnerabilityProbe.KEY);
-                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
                     }
                     if ("Plugin is OK".equals(probeResult.message())) {
-                        return new ChangelogResult(1, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
+                        return new ChangelogResult(100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                     }
                     return new ChangelogResult(0, getWeight(), List.of("Plugin seem to have on-going security advisory.", probeResult.message()));
                 }

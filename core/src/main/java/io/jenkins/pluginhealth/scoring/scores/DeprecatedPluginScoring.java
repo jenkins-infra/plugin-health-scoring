@@ -27,6 +27,8 @@ package io.jenkins.pluginhealth.scoring.scores;
 import java.util.List;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
@@ -47,14 +49,17 @@ public class DeprecatedPluginScoring extends Scoring {
                 }
 
                 @Override
-                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
                     final ProbeResult probeResult = probeResults.get(DeprecatedPluginProbe.KEY);
+                    if (probeResult == null) {
+                        return new ChangelogResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not."));
+                    }
 
                     return switch (probeResult.message()) {
                         case "This plugin is marked as deprecated." ->
                             new ChangelogResult(0, getWeight(), List.of("Plugin is marked as deprecated."));
                         case "This plugin is NOT deprecated." ->
-                            new ChangelogResult(1, getWeight(), List.of("Plugin is not marked as deprecated."));
+                            new ChangelogResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));
                         default ->
                             new ChangelogResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not.", probeResult.message()));
                     };

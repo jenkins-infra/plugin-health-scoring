@@ -27,6 +27,8 @@ package io.jenkins.pluginhealth.scoring.scores;
 import java.util.List;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
@@ -47,17 +49,17 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
                 }
 
                 @Override
-                public ChangelogResult getScore(Map<String, ProbeResult> probeResults) {
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
                     final ProbeResult probeResult = probeResults.get(UpdateCenterPluginPublicationProbe.KEY);
-                    if (ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine if the plugin is part of the update-center."));
                     }
 
                     return switch (probeResult.message()) {
                         case "This plugin is still actively published by the update-center." ->
-                            new ChangelogResult(1, getWeight(), List.of("The plugin appears in the update-center."));
+                            new ChangelogResult(100, getWeight(), List.of("The plugin appears in the update-center."));
                         case "This plugin's publication has been stopped by the update-center." ->
-                            new ChangelogResult(1, getWeight(), List.of("Ths plugin is not part of the update-center."));
+                            new ChangelogResult(0, getWeight(), List.of("Ths plugin is not part of the update-center."));
                         default ->
                             new ChangelogResult(-5, getWeight(), List.of("Cannot determine if the plugin is part of the update-center or not.", probeResult.message()));
 

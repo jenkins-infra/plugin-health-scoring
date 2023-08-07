@@ -27,9 +27,13 @@ package io.jenkins.pluginhealth.scoring.model;
 import java.util.Objects;
 import java.util.Set;
 
-import io.jenkins.pluginhealth.scoring.scores.ChangelogResult;
-
-public record ScoreResult(String key, float value, float weight, Set<ChangelogResult> reasons) {
+/**
+ * @param key     the identifier of the scoring implementation which produced this result
+ * @param value   the score granted to the plugin by a specific scoring implementation, out of 100 (one hundred).
+ * @param weight  the importance of the score facing the others
+ * @param reasons a list of {@link ChangelogResult} which explain the score
+ */
+public record ScoreResult(String key, int value, float weight, Set<ChangelogResult> reasons) {
     public ScoreResult {
         if (weight > 1) {
             throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");

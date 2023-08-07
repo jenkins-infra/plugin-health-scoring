@@ -98,8 +98,8 @@ class ScoringEngineTest {
         when(pluginB.getName()).thenReturn("plugin-b");
         when(pluginC.getName()).thenReturn("plugin-c");
 
-        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 1, 0.5f, Set.of()));
-        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", .75f, .75f, Set.of()));
+        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 100, 0.5f, Set.of()));
+        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", 75, .75f, Set.of()));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));

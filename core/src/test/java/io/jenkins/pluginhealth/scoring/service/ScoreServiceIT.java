@@ -184,7 +184,7 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         ));
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
-        p1s.addDetail(new ScoreResult(s1Key, .5f, .5f, Set.of()));
+        p1s.addDetail(new ScoreResult(s1Key, 50, .5f, Set.of()));
 
         final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
         p1sOld.addDetail(new ScoreResult(s1Key, 1, 1, Set.of()));
@@ -193,19 +193,19 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         p2s.addDetail(new ScoreResult(s1Key, 0, 1, Set.of()));
 
         final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(5));
-        p2sOld.addDetail(new ScoreResult(s1Key, .9f, 1, Set.of()));
+        p2sOld.addDetail(new ScoreResult(s1Key, 90, 1, Set.of()));
 
         final Score p3s = new Score(p3, ZonedDateTime.now());
         p3s.addDetail(new ScoreResult(s1Key, 1, 1, Set.of()));
 
         final Score p4s = new Score(p4, ZonedDateTime.now());
-        p4s.addDetail(new ScoreResult(s1Key, .75f, 1, Set.of()));
+        p4s.addDetail(new ScoreResult(s1Key, 75, 1, Set.of()));
 
         final Score p5s = new Score(p5, ZonedDateTime.now());
-        p5s.addDetail(new ScoreResult(s1Key, .8f, 1, Set.of()));
+        p5s.addDetail(new ScoreResult(s1Key, 80, 1, Set.of()));
 
         final Score p6s = new Score(p6, ZonedDateTime.now());
-        p6s.addDetail(new ScoreResult(s1Key, .42f, 1, Set.of()));
+        p6s.addDetail(new ScoreResult(s1Key, 42, 1, Set.of()));
 
         final Score p7s = new Score(p7, ZonedDateTime.now());
         p7s.addDetail(new ScoreResult(s1Key, 0, 1, Set.of()));

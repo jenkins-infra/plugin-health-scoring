@@ -106,7 +106,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(100);
     }
 
     @Test
@@ -123,7 +123,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.75f);
+        assertThat(result.value()).isEqualTo(75);
     }
 
     @Test
@@ -140,7 +140,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.5f);
+        assertThat(result.value()).isEqualTo(50);
     }
 
     @Test
@@ -157,7 +157,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.25f);
+        assertThat(result.value()).isEqualTo(25);
     }
 
     @Test
@@ -165,7 +165,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(4));
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(5));
         when(plugin.getDetails()).thenReturn(
             Map.of(
                 UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
@@ -174,6 +174,6 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.value()).isEqualTo(0);
     }
 }

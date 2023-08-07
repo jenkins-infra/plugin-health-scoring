@@ -60,7 +60,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
         return Stream.of(
             arguments(// Nothing
                 Map.of(),
-                0f
+                0
             ),
             arguments(// All bad
                 Map.of(
@@ -70,7 +70,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                0f
+                0
             ),
             arguments(// All bad with open dependabot pull request
                 Map.of(
@@ -80,7 +80,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                0f
+                0
             ),
             arguments(// All good
                 Map.of(
@@ -90,7 +90,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                1f
+                100
             ),
             arguments(// Only Jenkinsfile
                 Map.of(
@@ -99,7 +99,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .65f
+                65
             ),
             arguments(// Jenkinsfile and dependabot but with open pull request
                 Map.of(
@@ -109,7 +109,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .65f
+                65
             ),
             arguments(// Jenkinsfile and dependabot with no open pull request
                 Map.of(
@@ -119,7 +119,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .8f
+                80
             ),
             arguments(// Jenkinsfile and CD
                 Map.of(
@@ -128,7 +128,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .7f
+                80
             ),
             arguments(// Jenkinsfile and documentation
                 Map.of(
@@ -137,7 +137,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .8f
+                80
             ),
             arguments(// Jenkinsfile and CD and dependabot but with open pull request
                 Map.of(
@@ -147,7 +147,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .7f
+                70
             ),
             arguments(// Jenkinsfile and CD and dependabot with no open pull request
                 Map.of(
@@ -157,7 +157,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .85f
+                85
             ),
             arguments(// Dependabot only with no open pull requests
                 Map.of(
@@ -167,7 +167,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .15f
+                15
             ),
             arguments(// CD only
                 Map.of(
@@ -176,7 +176,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .05f
+                5
             ),
             arguments(// Dependabot with no open pull request and CD
                 Map.of(
@@ -186,7 +186,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .2f
+                20
             ),
             arguments(// Dependabot with no open pull request and documentation
                 Map.of(
@@ -196,7 +196,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .3f
+                30
             ),
             arguments(// Documentation migration only
                 Map.of(
@@ -205,7 +205,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .15f
+                15
             ),
             arguments(// Documentation migration and Dependabot but with open pull requests
                 Map.of(
@@ -215,7 +215,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .15f
+                15
             ),
             arguments(// Documentation migration and Dependabot with no open pull requests
                 Map.of(
@@ -225,7 +225,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .3f
+                30
             ),
             arguments(// Documentation migration and CD
                 Map.of(
@@ -234,14 +234,14 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, ""),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "")
                 ),
-                .2f
+                20
             )
         );
     }
 
     @ParameterizedTest
     @MethodSource("probeResultsAndValue")
-    public void shouldScorePluginBasedOnProbeResultMatrix(Map<String, ProbeResult> details, float value) {
+    public void shouldScorePluginBasedOnProbeResultMatrix(Map<String, ProbeResult> details, int value) {
         final Plugin plugin = mock(Plugin.class);
         final PluginMaintenanceScoring scoring = getSpy();
 
