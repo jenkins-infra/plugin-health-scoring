@@ -50,7 +50,7 @@ public class AdoptionScoring extends Scoring {
             final ZonedDateTime commitDate = ZonedDateTime
                 .parse(lastCommitDateMessage, DateTimeFormatter.ISO_DATE_TIME)
                 .withZoneSameInstant(getZone());
-            return Duration.between(commitDate, then);
+            return Duration.between(then, commitDate).abs();
         }
 
         protected ZoneId getZone() {
@@ -58,7 +58,7 @@ public class AdoptionScoring extends Scoring {
         }
 
         @Override
-        public final int getWeight() {
+        public int getWeight() {
             return 1;
         }
     }
@@ -76,27 +76,27 @@ public class AdoptionScoring extends Scoring {
                 public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
                     final ProbeResult probeResult = probeResults.get(UpForAdoptionProbe.KEY);
                     if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ChangelogResult(-100, 100, List.of("Cannot determine if the plugin is up for adoption."));
+                        return new ChangelogResult(-1000, 1000, List.of("Cannot determine if the plugin is up for adoption."));
                     }
 
                     return switch (probeResult.message()) {
                         case "This plugin is not up for adoption." ->
                             new ChangelogResult(100, getWeight(), List.of("The plugin is not marked as up for adoption"));
                         case "This plugin is up for adoption." ->
-                            new ChangelogResult(0, getWeight(), List.of("The plugin is marked as up for adoption"));
+                            new ChangelogResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption"));
                         default -> new ChangelogResult(-100, getWeight(), List.of());
                     };
                 }
 
                 @Override
                 public int getWeight() {
-                    return 10;
+                    return 1;
                 }
             },
             new TimeSinceLastCommitChangelog() {
                 @Override
                 public String getDescription() {
-                    return "The plugin must have a commit in the last 6 months.";
+                    return "There must be less than 6 months between the last commit and the last release.";
                 }
 
                 @Override
@@ -106,16 +106,17 @@ public class AdoptionScoring extends Scoring {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
 
-                    if (getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) {
-                        return new ChangelogResult(100, getWeight(), List.of("At least one commit happened in the last 6 months."));
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) {
+                        return new ChangelogResult(100, getWeight(), List.of("There is less than 6 months between the last release and the last commit."));
                     }
-                    return new ChangelogResult(0, getWeight(), List.of("No commit in the last 6 months."));
+                    return new ChangelogResult(0, getWeight(), List.of("There is more than 6 months between the last release and the last release."));
                 }
             },
             new TimeSinceLastCommitChangelog() {
                 @Override
                 public String getDescription() {
-                    return "The plugin must have a commit in the last year";
+                    return "There must be between 6 months and 1 year between the last commit and the last release.";
                 }
 
                 @Override
@@ -124,17 +125,17 @@ public class AdoptionScoring extends Scoring {
                     if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
-                    if (getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() > Duration.of(6 * 30, ChronoUnit.DAYS).toDays() &&
-                        getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() <= Duration.of(365, ChronoUnit.DAYS).toDays()) {
-                        return new ChangelogResult(75, getWeight(), List.of("At least one commit happened in the last year."));
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(365, ChronoUnit.DAYS).toDays()) {
+                        return new ChangelogResult(100, getWeight(), List.of("There is less than a year between the last commit and the last release."));
                     }
-                    return new ChangelogResult(0, getWeight(), List.of("No commit in the last year."));
+                    return new ChangelogResult(0, getWeight(), List.of("There is no commit within 6 months to 1 year since the last release."));
                 }
             },
             new TimeSinceLastCommitChangelog() {
                 @Override
                 public String getDescription() {
-                    return "The plugin must have a commit in the last 2 years.";
+                    return "There must be a commit between 1 year and 2 years since the last release.";
                 }
 
                 @Override
@@ -143,9 +144,9 @@ public class AdoptionScoring extends Scoring {
                     if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
-                    if (getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() > Duration.of(365, ChronoUnit.DAYS).toDays() &&
-                        getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() <= Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ChangelogResult(50, getWeight(), List.of("At least one commit happened in the last 2 years."));
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ChangelogResult(100, getWeight(), List.of("There is less than 2 years between the last commit and the last release."));
                     }
                     return new ChangelogResult(0, getWeight(), List.of("No commit in the last 2 years."));
                 }
@@ -153,7 +154,7 @@ public class AdoptionScoring extends Scoring {
             new TimeSinceLastCommitChangelog() {
                 @Override
                 public String getDescription() {
-                    return "The plugin must have a commit in the last 4 years.";
+                    return "There must be a commit between 2 years and 4 years since the last release.";
                 }
 
                 @Override
@@ -162,11 +163,36 @@ public class AdoptionScoring extends Scoring {
                     if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
-                    if (getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() > Duration.of(2 * 365, ChronoUnit.DAYS).toDays() &&
-                        getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays() <= Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ChangelogResult(25, getWeight(), List.of("At least one commit happened in the last 4 years."));
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ChangelogResult(100, getWeight(), List.of("There is less than 4 years between the last commit and the last release."));
                     }
                     return new ChangelogResult(0, getWeight(), List.of("No commit in the last 4 years."));
+                }
+            },
+            new TimeSinceLastCommitChangelog() {
+                @Override
+                public String getDescription() {
+                    return "It must have less than 4 years between the last commit and the last release.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days > Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ChangelogResult(-1000, 100, List.of("There is more than 4 years between the last commit and the last release."));
+                    }
+                    return new ChangelogResult(0, getWeight(), List.of("No commit in the last 4 years."));
+
+                }
+
+                @Override
+                public int getWeight() {
+                    return 0;
                 }
             }
         );

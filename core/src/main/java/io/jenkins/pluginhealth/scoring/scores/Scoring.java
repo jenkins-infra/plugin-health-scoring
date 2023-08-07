@@ -81,7 +81,7 @@ public abstract class Scoring {
                 public Function<Set<ChangelogResult>, ScoreResult> finisher() {
                     return changelogResults -> {
                         final double sum = changelogResults.stream()
-                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() / changelogResult.weight()))
+                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() * changelogResult.weight()))
                             .sum();
                         final double weight = changelogResults.stream()
                             .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))

@@ -93,7 +93,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
     }
 
     @Test
-    void shouldScoreOneForPluginsWithCommitsLessThanSixMonthsOld() {
+    void shouldScoreHundredForPluginsWithCommitsLessThanSixMonthsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
@@ -110,7 +110,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
     }
 
     @Test
-    void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
+    void shouldScoreEightyForPluginsWithCommitsLessThanOneYearOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
@@ -123,11 +123,11 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(75);
+        assertThat(result.value()).isEqualTo(80);
     }
 
     @Test
-    void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
+    void shouldScoreSixtyForPluginsWithCommitsLessThanTwoYearsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
@@ -140,11 +140,11 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(50);
+        assertThat(result.value()).isEqualTo(60);
     }
 
     @Test
-    void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
+    void shouldScoreFortyForPluginsWithCommitsLessThanFourYearsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
@@ -157,7 +157,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(25);
+        assertThat(result.value()).isEqualTo(40);
     }
 
     @Test
