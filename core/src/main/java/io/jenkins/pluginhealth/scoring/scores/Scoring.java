@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -50,41 +51,41 @@ public abstract class Scoring {
     public final ScoreResult apply(Plugin plugin) {
         return getChangelog().stream()
             .map(changelog -> changelog.getScore(plugin.getDetails()))
-            .collect(new Collector<ChangelogResult, ScoreResult, ScoreResult>() {
+            .collect(new Collector<ChangelogResult, Set<ChangelogResult>, ScoreResult>() {
                 @Override
-                public Supplier<ScoreResult> supplier() {
-                    return () -> new ScoreResult(key(), 0, weight(), Set.of());
+                public Supplier<Set<ChangelogResult>> supplier() {
+                    return HashSet::new;
                 }
 
                 @Override
-                public BiConsumer<ScoreResult, ChangelogResult> accumulator() {
-                    return (scoreResult, changelogResult) -> scoreResult.reasons().add(changelogResult);
+                public BiConsumer<Set<ChangelogResult>, ChangelogResult> accumulator() {
+                    return Set::add;
                 }
 
                 @Override
-                public BinaryOperator<ScoreResult> combiner() {
-                    return (scoreResult1, scoreResult2) -> {
-                        scoreResult1.reasons().addAll(scoreResult2.reasons());
-                        return scoreResult1;
+                public BinaryOperator<Set<ChangelogResult>> combiner() {
+                    return (changelogResults, changelogResults2) -> {
+                        changelogResults.addAll(changelogResults2);
+                        return changelogResults;
                     };
                 }
 
                 @Override
-                public Function<ScoreResult, ScoreResult> finisher() {
-                    return scoreResult -> {
-                        final double sum = scoreResult.reasons().stream()
+                public Function<Set<ChangelogResult>, ScoreResult> finisher() {
+                    return changelogResults -> {
+                        final double sum = changelogResults.stream()
                             .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() / changelogResult.weight()))
                             .sum();
-                        final double weight = scoreResult.reasons().stream()
+                        final double weight = changelogResults.stream()
                             .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
                             .sum();
-                        return new ScoreResult(key(), Math.round(100 * (sum / weight)), weight(), scoreResult.reasons());
+                        return new ScoreResult(key(), Math.max(0, Math.round(100 * (sum / weight))), weight(), changelogResults);
                     };
                 }
 
                 @Override
                 public Set<Characteristics> characteristics() {
-                    return Set.of(Characteristics.IDENTITY_FINISH);
+                    return Set.of(Characteristics.UNORDERED);
                 }
             });
     }
