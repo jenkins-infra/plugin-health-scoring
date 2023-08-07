@@ -75,7 +75,7 @@ public class ProbeContext {
             } catch(GitAPIException e) {
                 LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
             }
-        } catch (IOException e) {
+        } catch(IOException e) {
             LOGGER.warn("Could not create temporary folder for plugin {}", pluginName, e);
         }
     }

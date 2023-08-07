@@ -44,7 +44,7 @@ public class AdoptionScoring extends Scoring {
     private static final float COEFFICIENT = 0.8f;
     private static final String KEY = "adoption";
 
-    private static abstract class TimeSinceLastCommitChangelog extends Changelog {
+    private abstract static class TimeSinceLastCommitChangelog extends Changelog {
         public final Duration getTimeBetweenLastCommitAndNow(String lastCommitDateMessage) {
             final ZoneId utc = ZoneId.of("UTC");
             final ZonedDateTime commitDate = ZonedDateTime
