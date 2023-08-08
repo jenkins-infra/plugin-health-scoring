@@ -25,6 +25,17 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.List;
+import java.util.Map;
+
+import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
+import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
+import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
+import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
+import io.jenkins.pluginhealth.scoring.probes.RenovateProbe;
 
 import org.springframework.stereotype.Component;
 
@@ -36,11 +47,138 @@ public class PluginMaintenanceScoring extends Scoring {
     @Override
     public List<Changelog> getChangelog() {
         return List.of(
-            // JenkinsFile presence
-            // Documentation migration done
-            // Dependabot and not dependency pull requests
-            // Renovate and no dependency pull requests
-            // ContinuousDelivery JEP
+            new Changelog() {// JenkinsFile presence
+                @Override
+                public String getDescription() {
+                    return "Plugin must have a Jenkinsfile.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(JenkinsfileProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile."));
+                    }
+                    return switch (probeResult.message()) {
+                        case "Jenkinsfile found" ->
+                            new ChangelogResult(100, getWeight(), List.of("Jenkinsfile detected in plugin repository."));
+                        case "No Jenkinsfile found" ->
+                            new ChangelogResult(0, getWeight(), List.of("Jenkinsfile not detected in plugin repository."));
+                        default ->
+                            new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile.", probeResult.message()));
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 65;
+                }
+            },
+            new Changelog() {// Documentation migration done
+                @Override
+                public String getDescription() {
+                    return "Plugin documentation should be migrated from the wiki.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(DocumentationMigrationProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration."));
+                    }
+                    return switch (probeResult.message()) {
+                        case "Documentation is located in the plugin repository." ->
+                            new ChangelogResult(100, getWeight(), List.of("Documentation is in plugin repository."));
+                        case "Documentation is not located in the plugin repository." ->
+                            new ChangelogResult(0, getWeight(), List.of("Documentation should be migrated in plugin repository."));
+                        default ->
+                            new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 15;
+                }
+            },
+            new Changelog() {// Dependabot and not dependency pull requests
+                @Override
+                public String getDescription() {
+                    return "Plugin should be using a using a dependency version management bot.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult dependabot = probeResults.get(DependabotProbe.KEY);
+                    final ProbeResult renovate = probeResults.get(RenovateProbe.KEY);
+                    final ProbeResult dependencyPullRequest = probeResults.get(DependabotPullRequestProbe.KEY);
+
+                    if (dependabot != null && "dependabot is configured.".equals(dependabot.message()) && renovate != null && "renovate is configured.".equals(renovate.message())) {
+                        return new ChangelogResult(50, getWeight(), List.of("It seems that both dependabot and renovate are configured.", dependabot.message(), renovate.message()));
+                    }
+
+                    if (dependabot != null && ProbeResult.Status.SUCCESS.equals(dependabot.status()) && "dependabot is configured.".equals(dependabot.message())) {
+                        return manageOpenDependencyPullRequestValue(dependabot, dependencyPullRequest);
+                    }
+                    if (renovate != null && ProbeResult.Status.SUCCESS.equals(renovate.status()) && "renovate is configured.".equals(renovate.message())) {
+                        return manageOpenDependencyPullRequestValue(renovate, dependencyPullRequest);
+                    }
+
+                    return new ChangelogResult(0, getWeight(), List.of("No dependency version manager bot are used on the plugin repository."));
+                }
+
+                private ChangelogResult manageOpenDependencyPullRequestValue(ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
+                    if (dependencyPullRequestResult != null && "0".equals(dependencyPullRequestResult.message())) {
+                        return new ChangelogResult(
+                            100,
+                            getWeight(),
+                            List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message()))
+                        );
+                    }
+                    return new ChangelogResult(
+                        0,
+                        getWeight(),
+                        List.of(
+                            dependencyBotResult.message(),
+                            dependencyPullRequestResult == null ?
+                                "Cannot determine if there is any dependency pull request opened on the repository." :
+                                "%s open dependency pull requests".formatted(dependencyPullRequestResult.message())
+                            )
+                    );
+                }
+
+                @Override
+                public int getWeight() {
+                    return 15;
+                }
+            },
+            new Changelog() {// ContinuousDelivery JEP
+                @Override
+                public String getDescription() {
+                    return "The plugin could benefit from setting up the continuous delivery workflow.";
+                }
+
+                @Override
+                public ChangelogResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(ContinuousDeliveryProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the JEP-229 configuration."));
+                    }
+                    return switch (probeResult.message()) {
+                        case "JEP-229 workflow definition found." ->
+                            new ChangelogResult(100, getWeight(), List.of("JEP-229 is configured on the plugin."));
+                        case "Could not find JEP-229 workflow definition." ->
+                            new ChangelogResult(0, getWeight(), List.of("JEP-229 is not configured on the plugin."));
+                        default ->
+                            new ChangelogResult(0, getWeight(), List.of("Cannot confirm or not the JEP-229 configuration.", probeResult.message()));
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 5;
+                }
+            }
         );
     }
 
@@ -53,16 +191,6 @@ public class PluginMaintenanceScoring extends Scoring {
     public float weight() {
         return COEFFICIENT;
     }
-
-    /*public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            JenkinsfileProbe.KEY, .65f,
-            DocumentationMigrationProbe.KEY, .15f,
-            DependabotProbe.KEY, .15f,
-            DependabotPullRequestProbe.KEY, -.15f,
-            ContinuousDeliveryProbe.KEY, .05f
-        );
-    }*/
 
     @Override
     public String description() {
