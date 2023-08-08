@@ -71,6 +71,7 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.error(JenkinsfileProbe.KEY, "There is no local repository for plugin " + pluginName + "."));
     }
+
     @Test
     void shouldCorrectlyDetectMissingJenkinsfile() throws IOException {
         final Plugin plugin = mock(Plugin.class);

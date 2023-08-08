@@ -143,7 +143,7 @@ public class PluginMaintenanceScoring extends Scoring {
                             dependencyPullRequestResult == null ?
                                 "Cannot determine if there is any dependency pull request opened on the repository." :
                                 "%s open dependency pull requests".formatted(dependencyPullRequestResult.message())
-                            )
+                        )
                     );
                 }
 

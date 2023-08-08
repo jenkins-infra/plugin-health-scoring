@@ -72,10 +72,10 @@ public class ProbeContext {
             final Path repo = Files.createTempDirectory(pluginName);
             try (var ignored = Git.cloneRepository().setURI(scm).setDirectory(repo.toFile()).call()) {
                 this.scmRepository = repo;
-            } catch(GitAPIException e) {
+            } catch (GitAPIException e) {
                 LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOGGER.warn("Could not create temporary folder for plugin {}", pluginName, e);
         }
     }
