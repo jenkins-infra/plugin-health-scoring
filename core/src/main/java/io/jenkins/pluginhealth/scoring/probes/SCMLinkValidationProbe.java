@@ -96,7 +96,7 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            Optional<Path> pluginPathInRepository  = findPluginPom(context.getScmRepository(), pluginName, context.getRepositoryName(scm).get().split("/")[1]);
+            Optional<Path> pluginPathInRepository  = findPluginPom(context.getScmRepository(), pluginName);
             String folderPath = pluginPathInRepository
                 .flatMap(path -> Optional.ofNullable(path.getParent()))
                 .map(parent -> parent.getFileName().toString())
@@ -120,22 +120,27 @@ public class SCMLinkValidationProbe extends Probe {
      * @param pluginName the name of the plugin
      * @return folderPath if it is valid
      */
-    private Optional<Path> findPluginPom(Path directory, String pluginName, String rootDirectory) {
+        private Optional<Path> findPluginPom(Path directory, String pluginName) {
+        if (! Files.isDirectory(directory)) {
+            LOGGER.error("Directory {} does not exists during the probe during probe {}.", directory, pluginName);
+            return Optional.empty();
+        }
+
         try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
-            path.getFileName().toString().equals("pom.xml"))) {
+            "pom.xml".equals(path.getFileName().toString()))) {
             return paths
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
                 .findFirst()
-                .or(() -> Optional.of(Path.of(rootDirectory)));
+                .or(() -> Optional.of(directory.getParent().getFileName()));
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
+            return Optional.empty();
         }
-        return Optional.of(Path.of(rootDirectory));
     }
 
-    private boolean pomFileMatchesPlugin(Path pomDirectory, String pluginName) {
+    private boolean pomFileMatchesPlugin(Path pomFilePath, String pluginName) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-        try (Reader reader = new InputStreamReader(new FileInputStream(pomDirectory.toFile()), StandardCharsets.UTF_8)) {
+        try (Reader reader = new InputStreamReader(new FileInputStream(pomFilePath.toFile()), StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
             if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId())) {
                 return true;
