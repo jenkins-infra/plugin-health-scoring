@@ -121,7 +121,7 @@ public class SCMLinkValidationProbe extends Probe {
      * @return folderPath if it is valid
      */
     private Optional<Path> findPluginPom(Path directory, String pluginName, String rootDirectory) {
-        try (Stream<Path> paths = Files.find(directory, Integer.MAX_VALUE, (path, $) ->
+        try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
             path.getFileName().toString().equals("pom.xml"))) {
             return paths
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
