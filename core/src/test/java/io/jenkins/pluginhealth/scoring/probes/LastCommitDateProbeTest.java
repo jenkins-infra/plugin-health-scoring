@@ -89,7 +89,7 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         final Path repo = Files.createTempDirectory(UUID.randomUUID().toString());
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        final ZoneId commitZoneId = ZoneId.of("GMT");
+        final ZoneId commitZoneId = ZoneId.of("Europe/Paris");
         final ZonedDateTime commitDate = ZonedDateTime.now(commitZoneId)
             .minusHours(1).minusMinutes(2)
             .truncatedTo(ChronoUnit.SECONDS);
@@ -103,9 +103,13 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
                 .call();
         }
 
-        assertThat(probe.apply(plugin, ctx))
+        final ProbeResult result = probe.apply(plugin, ctx);
+        assertThat(result)
             .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, commitDate.format(DateTimeFormatter.ISO_DATE_TIME)));
+            .comparingOnlyFields("id", "status")
+            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, ""));
+
+        final ZonedDateTime parsedDateTime = ZonedDateTime.parse(result.message(), DateTimeFormatter.ISO_DATE_TIME);
+        assertThat(parsedDateTime).isEqualTo(commitDate);
     }
 }
