@@ -43,7 +43,7 @@ class ScoreTest {
 
         assertThat(score.getValue()).isEqualTo(0);
 
-        score.addDetail(new ScoreResult("foo", 1, .4f, Set.of()));
+        score.addDetail(new ScoreResult("foo", 100, .4f, Set.of()));
         assertThat(score.getDetails().size()).isEqualTo(1);
         assertThat(score.getValue()).isEqualTo(100);
 
@@ -51,7 +51,7 @@ class ScoreTest {
         assertThat(score.getDetails().size()).isEqualTo(2);
         assertThat(score.getValue()).isEqualTo(67);
 
-        score.addDetail(new ScoreResult("wiz", 1, .3f, Set.of()));
+        score.addDetail(new ScoreResult("wiz", 100, .3f, Set.of()));
         assertThat(score.getDetails().size()).isEqualTo(3);
         assertThat(score.getValue()).isEqualTo(78);
     }

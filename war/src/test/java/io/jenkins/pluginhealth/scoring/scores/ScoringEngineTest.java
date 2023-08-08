@@ -68,7 +68,7 @@ class ScoringEngineTest {
         final Scoring scoringB = mock(Scoring.class);
 
         when(plugin.getName()).thenReturn("foo-bar");
-        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 1, .5f, Set.of()));
+        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 100, .5f, Set.of()));
         when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1, Set.of()));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
@@ -80,6 +80,7 @@ class ScoringEngineTest {
         verify(scoringA).apply(plugin);
         verify(scoringB).apply(plugin);
 
+        assertThat(score).isNotNull();
         assertThat(score.getPlugin()).isEqualTo(plugin);
         assertThat(score.getDetails()).hasSize(2);
         assertThat(score.getValue()).isEqualTo(33);
