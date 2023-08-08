@@ -101,7 +101,7 @@ public final class ProbeEngine {
 
         probeService.getProbes().forEach(probe -> {
             try {
-                probe.apply(plugin, probeContext);
+                plugin.addDetails(probe.apply(plugin, probeContext));
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
             }

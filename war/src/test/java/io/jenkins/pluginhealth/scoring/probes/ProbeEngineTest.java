@@ -81,8 +81,8 @@ class ProbeEngineTest {
 
         final ProbeResult expectedResult = ProbeResult.success("foo", "bar");
 
-        when(plugin.getName()).thenReturn("foo");
-
+        when(plugin.getDetails()).thenReturn(Map.of());
+        when(probe.key()).thenReturn("probe");
         when(probe.doApply(plugin, ctx)).thenReturn(expectedResult);
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
@@ -157,7 +157,6 @@ class ProbeEngineTest {
         when(plugin.getDetails()).thenReturn(Map.of(
             "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
-        when(plugin.getName()).thenReturn("foo");
 
         when(ctx.getLastCommitDate()).thenReturn(Optional.of(ZonedDateTime.now()));
 
@@ -183,7 +182,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))));
 
@@ -209,7 +207,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getName()).thenReturn("foo");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey,
             new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
@@ -231,12 +228,10 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldNotSaveErrors() throws IOException {
+    void shouldSaveEvenErrors() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getName()).thenReturn("foo");
 
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar"));
 
@@ -247,7 +242,7 @@ class ProbeEngineTest {
         final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
-        verify(plugin, never()).addDetails(any(ProbeResult.class));
+        verify(plugin).addDetails(any(ProbeResult.class));
     }
 
     @Test
@@ -273,8 +268,6 @@ class ProbeEngineTest {
                 return "description";
             }
         };
-
-        when(plugin.getName()).thenReturn("foo");
 
         when(probeOne.key()).thenReturn("foo");
         when(probeOne.doApply(plugin, ctx)).thenReturn(ProbeResult.success("foo", "This is ok"));
