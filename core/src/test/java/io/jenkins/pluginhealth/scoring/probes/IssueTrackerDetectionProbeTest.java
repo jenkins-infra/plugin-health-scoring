@@ -42,7 +42,7 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 
-class IssueTrackerDetectionProbeTest  extends AbstractProbeTest<IssueTrackerDetectionProbe> {
+class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetectionProbe> {
     @Override
     IssueTrackerDetectionProbe getSpy() {
         return spy(IssueTrackerDetectionProbe.class);
