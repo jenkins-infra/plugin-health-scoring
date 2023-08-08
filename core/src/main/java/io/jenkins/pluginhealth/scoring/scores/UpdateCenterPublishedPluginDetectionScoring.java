@@ -62,7 +62,6 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
                             new ChangelogResult(0, getWeight(), List.of("Ths plugin is not part of the update-center."));
                         default ->
                             new ChangelogResult(-5, getWeight(), List.of("Cannot determine if the plugin is part of the update-center or not.", probeResult.message()));
-
                     };
                 }
 
