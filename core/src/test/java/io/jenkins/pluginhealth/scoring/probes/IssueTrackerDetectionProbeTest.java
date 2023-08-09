@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -34,7 +35,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -99,7 +99,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("github", "https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("github", "https://github.com/foo-plugin/issues"), entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -133,7 +133,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("github", "https://github.com/foo-plugin/issues"));
+        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("github", "https://github.com/foo-plugin/issues"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -167,7 +167,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 

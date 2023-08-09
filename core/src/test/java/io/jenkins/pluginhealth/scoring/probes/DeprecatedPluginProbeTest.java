@@ -62,8 +62,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main",
-                    List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main", List.of())),
             Map.of("bar", new Deprecation("find-the-reason-here")),
             Collections.emptyList()
         ));
@@ -81,8 +80,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main",
-                List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))),
+            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main", List.of())),
             Map.of("bar", new Deprecation("find-the-reason-here"), "foo", new Deprecation("this-is-the-reason")),
             Collections.emptyList()
         ));
@@ -102,8 +100,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new Plugin(pluginName, new VersionNumber("1.0"), "", ZonedDateTime.now(), List.of("deprecated"), 0, "2.361", "main",
-                    List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", "")))
+                pluginName, new Plugin(pluginName, new VersionNumber("1.0"), "", ZonedDateTime.now(), List.of("deprecated"), 0, "2.361", "main", List.of())
             ),
             Map.of(),
             Collections.emptyList()

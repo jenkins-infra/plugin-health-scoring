@@ -95,8 +95,7 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
             Map.of(
                 pluginName,
                 new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
-                    List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
+                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main", List.of()
                 )
             ),
             Map.of(),

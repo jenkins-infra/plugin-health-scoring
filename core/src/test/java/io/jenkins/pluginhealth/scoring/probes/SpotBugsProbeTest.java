@@ -87,7 +87,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             Map.of(
                 pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
+                    "42", defaultBranch, List.of()
                 )
             ),
             Map.of(),
@@ -129,7 +129,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             Map.of(
                 pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
+                    "42", defaultBranch, List.of()
                 )
             ),
             Map.of(),
@@ -181,7 +181,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             Map.of(
                 pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of(new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("", "", ""))
+                    "42", defaultBranch, List.of()
                 )
             ),
             Map.of(),
