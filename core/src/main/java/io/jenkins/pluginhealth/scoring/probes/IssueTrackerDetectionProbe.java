@@ -32,6 +32,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 @Order(value = IssueTrackerDetectionProbe.ORDER)
@@ -41,7 +42,12 @@ class IssueTrackerDetectionProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        context.setIssueTrackType(getIssueTrackerData(context.getUpdateCenter().plugins()));
+        Map<String, String>  issueTrackerDetails = getIssueTrackerData(context.getUpdateCenter().plugins());
+
+        if (CollectionUtils.isEmpty(issueTrackerDetails)) {
+            return ProbeResult.failure(key(), String.format("%s plugin does not exists in Update Center.", plugin.getName()));
+        }
+        context.setIssueTrackerNameAndUrl(getIssueTrackerData(context.getUpdateCenter().plugins()));
         return ProbeResult.success(key(), "Issue tracker detected and returned successfully.");
     }
 
@@ -57,7 +63,7 @@ class IssueTrackerDetectionProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
+        return new String[]{ UpdateCenterPluginPublicationProbe.KEY };
     }
 
     private Map<String, String> getIssueTrackerData(Map<String, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin> plugin) {

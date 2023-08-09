@@ -45,7 +45,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
-    private Map<String, String> issueTrackerType;
+    private Map<String, String> issueTrackerNameAndUrl;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -89,12 +89,12 @@ public class ProbeContext {
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
     }
 
-    public void setIssueTrackType(Map<String, String> issueTrackerType) {
-        this.issueTrackerType = issueTrackerType;
+    public void setIssueTrackerNameAndUrl(Map<String, String> issueTrackerNameAndUrl) {
+        this.issueTrackerNameAndUrl = issueTrackerNameAndUrl;
     }
 
-    public Map<String, String> getIssueTrackerType() {
-        return issueTrackerType;
+    public Map<String, String> getIssueTrackerNameAndUrl() {
+        return issueTrackerNameAndUrl;
     }
 
     /* default */ void cleanUp() throws IOException {

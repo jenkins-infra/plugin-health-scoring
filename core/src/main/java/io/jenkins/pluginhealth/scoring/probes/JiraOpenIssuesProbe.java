@@ -24,17 +24,68 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 @Order(AbstractOpenIssuesProbe.ORDER)
 class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
     public static final String KEY = "jira-open-issues";
+    private static final String JIRA_HOST = "https://issues.jenkins.io/rest/api/latest/search?";
+    private static final Logger LOGGER = LoggerFactory.getLogger(JiraOpenIssuesProbe.class);
+    RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public String getTrackerType() {
-        return "jira";
+    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        return getNumberOfOpenIssues(plugin, context);
+    }
+
+    /**
+     * Get total number of open JIRA issues in a plugin
+     */
+    @Override
+    ProbeResult getNumberOfOpenIssues(Plugin plugin, ProbeContext context) {
+        String viewJiraIssuesUrl = context.getIssueTrackerNameAndUrl().get("jira");
+
+        try {
+            if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
+                return ProbeResult.failure(key(), String.format("JIRA issues not found in Update Center for %s plugin.",  plugin.getName()));
+            }
+            URL url = new URL(viewJiraIssuesUrl);
+            String api = JIRA_HOST.concat(url.getQuery()).concat(" AND status=open");
+
+            ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = response.getBody();
+            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
+
+            if (jsonNode.get("errorMessages") != null) {
+                return ProbeResult.error(key(), String.format("Error returned from JIRA API for plugin %s. %s",  plugin.getName(), jsonNode.get("errorMessages")));
+            }
+            int openJIRAIssues = jsonNode.get("total").asInt();
+            return ProbeResult.success(key(), String.format("%d open issues found in JIRA.", openJIRAIssues));
+        } catch (JsonMappingException e) {
+            LOGGER.error("Cannot map JSON returned by JIRA API for plugin {}.", plugin.getName(), e);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Cannot process JSON returned by JIRA API for plugin {}.",  plugin.getName(), e);
+        } catch (MalformedURLException e) {
+            LOGGER.error("Cannot process malformed URL for plugin {}.",  plugin.getName(), e);
+        }
+        return ProbeResult.error(key(), String.format("Cannot fetch information from JIRA API for plugin %s.",  plugin.getName()));
     }
 
     @Override

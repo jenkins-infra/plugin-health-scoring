@@ -124,7 +124,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
-        when(ctx.getIssueTrackerType()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
 
         when(mockedResponseEntity.getBody()).thenReturn(JSONString);
 
@@ -176,7 +176,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
-        when(ctx.getIssueTrackerType()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=0"));
+        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=0"));
 
         when(mockedResponseEntity.getBody()).thenReturn(errorJSONString);
 

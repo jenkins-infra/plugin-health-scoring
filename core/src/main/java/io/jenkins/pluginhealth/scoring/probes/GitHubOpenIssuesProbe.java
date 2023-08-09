@@ -24,6 +24,13 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.util.Optional;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+
+import org.kohsuke.github.GHRepository;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -33,8 +40,27 @@ class GitHubOpenIssuesProbe extends AbstractOpenIssuesProbe {
     public static final String KEY = "github-open-issues";
 
     @Override
-    public String getTrackerType() {
-        return "github";
+    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        return getNumberOfOpenIssues(plugin, context);
+    }
+
+    /**
+     * Get total number of open GitHub issues in a plugin
+     */
+    @Override
+    ProbeResult getNumberOfOpenIssues(Plugin plugin, ProbeContext context) {
+        try {
+            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            if (repositoryName.isPresent()) {
+                final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+                int openGitHubIssues =  ghRepository.getOpenIssueCount();
+                return ProbeResult.success(key(), String.format("%d open issues found in GitHub.", openGitHubIssues));
+            }
+        } catch (IOException ex) {
+            return ProbeResult.error(key(), String.format("Cannot not read open issues on GitHub for plugin %s.", plugin.getName()));
+        }
+        return ProbeResult.failure(key(), String.format("Cannot find GitHub repository for plugin %s.", plugin.getName()));
+
     }
 
     @Override

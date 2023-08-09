@@ -99,7 +99,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("github", "https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("github", "https://github.com/foo-plugin/issues", "jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -133,7 +133,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("github", "https://github.com/foo-plugin/issues"));
+        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("github", "https://github.com/foo-plugin/issues"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -167,8 +167,36 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assert Objects.equals(ctx.getIssueTrackerType(), Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assert Objects.equals(ctx.getIssueTrackerNameAndUrl(), Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
+    @Test
+    void shouldFailWhenPluginIsNotInUpdateCenter() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final String pluginName = "foo";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(),
+            Map.of(),
+            List.of()
+        ));
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(IssueTrackerDetectionProbe.KEY, "foo plugin does not exists in Update Center."));
+
+        verify(probe).doApply(plugin, ctx);
+    }
 }
