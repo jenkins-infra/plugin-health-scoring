@@ -24,10 +24,10 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
@@ -65,7 +65,15 @@ public class ScoreAPI {
                                 scoreResult -> new PluginScoreDetail(
                                     scoreResult.value(),
                                     scoreResult.weight(),
-                                    getScoringComponents(scoreResult, score.getPlugin().getDetails())
+                                    scoreResult.reasons().stream()
+                                        .map(changelogResult ->
+                                            new PluginScoreDetailComponent(
+                                                changelogResult.score(),
+                                                changelogResult.weight(),
+                                                changelogResult.reasons()
+                                            )
+                                        )
+                                        .collect(Collectors.toList())
                                 )
                             ))
                     )
@@ -75,20 +83,15 @@ public class ScoreAPI {
         return new ScoreReport(plugins, stats);
     }
 
-    private Map<String, PluginScoreDetailComponent> getScoringComponents(ScoreResult result,
-                                                                         Map<String, ProbeResult> probeResults) {
-        return Map.of();
-    }
-
-    public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
+    private record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
     }
 
     private record PluginScoreSummary(long value, Map<String, PluginScoreDetail> details) {
     }
 
-    private record PluginScoreDetail(float value, float weight, Map<String, PluginScoreDetailComponent> components) {
+    private record PluginScoreDetail(float value, float weight, List<PluginScoreDetailComponent> components) {
     }
 
-    private record PluginScoreDetailComponent(float value, float max) {
+    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons) {
     }
 }

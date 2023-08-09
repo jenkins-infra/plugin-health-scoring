@@ -31,12 +31,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
+import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
@@ -55,7 +56,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@ImportAutoConfiguration({ProjectInfoAutoConfiguration.class, SecurityConfiguration.class})
+@ImportAutoConfiguration({ ProjectInfoAutoConfiguration.class, SecurityConfiguration.class })
 @WebMvcTest(
     controllers = ScoreAPI.class
 )
@@ -66,47 +67,30 @@ class ScoreAPITest {
 
     @Test
     void shouldBeAbleToProvideScoresSummary() throws Exception {
-        final String probe1Key = "probe-1",
-            probe2Key = "probe-2",
-            probe3Key = "probe-3",
-            scoring1Key = "scoring-1",
-            scoring2Key = "scoring-2";
+        final Plugin p1 = mock(Plugin.class);
+        final Plugin p2 = mock(Plugin.class);
 
-        final Plugin plugin1 = mock(Plugin.class);
-        final ProbeResult p1Probe1Result = ProbeResult.success(probe1Key, "The plugin has a Jenkinsfile");
-        when(plugin1.getDetails()).thenReturn(Map.of(
-            probe1Key, p1Probe1Result
+        final Score scoreP1 = new Score(p1, ZonedDateTime.now());
+        scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
+            new ChangelogResult(100, 1, List.of("There is no active security advisory for the plugin."))
+        )));
+
+        final Score scoreP2 = new Score(p2, ZonedDateTime.now());
+        scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
+            new ChangelogResult(100, 1, List.of("There is no active security advisory for the plugin."))
+        )));
+        scoreP2.addDetail(new ScoreResult("scoring-2", 50, 1, Set.of(
+            new ChangelogResult(0, 1, List.of("There is no Jenkinsfile detected on the plugin repository.")),
+            new ChangelogResult(100, .5f, List.of("The plugin documentation was migrated to its repository.")),
+            new ChangelogResult(100, .5f, List.of("The plugin is using dependabot and has no open dependency pull requests."))
+        )));
+
+        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of(
+            "plugin-1", scoreP1,
+            "plugin-2", scoreP2
         ));
-
-        final Plugin plugin2 = mock(Plugin.class);
-        final ProbeResult p2Probe1Result = ProbeResult.success(probe1Key, "The plugin has a Jenkinsfile");
-        final ProbeResult p2Probe2Result = ProbeResult.success(probe2Key, "The plugin does not use dependabot");
-        final ProbeResult p2Probe3Result = ProbeResult.success(probe3Key, "The plugin does not use renovate");
-        when(plugin2.getDetails()).thenReturn(Map.of(
-            probe1Key, p2Probe1Result,
-            probe2Key, p2Probe2Result,
-            probe3Key, p2Probe3Result
-        ));
-
-        // TODO
-        final ScoreResult p1sr1 = new ScoreResult(scoring1Key, 1, 1, Set.of());
-        final ScoreResult p2sr1 = new ScoreResult(scoring1Key, 1, 1, Set.of());
-        final ScoreResult p2sr2 = new ScoreResult(scoring2Key, 0, 1, Set.of());
-
-        final Score score1 = new Score(plugin1, ZonedDateTime.now());
-        score1.addDetail(p1sr1);
-        final Score score2 = new Score(plugin2, ZonedDateTime.now());
-        score2.addDetail(p2sr1);
-        score2.addDetail(p2sr2);
-
-        final Map<String, Score> summary = Map.of(
-            "plugin-1", score1,
-            "plugin-2", score2
-        );
-        when(scoreService.getLatestScoresSummaryMap()).thenReturn(summary);
-
         when(scoreService.getScoresStatistics()).thenReturn(new ScoreService.ScoreStatistics(
-            50, 0, 100, 100, 100, 100
+            87.5, 50, 100, 100, 100, 100
         ));
 
         mockMvc.perform(get("/api/scores"))
@@ -120,38 +104,51 @@ class ScoreAPITest {
                                 'value': 100,
                                 'details': {
                                     'scoring-1': {
-                                        'value': 1,
+                                        'value': 100,
                                         'weight': 1,
-                                        'components': {
-                                            'probe-1': { 'passed': true, 'description': 1 }
-                                        }
+                                        'components': [{
+                                            'value': 100,
+                                            'weight': 1,
+                                            'reasons': ['There is no active security advisory for the plugin.']
+                                        }]
                                     }
                                 }
                             },
                             'plugin-2': {
-                                'value': 50,
+                                'value': 75,
                                 'details': {
                                     'scoring-1': {
-                                        'value': 1,
+                                        'value': 100,
                                         'weight': 1,
-                                        'components': {
-                                            'probe-1': { 'passed': true, 'description': 1 }
-                                        }
+                                        'components': [{
+                                            'value': 100,
+                                            'weight': 1,
+                                            'reasons': ['There is no active security advisory for the plugin.']
+                                        }]
                                     },
                                     'scoring-2': {
-                                        'value': 0,
+                                        'value': 50,
                                         'weight': 1,
-                                        'components': {
-                                            'probe-2': { 'passed': false, 'description':  0 },
-                                            'probe-3': { 'passed': false, 'description':  0 }
-                                        }
+                                        'components': [{
+                                            'value': 0,
+                                            'weight': 1,
+                                            'reasons': ['There is no Jenkinsfile detected on the plugin repository.']
+                                        }, {
+                                            'value': 100,
+                                            'weight': .5,
+                                            'reasons': ['The plugin documentation was migrated to its repository.']
+                                        }, {
+                                            'value': 100,
+                                            'weight': .5,
+                                            'reasons': ['The plugin is using dependabot and has no open dependency pull requests.']
+                                        }]
                                     }
                                 }
                             }
                         },
                         'statistics': {
-                            'average': 50,
-                            'minimum': 0,
+                            'average': 87.5,
+                            'minimum': 50,
                             'maximum': 100,
                             'firstQuartile': 100,
                             'median': 100,
