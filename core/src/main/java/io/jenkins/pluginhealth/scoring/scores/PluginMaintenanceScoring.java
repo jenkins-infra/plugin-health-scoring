@@ -47,7 +47,7 @@ public class PluginMaintenanceScoring extends Scoring {
     @Override
     public List<Changelog> getChangelog() {
         return List.of(
-            new Changelog() {// JenkinsFile presence
+            new Changelog() { // JenkinsFile presence
                 @Override
                 public String getDescription() {
                     return "Plugin must have a Jenkinsfile.";
@@ -74,7 +74,7 @@ public class PluginMaintenanceScoring extends Scoring {
                     return 65;
                 }
             },
-            new Changelog() {// Documentation migration done
+            new Changelog() { // Documentation migration done
                 @Override
                 public String getDescription() {
                     return "Plugin documentation should be migrated from the wiki.";
@@ -101,7 +101,7 @@ public class PluginMaintenanceScoring extends Scoring {
                     return 15;
                 }
             },
-            new Changelog() {// Dependabot and not dependency pull requests
+            new Changelog() { // Dependabot and not dependency pull requests
                 @Override
                 public String getDescription() {
                     return "Plugin should be using a using a dependency version management bot.";
@@ -152,7 +152,7 @@ public class PluginMaintenanceScoring extends Scoring {
                     return 15;
                 }
             },
-            new Changelog() {// ContinuousDelivery JEP
+            new Changelog() { // ContinuousDelivery JEP
                 @Override
                 public String getDescription() {
                     return "The plugin could benefit from setting up the continuous delivery workflow.";
