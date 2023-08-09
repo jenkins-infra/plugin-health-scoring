@@ -104,7 +104,7 @@
 
 		<jjwt.version>0.11.5</jjwt.version>
 		<testcontainers.version>1.18.3</testcontainers.version>
-		<spring-boot.version>3.1.1</spring-boot.version>
+		<spring-boot.version>3.1.2</spring-boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -185,7 +185,7 @@
 						<dependency>
 							<groupId>com.puppycrawl.tools</groupId>
 							<artifactId>checkstyle</artifactId>
-							<version>10.12.1</version>
+							<version>10.12.2</version>
 						</dependency>
 					</dependencies>
 				</plugin>
