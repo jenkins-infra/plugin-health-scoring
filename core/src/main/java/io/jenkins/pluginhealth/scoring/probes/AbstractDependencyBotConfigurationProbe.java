@@ -57,8 +57,8 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && path.getFileName().toString().startsWith(getBotName()))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), String.format("%s is configured", getBotName())))
-                .orElseGet(() -> ProbeResult.success(key(), String.format("%s is not configured", getBotName())));
+                .map(file -> ProbeResult.success(key(), String.format("%s is configured.", getBotName())))
+                .orElseGet(() -> ProbeResult.success(key(), String.format("%s is not configured.", getBotName())));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
