@@ -98,7 +98,6 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/" + repository + "/issues", "https://github.com/" + repository + "/issues/new/choose");
 
         when(plugin.getName()).thenReturn(pluginName);
-
         when(plugin.getScm()).thenReturn(scmLink);
         when(plugin.getDetails()).thenReturn(
             Map.of(
@@ -116,6 +115,8 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
             List.of()
         ));
 
+        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("github", "https://github.com/" + repository + "/issues"));
+
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));
         when(gh.getRepository(repository)).thenReturn(ghRepository);
@@ -126,7 +127,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in GitHub."));
+            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in the cloudevents plugin."));
 
         verify(probe).doApply(plugin, ctx);
 

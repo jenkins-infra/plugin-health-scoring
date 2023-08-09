@@ -24,13 +24,23 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 public abstract class AbstractOpenIssuesProbe extends Probe {
     public static final int ORDER = IssueTrackerDetectionProbe.ORDER + 100;
 
-    abstract ProbeResult getNumberOfOpenIssues(Plugin plugin, ProbeContext context);
+    @Override
+    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        final Optional<Integer> openIssuesCount = getCountOfOpenIssues(context);
+        return openIssuesCount.isPresent()
+            ? ProbeResult.success(key(), String.format("%d open issues found in the %s plugin.", openIssuesCount.get(), plugin.getName()))
+            : ProbeResult.failure(key(), String.format("Could not find open issues in the %s plugin.", plugin.getName()));
+    }
+
+    abstract Optional<Integer> getCountOfOpenIssues(ProbeContext context);
 
     @Override
     public String[] getProbeResultRequirement() {

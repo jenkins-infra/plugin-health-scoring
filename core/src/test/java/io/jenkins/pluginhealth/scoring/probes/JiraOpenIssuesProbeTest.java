@@ -139,7 +139,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JiraOpenIssuesProbe.KEY, "10 open issues found in JIRA."));
+            .isEqualTo(ProbeResult.success(JiraOpenIssuesProbe.KEY, "10 open issues found in the mailer plugin."));
     }
 
     @Test
@@ -190,7 +190,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(JiraOpenIssuesProbe.KEY, "Error returned from JIRA API for plugin foo. [\"A value with ID '0' does not exist for the field 'component'.\"]"));
+            .isEqualTo(ProbeResult.failure(JiraOpenIssuesProbe.KEY, "Could not find open issues in the foo plugin."));
     }
 }
 

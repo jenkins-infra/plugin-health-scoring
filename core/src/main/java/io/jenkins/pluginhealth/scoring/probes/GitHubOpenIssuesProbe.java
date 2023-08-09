@@ -27,10 +27,9 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.util.Optional;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-
 import org.kohsuke.github.GHRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -38,29 +37,24 @@ import org.springframework.stereotype.Component;
 @Order(AbstractOpenIssuesProbe.ORDER)
 class GitHubOpenIssuesProbe extends AbstractOpenIssuesProbe {
     public static final String KEY = "github-open-issues";
-
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        return getNumberOfOpenIssues(plugin, context);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubOpenIssuesProbe.class);
 
     /**
      * Get total number of open GitHub issues in a plugin
      */
     @Override
-    ProbeResult getNumberOfOpenIssues(Plugin plugin, ProbeContext context) {
+    Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
+        String issueTrackerUrl = context.getIssueTrackerNameAndUrl().get("github");
         try {
-            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            final Optional<String> repositoryName = context.getRepositoryName(issueTrackerUrl.substring(0, issueTrackerUrl.lastIndexOf("/")));
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-                int openGitHubIssues =  ghRepository.getOpenIssueCount();
-                return ProbeResult.success(key(), String.format("%d open issues found in GitHub.", openGitHubIssues));
+                return Optional.of(ghRepository.getOpenIssueCount());
             }
         } catch (IOException ex) {
-            return ProbeResult.error(key(), String.format("Cannot not read open issues on GitHub for plugin %s.", plugin.getName()));
+            LOGGER.error("Cannot not read open issues on GitHub for the plugin");
         }
-        return ProbeResult.failure(key(), String.format("Cannot find GitHub repository for plugin %s.", plugin.getName()));
-
+        return Optional.empty();
     }
 
     @Override

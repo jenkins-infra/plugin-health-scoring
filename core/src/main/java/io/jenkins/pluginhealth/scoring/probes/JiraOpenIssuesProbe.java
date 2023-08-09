@@ -26,9 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,21 +47,17 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraOpenIssuesProbe.class);
     RestTemplate restTemplate = new RestTemplate();
 
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        return getNumberOfOpenIssues(plugin, context);
-    }
-
     /**
      * Get total number of open JIRA issues in a plugin
      */
     @Override
-    ProbeResult getNumberOfOpenIssues(Plugin plugin, ProbeContext context) {
+    Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
         String viewJiraIssuesUrl = context.getIssueTrackerNameAndUrl().get("jira");
 
         try {
             if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
-                return ProbeResult.failure(key(), String.format("JIRA issues not found in Update Center for %s plugin.",  plugin.getName()));
+                LOGGER.error("JIRA issues not found in Update Center for the plugin");
+                return Optional.empty();
             }
             URL url = new URL(viewJiraIssuesUrl);
             String api = JIRA_HOST.concat(url.getQuery()).concat(" AND status=open");
@@ -74,18 +68,18 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
             JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
             if (jsonNode.get("errorMessages") != null) {
-                return ProbeResult.error(key(), String.format("Error returned from JIRA API for plugin %s. %s",  plugin.getName(), jsonNode.get("errorMessages")));
+                LOGGER.error("Error returned from JIRA API for plugin {}", jsonNode.get("errorMessages"));
+                return Optional.empty();
             }
-            int openJIRAIssues = jsonNode.get("total").asInt();
-            return ProbeResult.success(key(), String.format("%d open issues found in JIRA.", openJIRAIssues));
+            return Optional.of(jsonNode.get("total").asInt());
         } catch (JsonMappingException e) {
-            LOGGER.error("Cannot map JSON returned by JIRA API for plugin {}.", plugin.getName(), e);
+            LOGGER.error("Cannot map JSON returned by JIRA API for plugin ", e);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Cannot process JSON returned by JIRA API for plugin {}.",  plugin.getName(), e);
+            LOGGER.error("Cannot process JSON returned by JIRA API for plugin {}.", e);
         } catch (MalformedURLException e) {
-            LOGGER.error("Cannot process malformed URL for plugin {}.",  plugin.getName(), e);
+            LOGGER.error("Cannot process malformed URL for plugin {}.", e);
         }
-        return ProbeResult.error(key(), String.format("Cannot fetch information from JIRA API for plugin %s.",  plugin.getName()));
+        return Optional.empty();
     }
 
     @Override
