@@ -29,16 +29,15 @@ import org.springframework.stereotype.Component;
 
 /**
  * This probe looks for Dependabot configuration in a plugin.
- *
- * @see io.jenkins.pluginhealth.scoring.probes.AbstractDependencyBotConfigurationProbe
  */
 @Component
 @Order(AbstractDependencyBotConfigurationProbe.ORDER)
 public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
     public static final String KEY = "dependabot";
 
-    DependabotProbe() {
-        super(KEY);
+    @Override
+    protected String getBotName() {
+        return KEY;
     }
 
     @Override

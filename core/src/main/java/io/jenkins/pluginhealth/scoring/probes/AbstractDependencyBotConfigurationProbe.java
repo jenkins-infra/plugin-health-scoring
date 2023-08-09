@@ -42,17 +42,6 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
 
-    private final String botName;
-
-    /**
-     * The constructor gets initialized with botName when extended.
-     *
-     * @param botName A "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc
-     */
-    AbstractDependencyBotConfigurationProbe(String botName) {
-        this.botName = botName;
-    }
-
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Path scmRepository = context.getScmRepository();
@@ -63,15 +52,23 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-            Files.isRegularFile(path) && path.getFileName().toString().startsWith(botName))) {
+            Files.isRegularFile(path) && path.getFileName().toString().startsWith(getBotName()))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), String.format("%s is configured", botName)))
-                .orElseGet(() -> ProbeResult.failure(key(), String.format("%s is not configured", botName)));
+                .map(file -> ProbeResult.success(key(), String.format("%s is configured", getBotName())))
+                .orElseGet(() -> ProbeResult.failure(key(), String.format("%s is not configured", getBotName())));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder");
         }
     }
+
+    /**
+     * Provides the name of the bot.
+     * This is normally the name of the file
+     *
+     * @return a "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc
+     */
+    protected abstract String getBotName();
 
     @Override
     protected boolean isSourceCodeRelated() {
@@ -80,6 +77,6 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
 
     @Override
     public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+        return new String[] { SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY };
     }
 }
