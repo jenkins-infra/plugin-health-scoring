@@ -38,15 +38,10 @@ import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Represents a scoring process of a plugin, based on ProbeResults contained within the Plugin#details map.
  */
 public abstract class Scoring {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Scoring.class);
-
     /**
      * Starts the scoring process of the plugin.
      * At the end of the process, a {@link ScoreResult} instance must be returned, describing the score of the plugin and its reasons.
@@ -57,7 +52,6 @@ public abstract class Scoring {
     public final ScoreResult apply(Plugin plugin) {
         return getChangelog().stream()
             .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
-            .peek(result -> LOGGER.info("{}", result))
             .collect(new Collector<ChangelogResult, Set<ChangelogResult>, ScoreResult>() {
                 @Override
                 public Supplier<Set<ChangelogResult>> supplier() {
