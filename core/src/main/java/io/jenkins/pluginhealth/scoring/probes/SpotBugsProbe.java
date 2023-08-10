@@ -69,8 +69,8 @@ public class SpotBugsProbe extends Probe {
                 return ProbeResult.error(key(), "Cannot determine plugin repository.");
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get SpotBugs check.");
+            LOGGER.debug("Could not get SpotBugs check for {}", plugin.getName(), e);
+            return ProbeResult.error(key(), "Could not get SpotBugs check. " + e.getMessage());
         }
     }
 
