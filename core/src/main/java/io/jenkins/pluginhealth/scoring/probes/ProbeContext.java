@@ -115,8 +115,11 @@ public class ProbeContext {
         return pluginDocumentationLinks;
     }
 
-    public Optional<String> getRepositoryName(String scm) {
-        final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
+    public Optional<String> getRepositoryName() {
+        if (plugin.getScm() == null || plugin.getScm().isBlank()) {
+            return Optional.empty();
+        }
+        final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
     }
 

@@ -52,7 +52,7 @@ public class SpotBugsProbe extends Probe {
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
         try {
-            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 final List<GHCheckRun> ghCheckRuns =

@@ -84,7 +84,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
         final List<GHPullRequest> ghPullRequests = List.of(
             new GHPullRequest(),
@@ -114,7 +114,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
 
         final PullRequestProbe probe = getSpy();

@@ -85,7 +85,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
             List.of()
         ));
         when(ctx.getScmRepository()).thenReturn(Optional.empty());
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
+        when(ctx.getRepositoryName()).thenReturn(Optional.empty());
 
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -123,7 +123,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
 

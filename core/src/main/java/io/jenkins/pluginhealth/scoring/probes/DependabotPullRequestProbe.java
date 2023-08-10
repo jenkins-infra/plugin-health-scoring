@@ -52,7 +52,7 @@ public class DependabotPullRequestProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         try {
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
+            final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
 
             final long count = pullRequests.stream()

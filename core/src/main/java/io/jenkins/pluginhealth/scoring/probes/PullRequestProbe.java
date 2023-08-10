@@ -48,7 +48,7 @@ public class PullRequestProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         try {
             final GitHub gh = context.getGitHub();
-            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isEmpty()) {
                 return ProbeResult.error(key(), "Cannot find repository for " + plugin.getName());
             }

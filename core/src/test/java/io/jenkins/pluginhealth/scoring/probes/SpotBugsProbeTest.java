@@ -87,7 +87,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             Map.of(),
             List.of()
         ));
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.empty());
+        when(ctx.getRepositoryName()).thenReturn(Optional.empty());
 
         final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -126,7 +126,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
@@ -173,7 +173,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             List.of()
         ));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(pluginRepo));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);

@@ -96,7 +96,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
 
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
 
         final GHLabel dependenciesLabel = mock(GHLabel.class);
@@ -131,7 +131,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
 
         when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
 
         final GHLabel dependenciesLabel = mock(GHLabel.class);
@@ -167,7 +167,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
             DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
         ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
-        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of("foo-bar"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("foo-bar"));
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(anyString())).thenThrow(IOException.class);
