@@ -27,6 +27,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -101,7 +102,12 @@ public final class ProbeEngine {
 
         probeService.getProbes().forEach(probe -> {
             try {
-                plugin.addDetails(probe.apply(plugin, probeContext));
+                final ProbeResult result = probe.apply(plugin, probeContext);
+                plugin.addDetails(result);
+                if(ProbeResult.Status.ERROR.equals(result.status())) {
+                    LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
+                    LOGGER.info(result.message());
+                }
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
             }
