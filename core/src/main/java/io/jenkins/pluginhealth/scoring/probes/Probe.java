@@ -55,7 +55,10 @@ public abstract class Probe {
             }
             return doApply(plugin, context);
         }
-        return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
+        final ProbeResult lastResult = plugin.getDetails().get(key());
+        return lastResult != null ?
+            lastResult :
+            ProbeResult.error(key(), key() + " was not executed on " + plugin.getName());
     }
 
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
