@@ -50,7 +50,7 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         final Path scmRepository = context.getScmRepository().get();
         final Path githubConfig = scmRepository.resolve(".github");
         if (Files.notExists(githubConfig)) {
-            LOGGER.error("No GitHub configuration folder at {} ", key());
+            LOGGER.trace("No GitHub configuration folder at {} ", key());
             return ProbeResult.success(key(), "No GitHub configuration folder found.");
         }
 
