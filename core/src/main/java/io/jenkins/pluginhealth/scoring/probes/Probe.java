@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -72,17 +73,22 @@ public abstract class Probe {
             (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
             return true;
         }
-        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
-        if (this.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
-            LOGGER.error(
-                "{} requires last commit date for {} but was executed before the date time is registered in execution context",
+        final Optional<Path> optionalScmRepository = context.getScmRepository();
+        if (this.isSourceCodeRelated() && optionalScmRepository.isEmpty()) {
+            LOGGER.info(
+                "{} requires the SCM for {} but the SCM was not cloned locally",
                 this.key(), plugin.getName()
             );
+            return false;
         }
+        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
         if (this.isSourceCodeRelated() &&
             optionalLastCommit
                 .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
-                .orElse(false)) {
+                .orElseGet(() -> {
+                    LOGGER.info("{} is based on code modification but last commit for {} is unknown. It will be executed.", key(), plugin.getName());
+                    return true;
+                })) {
             return true;
         }
 
