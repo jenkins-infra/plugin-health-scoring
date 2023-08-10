@@ -61,6 +61,9 @@ public class CodeCoverageProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
+        if (defaultBranch == null || defaultBranch.isBlank()) {
+            return ProbeResult.error(key(), "No default branch configured for the plugin.");
+        }
         try {
             final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isPresent()) {
