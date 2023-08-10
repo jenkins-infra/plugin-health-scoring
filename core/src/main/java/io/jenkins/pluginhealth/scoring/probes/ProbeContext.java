@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Map;
@@ -57,6 +58,8 @@ public class ProbeContext {
     public ProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
         this.plugin = plugin;
         this.updateCenter = updateCenter;
+
+        this.setScmRepository(plugin.getScm());
     }
 
     public UpdateCenter getUpdateCenter() {
@@ -65,13 +68,17 @@ public class ProbeContext {
 
     public void setScmRepository(String scm) {
         if (scmRepository != null) {
-            throw new IllegalArgumentException("The Git repository of this plugin was already cloned.");
+            LOGGER.warn("The Git repository of this plugin was already cloned in {}.", scmRepository);
+        }
+        if (scm == null || scm.isBlank()) {
+            LOGGER.info("Cannot clone repository for {} because SCM link is `{}`", plugin.getName(), scm);
+            return;
         }
         final String pluginName = this.plugin.getName();
         try {
             final Path repo = Files.createTempDirectory(pluginName);
-            try (var ignored = Git.cloneRepository().setURI(scm).setDirectory(repo.toFile()).call()) {
-                this.scmRepository = repo;
+            try (Git git = Git.cloneRepository().setURI(scm).setDirectory(repo.toFile()).call()) {
+                this.scmRepository = Paths.get(git.getRepository().getDirectory().getParentFile().toURI());
             } catch (GitAPIException e) {
                 LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
             }
