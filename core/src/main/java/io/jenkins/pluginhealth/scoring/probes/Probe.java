@@ -62,6 +62,9 @@ public abstract class Probe {
         if (previousResult == null) {
             return true;
         }
+        if (ProbeResult.Status.ERROR.equals(previousResult.status())) {
+            return true;
+        }
         if (!this.requiresRelease() && !this.isSourceCodeRelated()) {
             return true;
         }

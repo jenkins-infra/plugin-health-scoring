@@ -27,6 +27,8 @@ package io.jenkins.pluginhealth.scoring.model;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 /**
  * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
  *
@@ -60,8 +62,12 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         return new ProbeResult(id, message, Status.ERROR);
     }
 
+    /*
+     * To handle the probe status migration from 2.x.y to 3.x.y, let consider the FAILURE status as an ERROR to force
+     * the execution of the probe.
+     */
     public enum Status {
-        SUCCESS, ERROR
+        SUCCESS, @JsonAlias("FAILURE") ERROR
     }
 }
 
