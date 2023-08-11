@@ -34,7 +34,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
-import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 
@@ -50,21 +50,21 @@ public abstract class Scoring {
      * @return a {@link ScoreResult} describing the plugin based on the ProbeResult and the scoring requirements.
      */
     public final ScoreResult apply(Plugin plugin) {
-        return getChangelog().stream()
+        return getComponents().stream()
             .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
-            .collect(new Collector<ChangelogResult, Set<ChangelogResult>, ScoreResult>() {
+            .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
                 @Override
-                public Supplier<Set<ChangelogResult>> supplier() {
+                public Supplier<Set<ScoringComponentResult>> supplier() {
                     return HashSet::new;
                 }
 
                 @Override
-                public BiConsumer<Set<ChangelogResult>, ChangelogResult> accumulator() {
+                public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
                     return Set::add;
                 }
 
                 @Override
-                public BinaryOperator<Set<ChangelogResult>> combiner() {
+                public BinaryOperator<Set<ScoringComponentResult>> combiner() {
                     return (changelogResults, changelogResults2) -> {
                         changelogResults.addAll(changelogResults2);
                         return changelogResults;
@@ -72,7 +72,7 @@ public abstract class Scoring {
                 }
 
                 @Override
-                public Function<Set<ChangelogResult>, ScoreResult> finisher() {
+                public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
                     return changelogResults -> {
                         final double sum = changelogResults.stream()
                             .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() * changelogResult.weight()))
@@ -116,9 +116,9 @@ public abstract class Scoring {
     /**
      * Provides the list of elements evaluated for this scoring.
      *
-     * @return the list of {@link Changelog} considered for this score category of a plugin.
+     * @return the list of {@link ScoringComponent} considered for this score category of a plugin.
      */
-    public abstract List<Changelog> getChangelog();
+    public abstract List<ScoringComponent> getComponents();
 
     public final String name() {
         return getClass().getSimpleName();

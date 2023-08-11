@@ -65,7 +65,7 @@ public class ScoreAPI {
                                 scoreResult -> new PluginScoreDetail(
                                     scoreResult.value(),
                                     scoreResult.weight(),
-                                    scoreResult.reasons().stream()
+                                    scoreResult.componentsResults().stream()
                                         .map(changelogResult ->
                                             new PluginScoreDetailComponent(
                                                 changelogResult.score(),

@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
-import io.jenkins.pluginhealth.scoring.model.ChangelogResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
@@ -72,17 +72,17 @@ class ScoreAPITest {
 
         final Score scoreP1 = new Score(p1, ZonedDateTime.now());
         scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
-            new ChangelogResult(100, 1, List.of("There is no active security advisory for the plugin."))
+            new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         )));
 
         final Score scoreP2 = new Score(p2, ZonedDateTime.now());
         scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
-            new ChangelogResult(100, 1, List.of("There is no active security advisory for the plugin."))
+            new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         )));
         scoreP2.addDetail(new ScoreResult("scoring-2", 50, 1, Set.of(
-            new ChangelogResult(0, 1, List.of("There is no Jenkinsfile detected on the plugin repository.")),
-            new ChangelogResult(100, .5f, List.of("The plugin documentation was migrated to its repository.")),
-            new ChangelogResult(100, .5f, List.of("The plugin is using dependabot and has no open dependency pull requests."))
+            new ScoringComponentResult(0, 1, List.of("There is no Jenkinsfile detected on the plugin repository.")),
+            new ScoringComponentResult(100, .5f, List.of("The plugin documentation was migrated to its repository.")),
+            new ScoringComponentResult(100, .5f, List.of("The plugin is using dependabot.", "0 open pull requests from dependency update tool."))
         )));
 
         when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of(
@@ -140,7 +140,10 @@ class ScoreAPITest {
                                         }, {
                                             'value': 100,
                                             'weight': .5,
-                                            'reasons': ['The plugin is using dependabot and has no open dependency pull requests.']
+                                            'reasons': [
+                                                'The plugin is using dependabot.',
+                                                '0 open pull requests from dependency update tool.'
+                                            ]
                                         }]
                                     }
                                 }
