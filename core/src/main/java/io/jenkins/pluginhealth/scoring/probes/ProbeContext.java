@@ -58,26 +58,24 @@ public class ProbeContext {
     public ProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
         this.plugin = plugin;
         this.updateCenter = updateCenter;
-
-        this.setScmRepository(plugin.getScm());
     }
 
     public UpdateCenter getUpdateCenter() {
         return updateCenter;
     }
 
-    public void setScmRepository(String scm) {
+    public void cloneRepository() {
         if (scmRepository != null) {
             LOGGER.warn("The Git repository of this plugin was already cloned in {}.", scmRepository);
         }
-        if (scm == null || scm.isBlank()) {
-            LOGGER.info("Cannot clone repository for {} because SCM link is `{}`", plugin.getName(), scm);
+        if (plugin.getScm() == null || plugin.getScm().isBlank()) {
+            LOGGER.info("Cannot clone repository for {} because SCM link is `{}`", plugin.getName(), plugin.getScm());
             return;
         }
         final String pluginName = this.plugin.getName();
         try {
             final Path repo = Files.createTempDirectory(pluginName);
-            try (Git git = Git.cloneRepository().setURI(scm).setDirectory(repo.toFile()).call()) {
+            try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(repo.toFile()).call()) {
                 this.scmRepository = Paths.get(git.getRepository().getDirectory().getParentFile().toURI());
             } catch (GitAPIException e) {
                 LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
