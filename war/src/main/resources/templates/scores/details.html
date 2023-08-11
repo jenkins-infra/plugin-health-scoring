@@ -5,21 +5,21 @@
 </head>
 <body>
 
-<section data-layout-fragment="content">
-    <h1 data-th-utext="'Score of <em>' + ${score.pluginName} + '</em> plugin'"></h1>
+<section data-layout-fragment="content" data-th-with="plugin = ${score.plugin}">
+    <h1 data-th-utext="'Score of <em>' + ${plugin.name} + '</em> plugin'"></h1>
 
     <div class="plugin--details">
-        <div class="plugin--details--tab" data-th-if="${ score.scm }">
+        <div class="plugin--details--tab" data-th-if="${ plugin.scm }">
             <ion-icon name="logo-github"></ion-icon>
-            <a data-th-href="${ score.scm }" data-th-text="${ score.scm }"></a>
+            <a data-th-href="${ plugin.scm }" data-th-text="${ plugin.scm }"></a>
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="version-tag"></ion-icon>
-            <span data-th-text="${ score.version }"></span>
+            <span data-th-text="${ plugin.version }"></span>
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="calendar"></ion-icon>
-            <span data-th-text="${ #temporals.format(score.releaseTimestamp) }"></span>
+            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp) }"></span>
         </div>
     </div>
 
@@ -34,7 +34,6 @@
             <th>Key</th>
             <th>Value</th>
             <th>Weight</th>
-            <th>Description</th>
         </tr>
         </thead>
         <tbody>
@@ -43,48 +42,30 @@
                 <td><ion-icon name="chevron-expand"></ion-icon></td>
                 <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
-                <td align="center" data-th-text="${scoreDetail.coefficient}"></td>
-                <td data-th-text="${scores.get(scoreDetail.key)?.description}"></td>
+                <td align="center" data-th-text="${scoreDetail.weight}"></td>
             </tr>
-            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 1.0 ? 'show':_" data-th-id="'collapse-' + ${scoreDetail.key}">
+            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_" data-th-id="'collapse-' + ${scoreDetail.key}">
                 <td colspan="5">
                     <h3>Details:</h3>
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>Probe key</th>
-                            <th>Maximum value</th>
-                            <th>Status</th>
+                            <th>Value</th>
+                            <th>Weight</th>
                             <th>Message</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr data-th-each="component : ${scores.get(scoreDetail.key)?.components}"
-                            data-th-with="probeResult=${score.probeResults.get(component.key)}">
-                            <td><code class="label" data-th-text="${component.key}"></code></td>
-                            <td data-th-text="${component.value}"></td>
+                        <tr data-th-each="component : ${scoreDetail.componentsResults}">
+                            <td data-th-text="${component.score}"></td>
+                            <td data-th-text="${component.weight}"></td>
                             <td>
-                                <ion-icon data-th-if="${probeResult} != null and ${probeResult.status} == 'SUCCESS'"
-                                          class="success"
-                                          name="success"></ion-icon>
-                                <ion-icon data-th-if="${probeResult} == null or ${probeResult.status} == 'FAILURE'"
-                                          class="failure"
-                                          name="failure"></ion-icon>
-                            </td>
-                            <td>
-                                <span data-th-if="${probeResult} != null" data-th-text="${probeResult.message}"></span>
-                                <span data-th-if="${probeResult} == null">
-                                    Not executed.
-                                    This probes requires
-                                    <th-block data-th-each="requirement, iter : ${probes.get(component.key)?.requirements}">
-                                        <code class="label" data-th-text="${requirement}"></code>
-                                        <span data-th-unless="${iter.last}">, </span>
-                                    </th-block>
-                                    to be successful to be executed.
-                                </span>
+                                <ul>
+                                    <li data-th-each="reason: ${component.reasons}" data-th-text="${reason}"/>
+                                </ul>
                             </td>
                         </tr>
-                        </tbody>
+                        </tbody>Ω
                     </table>
                 </td>
             </tr>
@@ -93,30 +74,28 @@
     </table>
 
     <h3>Probes results</h3>
-    <div data-th-if="${#maps.size(score.probeResults)} > 0">
+    <div data-th-if="${#maps.size(plugin.details)} > 0">
         <table class="table">
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Status</th>
                 <th>Message</th>
-                <th>Description</th>
             </tr>
             </thead>
             <tbody>
-            <tr data-th-each="iter: ${score.probeResults}" data-th-with="probeResult = ${iter.value}">
-                <td><code data-th-text="${probeResult.key}" class="label"></code></td>
+            <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
+                <td><code data-th-text="${probeResult.id}" class="label"></code></td>
                 <td>
-                    <ion-icon data-th-if="${probeResult.status} == 'SUCCESS'" class="success" name="success"></ion-icon>
-                    <ion-icon data-th-if="${probeResult.status} == 'FAILURE'" class="failure" name="failure"></ion-icon>
+                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success" name="success"></ion-icon>
+                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure" name="failure"></ion-icon>
                 </td>
                 <td data-th-text="${probeResult.message}"></td>
-                <td data-th-text="${probes.get(probeResult.key)?.description}"></td>
             </tr>
             </tbody>
         </table>
     </div>
-    <p data-th-unless="${#maps.size(score.probeResults) > 0}">
+    <p data-th-unless="${#maps.size(plugin.details) > 0}">
         No probe were executed on the plugin yet.
     </p>
 </section>

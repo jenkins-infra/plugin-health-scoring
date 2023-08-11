@@ -43,9 +43,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.service.ProbeService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
-import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
@@ -65,9 +63,7 @@ import org.springframework.test.web.servlet.MockMvc;
     controllers = ScoreController.class
 )
 class ScoreControllerTest {
-    @MockBean private ProbeService probeService;
     @MockBean private ScoreService scoreService;
-    @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
 
     @Test
