@@ -133,4 +133,50 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
 
     }
 
+
+    @Test
+    void shouldFailWhereThereIsNoGitHubTracker() throws IOException {
+        final String pluginName = "foo";
+        final String repository = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + repository;
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
+                IssueTrackerDetectionProbe.KEY, ProbeResult.success(IssueTrackerDetectionProbe.KEY, "")
+            )
+        );
+
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                List.of()
+            )),
+            Map.of(),
+            List.of()
+        ));
+
+        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of());
+
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));
+        when(gh.getRepository(repository)).thenReturn(ghRepository);
+
+        final GitHubOpenIssuesProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(GitHubOpenIssuesProbe.KEY, "Could not find open issues in the foo plugin."));
+
+        verify(probe).doApply(plugin, ctx);
+    }
+
 }

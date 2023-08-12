@@ -40,19 +40,29 @@ class GitHubOpenIssuesProbe extends AbstractOpenIssuesProbe {
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHubOpenIssuesProbe.class);
 
     /**
-     * Get total number of open GitHub issues in a plugin
+     * Get total number of open GitHub issues in a plugin.
+     * @param context @see {@link ProbeContext}
+     *
+     * @return Optional an Integer value will give total count of open issues.
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
-        String issueTrackerUrl = context.getIssueTrackerNameAndUrl().get("github");
+        // Stores the GitHub URL to view all existing issues in the plugin. Ex: https://github.com/jenkinsci/cloudevents-plugin/issues
+        String issueTrackerViewUrl = context.getIssueTrackerNameAndUrl().get("github");
+
+        if (issueTrackerViewUrl == null) {
+            LOGGER.info("The plugin does not use GitHub issues to tracker issues.");
+            return Optional.empty();
+        }
+
         try {
-            final Optional<String> repositoryName = context.getRepositoryName(issueTrackerUrl.substring(0, issueTrackerUrl.lastIndexOf("/")));
+            final Optional<String> repositoryName = context.getRepositoryName(issueTrackerViewUrl.substring(0, issueTrackerViewUrl.lastIndexOf("/")));
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 return Optional.of(ghRepository.getOpenIssueCount());
             }
         } catch (IOException ex) {
-            LOGGER.error("Cannot not read open issues on GitHub for the plugin");
+            LOGGER.error("Cannot read open issues on GitHub for the plugin. {}", ex);
         }
         return Optional.empty();
     }

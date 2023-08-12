@@ -40,5 +40,12 @@ public record Plugin(String name, VersionNumber version, String scm,
         return this.issueTrackers;
     }
 
+    /**
+     * Gets issue tracker details about a plugin.
+     *
+     * @param type The type of platform used to track issues. For ex: GitHub, JIRA
+     * @param reportUrl An url to report issues about the plugin
+     * @param viewUrl An url to view all the issues in the plugin
+     */
     public record IssueTrackers(String type, String viewUrl, String reportUrl){}
 }
