@@ -172,6 +172,38 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     }
 
     @Test
+    void shouldFailWhenPluginIssueTrackerIsNotInUpdateCenter() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final String pluginName = "foo";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
+                List.of()
+            )),
+            Map.of(),
+            List.of()
+        ));
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.failure(IssueTrackerDetectionProbe.KEY, "No issue tracker data available for foo plugin in Update Center."));
+
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
     void shouldFailWhenPluginIsNotInUpdateCenter() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
@@ -195,7 +227,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(IssueTrackerDetectionProbe.KEY, "foo plugin does not exists in Update Center."));
+            .isEqualTo(ProbeResult.failure(IssueTrackerDetectionProbe.KEY, "No issue tracker data available for foo plugin in Update Center."));
 
         verify(probe).doApply(plugin, ctx);
     }
