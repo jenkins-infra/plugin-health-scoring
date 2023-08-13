@@ -26,34 +26,31 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
 
     @InjectMocks
-     JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
-
-    @Override
-    JiraOpenIssuesProbe getSpy() {
-        return spy(JiraOpenIssuesProbe.class);
-    }
+    JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
 
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
@@ -90,19 +87,24 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         verify(probe, never()).doApply(plugin, ctx);
     }
 
+    @Override
+    JiraOpenIssuesProbe getSpy() {
+        return spy(JiraOpenIssuesProbe.class);
+    }
+
     @Test
-    void shouldBeAbleToFindNumberOfOpenIssuesInJira() {
+    void shouldBeAbleToFindNumberOfOpenIssuesInJira() throws IOException, InterruptedException {
         final String pluginName = "mailer";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final RestTemplate mockedRestTemplate = mock(RestTemplate.class);
-        final ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
+        final HttpClient mockedHttpClient = mock(HttpClient.class);
+        final HttpResponse mockedHttpResponse = mock(HttpResponse.class);
 
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira =
-            new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
+        final IssueTrackers issueTrackerJira =
+            new IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
 
         final String JSONString = "{\"expand\":\"names,schema\",\"startAt\":0,\"maxResults\":50,\"total\":10,\"issues\":[]}";
 
@@ -126,15 +128,14 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
 
-        when(mockedResponseEntity.getBody()).thenReturn(JSONString);
+        when(mockedHttpResponse.body()).thenReturn(JSONString);
 
-        when(mockedRestTemplate.getForEntity(
-                anyString(),
-                any(Class.class)
-            ))
-            .thenReturn(mockedResponseEntity);
+        when(mockedHttpClient.send(
+            any(HttpRequest.class),
+            any(HttpResponse.BodyHandler.class)
+        )).thenReturn(mockedHttpResponse);
 
-        jiraOpenIssuesProbe.restTemplate = mockedRestTemplate;
+        jiraOpenIssuesProbe.httpClient = mockedHttpClient;
 
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -143,18 +144,18 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
     }
 
     @Test
-    void shouldReturnErrorWhenJIRAReturnsErrors() {
+    void shouldReturnErrorWhenJIRAReturnsErrors() throws IOException, InterruptedException {
         final String pluginName = "foo";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
 
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final RestTemplate mockedRestTemplate = mock(RestTemplate.class);
-        final ResponseEntity mockedResponseEntity = mock(ResponseEntity.class);
+        final HttpClient mockedHttpClient = mock(HttpClient.class);
+        final HttpResponse mockedHttpResponse = mock(HttpResponse.class);
 
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira =
-            new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=0", "https://www.jenkins.io/participate/report-issue/redirect/#0");
+        final IssueTrackers issueTrackerJira =
+            new IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=0", "https://www.jenkins.io/participate/report-issue/redirect/#0");
 
         final String errorJSONString = "{\"errorMessages\":[\"A value with ID '0' does not exist for the field 'component'.\"],\"errors\":{}}";
 
@@ -178,14 +179,14 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("jira", "https://issues.jenkins.io/issues/?jql=component=0"));
 
-        when(mockedResponseEntity.getBody()).thenReturn(errorJSONString);
+        when(mockedHttpResponse.body()).thenReturn(errorJSONString);
 
-        when(mockedRestTemplate.getForEntity(
-            anyString(),
-            any(Class.class)
-        )).thenReturn(mockedResponseEntity);
+        when(mockedHttpClient.send(
+            any(HttpRequest.class),
+            any(HttpResponse.BodyHandler.class)
+        )).thenReturn(mockedHttpResponse);
 
-        jiraOpenIssuesProbe.restTemplate = mockedRestTemplate;
+        jiraOpenIssuesProbe.httpClient = mockedHttpClient;
 
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
             .usingRecursiveComparison()
@@ -193,4 +194,3 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
             .isEqualTo(ProbeResult.failure(JiraOpenIssuesProbe.KEY, "Could not find open issues in the foo plugin."));
     }
 }
-

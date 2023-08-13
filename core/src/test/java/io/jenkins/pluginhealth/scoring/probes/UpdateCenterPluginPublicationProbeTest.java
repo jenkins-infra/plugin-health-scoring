@@ -40,14 +40,14 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCenterPluginPublicationProbe> {
-    @Override
-    UpdateCenterPluginPublicationProbe getSpy() {
-        return spy(UpdateCenterPluginPublicationProbe.class);
-    }
-
     @Test
     void shouldNotRequireRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Override
+    UpdateCenterPluginPublicationProbe getSpy() {
+        return spy(UpdateCenterPluginPublicationProbe.class);
     }
 
     @Test
@@ -80,8 +80,8 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
 
         when(plugin.getName()).thenReturn(pluginName);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                pluginName, null, null, null, List.of(), 0, "2.361.1", "main", List.of()
+            Map.of(pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
             )),
             Map.of(),
             List.of()

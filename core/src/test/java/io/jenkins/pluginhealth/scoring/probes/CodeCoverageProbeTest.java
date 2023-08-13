@@ -49,14 +49,14 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterable;
 
 class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
-    @Override
-    CodeCoverageProbe getSpy() {
-        return spy(CodeCoverageProbe.class);
-    }
-
     @Test
     public void shouldNotRequireRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Override
+    CodeCoverageProbe getSpy() {
+        return spy(CodeCoverageProbe.class);
     }
 
     @Test
@@ -112,9 +112,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -156,9 +156,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -213,9 +213,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -270,9 +270,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -327,10 +327,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
-                )
+                    "42", defaultBranch)
             ),
             Map.of(),
             List.of()
@@ -384,9 +383,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -441,9 +440,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),

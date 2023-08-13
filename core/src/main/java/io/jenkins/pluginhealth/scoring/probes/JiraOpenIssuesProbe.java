@@ -24,8 +24,19 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,9 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 @Order(AbstractOpenIssuesProbe.ORDER)
@@ -45,39 +54,64 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
     public static final String KEY = "jira-open-issues";
     private static final String JIRA_HOST = "https://issues.jenkins.io/rest/api/latest/search?";
     private static final Logger LOGGER = LoggerFactory.getLogger(JiraOpenIssuesProbe.class);
-    RestTemplate restTemplate = new RestTemplate();
+    final ObjectMapper objectMapper = new ObjectMapper();
+    HttpClient httpClient;
+    HttpRequest httpRequest;
 
     /**
-     * Get total number of open JIRA issues in a plugin
+     * Get total number of open JIRA issues in a plugin.
+     *
+     * @param context @see {@link ProbeContext}
+     * @return Optional of type Integer.
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
         String viewJiraIssuesUrl = context.getIssueTrackerNameAndUrl().get("jira");
 
-        try {
-            if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
-                LOGGER.error("JIRA issues not found in Update Center for the plugin");
-                return Optional.empty();
-            }
-            URL url = new URL(viewJiraIssuesUrl);
-            String api = JIRA_HOST.concat(url.getQuery()).concat(" AND status=open");
+        if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
+            LOGGER.warn("JIRA issues not found in Update Center for the plugin.");
+            return Optional.empty();
+        }
 
-            ResponseEntity<String> response = restTemplate.getForEntity(api, String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonResponse = response.getBody();
+        try {
+            // The `url` will contain the JIRA url to view issues. For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979
+            URL url = new URL(viewJiraIssuesUrl);
+
+            /* Here, the query of the url "?jql=component=1833" is concatenated with " AND status=open".
+               This gives the final API required to fetch JIRA issues.
+               For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979%20and%20status=open
+             */
+            String api = JIRA_HOST.concat(url.getQuery())
+                        .concat(URLEncoder.encode(" AND ", StandardCharsets.UTF_8.toString()).replace("+", "%20")
+                        .concat("status=open"));
+
+            httpRequest = HttpRequest.newBuilder()
+                .uri(new URI(api))
+                .timeout(Duration.of(5, SECONDS))
+                .GET()
+                .build();
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            String jsonResponse = response.body();
             JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
             if (jsonNode.get("errorMessages") != null) {
-                LOGGER.error("Error returned from JIRA API for plugin {}", jsonNode.get("errorMessages"));
+                LOGGER.error("Error returned from JIRA API for the plugin. {}", jsonNode.get("errorMessages"));
                 return Optional.empty();
             }
             return Optional.of(jsonNode.get("total").asInt());
         } catch (JsonMappingException e) {
-            LOGGER.error("Cannot map JSON returned by JIRA API for plugin ", e);
+            LOGGER.error("Cannot map JSON returned by JIRA API for the plugin. {}", e);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Cannot process JSON returned by JIRA API for plugin {}.", e);
+            LOGGER.error("Cannot process JSON returned by JIRA API for the plugin. {}", e);
         } catch (MalformedURLException e) {
-            LOGGER.error("Cannot process malformed URL for plugin {}.", e);
+            LOGGER.error("Cannot process malformed URL for the plugin. {}", e);
+        } catch (URISyntaxException e) {
+            LOGGER.error("Incorrect URI syntax in the plugin. {}", e);
+        } catch (IOException e) {
+            LOGGER.error("Cannot read HttpResponse for the plugin. {}", e);
+        } catch (InterruptedException e) {
+            LOGGER.error("Interruption occurred when waiting for JIRA API for the plugin. {}", e);
         }
         return Optional.empty();
     }

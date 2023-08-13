@@ -42,7 +42,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-
 import org.junit.jupiter.api.Test;
 
 class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetectionProbe> {
@@ -221,7 +220,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     }
 
     @Test
-    void shouldFailWhenPluginIssueTrackersIsNotInUpdateCenter() throws IOException {
+    void shouldFailWhenPluginIssueTrackersIsNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -253,7 +252,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     }
 
     @Test
-    void shouldFailWhenPluginIsNotInUpdateCenter() throws IOException {
+    void shouldFailWhenPluginIsNotInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";

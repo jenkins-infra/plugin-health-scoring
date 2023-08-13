@@ -44,14 +44,14 @@ import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe> {
-    @Override
-    DeprecatedPluginProbe getSpy() {
-        return spy(DeprecatedPluginProbe.class);
-    }
-
     @Test
     void shouldNotRequireRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Override
+    DeprecatedPluginProbe getSpy() {
+        return spy(DeprecatedPluginProbe.class);
     }
 
     @Test
@@ -62,7 +62,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
 
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main", List.of())),
+            Map.of("foo", Plugin.of("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusDays(1), Collections.emptyList(), 0, "", "main")),
             Map.of("bar", new Deprecation("find-the-reason-here")),
             Collections.emptyList()
         ));

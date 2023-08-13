@@ -42,14 +42,14 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
-    @Override
-    JenkinsCoreProbe getSpy() {
-        return spy(JenkinsCoreProbe.class);
-    }
-
     @Test
     void shouldRequireRelease() {
         assertThat(getSpy().requiresRelease()).isTrue();
+    }
+
+    @Override
+    JenkinsCoreProbe getSpy() {
+        return spy(JenkinsCoreProbe.class);
     }
 
     @Test
@@ -94,8 +94,8 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main", List.of()
+                io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
+                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
                 )
             ),
             Map.of(),

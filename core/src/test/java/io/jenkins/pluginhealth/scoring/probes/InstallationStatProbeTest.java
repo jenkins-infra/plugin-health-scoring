@@ -43,14 +43,14 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe> {
-    @Override
-    InstallationStatProbe getSpy() {
-        return spy(InstallationStatProbe.class);
-    }
-
     @Test
     void doesNotRequireRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Override
+    InstallationStatProbe getSpy() {
+        return spy(InstallationStatProbe.class);
     }
 
     @Test
@@ -92,7 +92,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(pluginName, null, null, null, List.of(), 100, "", "main", List.of())
+                io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(pluginName, null, null, null, List.of(), 100, "", "main")
             ),
             Map.of(),
             List.of()

@@ -38,6 +38,7 @@ import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
@@ -45,11 +46,6 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
 class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe> {
-    @Override
-    GitHubOpenIssuesProbe getSpy() {
-        return spy(GitHubOpenIssuesProbe.class);
-    }
-
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
         final Plugin plugin = mock(Plugin.class);
@@ -85,9 +81,14 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         verify(probe, never()).doApply(plugin, ctx);
     }
 
+    @Override
+    GitHubOpenIssuesProbe getSpy() {
+        return spy(GitHubOpenIssuesProbe.class);
+    }
+
     @Test
     void shouldBeAbleToFindNumberOfOpenIssuesInGH() throws IOException {
-        final String pluginName = "cloudevents";
+        final String pluginName = "mockedForTests ";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
 
@@ -95,7 +96,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/" + repository + "/issues", "https://github.com/" + repository + "/issues/new/choose");
+        final IssueTrackers issueTrackerGithub = new IssueTrackers("github", scmLink + "/issues", scmLink + "/issues/new/choose");
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -127,7 +128,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in the cloudevents plugin."));
+            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in the mockedForTests  plugin."));
 
         verify(probe).doApply(plugin, ctx);
 
@@ -155,9 +156,8 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         );
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
-                List.of()
+            Map.of(pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
+                pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
             )),
             Map.of(),
             List.of()

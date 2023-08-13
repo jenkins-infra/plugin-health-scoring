@@ -50,14 +50,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
-    @Override
-    protected SpotBugsProbe getSpy() {
-        return spy(SpotBugsProbe.class);
-    }
-
     @Test
     public void shouldNotRequireRelease() {
         assertThat(getSpy().requiresRelease()).isFalse();
+    }
+
+    @Override
+    protected SpotBugsProbe getSpy() {
+        return spy(SpotBugsProbe.class);
     }
 
     @Test
@@ -85,9 +85,9 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -127,9 +127,9 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
@@ -179,9 +179,9 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch, List.of()
+                    "42", defaultBranch
                 )
             ),
             Map.of(),
