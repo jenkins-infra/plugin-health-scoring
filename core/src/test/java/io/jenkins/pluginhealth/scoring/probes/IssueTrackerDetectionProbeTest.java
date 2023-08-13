@@ -33,21 +33,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+
 
 import org.junit.jupiter.api.Test;
 
 class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetectionProbe> {
-    @Override
-    IssueTrackerDetectionProbe getSpy() {
-        return spy(IssueTrackerDetectionProbe.class);
-    }
-
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
         final Plugin plugin = mock(Plugin.class);
@@ -68,12 +66,17 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         verify(probe, never()).doApply(plugin, ctx);
     }
 
+    @Override
+    IssueTrackerDetectionProbe getSpy() {
+        return spy(IssueTrackerDetectionProbe.class);
+    }
+
     @Test
-    void shouldDetectIssueTrackerInPlugin() throws IOException {
+    void shouldDetectIssueTrackersInPlugin() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
+        final IssueTrackers issueTrackerGithub = new IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
+        final IssueTrackers issueTrackerJira = new IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
         final String pluginName = "foo";
 
         when(plugin.getDetails()).thenReturn(
@@ -104,10 +107,55 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     }
 
     @Test
-    void shouldDetectForOnlyGHInIssueTracker() throws IOException {
+    void shouldAlwaysFilterDataForTheCorrectPluginFromIssueTrackers() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerGithub = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
+        final IssueTrackers issueTrackerJira = new IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
+        final String correctPluginToFilterFor = "foo";
+        final String inCorrectPlugin = "bar";
+
+        when(plugin.getDetails()).thenReturn(
+            Map.of(
+                UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            )
+        );
+
+        when(plugin.getName()).thenReturn(correctPluginToFilterFor);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(correctPluginToFilterFor,
+                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    correctPluginToFilterFor, null, null, null, List.of(), 0, "2.361.1", "main",
+                    List.of(issueTrackerJira)
+                ),
+                inCorrectPlugin,
+                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    inCorrectPlugin, null, null, null, List.of(), 0, "2.361.1", "main",
+                    List.of())
+            ),
+            Map.of(),
+            List.of()
+        ));
+
+        Map<String, String> correctIssueSetToMatch = new HashMap<>();
+        correctIssueSetToMatch.put("jira", "https://issues.jenkins.io/issues/?jql=component=18331");
+
+        final IssueTrackerDetectionProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+
+        assertThat(plugin.getName()).isEqualTo(correctPluginToFilterFor);
+        assertThat(ctx.getIssueTrackerNameAndUrl()).containsExactlyEntriesOf(correctIssueSetToMatch);
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
+    void shouldDetectForOnlyGHInIssueTrackers() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final IssueTrackers issueTrackerGithub = new IssueTrackers("github", "https://github.com/foo-plugin/issues", "https://github.com/foo-plugin/issues/new/choose");
         final String pluginName = "foo";
 
         when(plugin.getDetails()).thenReturn(
@@ -120,7 +168,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
                 pluginName, null, null, null, List.of(), 0, "2.361.1", "main",
-                    List.of(issueTrackerGithub)
+                List.of(issueTrackerGithub)
             )),
             Map.of(),
             List.of()
@@ -137,11 +185,12 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         verify(probe).doApply(plugin, ctx);
     }
 
+
     @Test
-    void shouldDetectForOnlyJIRAInIssueTracker() throws IOException {
+    void shouldDetectForOnlyJIRAInIssueTrackers() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers issueTrackerJira = new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
+        final IssueTrackers issueTrackerJira = new IssueTrackers("jira", "https://issues.jenkins.io/issues/?jql=component=18331", "https://www.jenkins.io/participate/report-issue/redirect/#18331");
         final String pluginName = "foo";
 
         when(plugin.getDetails()).thenReturn(
@@ -172,9 +221,9 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     }
 
     @Test
-    void shouldFailWhenPluginIssueTrackerIsNotInUpdateCenter() throws IOException {
+    void shouldFailWhenPluginIssueTrackersIsNotInUpdateCenter() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
         when(plugin.getDetails()).thenReturn(
@@ -206,7 +255,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
     @Test
     void shouldFailWhenPluginIsNotInUpdateCenter() throws IOException {
         final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
+        final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
 
         when(plugin.getDetails()).thenReturn(
