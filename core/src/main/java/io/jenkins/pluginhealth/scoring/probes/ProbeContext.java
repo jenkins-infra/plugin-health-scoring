@@ -45,7 +45,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
-    private Map<String, String> issueTrackerNameAndUrl;
+    private Map<String, String> issueTrackerUrlsByNames;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -76,12 +76,12 @@ public class ProbeContext {
         this.github = github;
     }
 
-    public void setPluginDocumentationLinks(Map<String, String> pluginDocumentationLinks) {
-        this.pluginDocumentationLinks = pluginDocumentationLinks;
-    }
-
     public Map<String, String> getPluginDocumentationLinks() {
         return pluginDocumentationLinks;
+    }
+
+    public void setPluginDocumentationLinks(Map<String, String> pluginDocumentationLinks) {
+        this.pluginDocumentationLinks = pluginDocumentationLinks;
     }
 
     public Optional<String> getRepositoryName(String scm) {
@@ -90,11 +90,16 @@ public class ProbeContext {
     }
 
     public void setIssueTrackerNameAndUrl(Map<String, String> issueTrackerNameAndUrl) {
-        this.issueTrackerNameAndUrl = issueTrackerNameAndUrl;
+        this.issueTrackerUrlsByNames = issueTrackerNameAndUrl;
     }
 
-    public Map<String, String> getIssueTrackerNameAndUrl() {
-        return issueTrackerNameAndUrl;
+    /**
+     * Gets the issue tracker names and its urls.
+     *
+     * @return a Map that consists of @see {@link io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers} "type" as key and "viewUrl" as its value.
+     */
+    public Map<String, String> getIssueTrackerUrlsByNames() {
+        return issueTrackerUrlsByNames;
     }
 
     /* default */ void cleanUp() throws IOException {

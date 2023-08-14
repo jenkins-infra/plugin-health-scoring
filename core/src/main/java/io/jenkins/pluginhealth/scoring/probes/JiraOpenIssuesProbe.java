@@ -66,10 +66,10 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
-        String viewJiraIssuesUrl = context.getIssueTrackerNameAndUrl().get("jira");
+        String viewJiraIssuesUrl = context.getIssueTrackerUrlsByNames().get("jira");
 
-        if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
-            LOGGER.warn("JIRA issues not found in Update Center for the plugin.");
+            if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
+            LOGGER.info("JIRA issues not found in Update Center for the plugin.");
             return Optional.empty();
         }
 
@@ -82,8 +82,8 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
                For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979%20and%20status=open
              */
             String api = JIRA_HOST.concat(url.getQuery())
-                        .concat(URLEncoder.encode(" AND ", StandardCharsets.UTF_8.toString()).replace("+", "%20")
-                        .concat("status=open"));
+                        .concat("%20AND%20")
+                        .concat("status=open");
 
             httpRequest = HttpRequest.newBuilder()
                 .uri(new URI(api))

@@ -88,7 +88,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
 
     @Test
     void shouldBeAbleToFindNumberOfOpenIssuesInGH() throws IOException {
-        final String pluginName = "mockedForTests ";
+        final String pluginName = "foo";
         final String repository = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + repository;
 
@@ -116,7 +116,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
             List.of()
         ));
 
-        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of("github", "https://github.com/" + repository + "/issues"));
+        when(ctx.getIssueTrackerUrlsByNames()).thenReturn(Map.of("github", "https://github.com/" + repository + "/issues"));
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));
@@ -128,7 +128,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in the mockedForTests  plugin."));
+            .isEqualTo(ProbeResult.success(GitHubOpenIssuesProbe.KEY, "6 open issues found in the foo plugin."));
 
         verify(probe).doApply(plugin, ctx);
 
@@ -163,7 +163,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
             List.of()
         ));
 
-        when(ctx.getIssueTrackerNameAndUrl()).thenReturn(Map.of());
+        when(ctx.getIssueTrackerUrlsByNames()).thenReturn(Map.of());
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));

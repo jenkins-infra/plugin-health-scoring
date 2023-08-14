@@ -101,7 +101,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("github", "https://github.com/foo-plugin/issues"), entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("github", "https://github.com/foo-plugin/issues"), entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -146,7 +146,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
         assertThat(plugin.getName()).isEqualTo(correctPluginToFilterFor);
-        assertThat(ctx.getIssueTrackerNameAndUrl()).containsExactlyEntriesOf(correctIssueSetToMatch);
+        assertThat(ctx.getIssueTrackerUrlsByNames()).containsExactlyEntriesOf(correctIssueSetToMatch);
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -180,7 +180,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("github", "https://github.com/foo-plugin/issues"));
+        assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("github", "https://github.com/foo-plugin/issues"));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -215,7 +215,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
 
-        assertThat(ctx.getIssueTrackerNameAndUrl()).contains(entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
+        assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
     }
 
