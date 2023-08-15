@@ -96,7 +96,7 @@ public class ProbeContext {
     /**
      * Gets the issue tracker names and its urls.
      *
-     * @return a Map that consists of @see {@link io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers} "type" as key and "viewUrl" as its value.
+     * @return a Map that consists of {@link io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers} "type" as key and "viewUrl" as its value.
      */
     public Map<String, String> getIssueTrackerUrlsByNames() {
         return issueTrackerUrlsByNames;

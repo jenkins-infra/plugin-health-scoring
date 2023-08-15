@@ -59,20 +59,21 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
     /**
      * Get total number of open JIRA issues in a plugin.
      *
-     * @param context @see {@link ProbeContext}
+     * @param context {@link ProbeContext}
      * @return Optional of type Integer.
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
         String viewJiraIssuesUrl = context.getIssueTrackerUrlsByNames().get("jira");
 
-            if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
+        if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
             LOGGER.info("JIRA issues not found in Update Center for the plugin.");
             return Optional.empty();
         }
-
         try {
-            // The `url` will contain the JIRA url to view issues. For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979
+            /* The `url` will contain the JIRA url to view issues.
+               For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979
+            */
             URL url = new URL(viewJiraIssuesUrl);
 
             /* Here, the query of the url "?jql=component=1833" is concatenated with " AND status=open".
@@ -80,8 +81,8 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
                For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979%20and%20status=open
              */
             String api = JIRA_HOST.concat(url.getQuery())
-                        .concat("%20AND%20")
-                        .concat("status=open");
+                .concat("%20AND%20")
+                .concat("status=open");
 
             httpRequest = HttpRequest.newBuilder()
                 .uri(new URI(api))

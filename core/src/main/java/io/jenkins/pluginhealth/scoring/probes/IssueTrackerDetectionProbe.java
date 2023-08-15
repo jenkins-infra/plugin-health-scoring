@@ -72,7 +72,7 @@ class IssueTrackerDetectionProbe extends Probe {
      * Gets issue trackers for a specific plugin from Update Center.
      *
      * @param pluginName   name of the plugin to fetch issue tracker data for.
-     * @param updateCenter @see {@link UpdateCenter}.
+     * @param updateCenter The {@link UpdateCenter}.
      * @return A Map of filtered data from issue trackers.
      */
     private Map<String, String> getIssueTrackersForAPlugin(String pluginName, UpdateCenter updateCenter) {
@@ -84,7 +84,7 @@ class IssueTrackerDetectionProbe extends Probe {
     /**
      * Filters IssueTrackers for "type" and "viewUrl".
      *
-     * @param issueTrackers Accepts a list of @see {@link IssueTrackers}.
+     * @param issueTrackers Accepts a list of {@link IssueTrackers}.
      * @return A Map of {@code IssueTrackers::type} and {@code IssueTrackers::viewUrl}.
      */
     private Map<String, String> filterIssueTrackersForTypeAndViewUrl(List<IssueTrackers> issueTrackers) {
