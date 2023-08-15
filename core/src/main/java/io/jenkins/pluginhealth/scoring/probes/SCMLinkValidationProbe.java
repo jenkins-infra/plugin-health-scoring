@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -72,10 +71,10 @@ public class SCMLinkValidationProbe extends Probe {
     /**
      * Validates the SCM link, and sets the folder path that contains pom.xml.
      *
-     * @param context    @see {@link ProbeContext}
-     * @param scm        The SCM link @see {@link Plugin#getScm()}
-     * @param pluginName The name of the plugin @see {@link Plugin#getName()}
-     * @return ProbeResult @see {@link ProbeResult}
+     * @param context    @see {@link ProbeContext}.
+     * @param scm        The SCM link @see {@link Plugin#getScm()}.
+     * @param pluginName The name of the plugin @see {@link Plugin#getName()}.
+     * @return ProbeResult @see {@link ProbeResult}.
      */
     private ProbeResult fromSCMLink(ProbeContext context, String scm, String pluginName) {
         Matcher matcher = GH_PATTERN.matcher(scm);
@@ -86,29 +85,37 @@ public class SCMLinkValidationProbe extends Probe {
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository(), pluginName);
-            String folderPath = pluginPathInRepository
+            /*
+             * If a pom file is found, the parent folder is returned.
+             * If a pom file is not found, we assume that the plugin is a maven plugin,
+             * and return the root path. Because in a maven repository, a pom file always exists in the root.
+             */
+            Path folderPath = pluginPathInRepository
                 .flatMap(path -> Optional.ofNullable(path.getParent()))
-                .map(parent -> parent.getFileName().toString())
+                .map(parent -> parent.getFileName())
                 .orElseGet(() -> {
                     Path scmRepository = context.getScmRepository();
-                    String defaultFolderName = scmRepository.getParent() != null
-                        ?  scmRepository.getParent().getFileName().toString()
-                        : "";
-                    return defaultFolderName;
+                    Optional<Path> pluginPomInRootDirectory = findPluginPomInRootDirectory(context.getScmRepository(), pluginName);
+                    Path defaultFolder = pluginPomInRootDirectory.isPresent()
+                        ? scmRepository.getParent().getFileName()
+                        : Path.of("");
+                    return defaultFolder;
                 });
-            context.setScmFolderPath(folderPath);
-            return ProbeResult.success(key(), "The plugin SCM link is valid.");
+            context.setScmFolderPath(folderPath.toString());
+            return folderPath.toString().isBlank()
+                ? ProbeResult.error(key(), String.format("No POM file found in %s plugin.", pluginName))
+                : ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid.");
         }
     }
 
     /**
-     * Searches for Pom file in every directory available in the repository
+     * Searches for Pom file in every directory available in the repository.
      *
-     * @param directory  path in the scm
-     * @param pluginName the name of the plugin
-     * @return an Optional path if pom file is found
+     * @param directory  path in the scm.
+     * @param pluginName the name of the plugin.
+     * @return an Optional path if pom file is found.
      */
     private Optional<Path> findPluginPom(Path directory, String pluginName) {
         if (!Files.isDirectory(directory)) {
@@ -116,10 +123,35 @@ public class SCMLinkValidationProbe extends Probe {
             return Optional.empty();
         }
         /*
-         * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactid/` folder
+         * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactId/` folder
          * A lot of plugins aren't located deeper than <root>/plugins/<pom.xml>.
          * */
         try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
+            "pom.xml".equals(path.getFileName().toString()))) {
+            return paths
+                .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
+                .findFirst();
+        } catch (IOException e) {
+            LOGGER.error("Could not browse the folder during probe {}. {}", pluginName, e);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Searches for Pom file only in the root directory of the repository.
+     *
+     * @param directory  root directory path in the scm.
+     * @param pluginName the name of the plugin.
+     * @return an Optional path if pom file is found.
+     */
+
+    private Optional<Path> findPluginPomInRootDirectory(Path directory, String pluginName) {
+        if (!Files.isDirectory(directory)) {
+            LOGGER.error("Directory {} does not exists during {} probe.", directory, pluginName);
+            return Optional.empty();
+        }
+//       The `maxDepth` is 1 here because we are looking for the pom file only in root directory.
+        try (Stream<Path> paths = Files.find(directory.getParent(), 1, (path, $) ->
             "pom.xml".equals(path.getFileName().toString()))) {
             return paths
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))

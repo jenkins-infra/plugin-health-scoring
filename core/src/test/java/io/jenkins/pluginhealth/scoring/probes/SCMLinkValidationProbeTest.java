@@ -117,23 +117,27 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     @Test
     void shouldRecognizeCorrectGitHubUrl() throws IOException {
         final Plugin p1 = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
+        ProbeContext contextSpy = spy(new ProbeContext(p1.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/mailer-plugin";
+        final String repositoryName = "jenkinsci/test-repo";
 
         when(p1.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(p1.getDetails()).thenReturn(Map.of(
             UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
         ));
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
-        when(ctx.getGitHub()).thenReturn(gh);
-        when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
-        when(p1.getName()).thenReturn("mailer-plugin");
-        when(ctx.getRepositoryName(anyString())).thenReturn(Optional.of(repositoryName));
+
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1"));
+        when(contextSpy.getGitHub()).thenReturn(gh);
+        GHRepository repository = mock(GHRepository.class);
+        when(gh.getRepository(repositoryName)).thenReturn(repository);
+
+        when(p1.getName()).thenReturn("test-repo");
+        when(contextSpy.getRepositoryName(anyString())).thenReturn(Optional.of(repositoryName));
 
         final SCMLinkValidationProbe probe = getSpy();
-        final ProbeResult r1 = probe.apply(p1, ctx);
+        final ProbeResult r1 = probe.apply(p1, contextSpy);
 
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-nested-dir-2");
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid.");
     }
@@ -191,8 +195,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
-        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
-        ProbeContext contextSpy = spy(ctx);
+        ProbeContext contextSpy = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -235,6 +238,32 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-repo");
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
+        verify(probe).doApply(plugin, contextSpy);
+    }
+
+    @Test
+    void shouldFailWhenPomFileDoesNotExistsInTheRepository() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final GitHub github = mock(GitHub.class);
+        final String repositoryName = "jenkinsci/test-no-pom-file-repo";
+        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
+        ProbeContext contextSpy = spy(ctx);
+
+        when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+        ));
+        when(plugin.getName()).thenReturn("test-repo");
+
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-no-pom-file-repo"));
+        when(contextSpy.getGitHub()).thenReturn(github);
+
+        final SCMLinkValidationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, contextSpy);
+
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo("");
+        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+        assertThat(result.message()).isEqualTo("No POM file found in test-repo plugin.");
         verify(probe).doApply(plugin, contextSpy);
     }
 }
