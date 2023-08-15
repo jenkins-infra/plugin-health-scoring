@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -88,7 +89,13 @@ public class SCMLinkValidationProbe extends Probe {
             String folderPath = pluginPathInRepository
                 .flatMap(path -> Optional.ofNullable(path.getParent()))
                 .map(parent -> parent.getFileName().toString())
-                .orElse(String.valueOf(context.getScmRepository().getParent().getFileName()));
+                .orElseGet(() -> {
+                    Path scmRepository = context.getScmRepository();
+                    String defaultFolderName = scmRepository.getParent() != null
+                        ?  scmRepository.getParent().getFileName().toString()
+                        : "";
+                    return defaultFolderName;
+                });
             context.setScmFolderPath(folderPath);
             return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
