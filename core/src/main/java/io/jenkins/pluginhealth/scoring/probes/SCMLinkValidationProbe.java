@@ -123,8 +123,8 @@ public class SCMLinkValidationProbe extends Probe {
             return Optional.empty();
         }
         /*
-         * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactId/` folder
-         * A lot of plugins aren't located deeper than <root>/plugins/<pom.xml>.
+         * The `maxDepth` is 3 because a lot of plugins aren't located deeper than <root>/plugins/<pom.xml>.
+         * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactId/` folder.
          * */
         try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
             "pom.xml".equals(path.getFileName().toString()))) {
@@ -150,7 +150,7 @@ public class SCMLinkValidationProbe extends Probe {
             LOGGER.error("Directory {} does not exists during {} probe.", directory, pluginName);
             return Optional.empty();
         }
-//       The `maxDepth` is 1 here because we are looking for the pom file only in root directory.
+        /* The `maxDepth` is 1 here because we are looking for the pom file only in root directory. */
         try (Stream<Path> paths = Files.find(directory.getParent(), 1, (path, $) ->
             "pom.xml".equals(path.getFileName().toString()))) {
             return paths
