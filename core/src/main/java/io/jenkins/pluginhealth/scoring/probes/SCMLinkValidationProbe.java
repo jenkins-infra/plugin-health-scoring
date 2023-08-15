@@ -69,12 +69,12 @@ public class SCMLinkValidationProbe extends Probe {
     }
 
     /**
-     * Validates the SCM link, and sets the folder path that contains pom.xml.
+     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(String)}. The value is always the path of the POM file.
      *
-     * @param context    @see {@link ProbeContext}.
+     * @param context    Refer {@link ProbeContext}.
      * @param scm        The SCM link @see {@link Plugin#getScm()}.
-     * @param pluginName The name of the plugin @see {@link Plugin#getName()}.
-     * @return ProbeResult @see {@link ProbeResult}.
+     * @param pluginName The name of the plugin {@link Plugin#getName()}.
+     * @return ProbeResult {@link ProbeResult}.
      */
     private ProbeResult fromSCMLink(ProbeContext context, String scm, String pluginName) {
         Matcher matcher = GH_PATTERN.matcher(scm);
