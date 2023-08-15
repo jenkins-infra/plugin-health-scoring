@@ -72,7 +72,7 @@ public class SCMLinkValidationProbe extends Probe {
      * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(String)}. The value is always the path of the POM file.
      *
      * @param context    Refer {@link ProbeContext}.
-     * @param scm        The SCM link @see {@link Plugin#getScm()}.
+     * @param scm        The SCM link {@link Plugin#getScm()}.
      * @param pluginName The name of the plugin {@link Plugin#getName()}.
      * @return ProbeResult {@link ProbeResult}.
      */
