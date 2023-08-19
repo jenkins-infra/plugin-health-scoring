@@ -79,7 +79,7 @@ public class SCMLinkValidationProbe extends Probe {
     private ProbeResult fromSCMLink(ProbeContext context, String scm, String pluginName) {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
-            LOGGER.atDebug().setMessage(() -> String.format("%s is not respecting the SCM URL Template.", scm));
+            LOGGER.atDebug().log(() -> String.format("%s is not respecting the SCM URL Template.", scm));
             return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
         try {
