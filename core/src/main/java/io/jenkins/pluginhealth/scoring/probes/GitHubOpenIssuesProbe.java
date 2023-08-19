@@ -51,7 +51,7 @@ class GitHubOpenIssuesProbe extends AbstractOpenIssuesProbe {
         String issueTrackerViewUrl = context.getIssueTrackerUrlsByNames().get("github");
 
         if (issueTrackerViewUrl == null) {
-            LOGGER.info("The plugin does not use GitHub issues to tracker issues.");
+            LOGGER.info("The plugin does not use GitHub issues to track issues.");
             return Optional.empty();
         }
 
