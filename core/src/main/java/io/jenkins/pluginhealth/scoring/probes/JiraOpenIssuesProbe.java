@@ -67,7 +67,7 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
         String viewJiraIssuesUrl = context.getIssueTrackerUrlsByNames().get("jira");
 
         if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
-            LOGGER.info("JIRA issues not found in Update Center for the plugin.");
+            LOGGER.info("The plugin does not use JIRA to track issues.");
             return Optional.empty();
         }
         try {
@@ -95,7 +95,7 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
             JsonNode jsonNode = objectMapper.readTree(jsonResponse);
 
             if (jsonNode.get("errorMessages") != null) {
-                LOGGER.error("Error returned from JIRA API for the plugin. {}", jsonNode.get("errorMessages"));
+                LOGGER.error("Cannot request JIRA API for the plugin. {}", jsonNode.get("errorMessages"));
                 return Optional.empty();
             }
             return Optional.of(jsonNode.get("total").asInt());
