@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -137,7 +138,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-nested-dir-2");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-nested-dir-2")));
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid.");
     }
@@ -184,7 +185,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-nested-dir-2");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-nested-dir-2")));
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);
@@ -209,9 +210,9 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-repo");
-        assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
-        assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(null);
+        assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
+        assertThat(result.message()).isEqualTo("No valid POM file found in test-repo plugin.");
         verify(probe).doApply(plugin, contextSpy);
     }
 
@@ -235,7 +236,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo("test-repo");
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-repo")));
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);
@@ -246,8 +247,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final GitHub github = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-no-pom-file-repo";
-        ProbeContext ctx = new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of()));
-        ProbeContext contextSpy = spy(ctx);
+        ProbeContext contextSpy = spy(new ProbeContext(plugin.getName(), new UpdateCenter(Map.of(), Map.of(), List.of())));
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getDetails()).thenReturn(Map.of(
@@ -261,9 +261,8 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo("");
         assertThat(result.status()).isEqualTo(ResultStatus.ERROR);
-        assertThat(result.message()).isEqualTo("No POM file found in test-repo plugin.");
+        assertThat(result.message()).isEqualTo("No valid POM file found in test-repo plugin.");
         verify(probe).doApply(plugin, contextSpy);
     }
 }

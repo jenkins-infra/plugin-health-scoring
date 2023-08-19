@@ -24,7 +24,9 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -45,10 +47,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = LastCommitDateProbe.ORDER)
 public class LastCommitDateProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
-
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "last-commit-date";
+    private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -57,12 +58,12 @@ public class LastCommitDateProbe extends Probe {
             return ProbeResult.failure(key(), "The SCM link is not valid");
         }
         final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
-        final String folder = context.getScmFolderPath();
+        final Optional<Path> folder = context.getScmFolderPath();
 
         try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
             final LogCommand logCommand = git.log().setMaxCount(1);
-            if (folder != null) {
-                logCommand.addPath(folder);
+            if (folder.isPresent()) {
+                logCommand.addPath(folder.get().toString());
             }
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
@@ -78,6 +79,11 @@ public class LastCommitDateProbe extends Probe {
             LOGGER.error("There was an issue while cloning the plugin repository", ex);
             return ProbeResult.failure(key(), "Could not clone the plugin repository");
         }
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
     }
 
     @Override
@@ -98,10 +104,5 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
     }
 }
