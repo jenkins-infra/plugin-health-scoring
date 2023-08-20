@@ -109,7 +109,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
             Element extensionElement = (Element) rootElement.getElementsByTagName("extension").item(0);
             Element groupIdElement = (Element) extensionElement.getElementsByTagName("groupId").item(0);
             String groupId = groupIdElement.getTextContent();
-            return groupId.equals(INCREMENTAL_TOOL) ? true : false;
+            return groupId.equals(INCREMENTAL_TOOL);
         } catch (IOException e) {
             LOGGER.error("Could not read the file during probe {}. {}", key(), e);
         } catch (ParserConfigurationException | SAXException e) {
