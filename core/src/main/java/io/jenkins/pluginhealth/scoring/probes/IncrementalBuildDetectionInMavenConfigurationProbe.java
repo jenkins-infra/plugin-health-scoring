@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,7 +39,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
-
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,11 +80,11 @@ public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
                     return ProbeResult.failure(key(), "Incremental Build is not configured in the plugin.");
                 }
             } catch (IOException ex) {
-                LOGGER.error("Could not browse the plugin folder during probe {}.", key(), ex);
+                LOGGER.error("Could not browse the plugin folder during probe {}. {}", key(), ex);
                 return ProbeResult.error(key(), "Could not browse the plugin folder.");
             }
         } catch (IOException ex) {
-            LOGGER.error("Could not browse the plugin folder during probe {}.", key(), ex);
+            LOGGER.error("Could not browse the plugin folder during probe {}. {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder.");
         }
     }
@@ -113,9 +111,9 @@ public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
             String groupId = groupIdElement.getTextContent();
             return groupId.equals(INCREMENTAL_TOOL) ? true : false;
         } catch (IOException e) {
-            LOGGER.error("Could not read the file during probe {}.", key(), e);
+            LOGGER.error("Could not read the file during probe {}. {}", key(), e);
         } catch (ParserConfigurationException | SAXException e) {
-            LOGGER.error("Could not parse the file during probe {}.", key(), e);
+            LOGGER.error("Could not parse the file during probe {}. {}", key(), e);
         }
         return false;
     }
@@ -124,7 +122,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
         try {
             return Files.lines(path).anyMatch(line -> line.contains("-Pconsume-incrementals") || line.contains("-Pmight-produce-incrementals"));
         } catch (IOException e) {
-            LOGGER.error("Could not read the file during probe {}.", key(), e);
+            LOGGER.error("Could not read the file during probe {}. {}", key(), e);
         }
         return false;
     }
