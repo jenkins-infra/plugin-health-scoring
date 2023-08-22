@@ -15,10 +15,10 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends AbstractProbeTest<IncrementalBuildDetectionInMavenConfigurationProbe> {
+public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<IncrementalBuildDetectionProbe> {
     private Plugin plugin;
     private ProbeContext ctx;
-    private IncrementalBuildDetectionInMavenConfigurationProbe probe;
+    private IncrementalBuildDetectionProbe probe;
 
     @BeforeEach
     public void init() {
@@ -27,13 +27,13 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         probe = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
+            ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "")
         ));
     }
 
     @Override
-    IncrementalBuildDetectionInMavenConfigurationProbe getSpy() {
-        return spy(IncrementalBuildDetectionInMavenConfigurationProbe.class);
+    IncrementalBuildDetectionProbe getSpy() {
+        return spy(IncrementalBuildDetectionProbe.class);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -52,7 +52,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -62,7 +62,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -72,7 +72,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -82,7 +82,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
@@ -92,7 +92,7 @@ public class IncrementalBuildDetectionInMavenConfigurationProbeTest extends Abst
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionInMavenConfigurationProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 }

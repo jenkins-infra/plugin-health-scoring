@@ -45,11 +45,11 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 @Component
-@Order(IncrementalBuildDetectionInMavenConfigurationProbe.ORDER)
-public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
+@Order(IncrementalBuildDetectionProbe.ORDER)
+public class IncrementalBuildDetectionProbe extends Probe {
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "incremental-build-maven-configuration";
-    private static final Logger LOGGER = LoggerFactory.getLogger(IncrementalBuildDetectionInMavenConfigurationProbe.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IncrementalBuildDetectionProbe.class);
     private static final String INCREMENTAL_TOOL = "io.jenkins.tools.incrementals";
 
     @Override
@@ -87,6 +87,11 @@ public class IncrementalBuildDetectionInMavenConfigurationProbe extends Probe {
             LOGGER.error("Could not browse the plugin folder during probe {}. {}", key(), ex);
             return ProbeResult.error(key(), "Could not browse the plugin folder.");
         }
+    }
+
+    @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{ContinuousDeliveryProbe.KEY};
     }
 
     @Override
