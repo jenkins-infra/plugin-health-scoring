@@ -86,7 +86,7 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
 
             httpRequest = HttpRequest.newBuilder()
                 .uri(new URI(api))
-                .timeout(Duration.of(5, SECONDS))
+                .timeout(Duration.of(5, SECONDS)) // based on manual testing, timeout after 5 seconds works.
                 .GET()
                 .build();
 
