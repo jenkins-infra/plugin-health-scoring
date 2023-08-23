@@ -33,9 +33,7 @@ public record Plugin(String name, VersionNumber version, String scm,
                      ZonedDateTime releaseTimestamp, List<String> labels,
                      int popularity, String requiredCore, String defaultBranch, List<IssueTrackers> issueTrackers) {
 
-    /* This constructor is used in test cases
-      when List<IssueTrackers> is not required as a parameter.
-    */
+    /* This builder function is used in test cases when List<IssueTrackers> is not required as a mandatory parameter. */
     public static Plugin of(String name, VersionNumber version, String scm,
                             ZonedDateTime releaseTimestamp, List<String> labels,
                             int popularity, String requiredCore, String defaultBranch) {

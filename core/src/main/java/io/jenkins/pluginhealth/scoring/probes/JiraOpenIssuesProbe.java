@@ -64,6 +64,12 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
+        if (context.getIssueTrackerUrlsByNames().get("jira") == null) {
+            LOGGER.info("IssueTracker has no JIRA open issues for the plugin.");
+            return Optional.empty();
+        }
+
+        /* Stores the JIRA URL to view all existing issues in the plugin. Ex: https://github.com/jenkinsci/cloudevents-plugin/issues */
         String viewJiraIssuesUrl = context.getIssueTrackerUrlsByNames().get("jira");
 
         if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {

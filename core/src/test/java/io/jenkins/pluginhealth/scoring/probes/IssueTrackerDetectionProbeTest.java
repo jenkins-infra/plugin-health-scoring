@@ -99,7 +99,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Found 2 issue trackers configured for the foo plugin."));
 
         assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("github", "https://github.com/foo-plugin/issues"), entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);
@@ -143,7 +143,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Found 1 issue trackers configured for the foo plugin."));
 
         assertThat(plugin.getName()).isEqualTo(correctPluginToFilterFor);
         assertThat(ctx.getIssueTrackerUrlsByNames()).containsExactlyEntriesOf(correctIssueSetToMatch);
@@ -178,7 +178,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Found 1 issue trackers configured for the foo plugin."));
 
         assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("github", "https://github.com/foo-plugin/issues"));
         verify(probe).doApply(plugin, ctx);
@@ -213,7 +213,7 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Issue tracker detected and returned successfully."));
+            .isEqualTo(ProbeResult.success(IssueTrackerDetectionProbe.KEY, "Found 1 issue trackers configured for the foo plugin."));
 
         assertThat(ctx.getIssueTrackerUrlsByNames()).contains(entry("jira", "https://issues.jenkins.io/issues/?jql=component=18331"));
         verify(probe).doApply(plugin, ctx);

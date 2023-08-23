@@ -47,6 +47,10 @@ class GitHubOpenIssuesProbe extends AbstractOpenIssuesProbe {
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
+        if (context.getIssueTrackerUrlsByNames().get("github") == null) {
+            LOGGER.info("IssueTracker has no GitHub open issues for the plugin.");
+            return Optional.empty();
+        }
         /* Stores the GitHub URL to view all existing issues in the plugin. Ex: https://github.com/jenkinsci/cloudevents-plugin/issues */
         String issueTrackerViewUrl = context.getIssueTrackerUrlsByNames().get("github");
 

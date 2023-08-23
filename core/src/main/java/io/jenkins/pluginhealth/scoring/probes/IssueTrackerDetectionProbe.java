@@ -50,7 +50,7 @@ class IssueTrackerDetectionProbe extends Probe {
             return ProbeResult.failure(key(), String.format("No issue tracker data available for %s plugin in Update Center.", plugin.getName()));
         }
         context.setIssueTrackerNameAndUrl(issueTrackerDetails);
-        return ProbeResult.success(key(), "Issue tracker detected and returned successfully.");
+        return ProbeResult.success(key(), String.format("Found %d issue trackers configured for the %s plugin.", issueTrackerDetails.size(), plugin.getName()));
     }
 
     @Override
@@ -76,7 +76,7 @@ class IssueTrackerDetectionProbe extends Probe {
      * @return A Map of filtered data from issue trackers.
      */
     private Map<String, String> getIssueTrackersForAPlugin(String pluginName, UpdateCenter updateCenter) {
-        return updateCenter.plugins().get(pluginName) != null
+        return (updateCenter.plugins().get(pluginName) != null) && (updateCenter.plugins().get(pluginName).getIssueTrackers() != null)
             ? filterIssueTrackersForTypeAndViewUrl(updateCenter.plugins().get(pluginName).getIssueTrackers())
             : Map.of();
     }
