@@ -116,7 +116,7 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
             List.of()
         ));
 
-        when(ctx.getIssueTrackerUrlsByNames()).thenReturn(Map.of("github", "https://github.com/" + repository + "/issues"));
+        when(ctx.getIssueTrackerUrlsByNames()).thenReturn(Map.of("github", scmLink + "/issues"));
 
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName(plugin.getScm())).thenReturn(Optional.of(repository));
