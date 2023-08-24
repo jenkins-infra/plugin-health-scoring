@@ -138,7 +138,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult r1 = probe.apply(p1, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-nested-dir-2")));
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of("test-nested-dir-2"));
         assertThat(r1.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(r1.message()).isEqualTo("The plugin SCM link is valid.");
     }
@@ -185,7 +185,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-nested-dir-2")));
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of("test-nested-dir-2"));
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);
@@ -236,7 +236,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of(Paths.get("test-repo")));
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of("test-repo"));
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);

@@ -83,13 +83,13 @@ public class SCMLinkValidationProbe extends Probe {
             return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
         try {
-            context.getGitHub().getRepository(matcher.group("repo"));
+            context.getGitHub().getRepository(matcher.group("repo")); // clones the repository, fetches the repo path using the regex Matcher
             Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository(), pluginName);
             Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
             if (folderPath.isEmpty()) {
                 return ProbeResult.error(key(), String.format("No valid POM file found in %s plugin.", pluginName));
             }
-            context.setScmFolderPath(Optional.of(folderPath.get().getFileName()));
+            context.setScmFolderPath(folderPath.map(path -> path.getFileName().toString()));
             return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
             return ProbeResult.failure(key(), "The plugin SCM link is invalid.");
@@ -123,6 +123,14 @@ public class SCMLinkValidationProbe extends Probe {
         return Optional.empty();
     }
 
+    /**
+     * Checks whether the plugin's pom.xml matches the `packaging` and the `artifactId` of the plugin.
+     * This helps in finding the correct pom that belongs to the plugin.
+     *
+     * @param pluginName  The name of the plugin to match.
+     * @param pomFilePath The path of the pom file to be checked.
+     * @return a boolean value stating whether the file checked matches the criteria.
+     */
     private boolean pomFileMatchesPlugin(Path pomFilePath, String pluginName) {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         try (Reader reader = new InputStreamReader(new FileInputStream(pomFilePath.toFile()), StandardCharsets.UTF_8)) {
