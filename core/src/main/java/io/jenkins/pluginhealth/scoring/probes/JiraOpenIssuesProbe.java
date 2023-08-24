@@ -64,7 +64,7 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
      */
     @Override
     Optional<Integer> getCountOfOpenIssues(ProbeContext context) {
-        if (context.getIssueTrackerUrlsByNames().get("jira") == null) {
+        if (context.getIssueTrackerUrlsByNames() == null) {
             LOGGER.info("IssueTracker has no JIRA open issues for the plugin.");
             return Optional.empty();
         }
