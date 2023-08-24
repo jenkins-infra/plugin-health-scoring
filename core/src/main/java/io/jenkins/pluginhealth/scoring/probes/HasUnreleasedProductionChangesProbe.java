@@ -27,7 +27,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static io.jenkins.pluginhealth.scoring.probes.SCMLinkValidationProbe.GH_PATTERN;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;

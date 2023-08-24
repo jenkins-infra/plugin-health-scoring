@@ -24,7 +24,6 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.regex.Matcher;
