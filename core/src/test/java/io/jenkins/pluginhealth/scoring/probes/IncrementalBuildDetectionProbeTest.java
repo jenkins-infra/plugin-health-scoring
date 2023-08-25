@@ -37,7 +37,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldReturnASuccessfulCheckIncrementalBuildConfiguredInBothFiles() {
+    void shouldReturnASuccessfulCheckWhenIncrementalBuildConfiguredInBothFiles() {
         when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/plugin-repo-with-correct-configuration"));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
