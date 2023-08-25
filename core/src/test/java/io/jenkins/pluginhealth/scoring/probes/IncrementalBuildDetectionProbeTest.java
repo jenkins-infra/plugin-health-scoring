@@ -38,61 +38,89 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
 
     @Test
     void shouldReturnASuccessfulCheckIncrementalBuildConfiguredInBothFiles() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-1"));
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/plugin-repo-with-correct-configuration"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
     @Test
-    void shouldReturnASuccessfulCheckWhenIncrementalBuildIsConfiguredOnlyInExtensionsXML() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-repo-2"));
+    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInExtensionsXML() {
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/plugin-repo-with-missing-maven-config-file"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
     @Test
-    void shouldReturnASuccessfulCheckWhenIncrementalBuildIsConfiguredOnlyInMavenConfig() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-repo-3"));
+    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInMavenConfig() {
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/plugin-repo-with-missing-extensions-file"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Incremental Build is configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
     @Test
     void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInBothFiles() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-repo-1"));
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/plugin-repo-with-incorrect-configuration-lines-in-both-files"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
     @Test
     void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInExtensionsXML() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-repo-2"));
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-extensions-configuration"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 
     @Test
-    void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInMavenConfig() {
-        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-repo-3"));
+    void shouldFailWhenIncrementalBuildLinesAreIncorrectInMavenConfig() {
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-maven-configuration"));
+        when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the plugin."));
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
+    void shouldFailWhenIncrementalBuildLinesAreMissingInMavenConfig() {
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-plugin-with-missing-lines-maven-configuration"));
+        when(plugin.getName()).thenReturn("foo");
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Incremental Build is not configured in the foo plugin."));
+        verify(probe).doApply(plugin, ctx);
+    }
+
+    @Test
+    void shouldFailWhenMavenFolderIsNotFound() {
+        when(ctx.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo-without-mvn-should-not-be-found"));
+        when(plugin.getName()).thenReturn("foo");
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.failure(IncrementalBuildDetectionProbe.KEY, "Could not find Maven configuration folder for the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 }
