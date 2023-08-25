@@ -113,7 +113,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
      * Checks whether `extensions.xml` is configured in the plugin
      *
      * @param path Looks for extensions.xml configuration in the particular path
-     * @return true if the configuration is found and correct, otherwise false
+     * @return true if a correct configuration is found, otherwise false
      */
     private boolean isExtensionsXMLConfigured(Path path) {
         try {
@@ -140,7 +140,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
      * Checks whether `maven.config` is configured in the plugin
      *
      * @param path Looks for extensions.xml configuration in the particular path
-     * @return true if the configuration is found and correct, otherwise false
+     * @return true if a correct configuration is found, otherwise false
      */
     private boolean isMavenConfigConfigured(Path path) {
         try {
