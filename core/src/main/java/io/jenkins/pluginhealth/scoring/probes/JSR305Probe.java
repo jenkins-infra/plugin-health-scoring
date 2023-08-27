@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
  * This probe checks for deprecated @Nonnull and @CheckForNull annotations in a plugin.
  */
 @Component
-@Order(value = AbstractDeprecatedAnnotationImportsCheckProbe.ORDER)
-public class JSR305Probe extends AbstractDeprecatedAnnotationImportsCheckProbe {
+@Order(value = AbstractJavaImportsCheckProbe.ORDER)
+public class JSR305Probe extends AbstractJavaImportsCheckProbe {
     public static final String KEY = "JSR-305";
 
     @Override
@@ -34,10 +34,10 @@ public class JSR305Probe extends AbstractDeprecatedAnnotationImportsCheckProbe {
     }
 
     @Override
-    public List<String> getListOfDeprecatedImports() {
+    public List<String> getListOfImports() {
         return List.of(
-            "import javax.annotation.Nonnull;",
-            "import javax.annotation.CheckForNull;"
+            "javax.annotation.Nonnull;",
+            "javax.annotation.CheckForNull;"
         );
     }
 }
