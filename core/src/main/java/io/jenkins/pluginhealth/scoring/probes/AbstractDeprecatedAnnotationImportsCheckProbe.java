@@ -79,5 +79,5 @@ public abstract class AbstractDeprecatedAnnotationImportsCheckProbe extends Prob
     /**
      * @return a list of deprecated imports.
      */
-    public abstract List<String> getListOfDeprecatedImports();
+    abstract List<String> getListOfDeprecatedImports();
 }
