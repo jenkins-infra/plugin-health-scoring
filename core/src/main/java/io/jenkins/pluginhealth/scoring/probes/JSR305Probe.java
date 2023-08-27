@@ -36,8 +36,8 @@ public class JSR305Probe extends AbstractJavaImportsCheckProbe {
     @Override
     public List<String> getListOfImports() {
         return List.of(
-            "javax.annotation.Nonnull;",
-            "javax.annotation.CheckForNull;"
+            "javax.annotation.Nonnull",
+            "javax.annotation.CheckForNull"
         );
     }
 }

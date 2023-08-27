@@ -83,7 +83,7 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
      * @return a String that contains only the fully qualified name of the class/library.
      */
     private String getFullyQualifiedImportName(String importStatement) {
-        return importStatement.replace("import ", "");
+        return importStatement.replace("import ", "").replace(";", "");
     }
 
     /**
