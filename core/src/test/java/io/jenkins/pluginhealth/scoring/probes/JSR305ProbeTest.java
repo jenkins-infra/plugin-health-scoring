@@ -84,7 +84,7 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(JSR305Probe.KEY, "Deprecated annotations found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java"));
+            .isEqualTo(ProbeResult.failure(JSR305Probe.KEY, "Deprecated imports found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java"));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
 
     }
@@ -106,7 +106,7 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "JSR305 annotation is updated at foo plugin."));
+            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Latest version of imports found at foo plugin."));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 

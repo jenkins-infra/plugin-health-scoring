@@ -21,7 +21,7 @@ import org.springframework.util.CollectionUtils;
  * The abstract probe checks for imports in {@code .java} files in a plugin.
  */
 public abstract class AbstractJavaImportsCheckProbe extends Probe {
-    public static final int ORDER = SCMLinkValidationProbe.ORDER;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJavaImportsCheckProbe.class);
 
     @Override

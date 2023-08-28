@@ -25,12 +25,12 @@ public class JSR305Probe extends AbstractJavaImportsCheckProbe {
 
     @Override
     String getSuccessMessage() {
-        return "JSR305 annotation is updated";
+        return "Latest version of imports found";
     }
 
     @Override
     String getFailureMessage() {
-        return "Deprecated annotations found";
+        return "Deprecated imports found";
     }
 
     @Override
