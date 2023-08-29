@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,17 +28,11 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
         final Path scmRepository = context.getScmRepository();
 
         /* The "maxDepth" is set to Integer.MAX_VALUE because a repository can have multiple modules with class files in it. We do not want to miss any ".java" file.  */
-        try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) ->
-            Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
+        try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
 
-            Set<String> javaFilesWithDetectedImports = javaFiles
-                .filter(javaFile -> containsImports(javaFile, getListOfImports()))
-                .map(javaFile -> javaFile.getFileName().toString())
-                .collect(Collectors.toSet());
+            Set<String> javaFilesWithDetectedImports = javaFiles.filter(javaFile -> containsImports(javaFile, getListOfImports())).map(javaFile -> javaFile.getFileName().toString()).collect(Collectors.toSet());
 
-            return javaFilesWithDetectedImports.isEmpty()
-                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()))
-                : ProbeResult.failure(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+            return javaFilesWithDetectedImports.isEmpty() ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName())) : ProbeResult.failure(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe. {}", key(), ex);
             return ProbeResult.error(key(), String.format("Could not browse the plugin folder during {} probe.", plugin.getName()));
@@ -52,10 +45,11 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
     }
 
     /**
-     * Checks whether the file contains an import statement or no.
+     * Checks whether the file contains the required imports.
      *
-     * @param path The file Path to check imports.
-     * @return name of the file that contains the required imports.
+     * @param path           The path of the file to check for imports.
+     * @param importsToCheck The list of imports against which the lines in the file should be checked.
+     * @return boolean {@code true} if the file contains all imports. {@code false} otherwise.
      */
     private boolean containsImports(Path path, List<String> importsToCheck) {
         try (Stream<String> importStatements = Files.lines(path).filter(line -> line.startsWith("import")).map(this::getFullyQualifiedImportName)) {
