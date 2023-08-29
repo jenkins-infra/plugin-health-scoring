@@ -69,22 +69,26 @@ public class IncrementalBuildDetectionProbe extends Probe {
             return ProbeResult.failure(key(), String.format("Could not find Maven configuration folder for the %s plugin.", plugin.getName()));
         }
 
-        Supplier<Stream<Path>> incrementalConfigs = () -> {
-            try {
-                return Files.find(mvnConfig, 1, (path, $) -> Files.isRegularFile(path) && (path.endsWith("maven.config") || path.endsWith("extensions.xml")));
-            } catch (IOException e) {
-                LOGGER.error("Could not read files from .mvn directory for {} plugin while running {} probe.", plugin.getName(), key());
-                return null;
-            }
-        };
-        Optional<Path> mavenExtensionsFile = incrementalConfigs.get().filter(path -> path.endsWith("extensions.xml")).findFirst();
-        Optional<Path> mavenConfigFile = incrementalConfigs.get().filter(path -> path.endsWith("maven.config")).findFirst();
+        try (Stream<Path> incrementalConfigsStream = Files.find(mvnConfig, 1, (path, $) -> Files.isRegularFile(path) && (path.endsWith("maven.config") || path.endsWith("extensions.xml")))) {
+            List<Path> incrementalConfigsStore = incrementalConfigsStream.toList();
 
-        if (mavenExtensionsFile.isPresent() && mavenConfigFile.isPresent()) {
-            return isExtensionsXMLConfigured(mavenExtensionsFile.get()) && isMavenConfigConfigured(mavenConfigFile.get())
-                ? ProbeResult.success(key(), String.format("Incremental Build is configured in the %s plugin.", plugin.getName()))
-                : ProbeResult.failure(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
+            // Here, we stored the data in a `List`, and we can create a supplier that will create a new `Stream` for us from this data
+            Supplier<Stream<Path>> incrementalConfigs = incrementalConfigsStore::stream;
+
+            Optional<Path> mavenExtensionsFile = incrementalConfigs.get().filter(path -> path.endsWith("extensions.xml")).findFirst();
+            Optional<Path> mavenConfigFile = incrementalConfigs.get().filter(path -> path.endsWith("maven.config")).findFirst();
+
+            if (mavenExtensionsFile.isPresent() && mavenConfigFile.isPresent()) {
+                return isExtensionsXMLConfigured(mavenExtensionsFile.get()) && isMavenConfigConfigured(mavenConfigFile.get())
+                    ? ProbeResult.success(key(), String.format("Incremental Build is configured in the %s plugin.", plugin.getName()))
+                    : ProbeResult.failure(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not read files from .mvn directory for {} plugin while running {} probe.", plugin.getName(), key());
+            return null;
         }
+
+
         return ProbeResult.failure(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
     }
 
