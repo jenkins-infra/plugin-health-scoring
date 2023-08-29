@@ -29,8 +29,9 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
 
         /* The "maxDepth" is set to Integer.MAX_VALUE because a repository can have multiple modules with class files in it. We do not want to miss any ".java" file.  */
         try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
-
-            Set<String> javaFilesWithDetectedImports = javaFiles.filter(javaFile -> containsImports(javaFile, getListOfImports())).map(javaFile -> javaFile.getFileName().toString()).collect(Collectors.toSet());
+            Set<String> javaFilesWithDetectedImports = javaFiles.filter(javaFile -> containsImports(javaFile, getListOfImports()))
+                .map(javaFile -> javaFile.getFileName().toString())
+                .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
                 ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()))
