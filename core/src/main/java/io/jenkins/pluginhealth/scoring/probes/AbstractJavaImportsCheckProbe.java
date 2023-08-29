@@ -32,7 +32,9 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
 
             Set<String> javaFilesWithDetectedImports = javaFiles.filter(javaFile -> containsImports(javaFile, getListOfImports())).map(javaFile -> javaFile.getFileName().toString()).collect(Collectors.toSet());
 
-            return javaFilesWithDetectedImports.isEmpty() ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName())) : ProbeResult.failure(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+            return javaFilesWithDetectedImports.isEmpty()
+                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()))
+                : ProbeResult.failure(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe. {}", key(), ex);
             return ProbeResult.error(key(), String.format("Could not browse the plugin folder during {} probe.", plugin.getName()));
