@@ -85,10 +85,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
             }
         } catch (IOException e) {
             LOGGER.error("Could not read files from .mvn directory for {} plugin while running {} probe.", plugin.getName(), key());
-            return null;
         }
-
-
         return ProbeResult.failure(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
     }
 
@@ -125,7 +122,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
             Element artifactIdElement = (Element) extensionElement.getElementsByTagName("artifactId").item(0);
             String groupId = groupIdElement.getTextContent();
             String artifactId = artifactIdElement.getTextContent();
-            return groupId.equals(INCREMENTAL_TOOL) && artifactId.equals(INCREMENTAL_TOOL_ARTIFACT_ID);
+            return INCREMENTAL_TOOL.equals(groupId) && INCREMENTAL_TOOL_ARTIFACT_ID.equals(artifactId);
         } catch (IOException e) {
             LOGGER.error("Could not read the file during probe {}. {}", key(), e);
         } catch (ParserConfigurationException | SAXException e) {
@@ -142,7 +139,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
      */
     private boolean isMavenConfigConfigured(Path path) {
         try {
-            return Files.lines(path).toList().containsAll(List.of("-Pconsume-incrementals", "-Pmight-produce-incrementals"));
+            return Files.readAllLines(path).containsAll(List.of("-Pconsume-incrementals", "-Pmight-produce-incrementals"));
         } catch (IOException e) {
             LOGGER.error("Could not read the file during probe {}. {}", key(), e);
         }
