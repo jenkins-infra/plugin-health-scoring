@@ -95,7 +95,6 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
      * @return true if the {@code effective-pom} is generated successfully. False otherwise.
      */
     public boolean generateEffectivePom(String effectivePomPath) {
-        // https://maven.apache.org/shared/maven-invoker/usage.html
         InvocationRequest request = new DefaultInvocationRequest();
         request.setPomFile(new File(effectivePomPath));  // setting the parent pom that will be at the root. Parent of all the modules (the super parent)
         request.setGoals(Collections.singletonList("help:effective-pom -Doutput=effective-pom.xml"));

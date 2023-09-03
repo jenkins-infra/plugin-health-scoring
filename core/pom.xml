@@ -107,6 +107,9 @@
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
 		</dependency>
+		<!-- using the  Maven invocation API to generate effective-pom
+		 More details at: https://maven.apache.org/shared/maven-invoker/usage.html
+		 -->
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-invoker</artifactId>
