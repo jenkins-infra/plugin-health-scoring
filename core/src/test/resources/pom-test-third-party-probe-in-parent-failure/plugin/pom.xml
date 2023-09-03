@@ -11,20 +11,14 @@
         <groupId>test.pom.group-id</groupId>
         <artifactId>test-pom-artifact</artifactId>
         <version>1</version>
-        <relativePath>src/test/resources/pom-test-third-party-probe-in-parent-failure/pom.xml</relativePath>
+        <relativePath>../</relativePath>
     </parent>
-
-    <properties>
-        <changelist>9999-SNAPSHOT</changelist>
-        <jenkins.version>2.361.4</jenkins.version>
-    </properties>
 
 
     <artifactId>not-a-real-publisher</artifactId>
     <name>Fake Publisher</name>
     <description>For testing purpose</description>
-    <version>${changelist}</version>
+    <version>1.1</version>
     <packaging>hpi</packaging>
-    <url>https://test.com/test/${project.artifactId}-plugin</url>
 
 </project>

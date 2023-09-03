@@ -11,7 +11,7 @@
 		<groupId>test.pom.group-id</groupId>
 		<artifactId>test-pom-artifact</artifactId>
 		<version>1.0.1</version>
-		<relativePath>src/test/resources/pom-test-parent-child-no-repository-tag-failure/pom.xml</relativePath>
+		<relativePath>../</relativePath>
 	</parent>
 
 	<properties>
@@ -22,8 +22,7 @@
 	<artifactId>not-a-real-publisher</artifactId>
 	<name>Fake Publisher</name>
 	<description>For testing purpose</description>
-	<version>${changelist}</version>
+	<version>1.1</version>
 	<packaging>hpi</packaging>
-	<url>https://test.com/test/${project.artifactId}-plugin</url>
 
 </project>

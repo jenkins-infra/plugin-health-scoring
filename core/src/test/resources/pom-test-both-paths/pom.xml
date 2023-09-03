@@ -21,7 +21,7 @@
 	<artifactId>not-a-real-publisher</artifactId>
 	<name>Fake Publisher</name>
 	<description>For testing purpose</description>
-	<version>${changelist}</version>
+	<version>1.1</version>
 	<packaging>hpi</packaging>
 	<url>https://test.com/test/${project.artifactId}-plugin</url>
 
@@ -46,7 +46,7 @@
 			<url>https://repo.jenkins-ci.org/public/</url>
 		</pluginRepository>
 		<pluginRepository>
-			<id>repo.jenkins-ci.org</id>
+			<id>atlassian-public</id>
 			<url>https://packages.atlassian.com/mvn/maven-external/</url>
 		</pluginRepository>
 	</pluginRepositories>

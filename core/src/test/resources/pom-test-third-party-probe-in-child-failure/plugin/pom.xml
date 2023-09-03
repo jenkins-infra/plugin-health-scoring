@@ -11,7 +11,7 @@
         <groupId>test.pom.group-id</groupId>
         <artifactId>test-pom-artifact</artifactId>
         <version>1.0.1</version>
-        <relativePath>src/test/resources/pom-test-third-party-probe-in-child-failure/pom.xml</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
     <properties>

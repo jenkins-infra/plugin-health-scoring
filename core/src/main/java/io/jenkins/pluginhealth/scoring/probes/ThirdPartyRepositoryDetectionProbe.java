@@ -1,13 +1,14 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +18,12 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Repository;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +43,16 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
         MavenXpp3Reader mavenReader = new MavenXpp3Reader();
         Set<Repository> allRepositories = new HashSet<>();
 
-        try (InputStream inputStream = new FileInputStream(context.getScmRepository() + "/pom.xml");
+        if (!generateEffectivePom(context.getScmRepository() + "/pom.xml")) {
+            return ProbeResult.failure(KEY, "Failure in generating effective-pom in the plugin.");
+        }
+
+        try (InputStream inputStream = new FileInputStream(context.getScmRepository() + "/effective-pom.xml");
              Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             Model model = mavenReader.read(reader);
             allRepositories.addAll(model.getRepositories());
             allRepositories.addAll(model.getPluginRepositories());
 
-            if (!model.getParent().getRelativePath().isBlank()) {
-                Model parentPomModel = parsePomFromUrl(model.getParent().getRelativePath());
-                allRepositories.addAll(parentPomModel.getRepositories());
-                allRepositories.addAll(parentPomModel.getPluginRepositories());
-            }
             for (Repository repository : allRepositories) {
                 if (!repository.getUrl().startsWith(JENKINS_CI_REPO_URL)) {
                     return ProbeResult.failure(KEY, "Third party repositories detected in the plugin");
@@ -68,6 +74,11 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
     }
 
     @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY};
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -77,32 +88,34 @@ public class ThirdPartyRepositoryDetectionProbe extends Probe {
         return "Detects third-party repositories in a plugin.";
     }
 
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
-    }
-
-    public Model parsePomFromUrl(String pomUrl) {
-        Model model = null;
-
+    /**
+     * This method generates {@code effective-pom} based on the root {@code pom} in a plugin repository.
+     *
+     * @param effectivePomPath path of the effective pom file
+     * @return true if the {@code effective-pom} is generated successfully. False otherwise.
+     */
+    public boolean generateEffectivePom(String effectivePomPath) {
+        // https://maven.apache.org/shared/maven-invoker/usage.html
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setPomFile(new File(effectivePomPath));  // setting the parent pom that will be at the root. Parent of all the modules (the super parent)
+        request.setGoals(Collections.singletonList("help:effective-pom -Doutput=effective-pom.xml"));
         try {
-            if (pomUrl.startsWith(("https"))) {
-                URL url = new URL(pomUrl);
-                try (InputStream inputStream = url.openStream()) {
-                    MavenXpp3Reader mavenReader = new MavenXpp3Reader();
-                    model = mavenReader.read(inputStream);
+            Invoker invoker = new DefaultInvoker();
+            invoker.setMavenHome(new File(System.getenv("MAVEN_HOME")));
+            InvocationResult result = invoker.execute(request);
+
+            if (result.getExitCode() != 0) {
+                if (result.getExecutionException() != null) {
+                    LOGGER.error("Exception occurred when invoking maven request {}", result.getExecutionException());
+                } else {
+                    LOGGER.error("Exception occurred when invoking maven request. The exit code is {}", result.getExitCode());
                 }
-            } else {
-                // for test cases
-                InputStream inputStream = new FileInputStream(pomUrl);
-                Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                model = new MavenXpp3Reader().read(reader);
+                return false;
             }
-        } catch (IOException e) {
-            LOGGER.error("File could not be found {}", e.getMessage());
-        } catch (XmlPullParserException e) {
-            LOGGER.error("Pom file could not be parsed {}", e.getMessage());
+            return true;
+        } catch (MavenInvocationException e) {
+            LOGGER.error("Exception occurred when invoking maven command {}", e);
+            return false;
         }
-        return model;
     }
 }
