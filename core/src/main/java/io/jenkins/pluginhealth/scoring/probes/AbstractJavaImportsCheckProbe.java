@@ -14,7 +14,6 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 
 /**
  * The abstract probe checks for imports in {@code .java} files in a plugin.
@@ -29,7 +28,8 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
 
         /* The "maxDepth" is set to Integer.MAX_VALUE because a repository can have multiple modules with class files in it. We do not want to miss any ".java" file.  */
         try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
-            Set<String> javaFilesWithDetectedImports = javaFiles.filter(javaFile -> containsImports(javaFile, getListOfImports()))
+            Set<String> javaFilesWithDetectedImports = javaFiles
+                .filter(this::containsImports)
                 .map(javaFile -> javaFile.getFileName().toString())
                 .collect(Collectors.toSet());
 
@@ -47,26 +47,26 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
         return new String[]{SCMLinkValidationProbe.KEY};
     }
 
+
     /**
-     * Checks whether the file contains the required imports.
+     * Fetches all the import for the given file.
      *
-     * @param path           The path of the file to check for imports.
-     * @param importsToCheck The list of imports against which the lines in the file should be checked.
-     * @return boolean {@code true} if the file contains all imports. {@code false} otherwise.
+     * @param javaFile The file to read and fetch the import from.
+     * @return a List with imports is returned when imports are found. Otherwise, an empty list is returned.
      */
-    private boolean containsImports(Path path, List<String> importsToCheck) {
-        try (Stream<String> importStatements = Files.lines(path).filter(line -> line.startsWith("import")).map(this::getFullyQualifiedImportName)) {
-            return CollectionUtils.containsAny(importsToCheck, importStatements.toList());
+    private List<String> getAllImportsInTheFile(Path javaFile) {
+        try (Stream<String> importStatements = Files.lines(javaFile).filter(line -> line.startsWith("import")).map(this::getFullyQualifiedImportName)) {
+            return importStatements.toList();
         } catch (IOException ex) {
             LOGGER.error("Could not browse the {} plugin folder during probe. {}", key(), ex);
         }
-        return false;
+        return List.of();
     }
 
     /**
-     * @return a list of imports that should be checked.
+     * @return the import String that should be checked.
      */
-    abstract List<String> getListOfImports();
+    abstract String getImportToCheck();
 
     /**
      * @return a success message.
@@ -86,5 +86,16 @@ public abstract class AbstractJavaImportsCheckProbe extends Probe {
      */
     private String getFullyQualifiedImportName(String importStatement) {
         return importStatement.replace("import ", "").replace(";", "").trim();
+    }
+
+    /**
+     * Checks whether the file contains the required imports.
+     *
+     * @param javaFile The file to fetch all the imports for.
+     * @return boolean {@code true} if the file contains all imports. {@code false} otherwise.
+     */
+    private boolean containsImports(Path javaFile) {
+        List<String> imports = getAllImportsInTheFile(javaFile);
+        return imports.stream().anyMatch(line -> line.startsWith(getImportToCheck()));
     }
 }
