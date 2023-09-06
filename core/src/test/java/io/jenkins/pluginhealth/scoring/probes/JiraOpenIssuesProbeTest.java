@@ -47,6 +47,10 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
+    @Override
+    JiraOpenIssuesProbe getSpy() {
+        return spy(JiraOpenIssuesProbe.class);
+    }
 
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
@@ -81,11 +85,6 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.error(JiraOpenIssuesProbe.KEY, "jira-open-issues does not meet the criteria to be executed on null"));
         verify(probe, never()).doApply(plugin, ctx);
-    }
-
-    @Override
-    JiraOpenIssuesProbe getSpy() {
-        return spy(JiraOpenIssuesProbe.class);
     }
 
     @Test
@@ -131,6 +130,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
             any(HttpResponse.BodyHandler.class)
         )).thenReturn(mockedHttpResponse);
 
+        final JiraOpenIssuesProbe jiraOpenIssuesProbe = spy(JiraOpenIssuesProbe.class);
         jiraOpenIssuesProbe.httpClient = mockedHttpClient;
 
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))
@@ -182,6 +182,7 @@ class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
             any(HttpResponse.BodyHandler.class)
         )).thenReturn(mockedHttpResponse);
 
+        final JiraOpenIssuesProbe jiraOpenIssuesProbe = spy(JiraOpenIssuesProbe.class);
         jiraOpenIssuesProbe.httpClient = mockedHttpClient;
 
         assertThat(jiraOpenIssuesProbe.apply(plugin, ctx))

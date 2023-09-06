@@ -46,6 +46,11 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
 class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe> {
+    @Override
+    GitHubOpenIssuesProbe getSpy() {
+        return spy(GitHubOpenIssuesProbe.class);
+    }
+
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
         final Plugin plugin = mock(Plugin.class);
@@ -79,11 +84,6 @@ class GitHubOpenIssuesProbeTest extends AbstractProbeTest<GitHubOpenIssuesProbe>
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.error(GitHubOpenIssuesProbe.KEY, "github-open-issues does not meet the criteria to be executed on null"));
         verify(probe, never()).doApply(plugin, ctx);
-    }
-
-    @Override
-    GitHubOpenIssuesProbe getSpy() {
-        return spy(GitHubOpenIssuesProbe.class);
     }
 
     @Test

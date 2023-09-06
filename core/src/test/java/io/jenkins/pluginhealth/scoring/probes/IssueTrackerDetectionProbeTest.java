@@ -45,6 +45,11 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetectionProbe> {
+    @Override
+    IssueTrackerDetectionProbe getSpy() {
+        return spy(IssueTrackerDetectionProbe.class);
+    }
+
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
         final Plugin plugin = mock(Plugin.class);
@@ -63,11 +68,6 @@ class IssueTrackerDetectionProbeTest extends AbstractProbeTest<IssueTrackerDetec
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.error(IssueTrackerDetectionProbe.KEY, "issue-tracker-detection does not meet the criteria to be executed on null"));
         verify(probe, never()).doApply(plugin, ctx);
-    }
-
-    @Override
-    IssueTrackerDetectionProbe getSpy() {
-        return spy(IssueTrackerDetectionProbe.class);
     }
 
     @Test

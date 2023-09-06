@@ -76,7 +76,7 @@ class IssueTrackerDetectionProbe extends Probe {
      * @return A Map of filtered data from issue trackers.
      */
     private Map<String, String> getIssueTrackersForAPlugin(String pluginName, UpdateCenter updateCenter) {
-        return (updateCenter.plugins().get(pluginName) != null) && (updateCenter.plugins().get(pluginName).getIssueTrackers() != null)
+        return (updateCenter.plugins().get(pluginName) != null) && (updateCenter.plugins().get(pluginName).issueTrackers() != null)
             ? filterIssueTrackersForTypeAndViewUrl(updateCenter.plugins().get(pluginName).issueTrackers())
             : Map.of();
     }

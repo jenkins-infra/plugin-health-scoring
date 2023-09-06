@@ -43,14 +43,14 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
 class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe> {
-    @Test
-    void doesNotRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
     @Override
     InstallationStatProbe getSpy() {
         return spy(InstallationStatProbe.class);
+    }
+
+    @Test
+    void doesNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test

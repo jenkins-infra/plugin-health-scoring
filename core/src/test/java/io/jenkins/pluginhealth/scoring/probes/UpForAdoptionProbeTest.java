@@ -43,14 +43,14 @@ import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
-    @Test
-    void shouldNotRequireNewRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
     @Override
     UpForAdoptionProbe getSpy() {
         return spy(UpForAdoptionProbe.class);
+    }
+
+    @Test
+    void shouldNotRequireNewRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test

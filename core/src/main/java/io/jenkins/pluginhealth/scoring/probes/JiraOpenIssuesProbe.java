@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -80,13 +79,13 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
             /* The `url` will contain the JIRA url to view issues.
                For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979
             */
-            URL url = new URL(viewJiraIssuesUrl);
+            URI uri = new URI(viewJiraIssuesUrl);
 
             /* Here, the query of the url "?jql=component=1833" is concatenated with " AND status=open".
                This gives the final API required to fetch JIRA issues.
                For ex: https://issues.jenkins.io/rest/api/latest/search?jql=component=15979%20and%20status=open
              */
-            String api = JIRA_HOST.concat(url.getQuery())
+            String api = JIRA_HOST.concat(uri.getQuery())
                 .concat("%20AND%20")
                 .concat("status=open");
 

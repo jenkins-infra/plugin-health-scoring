@@ -42,14 +42,14 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import org.junit.jupiter.api.Test;
 
 class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
-    @Test
-    void shouldRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isTrue();
-    }
-
     @Override
     JenkinsCoreProbe getSpy() {
         return spy(JenkinsCoreProbe.class);
+    }
+
+    @Test
+    void shouldRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isTrue();
     }
 
     @Test

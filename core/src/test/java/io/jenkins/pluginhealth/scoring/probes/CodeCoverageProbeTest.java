@@ -49,14 +49,14 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterable;
 
 class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
-    @Test
-    public void shouldNotRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
     @Override
     CodeCoverageProbe getSpy() {
         return spy(CodeCoverageProbe.class);
+    }
+
+    @Test
+    public void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test

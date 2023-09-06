@@ -44,14 +44,14 @@ import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
 
 class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe> {
-    @Test
-    void shouldNotRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
     @Override
     DeprecatedPluginProbe getSpy() {
         return spy(DeprecatedPluginProbe.class);
+    }
+
+    @Test
+    void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test

@@ -50,14 +50,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
-    @Test
-    public void shouldNotRequireRelease() {
-        assertThat(getSpy().requiresRelease()).isFalse();
-    }
-
     @Override
     protected SpotBugsProbe getSpy() {
         return spy(SpotBugsProbe.class);
+    }
+
+    @Test
+    public void shouldNotRequireRelease() {
+        assertThat(getSpy().requiresRelease()).isFalse();
     }
 
     @Test
