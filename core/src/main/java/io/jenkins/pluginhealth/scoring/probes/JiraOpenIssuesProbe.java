@@ -69,7 +69,7 @@ class JiraOpenIssuesProbe extends AbstractOpenIssuesProbe {
         }
 
         /* Stores the JIRA URL to view all existing issues in the plugin. Ex: https://github.com/jenkinsci/cloudevents-plugin/issues */
-        String viewJiraIssuesUrl = context.getIssueTrackerUrlsByNames().get("jira");
+        String viewJiraIssuesUrl =  context.getIssueTrackerUrlsByNames().getOrDefault("jira", "");
 
         if (viewJiraIssuesUrl == null || viewJiraIssuesUrl.isEmpty()) {
             LOGGER.info("The plugin does not use JIRA to track issues.");
