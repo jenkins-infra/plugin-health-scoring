@@ -109,7 +109,7 @@ public abstract class Probe {
     /**
      * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
      * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
-     * By default, the requirement is an empty array. I cannot be null.
+     * By default, the requirement is an empty array. It cannot be null.
      *
      * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
      */
