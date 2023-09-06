@@ -45,12 +45,8 @@ import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 
 class JiraOpenIssuesProbeTest extends AbstractProbeTest<JiraOpenIssuesProbe> {
-
-    @InjectMocks
-    JiraOpenIssuesProbe jiraOpenIssuesProbe = new JiraOpenIssuesProbe();
 
     @Test
     void shouldNotRunWithInvalidProbeResultRequirement() {
