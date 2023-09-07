@@ -90,7 +90,7 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
     }
 
     @Test
-    void shouldNotReturnPluginsWithUpdatedAnnotations() throws IOException {
+    void shouldNotReturnPluginsWithNoDeprecatedImports() throws IOException {
         final Path repo = Files.createTempDirectory("foo");
         Path directory = Files.createDirectories(repo.resolve("src/main/java"));
         final Path javaFileWithUpdatedAnnotation = Files.createFile(directory.resolve("test-class-3.java"));
