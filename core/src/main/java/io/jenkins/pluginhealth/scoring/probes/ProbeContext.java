@@ -46,6 +46,7 @@ public class ProbeContext {
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
     private Map<String, String> issueTrackerUrlsByNames;
+    private Optional<String> scmFolderPath;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
         this.updateCenter = updateCenter;
@@ -100,6 +101,13 @@ public class ProbeContext {
      */
     public Map<String, String> getIssueTrackerUrlsByNames() {
         return issueTrackerUrlsByNames;
+
+    public Optional<String> getScmFolderPath() {
+        return scmFolderPath;
+    }
+
+    public void setScmFolderPath(Optional<String> scmFolderPath) {
+        this.scmFolderPath = scmFolderPath;
     }
 
     /* default */ void cleanUp() throws IOException {
