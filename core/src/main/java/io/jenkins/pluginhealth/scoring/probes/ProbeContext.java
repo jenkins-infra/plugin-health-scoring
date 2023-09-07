@@ -101,6 +101,7 @@ public class ProbeContext {
      */
     public Map<String, String> getIssueTrackerUrlsByNames() {
         return issueTrackerUrlsByNames;
+    }
 
     public Optional<String> getScmFolderPath() {
         return scmFolderPath;
