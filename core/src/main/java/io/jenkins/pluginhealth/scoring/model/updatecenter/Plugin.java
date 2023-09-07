@@ -44,6 +44,7 @@ public record Plugin(String name, VersionNumber version, String scm,
     public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
         return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
     }
+
     /**
      * Gets issue tracker details about a plugin.
      *
