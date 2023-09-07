@@ -97,7 +97,10 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         Files.createFile(directory.resolve("test-dummy-class-should-not-be-returned.java"));
 
         Files.write(javaFileWithUpdatedAnnotation, List.of(
-            "package test;"
+            "package test;",
+            "",
+            "edu.umd.cs.findbugs.annotations.NonNull",
+            "edu.umd.cs.findbugs.annotations.CheckForNull"
         ));
 
         when(ctx.getScmRepository()).thenReturn(repo);
