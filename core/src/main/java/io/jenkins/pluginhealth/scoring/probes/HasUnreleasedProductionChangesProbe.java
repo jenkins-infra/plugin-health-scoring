@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -66,15 +67,14 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
         if (!matcher.find()) {
             return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories");
         }
-
-        final String folder = matcher.group("folder");
+        final Optional<String> folder = context.getScmFolderPath();
         final Set<String> files = new HashSet<>();
-
         final List<String> paths = new ArrayList<>(3);
         paths.add("pom.xml");
-        if (folder != null) {
-            paths.add(folder + "/pom.xml");
-            paths.add(folder + "/src/main");
+
+        if (folder.isPresent()) {
+            paths.add(folder.get() + "/pom.xml");
+            paths.add(folder.get() + "/src/main");
         } else {
             paths.add("src/main");
         }
@@ -124,6 +124,11 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
     }
 
     @Override
+    public String[] getProbeResultRequirement() {
+        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -141,10 +146,5 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
          * ProbeEngine, it must be `false`.
          */
         return false;
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 }

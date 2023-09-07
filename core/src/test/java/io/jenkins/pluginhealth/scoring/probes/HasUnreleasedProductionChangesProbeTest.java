@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -126,6 +127,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(repository);
+        when(ctx.getScmFolderPath()).thenReturn(Optional.of("test-folder"));
+
         when(plugin.getScm()).thenReturn(scmLink);
 
         final PersonIdent defaultCommitter = new PersonIdent(
