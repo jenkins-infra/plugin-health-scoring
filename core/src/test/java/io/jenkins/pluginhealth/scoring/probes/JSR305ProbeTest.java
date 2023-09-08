@@ -55,7 +55,10 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
             "package test;",
             "",
             "import javax.annotation.Nonnull;",
-            "import javax.annotation.CheckForNull;"
+            "import javax.annotation.CheckForNull;",
+            "",
+            "import java.util.HashMap;",
+            "import java.util.Map;"
         ));
 
         Files.write(javaFileWithNonnullDeprecatedAnnotation, List.of(
@@ -99,8 +102,11 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         Files.write(javaFileWithUpdatedAnnotation, List.of(
             "package test;",
             "",
-            "edu.umd.cs.findbugs.annotations.NonNull",
-            "edu.umd.cs.findbugs.annotations.CheckForNull"
+            "import edu.umd.cs.findbugs.annotations.NonNull;",
+            "import edu.umd.cs.findbugs.annotations.CheckForNull;",
+            "",
+            "import java.util.HashMap;",
+            "import java.util.Map;"
         ));
 
         when(ctx.getScmRepository()).thenReturn(repo);
