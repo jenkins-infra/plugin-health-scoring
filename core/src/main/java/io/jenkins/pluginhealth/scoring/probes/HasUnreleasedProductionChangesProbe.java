@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,17 +66,18 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
         }
 
         final Path repo = context.getScmRepository().get();
+        final Optional<String> folder = context.getScmFolderPath();
         final Set<String> files = new HashSet<>();
 
         final List<String> paths = new ArrayList<>(3);
         paths.add("pom.xml");
-        // TODO Folder from https://github.com/jenkins-infra/plugin-health-scoring/pull/351
-        /*if (folder != null) {
-            paths.add(folder + "/pom.xml");
-            paths.add(folder + "/src/main");
+
+        if (folder.isPresent()) {
+            paths.add(folder.get() + "/pom.xml");
+            paths.add(folder.get() + "/src/main");
         } else {
             paths.add("src/main");
-        }*/
+        }
 
         try (Git git = Git.open(repo.toFile())) {
             LogCommand logCommand = git.log();
@@ -136,7 +138,7 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
         /*
          * This is counter intuitive, but this probe needs to be executed all the time.
          * So even if the probe seems to be related to code, in order to not be skipped by the
-         * ProbeEngine, is must be `false`.
+         * ProbeEngine, it must be `false`.
          */
         return false;
     }

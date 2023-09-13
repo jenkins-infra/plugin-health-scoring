@@ -107,6 +107,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
         ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
+        when(ctx.getScmFolderPath()).thenReturn(Optional.of("test-folder"));
+
         when(plugin.getScm()).thenReturn(scmLink);
 
         final PersonIdent defaultCommitter = new PersonIdent(

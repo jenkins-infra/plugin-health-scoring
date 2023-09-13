@@ -24,13 +24,24 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -42,12 +53,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = SCMLinkValidationProbe.ORDER)
 public class SCMLinkValidationProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
-
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)(?:/(?<folder>.*))?";
-    public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)";
+    public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -55,7 +65,88 @@ public class SCMLinkValidationProbe extends Probe {
             LOGGER.warn("{} has no SCM link", plugin.getName());
             return ProbeResult.error(key(), "The plugin SCM link is empty.");
         }
-        return fromSCMLink(context, plugin.getScm());
+        return fromSCMLink(context, plugin.getScm(), plugin.getName());
+    }
+
+    /**
+     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(Optional)}. The value is always the path of the POM file.
+     *
+     * @param context    Refer {@link ProbeContext}.
+     * @param scm        The SCM link {@link Plugin#getScm()}.
+     * @param pluginName The name of the plugin {@link Plugin#getName()}.
+     * @return ProbeResult {@link ProbeResult}.
+     */
+    private ProbeResult fromSCMLink(ProbeContext context, String scm, String pluginName) {
+        if (context.getScmRepository().isEmpty()) {
+            return ProbeResult.error(key(), "There is no local repository for plugin " + pluginName + ".");
+        }
+        Matcher matcher = GH_PATTERN.matcher(scm);
+        if (!matcher.find()) {
+            LOGGER.atDebug().log(() -> String.format("%s is not respecting the SCM URL Template.", scm));
+            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.");
+        }
+        try {
+            context.getGitHub().getRepository(matcher.group("repo")); // clones the repository, fetches the repo path using the regex Matcher
+            Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository().get(), pluginName);
+            Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
+            if (folderPath.isEmpty()) {
+                return ProbeResult.error(key(), String.format("No valid POM file found in %s plugin.", pluginName));
+            }
+            context.setScmFolderPath(folderPath.map(path -> path.getFileName().toString()));
+            return ProbeResult.success(key(), "The plugin SCM link is valid.");
+        } catch (IOException ex) {
+            return ProbeResult.success(key(), "The plugin SCM link is invalid.");
+        }
+    }
+
+    /**
+     * Searches for Pom file in every directory available in the repository.
+     *
+     * @param directory  path in the scm.
+     * @param pluginName the name of the plugin.
+     * @return an Optional path if pom file is found.
+     */
+    private Optional<Path> findPluginPom(Path directory, String pluginName) {
+        if (!Files.isDirectory(directory)) {
+            LOGGER.error("Directory {} does not exists during {} probe.", directory, pluginName);
+            return Optional.empty();
+        }
+        /*
+         * The `maxDepth` is 3 because a lot of plugins aren't located deeper than <root>/plugins/<pom.xml>.
+         * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactId/` folder.
+         * */
+        try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
+            "pom.xml".equals(path.getFileName().toString()))) {
+            return paths
+                .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
+                .findFirst();
+        } catch (IOException e) {
+            LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Checks whether the plugin's pom.xml matches the `packaging` and the `artifactId` of the plugin.
+     * This helps in finding the correct pom that belongs to the plugin.
+     *
+     * @param pluginName  The name of the plugin to match.
+     * @param pomFilePath The path of the pom file to be checked.
+     * @return a boolean value stating whether the file checked matches the criteria.
+     */
+    private boolean pomFileMatchesPlugin(Path pomFilePath, String pluginName) {
+        MavenXpp3Reader mavenReader = new MavenXpp3Reader();
+        try (Reader reader = new InputStreamReader(new FileInputStream(pomFilePath.toFile()), StandardCharsets.UTF_8)) {
+            Model model = mavenReader.read(reader);
+            if ("hpi".equals(model.getPackaging()) && pluginName.equals(model.getArtifactId())) {
+                return true;
+            }
+        } catch (IOException e) {
+            LOGGER.error("Pom file not found for {}.", pluginName, e);
+        } catch (XmlPullParserException e) {
+            LOGGER.error("Could not parse pom file for {}.", pluginName, e);
+        }
+        return false;
     }
 
     @Override

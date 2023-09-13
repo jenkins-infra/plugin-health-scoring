@@ -92,7 +92,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/mailer-plugin";
+        final String repositoryName = "jenkinsci/test-repo";
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(ctx.getGitHub()).thenReturn(gh);

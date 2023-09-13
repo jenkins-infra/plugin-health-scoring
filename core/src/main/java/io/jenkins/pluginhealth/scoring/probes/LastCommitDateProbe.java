@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -49,10 +50,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(value = LastCommitDateProbe.ORDER)
 public class LastCommitDateProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
-
     public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
     public static final String KEY = "last-commit-date";
+    private static final Logger LOGGER = LoggerFactory.getLogger(LastCommitDateProbe.class);
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -60,12 +60,11 @@ public class LastCommitDateProbe extends Probe {
             return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
+        final Optional<String> folder = context.getScmFolderPath();
         try (Git git = Git.open(scmRepository.toFile())) {
             final LogCommand logCommand = git.log().setMaxCount(1);
-            // TODO Work with the folder in the context. See https://github.com/jenkins-infra/plugin-health-scoring/pull/351
-            /*if (folder != null) {
-                logCommand.addPath(folder);
-            }*/
+            folder.ifPresent(s -> logCommand.addPath(s.toString()));
+
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
                 return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
