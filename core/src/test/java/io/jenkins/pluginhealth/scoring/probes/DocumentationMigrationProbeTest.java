@@ -54,11 +54,12 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldNotRegisterWhenDocumentationListIfEmpty() {
+    void shouldNotRegisterWhenDocumentationListIsEmpty() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn("foo");
+        when(plugin.getScm()).thenReturn("this-is-fine-for-now");
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(),
             Map.of("something-else", "not-what-we-are-looking-for")

@@ -71,7 +71,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot find repository for foo-bar"));
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Plugin SCM is unknown, cannot fetch the number of open pull requests."));
     }
 
     @Test

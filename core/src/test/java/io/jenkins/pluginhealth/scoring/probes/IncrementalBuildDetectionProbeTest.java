@@ -121,7 +121,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(IncrementalBuildDetectionProbe.KEY, "Could not find Maven configuration folder for the foo plugin."));
+            .isEqualTo(ProbeResult.error(IncrementalBuildDetectionProbe.KEY, "Could not find Maven configuration folder for the foo plugin."));
         verify(probe).doApply(plugin, ctx);
     }
 }

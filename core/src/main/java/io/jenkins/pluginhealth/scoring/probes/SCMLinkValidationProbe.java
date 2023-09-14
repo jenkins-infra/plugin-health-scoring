@@ -69,7 +69,8 @@ public class SCMLinkValidationProbe extends Probe {
     }
 
     /**
-     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(Optional)}. The value is always the path of the POM file.
+     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(String)}.
+     * The value is always the path of the POM file.
      *
      * @param context    Refer {@link ProbeContext}.
      * @param scm        The SCM link {@link Plugin#getScm()}.
@@ -86,13 +87,13 @@ public class SCMLinkValidationProbe extends Probe {
             return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.");
         }
         try {
-            context.getGitHub().getRepository(matcher.group("repo")); // clones the repository, fetches the repo path using the regex Matcher
+            context.getGitHub().getRepository(matcher.group("repo"));
             Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository().get(), pluginName);
             Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
             if (folderPath.isEmpty()) {
-                return ProbeResult.error(key(), String.format("No valid POM file found in %s plugin.", pluginName));
+                return ProbeResult.success(key(), String.format("No valid POM file found in %s plugin.", pluginName));
             }
-            context.setScmFolderPath(folderPath.map(path -> path.getFileName().toString()));
+            context.setScmFolderPath(folderPath.get().getFileName().toString());
             return ProbeResult.success(key(), "The plugin SCM link is valid.");
         } catch (IOException ex) {
             return ProbeResult.success(key(), "The plugin SCM link is invalid.");
@@ -165,22 +166,5 @@ public class SCMLinkValidationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
-    }
-
-    private ProbeResult fromSCMLink(ProbeContext context, String scm) {
-        Matcher matcher = GH_PATTERN.matcher(scm);
-        if (!matcher.find()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("{} is not respecting the SCM URL Template", scm);
-            }
-            return ProbeResult.success(key(), "SCM link doesn't match GitHub plugin repositories.");
-        }
-
-        try {
-            context.getGitHub().getRepository(matcher.group("repo"));
-            return ProbeResult.success(key(), "The plugin SCM link is valid.");
-        } catch (IOException ex) {
-            return ProbeResult.error(key(), "Cannot confirm plugin repository for " + scm);
-        }
     }
 }

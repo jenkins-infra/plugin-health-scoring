@@ -114,7 +114,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "No open pull request from dependabot."));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0"));
     }
 
     @Test
@@ -153,7 +153,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2 open pull requests from Dependabot."));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2"));
     }
 
     @Test

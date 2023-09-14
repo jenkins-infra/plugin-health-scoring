@@ -30,6 +30,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -84,7 +86,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SCMLinkValidationProbe.KEY, "SCM link doesn't match GitHub plugin repositories."));
+            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "SCM link doesn't match GitHub plugin repositories."));
     }
 
     @Test
@@ -95,6 +97,9 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final String repositoryName = "jenkinsci/test-repo";
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(
+            Files.createTempDirectory("shouldRecognizeCorrectGitHubUrl")
+        ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
 
@@ -115,6 +120,9 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final String repositoryName = "jenkinsci/this-is-not-going-to-work";
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
+        when(plugin.getName()).thenReturn("foo");
+
+        when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("foo¢")));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenThrow(IOException.class);
 
@@ -124,6 +132,6 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error("scm", "Cannot confirm plugin repository for " + plugin.getScm()));
+            .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid."));
     }
 }

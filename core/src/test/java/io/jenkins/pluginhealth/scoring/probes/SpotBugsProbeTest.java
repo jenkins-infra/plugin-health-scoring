@@ -75,7 +75,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getScm()).thenReturn(scmLink);
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
@@ -114,7 +113,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
@@ -161,7 +159,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(

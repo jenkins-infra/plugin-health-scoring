@@ -47,7 +47,7 @@ public class PullRequestProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null) {
-            return ProbeResult.error(key(), "Plugin SCM is unknown, cannot fetch the number of open pull requests");
+            return ProbeResult.error(key(), "Plugin SCM is unknown, cannot fetch the number of open pull requests.");
         }
         try {
             final GitHub gh = context.getGitHub();

@@ -54,7 +54,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
-    private Optional<String> scmFolderPath;
+    private String scmFolderPath;
 
     public ProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
         this.plugin = plugin;
@@ -123,10 +123,10 @@ public class ProbeContext {
     }
 
     public Optional<String> getScmFolderPath() {
-        return scmFolderPath;
+        return Optional.of(scmFolderPath);
     }
 
-    public void setScmFolderPath(Optional<String> scmFolderPath) {
+    public void setScmFolderPath(String scmFolderPath) {
         this.scmFolderPath = scmFolderPath;
     }
 

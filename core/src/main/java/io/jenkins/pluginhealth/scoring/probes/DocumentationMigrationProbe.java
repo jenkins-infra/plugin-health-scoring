@@ -41,19 +41,20 @@ public class DocumentationMigrationProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Map<String, String> pluginDocumentationLinks = context.getPluginDocumentationLinks();
+        if (pluginDocumentationLinks.isEmpty()) {
+            return ProbeResult.error(key(), "No link to documentation can be confirmed.");
+        }
         final String scm = plugin.getScm();
         if (scm == null) {
             return ProbeResult.error(key(), "Plugin SCM on the update-center is not correctly configured for the plugin.");
         }
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
 
-        return pluginDocumentationLinks.isEmpty() ?
-            ProbeResult.error(key(), "No link to documentation can be confirmed.") :
-            linkDocumentationForPlugin == null ?
-                ProbeResult.error(key(), "Plugin is not listed in documentation migration source.") :
-                linkDocumentationForPlugin.contains(scm) ?
-                    ProbeResult.success(key(), "Documentation is located in the plugin repository.") :
-                    ProbeResult.success(key(), "Documentation is not located in the plugin repository.");
+        return linkDocumentationForPlugin == null ?
+            ProbeResult.error(key(), "Plugin is not listed in documentation migration source.") :
+            linkDocumentationForPlugin.contains(scm) ?
+                ProbeResult.success(key(), "Documentation is located in the plugin repository.") :
+                ProbeResult.success(key(), "Documentation is not located in the plugin repository.");
     }
 
     @Override
