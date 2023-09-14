@@ -105,7 +105,7 @@ public final class ProbeEngine {
             try {
                 final ProbeResult result = probe.apply(plugin, probeContext);
                 plugin.addDetails(result);
-                if(ProbeResult.Status.ERROR.equals(result.status())) {
+                if (ProbeResult.Status.ERROR.equals(result.status())) {
                     LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
                     LOGGER.info(result.message());
                 }

@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
-import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -26,9 +26,9 @@ package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.Map;
 
-import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
 public interface ScoringComponent {
     /**
