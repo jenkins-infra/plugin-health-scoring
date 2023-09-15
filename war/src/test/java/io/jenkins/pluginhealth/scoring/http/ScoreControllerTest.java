@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +44,10 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
+import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
+import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
 import hudson.util.VersionNumber;
 import org.junit.jupiter.api.Test;
@@ -64,10 +68,36 @@ import org.springframework.test.web.servlet.MockMvc;
 )
 class ScoreControllerTest {
     @MockBean private ScoreService scoreService;
+    @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
 
     @Test
     void shouldDisplayListOfScoring() throws Exception {
+        when(scoringService.getScoringList())
+            .thenReturn(List.of(
+                new Scoring() {
+                    @Override
+                    public String key() {
+                        return "foo";
+                    }
+
+                    @Override
+                    public float weight() {
+                        return 1;
+                    }
+
+                    @Override
+                    public String description() {
+                        return "description";
+                    }
+
+                    @Override
+                    public List<ScoringComponent> getComponents() {
+                        return List.of();
+                    }
+                }
+            ));
+
         mockMvc.perform(get("/scores"))
             .andExpect(status().isOk())
             .andExpect(view().name("scores/listing"))
@@ -103,7 +133,7 @@ class ScoreControllerTest {
             .andExpect(status().isOk())
             .andExpect(view().name("scores/details"))
             .andExpect(model().attribute("module", "scores"))
-            .andExpect(model().attributeExists("score", "scores", "probes"))
+            .andExpect(model().attributeExists("score"))
             /*.andExpect(model().attribute(
                 "score",
                 allOf(
