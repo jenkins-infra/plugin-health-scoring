@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -152,15 +153,18 @@ class ProbeEngineTest {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final ProbeResult result = new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS);
+        final String probeKey = "probe";
+
+        final ProbeResult result = new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
+            probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
         ));
 
+        when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("ProbeEngineTest-shouldApplyProbeRelatedToCodeWithNewCommit")));
         when(ctx.getLastCommitDate()).thenReturn(Optional.of(ZonedDateTime.now()));
 
-        when(probe.key()).thenReturn("probe");
+        when(probe.key()).thenReturn(probeKey);
         when(probe.isSourceCodeRelated()).thenReturn(true);
         when(probe.doApply(plugin, ctx)).thenReturn(result);
 
