@@ -66,7 +66,7 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
         }
 
         final Path repo = context.getScmRepository().get();
-        final Optional<String> folder = context.getScmFolderPath();
+        final Optional<Path> folder = context.getScmFolderPath();
         final Set<String> files = new HashSet<>();
 
         final List<String> paths = new ArrayList<>(3);

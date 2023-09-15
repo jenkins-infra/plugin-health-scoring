@@ -27,14 +27,17 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHRepository;
@@ -96,9 +99,10 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final GitHub gh = mock(GitHub.class);
         final String repositoryName = "jenkinsci/test-repo";
 
+        when(plugin.getName()).thenReturn("test-repo");
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(ctx.getScmRepository()).thenReturn(Optional.of(
-            Files.createTempDirectory("shouldRecognizeCorrectGitHubUrl")
+            Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1/test-nested-dir-2")
         ));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
@@ -122,7 +126,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getName()).thenReturn("foo");
 
-        when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("foo¢")));
+        when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("foo")));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenThrow(IOException.class);
 
@@ -133,5 +137,33 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid."));
+    }
+
+    @Test
+    void shouldBeAbleToFindPluginInModule() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepo = mock(GHRepository.class);
+
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/this-is-fine");
+        when(plugin.getName()).thenReturn("test-repo");
+
+        when(ctx.getScmRepository()).thenReturn(Optional.of(
+            Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1")
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(gh.getRepository("jenkinsci/this-is-fine")).thenReturn(ghRepo);
+
+        final SCMLinkValidationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(probe.key(), "The plugin SCM link is valid."));
+
+        verify(ctx).setScmFolderPath(Path.of("test-nested-dir-2"));
     }
 }

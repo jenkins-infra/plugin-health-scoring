@@ -60,7 +60,7 @@ public class LastCommitDateProbe extends Probe {
             return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
-        final Optional<String> folder = context.getScmFolderPath();
+        final Optional<Path> folder = context.getScmFolderPath();
         try (Git git = Git.open(scmRepository.toFile())) {
             final LogCommand logCommand = git.log().setMaxCount(1);
             folder.ifPresent(s -> logCommand.addPath(s.toString()));

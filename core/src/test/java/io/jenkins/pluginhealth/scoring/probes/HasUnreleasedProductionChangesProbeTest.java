@@ -97,17 +97,14 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
     @Test
     void shouldFailIfThereIsNotReleasedCommitsInModule() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
+        final Path module = Files.createDirectory(repository.resolve("test-folder"));
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String scmLink = "https://test-server/jenkinsci/test-repo/test-folder";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
-        when(ctx.getScmFolderPath()).thenReturn(Optional.of("test-folder"));
+        when(ctx.getScmFolderPath()).thenReturn(Optional.of(repository.relativize(module)));
 
         when(plugin.getScm()).thenReturn(scmLink);
 
@@ -118,7 +115,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            final Path module = Files.createDirectory(repository.resolve("test-folder"));
             Files.createFile(module.resolve("pom.xml"));
             final Path srcMainResources = Files.createDirectories(
                 module.resolve("src").resolve("main").resolve("resources")
