@@ -83,9 +83,6 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
 
         final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", probe.getVersion())
-        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
