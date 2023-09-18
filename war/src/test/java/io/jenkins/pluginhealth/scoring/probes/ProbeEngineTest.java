@@ -135,6 +135,7 @@ class ProbeEngineTest {
         ));
         when(plugin.getName()).thenReturn("foo");
 
+        when(probe.getVersion()).thenReturn(1L);
         when(probe.key()).thenReturn("probe");
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.isSourceCodeRelated()).thenReturn(true);
@@ -162,6 +163,7 @@ class ProbeEngineTest {
             probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
 
+        when(probe.getVersion()).thenReturn(1L);
         when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("ProbeEngineTest-shouldApplyProbeRelatedToCodeWithNewCommit")));
         when(ctx.getLastCommitDate()).thenReturn(Optional.of(ZonedDateTime.now()));
 
@@ -190,6 +192,7 @@ class ProbeEngineTest {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)));
 
+        when(probe.getVersion()).thenReturn(1L);
         when(probe.key()).thenReturn(probeKey);
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok", 1));
@@ -217,6 +220,7 @@ class ProbeEngineTest {
             new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
 
+        when(probe.getVersion()).thenReturn(1L);
         when(probe.requiresRelease()).thenReturn(false);
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok", 1));
         when(probe.key()).thenReturn(probeKey);
