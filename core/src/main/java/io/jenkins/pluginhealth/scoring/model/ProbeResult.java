@@ -46,7 +46,7 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProbeResult that = (ProbeResult) o;
-        return id.equals(that.id) && message.equals(that.message) && status == that.status;
+        return id.equals(that.id) && message.equals(that.message) && status == that.status && probeVersion == that.probeVersion;
     }
 
     @Override
