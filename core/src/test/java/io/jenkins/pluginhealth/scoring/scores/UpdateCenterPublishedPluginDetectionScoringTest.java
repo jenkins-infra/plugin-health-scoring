@@ -50,7 +50,7 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -80,7 +80,7 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final UpdateCenterPublishedPluginDetectionScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);

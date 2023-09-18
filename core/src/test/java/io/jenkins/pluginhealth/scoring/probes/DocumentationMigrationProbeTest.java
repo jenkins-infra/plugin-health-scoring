@@ -70,12 +70,12 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "No link to documentation can be confirmed."));
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "No link to documentation can be confirmed.", probe.getVersion()));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source."));
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source.", probe.getVersion()));
     }
 
     @Test
@@ -97,7 +97,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository."));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -119,7 +119,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository."));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -141,7 +141,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository."));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -163,7 +163,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository."));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -185,6 +185,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository."));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 }

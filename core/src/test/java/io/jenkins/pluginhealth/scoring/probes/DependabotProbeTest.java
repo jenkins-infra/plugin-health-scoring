@@ -70,7 +70,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.error(DependabotProbe.KEY, "There is no local repository for plugin " + plugin.getName() + "."));
+            .isEqualTo(ProbeResult.error(DependabotProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
     }
 
     @Test
@@ -85,7 +85,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "No GitHub configuration folder found."));
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -104,7 +104,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured."));
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

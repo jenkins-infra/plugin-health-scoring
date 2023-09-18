@@ -47,19 +47,19 @@ public class PullRequestProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null) {
-            return ProbeResult.error(key(), "Plugin SCM is unknown, cannot fetch the number of open pull requests.");
+            return ProbeResult.error(key(), "Plugin SCM is unknown, cannot fetch the number of open pull requests.", this.getVersion());
         }
         try {
             final GitHub gh = context.getGitHub();
             final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isEmpty()) {
-                return ProbeResult.error(key(), "Cannot find repository for " + plugin.getName());
+                return ProbeResult.error(key(), "Cannot find repository for " + plugin.getName(), this.getVersion());
             }
             final GHRepository repository = gh.getRepository(repositoryName.get());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
-            return ProbeResult.success(key(), "%d".formatted(pullRequests.size()));
+            return ProbeResult.success(key(), "%d".formatted(pullRequests.size()), this.getVersion());
         } catch (IOException e) {
-            return ProbeResult.error(key(), "Cannot access repository " + plugin.getScm());
+            return ProbeResult.error(key(), "Cannot access repository " + plugin.getScm(), this.getVersion());
         }
     }
 
@@ -71,5 +71,10 @@ public class PullRequestProbe extends Probe {
     @Override
     public String getDescription() {
         return "Count the number of open pull request on the plugin repository";
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

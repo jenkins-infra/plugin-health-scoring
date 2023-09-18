@@ -71,7 +71,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated."));
+            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", probe.getVersion()));
 
     }
 
@@ -92,7 +92,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "this-is-the-reason"));
+            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "this-is-the-reason", probe.getVersion()));
     }
 
     @Test
@@ -116,7 +116,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated."));
+            .isEqualTo(ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", probe.getVersion()));
     }
 
     @Test
@@ -137,6 +137,6 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DeprecatedPluginProbe.KEY, "This plugin is not in update-center."));
+            .isEqualTo(ProbeResult.error(DeprecatedPluginProbe.KEY, "This plugin is not in update-center.", probe.getVersion()));
     }
 }

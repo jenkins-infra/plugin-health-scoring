@@ -30,10 +30,6 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         plugin = mock(Plugin.class);
         ctx = mock(ProbeContext.class);
         probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
     }
 
     @Override
@@ -88,7 +84,7 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Deprecated imports found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java"));
+            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Deprecated imports found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
 
     }
@@ -116,7 +112,7 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Latest version of imports found at foo plugin."));
+            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Latest version of imports found at foo plugin.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

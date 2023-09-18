@@ -69,7 +69,7 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center."));
+            .isEqualTo(ProbeResult.error(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center.", probe.getVersion()));
     }
 
     @Test
@@ -93,6 +93,6 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center."));
+            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.", probe.getVersion()));
     }
 }

@@ -42,8 +42,8 @@ public class InstallationStatProbe extends Probe {
         final UpdateCenter updateCenter = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = updateCenter.plugins().get(plugin.getName());
         return ucPlugin != null ?
-            ProbeResult.success(key(), "%d".formatted(ucPlugin.popularity())) :
-            ProbeResult.error(key(), "Could not find plugin " + plugin.getName() + " in Update Center.");
+            ProbeResult.success(key(), "%d".formatted(ucPlugin.popularity()), this.getVersion()) :
+            ProbeResult.error(key(), "Could not find plugin " + plugin.getName() + " in Update Center.", this.getVersion());
     }
 
     @Override
@@ -54,5 +54,10 @@ public class InstallationStatProbe extends Probe {
     @Override
     public String getDescription() {
         return "This probe registers the latest installation count stat for a specific plugin.";
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

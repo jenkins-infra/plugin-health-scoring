@@ -43,7 +43,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "There is no local repository for plugin " + plugin.getName() + "."));
+            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "No GitHub configuration folder found."));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is not configured."));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is not configured.", probe.getVersion()));
     }
 
     @Test
@@ -92,6 +92,6 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured."));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured.", probe.getVersion()));
     }
 }

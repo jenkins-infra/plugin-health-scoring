@@ -67,7 +67,7 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "Plugin has no GitHub Action configured."));
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
     }
 
     @Test
@@ -80,7 +80,7 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin."));
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin.", probe.getVersion()));
     }
 
     @Test
@@ -101,7 +101,7 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin."));
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin.", probe.getVersion()));
     }
 
     @Test
@@ -122,7 +122,7 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin.", probe.getVersion()));
     }
 
     @Test
@@ -143,6 +143,6 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin."));
+            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin.", probe.getVersion()));
     }
 }

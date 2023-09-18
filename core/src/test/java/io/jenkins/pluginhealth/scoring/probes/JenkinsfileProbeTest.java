@@ -69,7 +69,7 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(JenkinsfileProbe.KEY, "There is no local repository for plugin " + pluginName + "."));
+            .isEqualTo(ProbeResult.error(JenkinsfileProbe.KEY, "There is no local repository for plugin " + pluginName + ".", probe.getVersion()));
     }
 
     @Test
@@ -85,7 +85,7 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found"));
+            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found", probe.getVersion()));
     }
 
     @Test
@@ -102,6 +102,6 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found"));
+            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", probe.getVersion()));
     }
 }

@@ -129,7 +129,7 @@ class ScoringEngineTest {
         final String pluginName = "plugin-a";
         when(pluginA.getName()).thenReturn(pluginName);
         when(pluginA.getDetails()).thenReturn(Map.of(
-            "foo-bar", new ProbeResult("foo-bar", "", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(15))
+            "foo-bar", new ProbeResult("foo-bar", "", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(15), 1)
         ));
 
         final Scoring scoringA = mock(Scoring.class);

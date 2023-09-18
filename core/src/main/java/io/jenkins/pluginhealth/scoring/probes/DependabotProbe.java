@@ -49,4 +49,9 @@ public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
     public String getDescription() {
         return "Checks if Dependabot is configured on a plugin.";
     }
+
+    @Override
+    public long getVersion() {
+        return 1;
+    }
 }

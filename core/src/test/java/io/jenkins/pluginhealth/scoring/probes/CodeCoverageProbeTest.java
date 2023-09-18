@@ -93,7 +93,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Cannot determine plugin repository."));
+            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -144,6 +144,6 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage: 70.56%. Branch coverage: 63.37%."));
+            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage: 70.56%. Branch coverage: 63.37%.", probe.getVersion()));
     }
 }

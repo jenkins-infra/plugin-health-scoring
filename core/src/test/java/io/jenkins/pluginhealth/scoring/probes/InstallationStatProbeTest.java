@@ -72,7 +72,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(InstallationStatProbe.KEY, "Could not find plugin " + pluginName + " in Update Center."));
+            .isEqualTo(ProbeResult.error(InstallationStatProbe.KEY, "Could not find plugin " + pluginName + " in Update Center.", probe.getVersion()));
     }
 
     @Test
@@ -84,7 +84,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
         final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", probe.getVersion())
         ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(

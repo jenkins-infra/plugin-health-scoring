@@ -42,19 +42,19 @@ public class DocumentationMigrationProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Map<String, String> pluginDocumentationLinks = context.getPluginDocumentationLinks();
         if (pluginDocumentationLinks.isEmpty()) {
-            return ProbeResult.error(key(), "No link to documentation can be confirmed.");
+            return ProbeResult.error(key(), "No link to documentation can be confirmed.", this.getVersion());
         }
         final String scm = plugin.getScm();
         if (scm == null) {
-            return ProbeResult.error(key(), "Plugin SCM on the update-center is not correctly configured for the plugin.");
+            return ProbeResult.error(key(), "Plugin SCM on the update-center is not correctly configured for the plugin.", this.getVersion());
         }
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
 
         return linkDocumentationForPlugin == null ?
-            ProbeResult.error(key(), "Plugin is not listed in documentation migration source.") :
+            ProbeResult.error(key(), "Plugin is not listed in documentation migration source.", this.getVersion()) :
             linkDocumentationForPlugin.contains(scm) ?
-                ProbeResult.success(key(), "Documentation is located in the plugin repository.") :
-                ProbeResult.success(key(), "Documentation is not located in the plugin repository.");
+                ProbeResult.success(key(), "Documentation is located in the plugin repository.", this.getVersion()) :
+                ProbeResult.success(key(), "Documentation is not located in the plugin repository.", this.getVersion());
     }
 
     @Override
@@ -70,5 +70,10 @@ public class DocumentationMigrationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

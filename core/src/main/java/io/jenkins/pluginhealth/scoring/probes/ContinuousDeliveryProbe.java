@@ -62,4 +62,8 @@ public class ContinuousDeliveryProbe extends AbstractGitHubWorkflowProbe {
         return "JEP-229 workflow definition found.";
     }
 
+    @Override
+    public long getVersion() {
+        return 1;
+    }
 }

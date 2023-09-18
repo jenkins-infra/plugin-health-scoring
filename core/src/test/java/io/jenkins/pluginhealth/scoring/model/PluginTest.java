@@ -39,7 +39,7 @@ class PluginTest {
     @Test
     void shouldUpdateDetailsIfNoPreviousDetailsPresent() {
         final Plugin plugin = spy(Plugin.class);
-        final ProbeResult probeResult = ProbeResult.success("foo", "this is a message");
+        final ProbeResult probeResult = ProbeResult.success("foo", "this is a message", 1);
 
         plugin.addDetails(probeResult);
         assertThat(plugin.getDetails()).hasSize(1);
@@ -52,8 +52,8 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
@@ -69,8 +69,8 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
@@ -86,8 +86,8 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10));
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now());
+        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
+        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
@@ -102,10 +102,10 @@ class PluginTest {
         final Plugin plugin = spy(Plugin.class);
         final String probeKey = "foo";
 
-        plugin.addDetails(ProbeResult.success(probeKey, ""));
+        plugin.addDetails(ProbeResult.success(probeKey, "", 1));
         assertThat(plugin.getDetails()).hasSize(1);
 
-        plugin.addDetails(ProbeResult.error(probeKey, ""));
+        plugin.addDetails(ProbeResult.error(probeKey, "", 1));
         assertThat(plugin.getDetails()).isEmpty();
     }
 }

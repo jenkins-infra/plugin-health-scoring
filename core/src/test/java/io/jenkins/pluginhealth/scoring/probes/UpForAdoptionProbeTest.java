@@ -70,7 +70,7 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption."));
+            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", upForAdoptionProbe.getVersion()));
     }
 
     @Test
@@ -91,7 +91,7 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."));
+            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", upForAdoptionProbe.getVersion()));
     }
 
     @Test
@@ -112,6 +112,6 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(UpForAdoptionProbe.KEY, "This plugin is not in the update-center."));
+            .isEqualTo(ProbeResult.error(UpForAdoptionProbe.KEY, "This plugin is not in the update-center.", probe.getVersion()));
     }
 }

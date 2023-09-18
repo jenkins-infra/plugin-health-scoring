@@ -80,7 +80,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        final ProbeResult expectedResult = ProbeResult.success("foo", "bar");
+        final ProbeResult expectedResult = ProbeResult.success("foo", "bar", 1);
 
         when(plugin.getDetails()).thenReturn(Map.of());
         when(probe.key()).thenReturn("probe");
@@ -107,10 +107,11 @@ class ProbeEngineTest {
 
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusDays(1));
-        when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good")));
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good", 1)));
 
         when(probe.requiresRelease()).thenReturn(true);
         when(probe.key()).thenReturn(probeKey);
+        when(probe.getVersion()).thenReturn(1L);
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
@@ -130,7 +131,7 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
+            "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
         when(plugin.getName()).thenReturn("foo");
 
@@ -155,10 +156,10 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
         final String probeKey = "probe";
 
-        final ProbeResult result = new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS);
+        final ProbeResult result = new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, 1);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
+            probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
 
         when(ctx.getScmRepository()).thenReturn(Optional.of(Files.createTempDirectory("ProbeEngineTest-shouldApplyProbeRelatedToCodeWithNewCommit")));
@@ -187,11 +188,11 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))));
+        when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)));
 
         when(probe.key()).thenReturn(probeKey);
         when(probe.requiresRelease()).thenReturn(true);
-        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
+        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok", 1));
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
@@ -213,11 +214,11 @@ class ProbeEngineTest {
 
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey,
-            new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1))
+            new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
 
         when(probe.requiresRelease()).thenReturn(false);
-        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok"));
+        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success(probeKey, "This is also ok", 1));
         when(probe.key()).thenReturn(probeKey);
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
@@ -237,7 +238,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar"));
+        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar", 1));
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probe));
@@ -258,8 +259,8 @@ class ProbeEngineTest {
             @Override
             protected ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
                 return plugin.getDetails().get("foo") != null ?
-                    ProbeResult.success(key(), "This is also ok") :
-                    ProbeResult.error(key(), "This cannot be validated");
+                    ProbeResult.success(key(), "This is also ok", this.getVersion()) :
+                    ProbeResult.error(key(), "This cannot be validated", this.getVersion());
             }
 
             @Override
@@ -271,10 +272,15 @@ class ProbeEngineTest {
             public String getDescription() {
                 return "description";
             }
+
+            @Override
+            public long getVersion() {
+                return 1;
+            }
         };
 
         when(probeOne.key()).thenReturn("foo");
-        when(probeOne.doApply(plugin, ctx)).thenReturn(ProbeResult.success("foo", "This is ok"));
+        when(probeOne.doApply(plugin, ctx)).thenReturn(ProbeResult.success("foo", "This is ok", 1));
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
         when(probeService.getProbes()).thenReturn(List.of(probeOne, probeTwo));
@@ -285,5 +291,58 @@ class ProbeEngineTest {
 
         verify(plugin, times(2)).addDetails(any(ProbeResult.class));
         assertThat(plugin.getDetails().keySet()).containsExactlyInAnyOrder("foo", "bar");
+    }
+
+    @Test
+    void shouldForceProbeExecutionWhenNewVersionOfTheProbe() throws IOException {
+        final String probeKey = "foo";
+        final long version = 1L;
+        final ProbeResult newProbeResult = new ProbeResult(
+            probeKey, "this is a message", ProbeResult.Status.SUCCESS, version + 1
+        );
+
+        final Plugin plugin = mock(Plugin.class);
+        final Probe probe = spy(new Probe() {
+            @Override
+            protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+                return newProbeResult;
+            }
+
+            @Override
+            public String key() {
+                return probeKey;
+            }
+
+            @Override
+            public String getDescription() {
+                return "";
+            }
+
+            @Override
+            public long getVersion() {
+                return version + 1;
+            }
+
+            @Override
+            protected boolean isSourceCodeRelated() {
+                return true;
+            }
+        });
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final ProbeResult previousResult = new ProbeResult(probeKey, "this is a message", ProbeResult.Status.SUCCESS, version);
+        when(plugin.getDetails()).thenReturn(Map.of(
+            probeKey, previousResult
+        ));
+
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
+        when(probeService.getProbes()).thenReturn(List.of(probe));
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
+        probeEngine.run();
+
+        verify(probe).doApply(plugin, ctx);
+        verify(plugin).addDetails(newProbeResult);
     }
 }

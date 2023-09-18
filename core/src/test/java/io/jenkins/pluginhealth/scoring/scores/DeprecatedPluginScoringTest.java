@@ -50,7 +50,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.")
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -80,7 +80,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.")
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);

@@ -36,9 +36,9 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  * @param message represents a summary of the result
  * @param status  represents the state of the analyze performed
  */
-public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp) {
-    public ProbeResult(String id, String message, Status status) {
-        this(id, message, status, ZonedDateTime.now());
+public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp, long probeVersion) {
+    public ProbeResult(String id, String message, Status status, long probeVersion) {
+        this(id, message, status, ZonedDateTime.now(), probeVersion);
     }
 
     @Override
@@ -54,12 +54,12 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         return Objects.hash(id, status);
     }
 
-    public static ProbeResult success(String id, String message) {
-        return new ProbeResult(id, message, Status.SUCCESS);
+    public static ProbeResult success(String id, String message, long probeVersion) {
+        return new ProbeResult(id, message, Status.SUCCESS, probeVersion);
     }
 
-    public static ProbeResult error(String id, String message) {
-        return new ProbeResult(id, message, Status.ERROR);
+    public static ProbeResult error(String id, String message, long probeVersion) {
+        return new ProbeResult(id, message, Status.ERROR, probeVersion);
     }
 
     /*

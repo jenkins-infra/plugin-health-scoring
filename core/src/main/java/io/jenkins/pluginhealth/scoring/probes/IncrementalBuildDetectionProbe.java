@@ -63,12 +63,12 @@ public class IncrementalBuildDetectionProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
         }
         final Path mvnConfig = context.getScmRepository().get().resolve(".mvn");
         if (Files.notExists(mvnConfig)) {
             LOGGER.info("Could not find Maven configuration folder {} plugin while running {} probe.", plugin.getName(), key());
-            return ProbeResult.error(key(), String.format("Could not find Maven configuration folder for the %s plugin.", plugin.getName()));
+            return ProbeResult.error(key(), String.format("Could not find Maven configuration folder for the %s plugin.", plugin.getName()), this.getVersion());
         }
 
         try (Stream<Path> incrementalConfigsStream = Files.find(mvnConfig, 1, (path, $) -> Files.isRegularFile(path) && (path.endsWith("maven.config") || path.endsWith("extensions.xml")))) {
@@ -82,13 +82,13 @@ public class IncrementalBuildDetectionProbe extends Probe {
 
             if (mavenExtensionsFile.isPresent() && mavenConfigFile.isPresent()) {
                 return isExtensionsXMLConfigured(mavenExtensionsFile.get()) && isMavenConfigConfigured(mavenConfigFile.get())
-                    ? ProbeResult.success(key(), String.format("Incremental Build is configured in the %s plugin.", plugin.getName()))
-                    : ProbeResult.success(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
+                    ? ProbeResult.success(key(), String.format("Incremental Build is configured in the %s plugin.", plugin.getName()), this.getVersion())
+                    : ProbeResult.success(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()), this.getVersion());
             }
         } catch (IOException e) {
             LOGGER.error("Could not read files from .mvn directory for {} plugin while running {} probe.", plugin.getName(), key());
         }
-        return ProbeResult.success(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
+        return ProbeResult.success(key(), String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()), this.getVersion());
     }
 
     @Override
@@ -141,5 +141,10 @@ public class IncrementalBuildDetectionProbe extends Probe {
             LOGGER.error("Could not read the file during probe {}.", key(), e);
         }
         return false;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

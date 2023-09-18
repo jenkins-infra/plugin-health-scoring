@@ -71,7 +71,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Plugin SCM is unknown, cannot fetch the number of open pull requests."));
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Plugin SCM is unknown, cannot fetch the number of open pull requests.", probe.getVersion()));
     }
 
     @Test
@@ -102,7 +102,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size())));
+            .isEqualTo(ProbeResult.success(PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size()), probe.getVersion()));
     }
 
     @Test
@@ -125,6 +125,6 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot access repository " + plugin.getScm()));
+            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot access repository " + plugin.getScm(), probe.getVersion()));
     }
 }

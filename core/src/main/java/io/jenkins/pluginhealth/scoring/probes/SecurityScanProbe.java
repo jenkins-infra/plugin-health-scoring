@@ -61,4 +61,9 @@ public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     public String getSuccessMessage() {
         return "GitHub workflow security scan is configured in the plugin.";
     }
+
+    @Override
+    public long getVersion() {
+        return 1;
+    }
 }

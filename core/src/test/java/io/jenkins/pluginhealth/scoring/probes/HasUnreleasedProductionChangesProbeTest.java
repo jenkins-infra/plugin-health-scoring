@@ -90,7 +90,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/index.jelly"));
+            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/index.jelly", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -135,7 +135,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, test-folder/pom.xml, test-folder/src/main/resources/index.jelly"));
+            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, test-folder/pom.xml, test-folder/src/main/resources/index.jelly", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -148,10 +148,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -175,7 +171,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -187,10 +183,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getScm()).thenReturn(scmLink);
 
@@ -212,7 +204,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -226,11 +218,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         final PersonIdent defaultCommitter = new PersonIdent(
@@ -253,7 +240,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -267,10 +254,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -293,7 +276,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml"));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -307,11 +290,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         final PersonIdent defaultCommitter = new PersonIdent(
@@ -335,7 +313,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/index.jelly"));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/index.jelly", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -348,10 +326,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String scmLink = "https://test-server/jenkinsci/test-repo";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getScm()).thenReturn(scmLink);
 
@@ -373,7 +347,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -387,10 +361,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getScm()).thenReturn(scmLink);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         final PersonIdent defaultCommitter = new PersonIdent(
@@ -412,7 +382,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
             assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released."));
+                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -426,10 +396,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -462,8 +428,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.success(
                     HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java"
-                ));
+                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
+                    probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -477,10 +443,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -510,8 +472,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.success(
                     HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java"
-                ));
+                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
+                    probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -525,10 +487,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -563,8 +521,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.success(
                     HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java"
-                ));
+                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
+                    probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -578,10 +536,6 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final String pluginName = "test-plugin";
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -626,8 +580,8 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.success(
                     HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java"
-                ));
+                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
+                    probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }

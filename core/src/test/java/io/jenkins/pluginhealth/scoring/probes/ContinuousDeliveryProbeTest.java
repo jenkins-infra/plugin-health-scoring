@@ -62,17 +62,13 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Plugin has no GitHub Action configured."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
     }
 
     @Test
@@ -81,10 +77,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final ProbeContext ctx = mock(ProbeContext.class);
         final ContinuousDeliveryProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github/workflows"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
@@ -92,7 +84,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
     }
 
     @Test
@@ -100,10 +92,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
@@ -123,7 +111,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
     }
 
     @Test
@@ -131,10 +119,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
@@ -154,7 +138,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
     }
 
     @Test
@@ -162,10 +146,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
@@ -185,7 +165,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
     }
 
     @Test
@@ -193,10 +173,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
@@ -213,7 +189,7 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
     }
 
     @Test
@@ -221,10 +197,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
@@ -246,6 +218,6 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition."));
+            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
     }
 }

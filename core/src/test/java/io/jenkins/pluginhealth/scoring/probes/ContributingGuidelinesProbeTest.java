@@ -68,7 +68,7 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found."));
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", probe.getVersion()));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found."));
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
     }
 
     @Test
@@ -102,6 +102,6 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found."));
+            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
     }
 }

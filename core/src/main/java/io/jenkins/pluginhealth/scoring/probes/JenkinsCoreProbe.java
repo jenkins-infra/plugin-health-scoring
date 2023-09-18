@@ -42,8 +42,8 @@ public class JenkinsCoreProbe extends Probe {
         final UpdateCenter uc = context.getUpdateCenter();
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = uc.plugins().get(plugin.getName());
         return ucPlugin != null ?
-            ProbeResult.success(key(), ucPlugin.requiredCore()) :
-            ProbeResult.error(key(), "Could not find plugin " + plugin.getName() + " in Update Center.");
+            ProbeResult.success(key(), ucPlugin.requiredCore(), this.getVersion()) :
+            ProbeResult.error(key(), "Could not find plugin " + plugin.getName() + " in Update Center.", this.getVersion());
     }
 
     @Override
@@ -59,5 +59,10 @@ public class JenkinsCoreProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

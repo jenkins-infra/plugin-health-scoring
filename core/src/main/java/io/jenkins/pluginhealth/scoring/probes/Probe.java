@@ -58,12 +58,15 @@ public abstract class Probe {
         final ProbeResult lastResult = plugin.getDetails().get(key());
         return lastResult != null ?
             lastResult :
-            ProbeResult.error(key(), key() + " was not executed on " + plugin.getName());
+            ProbeResult.error(key(), key() + " was not executed on " + plugin.getName(), this.getVersion());
     }
 
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {
+            return true;
+        }
+        if (this.getVersion() != previousResult.probeVersion()) {
             return true;
         }
         if (ProbeResult.Status.ERROR.equals(previousResult.status())) {
@@ -144,4 +147,6 @@ public abstract class Probe {
     protected boolean isSourceCodeRelated() {
         return false;
     }
+
+    public abstract long getVersion();
 }

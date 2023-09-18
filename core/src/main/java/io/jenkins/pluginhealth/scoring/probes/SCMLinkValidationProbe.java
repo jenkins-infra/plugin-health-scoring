@@ -63,7 +63,7 @@ public class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.error(key(), "The plugin SCM link is empty.");
+            return ProbeResult.error(key(), "The plugin SCM link is empty.", this.getVersion());
         }
         return fromSCMLink(context, plugin.getScm(), plugin.getName());
     }
@@ -81,23 +81,23 @@ public class SCMLinkValidationProbe extends Probe {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             LOGGER.atDebug().log(() -> String.format("%s is not respecting the SCM URL Template.", scm));
-            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.");
+            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories.", this.getVersion());
         }
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + pluginName + ".");
+            return ProbeResult.error(key(), "There is no local repository for plugin " + pluginName + ".", this.getVersion());
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
             Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository().get(), pluginName);
             Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
             if (folderPath.isEmpty()) {
-                return ProbeResult.success(key(), String.format("No valid POM file found in %s plugin.", pluginName));
+                return ProbeResult.success(key(), String.format("No valid POM file found in %s plugin.", pluginName), this.getVersion());
             }
             final Path pluginFolderPath = context.getScmRepository().get().relativize(folderPath.get());
             context.setScmFolderPath(pluginFolderPath.getFileName());
-            return ProbeResult.success(key(), "The plugin SCM link is valid.");
+            return ProbeResult.success(key(), "The plugin SCM link is valid.", this.getVersion());
         } catch (IOException ex) {
-            return ProbeResult.success(key(), "The plugin SCM link is invalid.");
+            return ProbeResult.success(key(), "The plugin SCM link is invalid.", this.getVersion());
         }
     }
 
@@ -167,5 +167,10 @@ public class SCMLinkValidationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

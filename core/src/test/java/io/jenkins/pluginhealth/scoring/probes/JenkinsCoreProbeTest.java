@@ -73,7 +73,7 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         assertThat(result)
             .isNotNull()
             .usingRecursiveComparison().comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(JenkinsCoreProbe.KEY, "Could not find plugin " + pluginName + " in Update Center."));
+            .isEqualTo(ProbeResult.error(JenkinsCoreProbe.KEY, "Could not find plugin " + pluginName + " in Update Center.", probe.getVersion()));
     }
 
     @Test
@@ -102,6 +102,6 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsCoreProbe.KEY, "2.361.1"));
+            .isEqualTo(ProbeResult.success(JenkinsCoreProbe.KEY, "2.361.1", probe.getVersion()));
     }
 }

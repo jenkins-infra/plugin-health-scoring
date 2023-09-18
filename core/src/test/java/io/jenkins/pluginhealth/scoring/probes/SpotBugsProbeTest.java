@@ -95,7 +95,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Cannot determine plugin repository."));
+            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -141,7 +141,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs found in build configuration."));
+            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs found in build configuration.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -183,6 +183,6 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs not found in build configuration."));
+            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs not found in build configuration.", probe.getVersion()));
     }
 }

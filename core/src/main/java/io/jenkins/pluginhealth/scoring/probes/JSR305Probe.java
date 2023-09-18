@@ -30,7 +30,7 @@ public class JSR305Probe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
         }
         final Path scmRepository = context.getScmRepository().get();
 
@@ -42,11 +42,11 @@ public class JSR305Probe extends Probe {
                 .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()))
-                : ProbeResult.success(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()), this.getVersion())
+                : ProbeResult.success(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")), this.getVersion());
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe.", key(), ex);
-            return ProbeResult.error(key(), String.format("Could not browse the plugin folder during %s probe.", plugin.getName()));
+            return ProbeResult.error(key(), String.format("Could not browse the plugin folder during %s probe.", plugin.getName()), this.getVersion());
         }
     }
 
@@ -59,7 +59,6 @@ public class JSR305Probe extends Probe {
     public String getDescription() {
         return "The probe checks for deprecated annotations.";
     }
-
 
     /**
      * Fetches all the import for the given file.
@@ -116,5 +115,10 @@ public class JSR305Probe extends Probe {
     private boolean containsImports(Path javaFile) {
         List<String> imports = getAllImportsInTheFile(javaFile);
         return imports.stream().anyMatch(line -> line.startsWith(getImportToCheck()));
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

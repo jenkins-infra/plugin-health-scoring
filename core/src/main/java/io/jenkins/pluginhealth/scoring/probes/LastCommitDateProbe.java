@@ -57,17 +57,19 @@ public class LastCommitDateProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".");
+            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
         }
         final Path scmRepository = context.getScmRepository().get();
         final Optional<Path> folder = context.getScmFolderPath();
         try (Git git = Git.open(scmRepository.toFile())) {
             final LogCommand logCommand = git.log().setMaxCount(1);
-            folder.ifPresent(s -> logCommand.addPath(s.toString()));
+            if (folder.isPresent() && !folder.get().toString().isBlank()) {
+                logCommand.addPath(folder.get().toString());
+            }
 
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
-                return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
+                return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.", this.getVersion());
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                     commit.getAuthorIdent().getWhenAsInstant(),
@@ -75,10 +77,10 @@ public class LastCommitDateProbe extends Probe {
                 ).withZoneSameInstant(ZoneId.of("UTC"))
                 .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
+            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME), this.getVersion());
         } catch (IOException | GitAPIException ex) {
             LOGGER.error("There was an issue while accessing the plugin repository", ex);
-            return ProbeResult.error(key(), "Could not access the plugin repository.");
+            return ProbeResult.error(key(), "Could not access the plugin repository.", this.getVersion());
         }
     }
 
@@ -100,5 +102,10 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

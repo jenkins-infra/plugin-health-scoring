@@ -67,19 +67,14 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, ""))
-        );
-
         final DependabotPullRequestProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
         assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, ""));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
     }
 
     @Test
@@ -90,9 +85,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
-        ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
 
         when(ctx.getGitHub()).thenReturn(gh);
@@ -114,7 +106,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0"));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0", probe.getVersion()));
     }
 
     @Test
@@ -125,9 +117,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
-        ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
 
         when(ctx.getGitHub()).thenReturn(gh);
@@ -153,7 +142,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         assertThat(result).usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2"));
+            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2", probe.getVersion()));
     }
 
     @Test
@@ -163,9 +152,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         final GitHub gh = mock(GitHub.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "")
-        ));
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
         when(ctx.getRepositoryName()).thenReturn(Optional.of("foo-bar"));
 
@@ -178,6 +164,6 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests."));
+            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests.", probe.getVersion()));
     }
 }

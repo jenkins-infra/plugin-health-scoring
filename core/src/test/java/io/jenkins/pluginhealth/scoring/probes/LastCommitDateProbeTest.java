@@ -76,7 +76,7 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, "There is no local repository for plugin " + pluginName + "."));
+            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, "There is no local repository for plugin " + pluginName + ".", probe.getVersion()));
     }
 
     @Test
@@ -107,7 +107,7 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, ""));
+            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, "", probe.getVersion()));
 
         final ZonedDateTime parsedDateTime = ZonedDateTime.parse(result.message(), DateTimeFormatter.ISO_DATE_TIME);
         assertThat(parsedDateTime).isEqualTo(commitDate);

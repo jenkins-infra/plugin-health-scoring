@@ -114,7 +114,7 @@ class ScoreControllerTest {
         final Plugin plugin = mock(Plugin.class);
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            probeKey, ProbeResult.success(probeKey, "message")
+            probeKey, ProbeResult.success(probeKey, "message", 1)
         ));
         when(plugin.getScm()).thenReturn("this-is-the-url-of-the-plugin-location");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(1));

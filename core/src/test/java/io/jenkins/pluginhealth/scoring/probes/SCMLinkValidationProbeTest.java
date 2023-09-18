@@ -67,13 +67,13 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty."));
+            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
 
         assertThat(probe.apply(plugin, ctx))
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty."));
+            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
     }
 
     @Test
@@ -88,7 +88,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "SCM link doesn't match GitHub plugin repositories."));
+            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "SCM link doesn't match GitHub plugin repositories.", probe.getVersion()));
     }
 
     @Test
@@ -112,7 +112,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SCMLinkValidationProbe.KEY, "The plugin SCM link is valid."));
+            .isEqualTo(ProbeResult.success(SCMLinkValidationProbe.KEY, "The plugin SCM link is valid.", probe.getVersion()));
     }
 
     @Test
@@ -135,7 +135,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid."));
+            .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid.", probe.getVersion()));
     }
 
     @Test
@@ -161,7 +161,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(probe.key(), "The plugin SCM link is valid."));
+            .isEqualTo(ProbeResult.success(probe.key(), "The plugin SCM link is valid.", probe.getVersion()));
 
         verify(ctx).setScmFolderPath(Path.of("test-nested-dir-2"));
     }

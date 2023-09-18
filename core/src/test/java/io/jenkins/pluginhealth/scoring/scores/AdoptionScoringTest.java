@@ -53,7 +53,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.")
+            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -69,8 +69,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(4));
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption."),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -85,7 +85,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getDetails()).thenReturn(
-            Map.of(UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."))
+            Map.of(UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1))
         );
 
         final ScoreResult result = scoring.apply(plugin);
@@ -100,8 +100,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(2));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
@@ -117,8 +117,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(8));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
@@ -134,8 +134,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(18));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
@@ -151,8 +151,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(3));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
@@ -168,8 +168,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(5));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption."),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 

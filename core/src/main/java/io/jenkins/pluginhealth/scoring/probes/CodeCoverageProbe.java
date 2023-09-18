@@ -62,7 +62,7 @@ public class CodeCoverageProbe extends Probe {
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
         if (defaultBranch == null || defaultBranch.isBlank()) {
-            return ProbeResult.error(key(), "No default branch configured for the plugin.");
+            return ProbeResult.error(key(), "No default branch configured for the plugin.", this.getVersion());
         }
         try {
             final Optional<String> repositoryName = context.getRepositoryName();
@@ -70,8 +70,8 @@ public class CodeCoverageProbe extends Probe {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
-                if (ghCheckRuns.size() == 0) {
-                    return ProbeResult.error(key(), "Could not determine code coverage for the plugin.");
+                if (ghCheckRuns.isEmpty()) {
+                    return ProbeResult.error(key(), "Could not determine code coverage for the plugin.", this.getVersion());
                 }
 
                 double overall_line_coverage = 100;
@@ -86,13 +86,13 @@ public class CodeCoverageProbe extends Probe {
                     }
                 }
 
-                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.");
+                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.", this.getVersion());
             } else {
-                return ProbeResult.error(key(), "Cannot determine plugin repository.");
+                return ProbeResult.error(key(), "Cannot determine plugin repository.", this.getVersion());
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get coverage check");
+            return ProbeResult.error(key(), "Could not get coverage check", this.getVersion());
         }
     }
 
@@ -109,5 +109,10 @@ public class CodeCoverageProbe extends Probe {
     @Override
     protected boolean isSourceCodeRelated() {
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

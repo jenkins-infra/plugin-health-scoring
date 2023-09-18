@@ -123,7 +123,7 @@ public class ProbeContext {
     }
 
     public Optional<Path> getScmFolderPath() {
-        return Optional.of(scmFolderPath);
+        return Optional.ofNullable(scmFolderPath);
     }
 
     public void setScmFolderPath(Path scmFolderPath) {
