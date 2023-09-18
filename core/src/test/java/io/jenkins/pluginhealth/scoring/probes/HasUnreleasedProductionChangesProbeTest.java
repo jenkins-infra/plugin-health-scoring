@@ -36,7 +36,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;

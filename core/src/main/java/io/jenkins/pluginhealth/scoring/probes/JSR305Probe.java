@@ -42,8 +42,12 @@ public class JSR305Probe extends Probe {
                 .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()), this.getVersion())
-                : ProbeResult.success(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")), this.getVersion());
+                ? ProbeResult.success(key(), String.format("%s at %s plugin.", getSuccessMessage(), plugin.getName()), this.getVersion())
+                : ProbeResult.success(
+                    key(),
+                    String.format("%s at %s plugin for %s", getFailureMessage(), plugin.getName(), javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))),
+                    this.getVersion()
+            );
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe.", key(), ex);
             return ProbeResult.error(key(), String.format("Could not browse the plugin folder during %s probe.", plugin.getName()), this.getVersion());
