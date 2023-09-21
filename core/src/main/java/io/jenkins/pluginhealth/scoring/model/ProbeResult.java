@@ -32,9 +32,11 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 /**
  * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
  *
- * @param id      represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
- * @param message represents a summary of the result
- * @param status  represents the state of the analyze performed
+ * @param id           represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
+ * @param message      represents a summary of the result
+ * @param status       represents the state of the analyze performed
+ * @param timestamp    when the probe generated this result
+ * @param probeVersion the version of the probe which generated this result
  */
 public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp, long probeVersion) {
     public ProbeResult(String id, String message, Status status, long probeVersion) {
