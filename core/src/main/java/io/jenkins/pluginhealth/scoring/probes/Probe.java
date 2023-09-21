@@ -152,7 +152,7 @@ public abstract class Probe {
 
     /**
      * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#SUCCESS} status, using the provided
-     * message and the {@link this.key()} and {@link this.getVersion()} values.
+     * message and the {@link this#key()} and {@link this#getVersion()} values.
      *
      * @param message the message to be stored in the returned {@link ProbeResult}
      * @return a {@link ProbeResult} with a success status, the provided message and the probe version
@@ -163,7 +163,7 @@ public abstract class Probe {
 
     /**
      * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#ERROR} status, using the provided
-     * message and the {@link this.key()} and {@link this.getVersion()} values.
+     * message and the {@link this#key()} and {@link this#getVersion()} values.
      *
      * @param message the message to be stored in the returned {@link ProbeResult}
      * @return a {@link ProbeResult} with a error status, the provided message and the probe version
