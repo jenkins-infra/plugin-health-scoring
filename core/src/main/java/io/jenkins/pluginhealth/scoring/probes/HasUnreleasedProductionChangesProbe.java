@@ -62,7 +62,7 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
 
         final Path repo = context.getScmRepository().get();
@@ -115,11 +115,11 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
             }
 
             return files.isEmpty() ?
-                ProbeResult.success(KEY, "All production modifications were released.", this.getVersion()) :
+                this.success("All production modifications were released.") :
                 ProbeResult.success(KEY, "Unreleased production modifications might exist in the plugin source code at "
                     + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")), this.getVersion());
         } catch (IOException | GitAPIException ex) {
-            return ProbeResult.error(KEY, ex.getMessage(), this.getVersion());
+            return this.error(ex.getMessage());
         }
     }
 

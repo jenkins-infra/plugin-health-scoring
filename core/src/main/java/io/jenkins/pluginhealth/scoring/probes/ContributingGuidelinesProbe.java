@@ -44,7 +44,7 @@ public class ContributingGuidelinesProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
 
         final Path repository = context.getScmRepository().get();
@@ -53,10 +53,10 @@ public class ContributingGuidelinesProbe extends Probe {
                 && ("CONTRIBUTING.md".equalsIgnoreCase(file.getFileName().toString())
                 || "CONTRIBUTING.adoc".equalsIgnoreCase(file.getFileName().toString())))) {
             return paths.findAny()
-                .map(file -> ProbeResult.success(key(), "Contributing guidelines found.", this.getVersion()))
-                .orElseGet(() -> ProbeResult.success(key(), "No contributing guidelines found.", this.getVersion()));
+                .map(file -> this.success("Contributing guidelines found."))
+                .orElseGet(() -> this.success("No contributing guidelines found."));
         } catch (IOException e) {
-            return ProbeResult.error(key(), e.getMessage(), this.getVersion());
+            return this.error(e.getMessage());
         }
     }
 

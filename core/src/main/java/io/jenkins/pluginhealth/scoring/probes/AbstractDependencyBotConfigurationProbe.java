@@ -45,23 +45,23 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
         final Path githubConfig = scmRepository.resolve(".github");
         if (Files.notExists(githubConfig)) {
             LOGGER.trace("No GitHub configuration folder at {} ", key());
-            return ProbeResult.success(key(), "No GitHub configuration folder found.", this.getVersion());
+            return this.success("No GitHub configuration folder found.");
         }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && path.getFileName().toString().startsWith(getBotName()))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), String.format("%s is configured.", getBotName()), this.getVersion()))
-                .orElseGet(() -> ProbeResult.success(key(), String.format("%s is not configured.", getBotName()), this.getVersion()));
+                .map(file -> this.success(String.format("%s is configured.", getBotName())))
+                .orElseGet(() -> this.success(String.format("%s is not configured.", getBotName())));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
-            return ProbeResult.error(key(), "Could not browse the plugin folder", this.getVersion());
+            return this.error("Could not browse the plugin folder");
         }
     }
 

@@ -52,7 +52,7 @@ public class SpotBugsProbe extends Probe {
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
         if (defaultBranch == null || defaultBranch.isBlank()) {
-            return ProbeResult.error(key(), "No default branch configured for the plugin.", this.getVersion());
+            return this.error("No default branch configured for the plugin.");
         }
         try {
             final Optional<String> repositoryName = context.getRepositoryName();
@@ -61,16 +61,16 @@ public class SpotBugsProbe extends Probe {
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")).toList();
                 if (ghCheckRuns.size() != 1) {
-                    return ProbeResult.success(key(), "SpotBugs not found in build configuration.", this.getVersion());
+                    return this.success("SpotBugs not found in build configuration.");
                 } else {
-                    return ProbeResult.success(key(), "SpotBugs found in build configuration.", this.getVersion());
+                    return this.success("SpotBugs found in build configuration.");
                 }
             } else {
-                return ProbeResult.error(key(), "Cannot determine plugin repository.", this.getVersion());
+                return this.error("Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.debug("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get SpotBugs check. " + e.getMessage(), this.getVersion());
+            return this.error("Could not get SpotBugs check. " + e.getMessage());
         }
     }
 

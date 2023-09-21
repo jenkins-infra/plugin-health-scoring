@@ -46,10 +46,10 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
 
         if (updateCenterPlugin == null) {
-            return ProbeResult.error(key(), "This plugin's publication has been stopped by the update-center.", this.getVersion());
+            return this.error("This plugin's publication has been stopped by the update-center.");
         }
 
-        return ProbeResult.success(key(), "This plugin is still actively published by the update-center.", this.getVersion());
+        return this.success("This plugin is still actively published by the update-center.");
     }
 
     @Override

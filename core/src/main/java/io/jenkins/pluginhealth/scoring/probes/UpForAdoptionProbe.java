@@ -49,12 +49,12 @@ public class UpForAdoptionProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
         if (pl == null) {
             LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
-            return ProbeResult.error(key(), "This plugin is not in the update-center.", this.getVersion());
+            return this.error("This plugin is not in the update-center.");
         }
         if (pl.labels().contains("adopt-this-plugin")) {
-            return ProbeResult.success(key(), "This plugin is up for adoption.", this.getVersion());
+            return this.success("This plugin is up for adoption.");
         }
-        return ProbeResult.success(key(), "This plugin is not up for adoption.", this.getVersion());
+        return this.success("This plugin is not up for adoption.");
     }
 
     @Override

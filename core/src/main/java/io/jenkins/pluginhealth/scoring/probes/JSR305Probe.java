@@ -30,7 +30,7 @@ public class JSR305Probe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
 
@@ -42,15 +42,16 @@ public class JSR305Probe extends Probe {
                 .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                ? ProbeResult.success(key(), String.format("%s at %s plugin.", getSuccessMessage(), plugin.getName()), this.getVersion())
-                : ProbeResult.success(
-                    key(),
-                    String.format("%s at %s plugin for %s", getFailureMessage(), plugin.getName(), javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))),
-                    this.getVersion()
-            );
+                ? this.success(String.format("%s at %s plugin.", getSuccessMessage(), plugin.getName()))
+                : this.success(String.format(
+                    "%s at %s plugin for %s",
+                    getFailureMessage(),
+                    plugin.getName(),
+                    javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))
+            ));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe.", key(), ex);
-            return ProbeResult.error(key(), String.format("Could not browse the plugin folder during %s probe.", plugin.getName()), this.getVersion());
+            return this.error(String.format("Could not browse the plugin folder during %s probe.", plugin.getName()));
         }
     }
 

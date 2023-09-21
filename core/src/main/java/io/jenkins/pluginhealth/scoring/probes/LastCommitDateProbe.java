@@ -57,7 +57,7 @@ public class LastCommitDateProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
         final Optional<Path> folder = context.getScmFolderPath();
@@ -69,7 +69,7 @@ public class LastCommitDateProbe extends Probe {
 
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
-                return ProbeResult.error(key(), "Last commit cannot be extracted. Please validate sub-folder if any.", this.getVersion());
+                return this.error("Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
                     commit.getAuthorIdent().getWhenAsInstant(),
@@ -77,10 +77,10 @@ public class LastCommitDateProbe extends Probe {
                 ).withZoneSameInstant(ZoneId.of("UTC"))
                 .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.format(DateTimeFormatter.ISO_DATE_TIME), this.getVersion());
+            return this.success(commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {
             LOGGER.error("There was an issue while accessing the plugin repository", ex);
-            return ProbeResult.error(key(), "Could not access the plugin repository.", this.getVersion());
+            return this.error("Could not access the plugin repository.");
         }
     }
 

@@ -59,13 +59,13 @@ public class DependabotPullRequestProbe extends Probe {
                 .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
                 .count();
 
-            return ProbeResult.success(key(), "%d".formatted(count), this.getVersion());
+            return this.success("%d".formatted(count));
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
             }
 
-            return ProbeResult.error(key(), "Could not count dependabot pull requests.", this.getVersion());
+            return this.error("Could not count dependabot pull requests.");
         }
     }
 

@@ -58,7 +58,7 @@ public abstract class Probe {
         final ProbeResult lastResult = plugin.getDetails().get(key());
         return lastResult != null ?
             lastResult :
-            ProbeResult.error(key(), key() + " was not executed on " + plugin.getName(), this.getVersion());
+            this.error(key() + " was not executed on " + plugin.getName());
     }
 
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
@@ -149,4 +149,26 @@ public abstract class Probe {
     }
 
     public abstract long getVersion();
+
+    /**
+     * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#SUCCESS} status, using the provided
+     * message and the {@link this.key()} and {@link this.getVersion()} values.
+     *
+     * @param message the message to be stored in the returned {@link ProbeResult}
+     * @return a {@link ProbeResult} with a success status, the provided message and the probe version
+     */
+    public final ProbeResult success(String message) {
+        return ProbeResult.success(this.key(), message, this.getVersion());
+    }
+
+    /**
+     * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#ERROR} status, using the provided
+     * message and the {@link this.key()} and {@link this.getVersion()} values.
+     *
+     * @param message the message to be stored in the returned {@link ProbeResult}
+     * @return a {@link ProbeResult} with a error status, the provided message and the probe version
+     */
+    public final ProbeResult error(String message) {
+        return ProbeResult.error(this.key(), message, this.getVersion());
+    }
 }

@@ -62,7 +62,7 @@ public class CodeCoverageProbe extends Probe {
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
         if (defaultBranch == null || defaultBranch.isBlank()) {
-            return ProbeResult.error(key(), "No default branch configured for the plugin.", this.getVersion());
+            return this.error("No default branch configured for the plugin.");
         }
         try {
             final Optional<String> repositoryName = context.getRepositoryName();
@@ -71,7 +71,7 @@ public class CodeCoverageProbe extends Probe {
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
                 if (ghCheckRuns.isEmpty()) {
-                    return ProbeResult.error(key(), "Could not determine code coverage for the plugin.", this.getVersion());
+                    return this.error("Could not determine code coverage for the plugin.");
                 }
 
                 double overall_line_coverage = 100;
@@ -86,13 +86,13 @@ public class CodeCoverageProbe extends Probe {
                     }
                 }
 
-                return ProbeResult.success(key(), "Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.", this.getVersion());
+                return this.success("Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.");
             } else {
-                return ProbeResult.error(key(), "Cannot determine plugin repository.", this.getVersion());
+                return this.error("Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get coverage check", this.getVersion());
+            return this.error("Could not get coverage check");
         }
     }
 

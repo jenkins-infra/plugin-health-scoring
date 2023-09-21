@@ -44,17 +44,17 @@ public class JenkinsfileProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
-            return ProbeResult.error(key(), "There is no local repository for plugin " + plugin.getName() + ".", this.getVersion());
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
 
         final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files.find(repository, 1, (file, $) ->
             Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success(key(), "Jenkinsfile found", this.getVersion()))
-                .orElseGet(() -> ProbeResult.success(key(), "No Jenkinsfile found", this.getVersion()));
+                .map(file -> this.success("Jenkinsfile found"))
+                .orElseGet(() -> this.success("No Jenkinsfile found"));
         } catch (IOException e) {
-            return ProbeResult.error(key(), e.getMessage(), this.getVersion());
+            return this.error(e.getMessage());
         }
     }
 
