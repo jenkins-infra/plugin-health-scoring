@@ -229,13 +229,13 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         ));
         when(plugin.getName()).thenReturn("test-repo");
 
-        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo"));
+        when(contextSpy.getScmRepository()).thenReturn(Path.of("src/test/resources/jenkinsci/test-repo/test-direct-dir"));
         when(contextSpy.getGitHub()).thenReturn(github);
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, contextSpy);
 
-        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of("test-repo"));
+        assertThat(contextSpy.getScmFolderPath()).isEqualTo(Optional.of("test-direct-dir"));
         assertThat(result.status()).isEqualTo(ResultStatus.SUCCESS);
         assertThat(result.message()).isEqualTo("The plugin SCM link is valid.");
         verify(probe).doApply(plugin, contextSpy);
