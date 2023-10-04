@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  *
  * @param id           represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
  * @param message      represents a summary of the result
- * @param status       represents the state of the analyze performed
+ * @param status       represents the state of the performed analysis
  * @param timestamp    when the probe generated this result
  * @param probeVersion the version of the probe which generated this result
  */
