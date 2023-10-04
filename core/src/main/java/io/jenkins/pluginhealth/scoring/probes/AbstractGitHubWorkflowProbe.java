@@ -70,8 +70,8 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
                 .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
 
             return isWorkflowConfigured ?
-                this.success(getSuccessMessage()) :
-                this.success(getFailureMessage());
+                this.success(getValidMessage()) :
+                this.success(getInvalidMessage());
         } catch (IOException e) {
             LOGGER.warn("Couldn't not read file for plugin {} during probe {}", plugin.getName(), key(), e);
             return this.error(e.getMessage());
@@ -127,12 +127,14 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
     public abstract String getWorkflowDefinition();
 
     /**
-     * @return a failure message
+     * @return a message used when the probe could browse the workflows configured on the repository,
+     * but not the one expected by {@link this#getWorkflowDefinition()}.
      */
-    public abstract String getFailureMessage();
+    public abstract String getInvalidMessage();
 
     /**
-     * @return a success message
+     * @return a message used when the probe could find the expected workflow from {@link this#getWorkflowDefinition()}
+     * configured on the plugin repository.
      */
-    public abstract String getSuccessMessage();
+    public abstract String getValidMessage();
 }
