@@ -146,4 +146,52 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
             .comparingOnlyFields("id", "status", "message")
             .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage: 70.56%. Branch coverage: 63.37%.", probe.getVersion()));
     }
+
+    @Test
+    void shouldStillBeSuccessfulWhenNoCoverageCanBeFound() throws IOException {
+        final String pluginName = "mailer";
+        final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + pluginRepo;
+        final String defaultBranch = "main";
+
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final GitHub gh = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
+            Map.of(
+                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
+                    "42", defaultBranch
+                )
+            ),
+            Map.of(),
+            List.of()
+        ));
+        when(ctx.getGitHub()).thenReturn(gh);
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
+
+        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
+
+        final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
+        when(checkRuns.toList()).thenReturn(List.of());
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage"))).thenReturn(checkRuns);
+
+        final CodeCoverageProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        verify(probe).doApply(plugin, ctx);
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(
+                CodeCoverageProbe.KEY,
+                "Could not determine code coverage for the plugin.",
+                probe.getVersion()
+            ));
+    }
 }

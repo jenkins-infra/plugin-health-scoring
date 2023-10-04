@@ -71,7 +71,7 @@ public class CodeCoverageProbe extends Probe {
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
                 if (ghCheckRuns.isEmpty()) {
-                    return this.error("Could not determine code coverage for the plugin.");
+                    return this.success("Could not determine code coverage for the plugin.");
                 }
 
                 double overall_line_coverage = 100;
