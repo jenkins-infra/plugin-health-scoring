@@ -53,6 +53,27 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
     }
 
     @Test
+    void shouldGenerateErrorWhenThereIsNoRepositoryInContext() {
+        final String pluginName = "foo";
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getScmRepository()).thenReturn(Optional.empty());
+
+        final HasUnreleasedProductionChangesProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(
+                HasUnreleasedProductionChangesProbe.KEY,
+                "There is no local repository for plugin " + pluginName + ".",
+                probe.getVersion()
+            ));
+    }
+
+    @Test
     void shouldFailIfThereIsNotReleasedCommits() throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);

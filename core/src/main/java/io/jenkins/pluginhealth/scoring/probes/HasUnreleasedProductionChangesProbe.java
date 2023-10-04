@@ -116,8 +116,8 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
 
             return files.isEmpty() ?
                 this.success("All production modifications were released.") :
-                ProbeResult.success(KEY, "Unreleased production modifications might exist in the plugin source code at "
-                    + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")), this.getVersion());
+                this.success("Unreleased production modifications might exist in the plugin source code at "
+                    + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException | GitAPIException ex) {
             return this.error(ex.getMessage());
         }
