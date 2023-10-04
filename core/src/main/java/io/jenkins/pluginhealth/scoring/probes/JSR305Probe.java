@@ -42,10 +42,10 @@ public class JSR305Probe extends Probe {
                 .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                ? this.success(String.format("%s at %s plugin.", getSuccessMessage(), plugin.getName()))
+                ? this.success(String.format("%s at %s plugin.", getValidMessage(), plugin.getName()))
                 : this.success(String.format(
                     "%s at %s plugin for %s",
-                    getFailureMessage(),
+                    getInvalidMessage(),
                     plugin.getName(),
                     javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))
             ));
@@ -90,14 +90,14 @@ public class JSR305Probe extends Probe {
     /**
      * @return a success message.
      */
-    String getSuccessMessage() {
+    private String getValidMessage() {
         return "Latest version of imports found";
     }
 
     /**
      * @return a failure message.
      */
-    String getFailureMessage() {
+    private String getInvalidMessage() {
         return "Deprecated imports found";
     }
 
