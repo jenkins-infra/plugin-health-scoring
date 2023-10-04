@@ -80,7 +80,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "Plugin is OK", 1)
+            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "No known security vulnerabilities.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);

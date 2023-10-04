@@ -54,7 +54,7 @@ public class SecurityWarningScoring extends Scoring {
                     if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                         return new ScoringComponentResult(-100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
                     }
-                    if ("Plugin is OK".equals(probeResult.message())) {
+                    if ("No known security vulnerabilities.".equals(probeResult.message())) {
                         return new ScoringComponentResult(100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                     }
                     return new ScoringComponentResult(0, getWeight(), List.of("Plugin seem to have on-going security advisory.", probeResult.message()));
