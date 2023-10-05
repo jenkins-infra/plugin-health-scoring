@@ -60,7 +60,7 @@ pipeline {
 
     stage('Docker image') {
       steps {
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary'])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary', targetplatforms: 'linux/amd64,linux/arm64'])
       }
     }
   }
