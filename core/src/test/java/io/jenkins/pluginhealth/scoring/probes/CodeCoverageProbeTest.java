@@ -112,7 +112,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -156,7 +156,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -213,7 +213,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -270,7 +270,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -327,10 +327,9 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
+                    "42", defaultBranch)
             ),
             Map.of(),
             List.of()
@@ -384,7 +383,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -441,7 +440,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )

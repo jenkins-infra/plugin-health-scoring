@@ -85,7 +85,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
 
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -127,7 +127,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )
@@ -179,7 +179,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                pluginName, io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
                     "42", defaultBranch
                 )

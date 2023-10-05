@@ -45,6 +45,7 @@ public class ProbeContext {
     private GitHub github;
     private ZonedDateTime lastCommitDate;
     private Map<String, String> pluginDocumentationLinks;
+    private Map<String, String> issueTrackerUrlsByNames;
     private Optional<String> scmFolderPath;
 
     public ProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
@@ -76,17 +77,30 @@ public class ProbeContext {
         this.github = github;
     }
 
-    public void setPluginDocumentationLinks(Map<String, String> pluginDocumentationLinks) {
-        this.pluginDocumentationLinks = pluginDocumentationLinks;
-    }
-
     public Map<String, String> getPluginDocumentationLinks() {
         return pluginDocumentationLinks;
+    }
+
+    public void setPluginDocumentationLinks(Map<String, String> pluginDocumentationLinks) {
+        this.pluginDocumentationLinks = pluginDocumentationLinks;
     }
 
     public Optional<String> getRepositoryName(String scm) {
         final Matcher match = SCMLinkValidationProbe.GH_PATTERN.matcher(scm);
         return match.find() ? Optional.of(match.group("repo")) : Optional.empty();
+    }
+
+    public void setIssueTrackerNameAndUrl(Map<String, String> issueTrackerNameAndUrl) {
+        this.issueTrackerUrlsByNames = issueTrackerNameAndUrl;
+    }
+
+    /**
+     * Gets the issue tracker names and its urls.
+     *
+     * @return a Map that consists of {@link io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.IssueTrackers} "type" as key and "viewUrl" as its value.
+     */
+    public Map<String, String> getIssueTrackerUrlsByNames() {
+        return issueTrackerUrlsByNames;
     }
 
     public Optional<String> getScmFolderPath() {

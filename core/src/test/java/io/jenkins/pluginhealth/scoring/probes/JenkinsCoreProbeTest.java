@@ -94,7 +94,7 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin.of(
                     pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
                 )
             ),

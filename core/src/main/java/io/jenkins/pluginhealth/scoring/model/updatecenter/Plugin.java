@@ -31,8 +31,27 @@ import hudson.util.VersionNumber;
 
 public record Plugin(String name, VersionNumber version, String scm,
                      ZonedDateTime releaseTimestamp, List<String> labels,
-                     int popularity, String requiredCore, String defaultBranch) {
+                     int popularity, String requiredCore, String defaultBranch, List<IssueTrackers> issueTrackers) {
+
+    /* This builder function is used in test cases when List<IssueTrackers> is not required as a mandatory parameter. */
+    public static Plugin of(String name, VersionNumber version, String scm,
+                            ZonedDateTime releaseTimestamp, List<String> labels,
+                            int popularity, String requiredCore, String defaultBranch) {
+        return new Plugin(name, version, scm, releaseTimestamp,
+            labels, popularity, requiredCore, defaultBranch, List.of());
+    }
+
     public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
         return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
+    }
+
+    /**
+     * Gets issue tracker details about a plugin.
+     *
+     * @param type      The type of platform used to track issues. For ex: GitHub, JIRA
+     * @param reportUrl An url to report issues about the plugin
+     * @param viewUrl   An url to view all the issues in the plugin
+     */
+    public record IssueTrackers(String type, String viewUrl, String reportUrl) {
     }
 }
