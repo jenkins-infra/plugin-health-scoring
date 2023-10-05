@@ -87,6 +87,7 @@ public class IncrementalBuildDetectionProbe extends Probe {
             }
         } catch (IOException e) {
             LOGGER.error("Could not read files from .mvn directory for {} plugin while running {} probe.", plugin.getName(), key());
+            return this.error("Could not access files in .mvn directory.");
         }
         return this.success(String.format("Incremental Build is not configured in the %s plugin.", plugin.getName()));
     }
