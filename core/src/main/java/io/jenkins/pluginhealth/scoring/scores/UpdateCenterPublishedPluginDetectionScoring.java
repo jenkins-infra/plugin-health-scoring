@@ -24,8 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.List;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.springframework.stereotype.Component;
@@ -36,18 +40,47 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     public static final String KEY = "update-center-plugin-publication";
 
     @Override
+    public List<ScoringComponent> getComponents() {
+        return List.of(
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "Plugin should be present in the update-center to be distributed.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(UpdateCenterPluginPublicationProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine if the plugin is part of the update-center."));
+                    }
+
+                    return switch (probeResult.message()) {
+                        case "This plugin is still actively published by the update-center." ->
+                            new ScoringComponentResult(100, getWeight(), List.of("The plugin appears in the update-center."));
+                        case "This plugin's publication has been stopped by the update-center." ->
+                            new ScoringComponentResult(0, getWeight(), List.of("Ths plugin is not part of the update-center."));
+                        default ->
+                            new ScoringComponentResult(-5, getWeight(), List.of("Cannot determine if the plugin is part of the update-center or not.", probeResult.message()));
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 1;
+                }
+            }
+        );
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
-    }
-
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(UpdateCenterPluginPublicationProbe.KEY, 1f);
     }
 
     @Override

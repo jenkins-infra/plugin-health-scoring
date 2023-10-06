@@ -22,42 +22,36 @@
  * SOFTWARE.
  */
 
-package io.jenkins.pluginhealth.scoring.probes;
+package io.jenkins.pluginhealth.scoring.scores;
+
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+public interface ScoringComponent {
+    /**
+     * Provides a human readable description of the behavior of the Changelog.
+     *
+     * @return the description of the implementation.
+     */
+    String getDescription();
 
-@Component
-@Order(value = InstallationStatProbe.ORDER)
-public class InstallationStatProbe extends Probe {
-    public static final String KEY = "stat";
-    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
+    /**
+     * Evaluates the provided {@link ProbeResult} map against the requirement for this implementation
+     * and returns a {@link ScoringComponentResult} describing the evaluation.
+     *
+     * @param plugin       the plugin to score
+     * @param probeResults the plugin's {@link ProbeResult} map
+     * @return a {@link ScoringComponentResult} describing the evaluation done based on the provided {@link ProbeResult} map
+     */
+    ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults);
 
-    @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final UpdateCenter updateCenter = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = updateCenter.plugins().get(plugin.getName());
-        return ucPlugin != null ?
-            this.success("%d".formatted(ucPlugin.popularity())) :
-            this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
-    }
-
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "This probe registers the latest installation count stat for a specific plugin.";
-    }
-
-    @Override
-    public long getVersion() {
-        return 1;
-    }
+    /**
+     * The weight of this Changelog
+     *
+     * @return an integer representing the importance of the current Changelog implementation.
+     */
+    int getWeight();
 }

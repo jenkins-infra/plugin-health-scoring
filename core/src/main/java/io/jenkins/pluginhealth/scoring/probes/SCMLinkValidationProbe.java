@@ -63,13 +63,14 @@ public class SCMLinkValidationProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.warn("{} has no SCM link", plugin.getName());
-            return ProbeResult.error(key(), "The plugin SCM link is empty.");
+            return this.error("The plugin SCM link is empty.");
         }
         return fromSCMLink(context, plugin.getScm(), plugin.getName());
     }
 
     /**
-     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(Optional)}. The value is always the path of the POM file.
+     * Validates the SCM link, and sets {@link ProbeContext#setScmFolderPath(Path)}.
+     * The value is always the path of the POM file.
      *
      * @param context    Refer {@link ProbeContext}.
      * @param scm        The SCM link {@link Plugin#getScm()}.
@@ -80,19 +81,23 @@ public class SCMLinkValidationProbe extends Probe {
         Matcher matcher = GH_PATTERN.matcher(scm);
         if (!matcher.find()) {
             LOGGER.atDebug().log(() -> String.format("%s is not respecting the SCM URL Template.", scm));
-            return ProbeResult.failure(key(), "SCM link doesn't match GitHub plugin repositories.");
+            return this.error("SCM link doesn't match GitHub plugin repositories.");
+        }
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + pluginName + ".");
         }
         try {
-            context.getGitHub().getRepository(matcher.group("repo")); // clones the repository, fetches the repo path using the regex Matcher
-            Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository(), pluginName);
+            context.getGitHub().getRepository(matcher.group("repo"));
+            Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository().get(), pluginName);
             Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
             if (folderPath.isEmpty()) {
-                return ProbeResult.error(key(), String.format("No valid POM file found in %s plugin.", pluginName));
+                return this.success(String.format("No valid POM file found in %s plugin.", pluginName));
             }
-            context.setScmFolderPath(folderPath.map(path -> path.getFileName().toString()));
-            return ProbeResult.success(key(), "The plugin SCM link is valid.");
+            final Path pluginFolderPath = context.getScmRepository().get().relativize(folderPath.get());
+            context.setScmFolderPath(pluginFolderPath.getFileName());
+            return this.success("The plugin SCM link is valid.");
         } catch (IOException ex) {
-            return ProbeResult.failure(key(), "The plugin SCM link is invalid.");
+            return this.success("The plugin SCM link is invalid.");
         }
     }
 
@@ -118,7 +123,7 @@ public class SCMLinkValidationProbe extends Probe {
                 .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
                 .findFirst();
         } catch (IOException e) {
-            LOGGER.error("Could not browse the folder during probe {}. {}", pluginName, e);
+            LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
         }
         return Optional.empty();
     }
@@ -147,11 +152,6 @@ public class SCMLinkValidationProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{UpdateCenterPluginPublicationProbe.KEY};
-    }
-
-    @Override
     public String key() {
         return KEY;
     }
@@ -167,5 +167,10 @@ public class SCMLinkValidationProbe extends Probe {
     @Override
     protected boolean requiresRelease() {
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

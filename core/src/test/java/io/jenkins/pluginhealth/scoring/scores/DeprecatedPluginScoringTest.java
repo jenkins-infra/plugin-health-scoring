@@ -33,7 +33,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
@@ -51,14 +50,14 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.SUCCESS)
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(1f);
+        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.value()).isEqualTo(100);
     }
 
     @Test
@@ -71,8 +70,8 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.value()).isEqualTo(0);
     }
 
     @Test
@@ -81,13 +80,13 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final DeprecatedPluginScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            DeprecatedPluginProbe.KEY, new ProbeResult(DeprecatedPluginProbe.KEY, "", ResultStatus.FAILURE)
+            DeprecatedPluginProbe.KEY, ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.coefficient()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.value()).isEqualTo(0);
     }
 }

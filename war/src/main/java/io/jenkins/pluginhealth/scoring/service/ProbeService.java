@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
@@ -89,16 +90,16 @@ public class ProbeService {
         };
     }
 
-    public ProbeContext getProbeContext(String pluginName, UpdateCenter updateCenter) throws IOException {
-        return new ProbeContext(pluginName, updateCenter);
+    public ProbeContext getProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
+        return new ProbeContext(plugin, updateCenter);
     }
 
     public Map<String, ProbeView> getProbesView() {
         return getProbes().stream()
-            .map(probe -> new ProbeView(probe.key(), probe.getDescription(), probe.getProbeResultRequirement()))
+            .map(probe -> new ProbeView(probe.key(), probe.getDescription()))
             .collect(Collectors.toMap(ProbeView::key, p -> p));
     }
 
-    public record ProbeView(String key, String description, String[] requirements) {
+    public record ProbeView(String key, String description) {
     }
 }

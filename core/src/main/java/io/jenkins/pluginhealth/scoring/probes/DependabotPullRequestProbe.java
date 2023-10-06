@@ -52,22 +52,20 @@ public class DependabotPullRequestProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         try {
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
+            final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
 
             final long count = pullRequests.stream()
                 .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
                 .count();
 
-            return count > 0 ?
-                ProbeResult.failure(key(), "%d open pull requests from Dependabot".formatted(count)) :
-                ProbeResult.success(key(), "No open pull request from dependabot");
+            return this.success("%d".formatted(count));
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
             }
 
-            return ProbeResult.error(key(), "Could not count dependabot pull requests");
+            return this.error("Could not count dependabot pull requests.");
         }
     }
 
@@ -82,7 +80,7 @@ public class DependabotPullRequestProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{DependabotProbe.KEY};
+    public long getVersion() {
+        return 1;
     }
 }

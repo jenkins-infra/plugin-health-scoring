@@ -24,8 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.List;
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
 import org.springframework.stereotype.Component;
@@ -36,20 +40,47 @@ public class DeprecatedPluginScoring extends Scoring {
     private static final String KEY = "deprecation";
 
     @Override
+    public List<ScoringComponent> getComponents() {
+        return List.of(
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must not be marked as deprecated.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(DeprecatedPluginProbe.KEY);
+                    if (probeResult == null) {
+                        return new ScoringComponentResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not."));
+                    }
+
+                    return switch (probeResult.message()) {
+                        case "This plugin is marked as deprecated." ->
+                            new ScoringComponentResult(0, getWeight(), List.of("Plugin is marked as deprecated."));
+                        case "This plugin is NOT deprecated." ->
+                            new ScoringComponentResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));
+                        default ->
+                            new ScoringComponentResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not.", probeResult.message()));
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 1;
+                }
+            }
+        );
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
-    }
-
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            DeprecatedPluginProbe.KEY, 1f
-        );
     }
 
     @Override

@@ -43,16 +43,20 @@ public class ContributingGuidelinesProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path repository = context.getScmRepository();
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
+        }
+
+        final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files.find(repository, 2,
             (file, basicFileAttributes) -> Files.isReadable(file)
                 && ("CONTRIBUTING.md".equalsIgnoreCase(file.getFileName().toString())
                 || "CONTRIBUTING.adoc".equalsIgnoreCase(file.getFileName().toString())))) {
             return paths.findAny()
-                .map(file -> ProbeResult.success(key(), "Contributing guidelines found"))
-                .orElseGet(() -> ProbeResult.failure(key(), "No contributing guidelines found"));
+                .map(file -> this.success("Contributing guidelines found."))
+                .orElseGet(() -> this.success("No contributing guidelines found."));
         } catch (IOException e) {
-            return ProbeResult.error(key(), e.getMessage());
+            return this.error(e.getMessage());
         }
     }
 
@@ -72,7 +76,7 @@ public class ContributingGuidelinesProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
+    public long getVersion() {
+        return 1;
     }
 }

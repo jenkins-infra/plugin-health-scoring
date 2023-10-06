@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +44,8 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
-import io.jenkins.pluginhealth.scoring.service.ProbeService;
+import io.jenkins.pluginhealth.scoring.scores.Scoring;
+import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -65,13 +67,37 @@ import org.springframework.test.web.servlet.MockMvc;
     controllers = ScoreController.class
 )
 class ScoreControllerTest {
-    @MockBean private ProbeService probeService;
     @MockBean private ScoreService scoreService;
     @MockBean private ScoringService scoringService;
     @Autowired private MockMvc mockMvc;
 
     @Test
     void shouldDisplayListOfScoring() throws Exception {
+        when(scoringService.getScoringList())
+            .thenReturn(List.of(
+                new Scoring() {
+                    @Override
+                    public String key() {
+                        return "foo";
+                    }
+
+                    @Override
+                    public float weight() {
+                        return 1;
+                    }
+
+                    @Override
+                    public String description() {
+                        return "description";
+                    }
+
+                    @Override
+                    public List<ScoringComponent> getComponents() {
+                        return List.of();
+                    }
+                }
+            ));
+
         mockMvc.perform(get("/scores"))
             .andExpect(status().isOk())
             .andExpect(view().name("scores/listing"))
@@ -88,7 +114,7 @@ class ScoreControllerTest {
         final Plugin plugin = mock(Plugin.class);
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(
-            probeKey, ProbeResult.success(probeKey, "message")
+            probeKey, ProbeResult.success(probeKey, "message", 1)
         ));
         when(plugin.getScm()).thenReturn("this-is-the-url-of-the-plugin-location");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(1));
@@ -98,7 +124,7 @@ class ScoreControllerTest {
         when(score.getPlugin()).thenReturn(plugin);
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(
-            new ScoreResult(scoreKey, .42f, 1f)
+            new ScoreResult(scoreKey, 42, 1f, Set.of())
         ));
 
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));
@@ -107,7 +133,7 @@ class ScoreControllerTest {
             .andExpect(status().isOk())
             .andExpect(view().name("scores/details"))
             .andExpect(model().attribute("module", "scores"))
-            .andExpect(model().attributeExists("score", "scores", "probes"))
+            .andExpect(model().attributeExists("score"))
             /*.andExpect(model().attribute(
                 "score",
                 allOf(

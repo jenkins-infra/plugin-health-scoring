@@ -41,12 +41,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe is looking for the Code Coverage records, using GitHub API for Checks, on the default branch of the plugin.
+ */
 @Component
 @Order(CodeCoverageProbe.ORDER)
 public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
-    private static final int LINE_COVERAGE_THRESHOLD = 70;
-    private static final int BRANCH_COVERAGE_THRESHOLD = 60;
 
     private static final String COVERAGE_TITLE_REGEXP =
         "^Line(?: Coverage)?: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch(?: Coverage)?: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?\\.?$";
@@ -60,14 +61,17 @@ public class CodeCoverageProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
+        if (defaultBranch == null || defaultBranch.isBlank()) {
+            return this.error("No default branch configured for the plugin.");
+        }
         try {
-            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
-                if (ghCheckRuns.size() == 0) {
-                    return ProbeResult.error(key(), "Could not determine code coverage for plugin");
+                if (ghCheckRuns.isEmpty()) {
+                    return this.success("Could not determine code coverage for the plugin.");
                 }
 
                 double overall_line_coverage = 100;
@@ -81,18 +85,14 @@ public class CodeCoverageProbe extends Probe {
                         overall_branch_coverage = Math.min(overall_branch_coverage, branch_coverage);
                     }
                 }
-                return overall_line_coverage >= LINE_COVERAGE_THRESHOLD && overall_branch_coverage >= BRANCH_COVERAGE_THRESHOLD ?
-                    ProbeResult.success(key(), "Line coverage is above " + LINE_COVERAGE_THRESHOLD + "%. Branch coverage is above " + BRANCH_COVERAGE_THRESHOLD + "%.") :
-                    ProbeResult.failure(key(),
-                        "Line coverage is " + (overall_line_coverage < LINE_COVERAGE_THRESHOLD ? "below " : "above ") + LINE_COVERAGE_THRESHOLD + "%. " +
-                            "Branch coverage is " + (overall_branch_coverage < BRANCH_COVERAGE_THRESHOLD ? "below " : "above ") + BRANCH_COVERAGE_THRESHOLD + "%."
-                    );
+
+                return this.success("Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.");
             } else {
-                return ProbeResult.error(key(), "Cannot determine plugin repository");
+                return this.error("Cannot determine plugin repository.");
             }
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get coverage check");
+            return this.error("Could not get coverage check");
         }
     }
 
@@ -112,12 +112,7 @@ public class CodeCoverageProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{
-            SCMLinkValidationProbe.KEY,
-            JenkinsfileProbe.KEY,
-            UpdateCenterPluginPublicationProbe.KEY,
-            LastCommitDateProbe.KEY,
-        };
+    public long getVersion() {
+        return 1;
     }
 }

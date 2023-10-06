@@ -27,16 +27,20 @@ package io.jenkins.pluginhealth.scoring.model;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 /**
  * Represents the result of one analyze performed by a {@link io.jenkins.pluginhealth.scoring.probes.Probe} implementation on a {@link Plugin}
  *
- * @param id      represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
- * @param message represents a summary of the result
- * @param status  represents the state of the analyze performed
+ * @param id           represent the ID of the {@link io.jenkins.pluginhealth.scoring.probes.Probe}
+ * @param message      represents a summary of the result
+ * @param status       represents the state of the performed analysis
+ * @param timestamp    when the probe generated this result
+ * @param probeVersion the version of the probe which generated this result
  */
-public record ProbeResult(String id, String message, ResultStatus status, ZonedDateTime timestamp) {
-    public ProbeResult(String id, String message, ResultStatus status) {
-        this(id, message, status, ZonedDateTime.now());
+public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp, long probeVersion) {
+    public ProbeResult(String id, String message, Status status, long probeVersion) {
+        this(id, message, status, ZonedDateTime.now(), probeVersion);
     }
 
     @Override
@@ -44,7 +48,7 @@ public record ProbeResult(String id, String message, ResultStatus status, ZonedD
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProbeResult that = (ProbeResult) o;
-        return id.equals(that.id) && message.equals(that.message) && status == that.status;
+        return id.equals(that.id) && message.equals(that.message) && status == that.status && probeVersion == that.probeVersion;
     }
 
     @Override
@@ -52,16 +56,20 @@ public record ProbeResult(String id, String message, ResultStatus status, ZonedD
         return Objects.hash(id, status);
     }
 
-    public static ProbeResult success(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.SUCCESS);
+    public static ProbeResult success(String id, String message, long probeVersion) {
+        return new ProbeResult(id, message, Status.SUCCESS, probeVersion);
     }
 
-    public static ProbeResult failure(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.FAILURE);
+    public static ProbeResult error(String id, String message, long probeVersion) {
+        return new ProbeResult(id, message, Status.ERROR, probeVersion);
     }
 
-    public static ProbeResult error(String id, String message) {
-        return new ProbeResult(id, message, ResultStatus.ERROR);
+    /*
+     * To handle the probe status migration from 2.x.y to 3.x.y, let consider the FAILURE status as an ERROR to force
+     * the execution of the probe.
+     */
+    public enum Status {
+        SUCCESS, @JsonAlias("FAILURE") ERROR
     }
 }
 

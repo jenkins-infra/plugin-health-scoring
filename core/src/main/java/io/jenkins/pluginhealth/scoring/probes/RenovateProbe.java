@@ -25,4 +25,9 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     public String getDescription() {
         return "Checks if Renovate is configured in a plugin.";
     }
+
+    @Override
+    public long getVersion() {
+        return 1;
+    }
 }

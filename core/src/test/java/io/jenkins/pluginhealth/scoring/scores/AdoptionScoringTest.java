@@ -30,11 +30,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
@@ -52,13 +52,30 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.FAILURE))
-        );
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1)
+        ));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
-        assertThat(result.coefficient()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.value()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldScoreZeroForPluginsUpForAdoptionEvenWithRecentCommit() {
+        final AdoptionScoring scoring = getSpy();
+        final Plugin plugin = mock(Plugin.class);
+
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(4));
+        when(plugin.getDetails()).thenReturn(Map.of(
+            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1),
+            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
+        ));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result.key()).isEqualTo("adoption");
+        assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
     }
 
@@ -68,7 +85,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getDetails()).thenReturn(
-            Map.of(UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS))
+            Map.of(UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1))
         );
 
         final ScoreResult result = scoring.apply(plugin);
@@ -76,71 +93,71 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
     }
 
     @Test
-    void shouldScoreOneForPluginsWithCommitsLessThanSixMonthsOld() {
+    void shouldScoreHundredForPluginsWithCommitsLessThanSixMonthsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(2));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(100);
     }
 
     @Test
-    void shouldScoreSeventyFiveForPluginsWithCommitsLessThanOneYearOld() {
+    void shouldScoreEightyForPluginsWithCommitsLessThanOneYearOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(8));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.75f);
+        assertThat(result.value()).isEqualTo(80);
     }
 
     @Test
-    void shouldScoreFiftyForPluginsWithCommitsLessThanTwoYearsOld() {
+    void shouldScoreSixtyForPluginsWithCommitsLessThanTwoYearsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(18));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.5f);
+        assertThat(result.value()).isEqualTo(60);
     }
 
     @Test
-    void shouldScoreTwentyFiveForPluginsWithCommitsLessThanFourYearsOld() {
+    void shouldScoreFortyForPluginsWithCommitsLessThanFourYearsOld() {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(3));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(.25f);
+        assertThat(result.value()).isEqualTo(40);
     }
 
     @Test
@@ -148,15 +165,15 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
-        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(4));
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(5));
         when(plugin.getDetails()).thenReturn(
             Map.of(
-                UpForAdoptionProbe.KEY, new ProbeResult(UpForAdoptionProbe.KEY, "", ResultStatus.SUCCESS),
-                LastCommitDateProbe.KEY, new ProbeResult(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).toString(), ResultStatus.SUCCESS)
+                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
             )
         );
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.value()).isEqualTo(0);
     }
 }

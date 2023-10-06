@@ -33,7 +33,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
@@ -51,14 +50,14 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, new ProbeResult(UpdateCenterPluginPublicationProbe.KEY, "", ResultStatus.SUCCESS)
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("update-center-plugin-publication");
-        assertThat(result.coefficient()).isEqualTo(1f);
-        assertThat(result.value()).isEqualTo(1f);
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(100);
     }
 
     @Test
@@ -71,8 +70,8 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("update-center-plugin-publication");
-        assertThat(result.coefficient()).isEqualTo(1f);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
     }
 
     @Test
@@ -81,13 +80,13 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final UpdateCenterPublishedPluginDetectionScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, new ProbeResult(UpdateCenterPluginPublicationProbe.KEY, "", ResultStatus.FAILURE)
+            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", 1)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("update-center-plugin-publication");
-        assertThat(result.coefficient()).isEqualTo(1f);
-        assertThat(result.value()).isEqualTo(0f);
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
     }
 }

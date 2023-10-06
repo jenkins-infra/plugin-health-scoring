@@ -84,12 +84,12 @@ public class Score {
 
     private void computeValue() {
         var sum = details.stream()
-            .flatMapToDouble(res -> DoubleStream.of(res.value() * res.coefficient()))
+            .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
             .sum();
         var coefficient = details.stream()
-            .flatMapToDouble(res -> DoubleStream.of(res.coefficient()))
+            .flatMapToDouble(res -> DoubleStream.of(res.weight()))
             .sum();
-        this.value = Math.round(100 * (sum / coefficient));
+        this.value = Math.round((sum / coefficient));
     }
 
     public void addDetail(ScoreResult result) {

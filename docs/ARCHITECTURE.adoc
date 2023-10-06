@@ -16,21 +16,21 @@ The probe, when executed, returns a `ProbeResult` which embedded a key, a status
 
 * The `key` of the `ProbeResult` is the `key` of the Probe which was executed.
 * The `message` can provides more details about the probe execution result.
-* The `status` can be one of `ResultStatusERROR`, `ResultStatus#FAILURE` or `ResultStatus#SUCCESS`.
+* The `status` can be one of `ProbeResult.Status.ERROR` or `ProbeResult.Status.SUCCESS`.
 * The `timestamp` is used to know when the result was produced.
 
-`ResultStatus#ERROR` is used to mark issues occurring during the probe execution.
+`ProbeResult.Status.ERROR` is used to mark issues occurring during the probe execution.
 It can happen because the requirements to run a probe are not met or because the source of validation cannot be found.
 
-`ResultStatus#FAILURE` is reserved to mark a probe which was executed correctly but the output of the test done by the probe is not up to the standards of the project.
-This means that, for example, the configuration file for `dependabot` was not found, or the code coverage is above threshold pre-defined.
+`ProbeResult.Status.SUCCESS` means that the probe was executed correctly and the probe could retrieve the data it was looking for.
 
-`ResultStatus#SUCCESS` means that the probe was executed correctly and the output of the probe meant its criteria.
+The probes are not making any judgement or observations on the plugin state.
+They are only reporting data.
 
 Probes are executed by the link:../src/main/java/io/jenkins/pluginhealth/scoring/probes/ProbeEngine.java[`ProbeEngine`].
 There are conditions for each probe to be executed:
 
-- if all the requirements defined by the probe were met
+- if all the requirements defined by the probe are met
 - if it has never been executed on a specific plugin
 - if the probe doesn't require a new release or new code addition to be executed
 - if the last execution of the probe on a specific plugin was done before the last code change of the plugin and the probe is based on the code of the plugin

@@ -35,22 +35,26 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DocumentationMigrationProbe.ORDER)
 public class DocumentationMigrationProbe extends Probe {
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
+    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
     public static final String KEY = "documentation-migration";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final Map<String, String> pluginDocumentationLinks = context.getPluginDocumentationLinks();
+        if (pluginDocumentationLinks.isEmpty()) {
+            return this.error("No link to documentation can be confirmed.");
+        }
         final String scm = plugin.getScm();
+        if (scm == null) {
+            return this.error("Plugin SCM on the update-center is not correctly configured for the plugin.");
+        }
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
 
-        return pluginDocumentationLinks.isEmpty() ?
-            ProbeResult.error(key(), "No link to documentation can be confirmed") :
-            linkDocumentationForPlugin == null ?
-                ProbeResult.error(key(), "Plugin is not listed in documentation migration source") :
-                scm != null && linkDocumentationForPlugin.contains(scm) ?
-                    ProbeResult.success(key(), "Documentation is located in the plugin repository") :
-                    ProbeResult.failure(key(), "Documentation is not located in the plugin repository");
+        return linkDocumentationForPlugin == null ?
+            this.error("Plugin is not listed in documentation migration source.") :
+            linkDocumentationForPlugin.contains(scm) ?
+                this.success("Documentation is located in the plugin repository.") :
+                this.success("Documentation is not located in the plugin repository.");
     }
 
     @Override
@@ -69,7 +73,7 @@ public class DocumentationMigrationProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
+    public long getVersion() {
+        return 1;
     }
 }

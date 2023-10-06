@@ -51,23 +51,26 @@ public class SpotBugsProbe extends Probe {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
         final String defaultBranch = ucPlugin.defaultBranch();
+        if (defaultBranch == null || defaultBranch.isBlank()) {
+            return this.error("No default branch configured for the plugin.");
+        }
         try {
-            final Optional<String> repositoryName = context.getRepositoryName(plugin.getScm());
+            final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
                 final List<GHCheckRun> ghCheckRuns =
                     ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")).toList();
                 if (ghCheckRuns.size() != 1) {
-                    return ProbeResult.failure(key(), "SpotBugs not found in build configuration");
+                    return this.success("SpotBugs not found in build configuration.");
                 } else {
-                    return ProbeResult.success(key(), "SpotBugs found in build configuration");
+                    return this.success("SpotBugs found in build configuration.");
                 }
             } else {
-                return ProbeResult.failure(key(), "Cannot determine plugin repository");
+                return this.error("Cannot determine plugin repository.");
             }
         } catch (IOException e) {
-            LOGGER.warn("Could not get SpotBugs check for {}", plugin.getName(), e);
-            return ProbeResult.error(key(), "Could not get SpotBugs check");
+            LOGGER.debug("Could not get SpotBugs check for {}", plugin.getName(), e);
+            return this.error("Could not get SpotBugs check. " + e.getMessage());
         }
     }
 
@@ -87,7 +90,7 @@ public class SpotBugsProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{JenkinsfileProbe.KEY, UpdateCenterPluginPublicationProbe.KEY, LastCommitDateProbe.KEY};
+    public long getVersion() {
+        return 1;
     }
 }

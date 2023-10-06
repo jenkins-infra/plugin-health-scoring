@@ -28,7 +28,6 @@ import java.io.IOException;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 import io.jenkins.pluginhealth.scoring.service.PluginDocumentationService;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -92,7 +91,7 @@ public final class ProbeEngine {
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
         final ProbeContext probeContext;
         try {
-            probeContext = probeService.getProbeContext(plugin.getName(), updateCenter);
+            probeContext = probeService.getProbeContext(plugin, updateCenter);
         } catch (IOException ex) {
             LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
             return;
@@ -100,12 +99,15 @@ public final class ProbeEngine {
 
         probeContext.setGitHub(gitHub);
         probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
+        probeContext.cloneRepository();
 
         probeService.getProbes().forEach(probe -> {
             try {
                 final ProbeResult result = probe.apply(plugin, probeContext);
-                if (result.status() != ResultStatus.ERROR) {
-                    plugin.addDetails(result);
+                plugin.addDetails(result);
+                if (ProbeResult.Status.ERROR.equals(result.status())) {
+                    LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
+                    LOGGER.info(result.message());
                 }
             } catch (Throwable t) {
                 LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);

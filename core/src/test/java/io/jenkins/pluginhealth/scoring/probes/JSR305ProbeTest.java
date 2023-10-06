@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -29,10 +29,6 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
         plugin = mock(Plugin.class);
         ctx = mock(ProbeContext.class);
         probe = getSpy();
-
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
     }
 
     @Override
@@ -81,13 +77,13 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
             "This-file-should-not-returned."
         ));
 
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
         when(plugin.getName()).thenReturn("foo");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.failure(JSR305Probe.KEY, "Deprecated imports found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java"));
+            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Deprecated imports found at foo plugin for test-class-1.java, test-class-2.java, test-class-3.java", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
 
     }
@@ -109,15 +105,13 @@ public class JSR305ProbeTest extends AbstractProbeTest<JSR305Probe> {
             "import java.util.Map;"
         ));
 
-        when(ctx.getScmRepository()).thenReturn(repo);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
         when(plugin.getName()).thenReturn("foo");
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Latest version of imports found at foo plugin."));
+            .isEqualTo(ProbeResult.success(JSR305Probe.KEY, "Latest version of imports found at foo plugin.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
-
-
 }

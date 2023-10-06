@@ -29,9 +29,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -69,7 +69,7 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         );
 
         final Score score = new Score(p1, ZonedDateTime.now());
-        final ScoreResult result = new ScoreResult("foo", 1, 1);
+        final ScoreResult result = new ScoreResult("foo", 100, 1, Set.of());
         score.addDetail(result);
 
         final Score saved = scoreService.save(score);
@@ -91,13 +91,13 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         );
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
-        p1s.addDetail(new ScoreResult("foo", 1, 1));
-        p1s.addDetail(new ScoreResult("bar", 0, .5f));
+        p1s.addDetail(new ScoreResult("foo", 100, 1, Set.of()));
+        p1s.addDetail(new ScoreResult("bar", 0, .5f, Set.of()));
 
         final Score p2s = new Score(p2, ZonedDateTime.now());
-        p2s.addDetail(new ScoreResult("foo", 0, 1));
+        p2s.addDetail(new ScoreResult("foo", 0, 1, Set.of()));
 
-        List.of(p1s, p2s).forEach(scoreService::save);
+        Set.of(p1s, p2s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(2);
 
         final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap();
@@ -123,24 +123,24 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         );
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
-        p1s.addDetail(new ScoreResult("foo", 1, 1));
-        p1s.addDetail(new ScoreResult("bar", 0, .5f));
+        p1s.addDetail(new ScoreResult("foo", 1, 1, Set.of()));
+        p1s.addDetail(new ScoreResult("bar", 0, .5f, Set.of()));
 
         final Score p2s = new Score(p2, ZonedDateTime.now());
-        p2s.addDetail(new ScoreResult("foo", 0, 1));
+        p2s.addDetail(new ScoreResult("foo", 0, 1, Set.of()));
 
         final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
-        p1sOld.addDetail(new ScoreResult("foo", 1, 1));
-        p1sOld.addDetail(new ScoreResult("bar", 0, .5f));
+        p1sOld.addDetail(new ScoreResult("foo", 1, 1, Set.of()));
+        p1sOld.addDetail(new ScoreResult("bar", 0, .5f, Set.of()));
 
         final Score p1sOld2 = new Score(p1, ZonedDateTime.now().minusMinutes(15));
-        p1sOld2.addDetail(new ScoreResult("foo", 1, 1));
-        p1sOld2.addDetail(new ScoreResult("bar", 0, .5f));
+        p1sOld2.addDetail(new ScoreResult("foo", 1, 1, Set.of()));
+        p1sOld2.addDetail(new ScoreResult("bar", 0, .5f, Set.of()));
 
         final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(10));
-        p2sOld.addDetail(new ScoreResult("foo", 0, 1));
+        p2sOld.addDetail(new ScoreResult("foo", 0, 1, Set.of()));
 
-        List.of(p1s, p2s, p1sOld, p2sOld, p1sOld2).forEach(scoreService::save);
+        Set.of(p1s, p2s, p1sOld, p2sOld, p1sOld2).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(5);
 
         final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap();
@@ -183,33 +183,33 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         ));
 
         final Score p1s = new Score(p1, ZonedDateTime.now());
-        p1s.addDetail(new ScoreResult(s1Key, .5f, .5f));
+        p1s.addDetail(new ScoreResult(s1Key, 50, .5f, Set.of()));
 
         final Score p1sOld = new Score(p1, ZonedDateTime.now().minusMinutes(10));
-        p1sOld.addDetail(new ScoreResult(s1Key, 1, 1));
+        p1sOld.addDetail(new ScoreResult(s1Key, 100, 1, Set.of()));
 
         final Score p2s = new Score(p2, ZonedDateTime.now());
-        p2s.addDetail(new ScoreResult(s1Key, 0, 1));
+        p2s.addDetail(new ScoreResult(s1Key, 0, 1, Set.of()));
 
         final Score p2sOld = new Score(p2, ZonedDateTime.now().minusMinutes(5));
-        p2sOld.addDetail(new ScoreResult(s1Key, .9f, 1));
+        p2sOld.addDetail(new ScoreResult(s1Key, 90, 1, Set.of()));
 
         final Score p3s = new Score(p3, ZonedDateTime.now());
-        p3s.addDetail(new ScoreResult(s1Key, 1, 1));
+        p3s.addDetail(new ScoreResult(s1Key, 100, 1, Set.of()));
 
         final Score p4s = new Score(p4, ZonedDateTime.now());
-        p4s.addDetail(new ScoreResult(s1Key, .75f, 1));
+        p4s.addDetail(new ScoreResult(s1Key, 75, 1, Set.of()));
 
         final Score p5s = new Score(p5, ZonedDateTime.now());
-        p5s.addDetail(new ScoreResult(s1Key, .8f, 1));
+        p5s.addDetail(new ScoreResult(s1Key, 80, 1, Set.of()));
 
         final Score p6s = new Score(p6, ZonedDateTime.now());
-        p6s.addDetail(new ScoreResult(s1Key, .42f, 1));
+        p6s.addDetail(new ScoreResult(s1Key, 42, 1, Set.of()));
 
         final Score p7s = new Score(p7, ZonedDateTime.now());
-        p7s.addDetail(new ScoreResult(s1Key, 0, 1));
+        p7s.addDetail(new ScoreResult(s1Key, 0, 1, Set.of()));
 
-        List.of(p1s, p1sOld, p2s, p2sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
+        Set.of(p1s, p1sOld, p2s, p2sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(9);
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();

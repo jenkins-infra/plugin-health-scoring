@@ -24,9 +24,8 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import static io.jenkins.pluginhealth.scoring.probes.SCMLinkValidationProbe.GH_PATTERN;
-
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -63,12 +61,14 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        Matcher matcher = GH_PATTERN.matcher(plugin.getScm());
-        if (!matcher.find()) {
-            return ProbeResult.error(key(), "SCM link doesn't match GitHub plugin repositories");
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
-        final Optional<String> folder = context.getScmFolderPath();
+
+        final Path repo = context.getScmRepository().get();
+        final Optional<Path> folder = context.getScmFolderPath();
         final Set<String> files = new HashSet<>();
+
         final List<String> paths = new ArrayList<>(3);
         paths.add("pom.xml");
 
@@ -79,7 +79,7 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
             paths.add("src/main");
         }
 
-        try (Git git = Git.open(context.getScmRepository().toFile())) {
+        try (Git git = Git.open(repo.toFile())) {
             LogCommand logCommand = git.log();
             paths.forEach(logCommand::addPath);
             for (RevCommit revCommit : logCommand.call()) {
@@ -115,17 +115,12 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
             }
 
             return files.isEmpty() ?
-                ProbeResult.success(KEY, "All production modifications were released.") :
-                ProbeResult.failure(KEY, "Unreleased production modifications might exist in the plugin source code at "
+                this.success("All production modifications were released.") :
+                this.success("Unreleased production modifications might exist in the plugin source code at "
                     + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException | GitAPIException ex) {
-            return ProbeResult.error(KEY, ex.getMessage());
+            return this.error(ex.getMessage());
         }
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY, LastCommitDateProbe.KEY};
     }
 
     @Override
@@ -146,5 +141,10 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
          * ProbeEngine, it must be `false`.
          */
         return false;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

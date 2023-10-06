@@ -37,11 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
@@ -68,8 +68,8 @@ class ScoringEngineTest {
         final Scoring scoringB = mock(Scoring.class);
 
         when(plugin.getName()).thenReturn("foo-bar");
-        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 1, .5f));
-        when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1));
+        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 100, .5f, Set.of()));
+        when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1, Set.of()));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(scoreService.save(any(Score.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -80,6 +80,7 @@ class ScoringEngineTest {
         verify(scoringA).apply(plugin);
         verify(scoringB).apply(plugin);
 
+        assertThat(score).isNotNull();
         assertThat(score.getPlugin()).isEqualTo(plugin);
         assertThat(score.getDetails()).hasSize(2);
         assertThat(score.getValue()).isEqualTo(33);
@@ -98,8 +99,8 @@ class ScoringEngineTest {
         when(pluginB.getName()).thenReturn("plugin-b");
         when(pluginC.getName()).thenReturn("plugin-c");
 
-        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 1, 0.5f));
-        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", .75f, .75f));
+        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 100, 0.5f, Set.of()));
+        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", 75, .75f, Set.of()));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));
@@ -128,7 +129,7 @@ class ScoringEngineTest {
         final String pluginName = "plugin-a";
         when(pluginA.getName()).thenReturn(pluginName);
         when(pluginA.getDetails()).thenReturn(Map.of(
-            "foo-bar", new ProbeResult("foo-bar", "", ResultStatus.FAILURE, ZonedDateTime.now().minusMinutes(15))
+            "foo-bar", new ProbeResult("foo-bar", "", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(15), 1)
         ));
 
         final Scoring scoringA = mock(Scoring.class);

@@ -26,19 +26,16 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Map;
+import java.nio.file.Path;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.junit.jupiter.api.Test;
 
@@ -58,22 +55,21 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         assertThat(getSpy().isSourceCodeRelated()).isTrue();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
-    void shouldRespectRequirements() {
+    void shouldRequireLocalRepository() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure("scm", "The plugin SCM link is invalid"))
-        );
         final JenkinsfileProbe probe = getSpy();
 
-        for (int i = 0; i < 2; i++) {
-            assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.ERROR);
-            verify(probe, never()).doApply(plugin, ctx);
-        }
+        final String pluginName = "foo";
+        when(plugin.getName()).thenReturn(pluginName);
+        when(ctx.getScmRepository()).thenReturn(Optional.empty());
+
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(JenkinsfileProbe.KEY, "There is no local repository for plugin " + pluginName + ".", probe.getVersion()));
     }
 
     @Test
@@ -82,15 +78,14 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
-        when(ctx.getScmRepository()).thenReturn(
-            Files.createTempDirectory("foo")
-        );
+        final Path repo = Files.createTempDirectory("foo");
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.FAILURE);
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found", probe.getVersion()));
     }
 
     @Test
@@ -99,16 +94,14 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
         final JenkinsfileProbe probe = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, ""),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, "")
-        ));
-        when(ctx.getScmRepository()).thenReturn(
-            Files.createFile(
-                Paths.get(Files.createTempDirectory("foo").toAbsolutePath().toString(), "Jenkinsfile")
-            )
-        );
+        final Path repo = Files.createTempDirectory("foo");
+        Files.createFile(repo.resolve("Jenkinsfile"));
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        assertThat(probe.apply(plugin, ctx).status()).isEqualTo(ResultStatus.SUCCESS);
+        assertThat(probe.apply(plugin, ctx))
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", probe.getVersion()));
     }
 }

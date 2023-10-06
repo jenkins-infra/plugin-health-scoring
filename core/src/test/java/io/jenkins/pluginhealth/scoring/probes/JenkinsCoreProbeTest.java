@@ -26,9 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import org.junit.jupiter.api.Test;
@@ -75,10 +72,8 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
 
         assertThat(result)
             .isNotNull()
-            .extracting("id", "status")
-            .containsExactly(probe.key(), ResultStatus.ERROR);
-
-        verify(probe, never()).doApply(plugin, ctx);
+            .usingRecursiveComparison().comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(JenkinsCoreProbe.KEY, "Could not find plugin " + pluginName + " in Update Center.", probe.getVersion()));
     }
 
     @Test
@@ -88,9 +83,6 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "")
-        ));
         when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
             Map.of(
                 pluginName,
@@ -107,7 +99,9 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
 
         assertThat(result).isNotNull();
         assertThat(result)
-            .extracting("id", "status", "message")
-            .containsExactly(probe.key(), ResultStatus.SUCCESS, "2.361.1");
+            .isNotNull()
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.success(JenkinsCoreProbe.KEY, "2.361.1", probe.getVersion()));
     }
 }

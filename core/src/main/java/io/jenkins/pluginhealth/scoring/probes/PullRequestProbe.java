@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -45,13 +46,20 @@ public class PullRequestProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (plugin.getScm() == null) {
+            return this.error("Plugin SCM is unknown, cannot fetch the number of open pull requests.");
+        }
         try {
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
+            final Optional<String> repositoryName = context.getRepositoryName();
+            if (repositoryName.isEmpty()) {
+                return this.error("Cannot find repository for " + plugin.getName());
+            }
+            final GHRepository repository = gh.getRepository(repositoryName.get());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
-            return ProbeResult.success(key(), "%d".formatted(pullRequests.size()));
+            return this.success("%d".formatted(pullRequests.size()));
         } catch (IOException e) {
-            return ProbeResult.error(key(), e.getMessage());
+            return this.error("Cannot access repository " + plugin.getScm());
         }
     }
 
@@ -66,7 +74,7 @@ public class PullRequestProbe extends Probe {
     }
 
     @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
+    public long getVersion() {
+        return 1;
     }
 }

@@ -112,7 +112,7 @@ public class Plugin {
 
     public Plugin addDetails(ProbeResult newProbeResult) {
         this.details.compute(newProbeResult.id(), (s, previousProbeResult) ->
-            newProbeResult.status() == ResultStatus.ERROR ?
+            newProbeResult.status() == ProbeResult.Status.ERROR ?
                 null :
                 Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult
         );

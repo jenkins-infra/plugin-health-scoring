@@ -25,14 +25,16 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
-import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
 
@@ -43,31 +45,157 @@ public class AdoptionScoring extends Scoring {
     private static final float COEFFICIENT = 0.8f;
     private static final String KEY = "adoption";
 
+    private abstract static class TimeSinceLastCommitScoringComponent implements ScoringComponent {
+        public final Duration getTimeBetweenLastCommitAndDate(String lastCommitDateMessage, ZonedDateTime then) {
+            final ZonedDateTime commitDate = ZonedDateTime
+                .parse(lastCommitDateMessage, DateTimeFormatter.ISO_DATE_TIME)
+                .withZoneSameInstant(getZone());
+            return Duration.between(then, commitDate).abs();
+        }
+
+        protected ZoneId getZone() {
+            return ZoneId.of("UTC");
+        }
+
+        @Override
+        public int getWeight() {
+            return 1;
+        }
+    }
+
     @Override
-    public ScoreResult apply(Plugin plugin) {
-        final ScoreResult result = super.apply(plugin);
-        if (result.value() == 0) {
-            return result;
-        }
+    public List<ScoringComponent> getComponents() {
+        return List.of(
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "The plugin must not be marked as up for adoption.";
+                }
 
-        final ProbeResult lastCommitProbeResult = plugin.getDetails().get(LastCommitDateProbe.KEY);
-        if (lastCommitProbeResult != null && lastCommitProbeResult.status().equals(ResultStatus.SUCCESS)) {
-            final String message = lastCommitProbeResult.message();
-            final ZonedDateTime commitDateTime = ZonedDateTime.parse(message);
+                @Override
+                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(UpForAdoptionProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-1000, 1000, List.of("Cannot determine if the plugin is up for adoption."));
+                    }
 
-            final Duration between = Duration.between(plugin.getReleaseTimestamp().toInstant(), commitDateTime.toInstant());
-            if (between.toDays() <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) { // Less than 6 months
-                return new ScoreResult(KEY, 1, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(365, ChronoUnit.DAYS).toDays()) { // Less than a year
-                return new ScoreResult(KEY, .75f, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) { // Less than 2 years
-                return new ScoreResult(KEY, .5f, COEFFICIENT);
-            } else if (between.toDays() < Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) { // Less than 4 years
-                return new ScoreResult(KEY, .25f, COEFFICIENT);
+                    return switch (probeResult.message()) {
+                        case "This plugin is not up for adoption." ->
+                            new ScoringComponentResult(100, getWeight(), List.of("The plugin is not marked as up for adoption"));
+                        case "This plugin is up for adoption." ->
+                            new ScoringComponentResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption"));
+                        default -> new ScoringComponentResult(-100, getWeight(), List.of());
+                    };
+                }
+
+                @Override
+                public int getWeight() {
+                    return 1;
+                }
+            },
+            new TimeSinceLastCommitScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "There must be less than 6 months between the last commit and the last release.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 6 months between the last release and the last commit."));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of("There is more than 6 months between the last release and the last release."));
+                }
+            },
+            new TimeSinceLastCommitScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "There must be between 6 months and 1 year between the last commit and the last release.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(365, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than a year between the last commit and the last release."));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of("There is no commit within 6 months to 1 year since the last release."));
+                }
+            },
+            new TimeSinceLastCommitScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "There must be a commit between 1 year and 2 years since the last release.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 2 years between the last commit and the last release."));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 2 years."));
+                }
+            },
+            new TimeSinceLastCommitScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "There must be a commit between 2 years and 4 years since the last release.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days <= Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 4 years between the last commit and the last release."));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 4 years."));
+                }
+            },
+            new TimeSinceLastCommitScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "It must have less than 4 years between the last commit and the last release.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
+                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    }
+                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days > Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(-1000, 100, List.of("There is more than 4 years between the last commit and the last release."));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 4 years."));
+
+                }
+
+                @Override
+                public int getWeight() {
+                    return 0;
+                }
             }
-        }
-
-        return new ScoreResult(KEY, 0, COEFFICIENT);
+        );
     }
 
     @Override
@@ -76,16 +204,10 @@ public class AdoptionScoring extends Scoring {
     }
 
     @Override
-    public float coefficient() {
+    public float weight() {
         return COEFFICIENT;
     }
 
-    @Override
-    public Map<String, Float> getScoreComponents() {
-        return Map.of(
-            UpForAdoptionProbe.KEY, 1f
-        );
-    }
 
     @Override
     public String description() {

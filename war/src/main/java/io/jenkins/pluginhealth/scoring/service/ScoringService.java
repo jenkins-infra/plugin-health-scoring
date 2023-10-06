@@ -52,10 +52,10 @@ public class ScoringService {
     public Map<String, ScoreView> getScoringsView() {
         return getScoringList().stream()
             .map(scoring -> new ScoringService.ScoreView(
-                scoring.key(), scoring.coefficient(), scoring.description(), scoring.getScoreComponents()
+                scoring.key(), scoring.weight(), scoring.description()
             ))
             .collect(Collectors.toMap(ScoreView::key, s -> s));
     }
 
-    public record ScoreView(String key, float coefficient, String description, Map<String, Float> components) {}
+    public record ScoreView(String key, float coefficient, String description) {}
 }

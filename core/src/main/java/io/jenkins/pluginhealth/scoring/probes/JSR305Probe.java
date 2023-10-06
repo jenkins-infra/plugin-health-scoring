@@ -29,7 +29,10 @@ public class JSR305Probe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Path scmRepository = context.getScmRepository();
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
+        }
+        final Path scmRepository = context.getScmRepository().get();
 
         /* The "maxDepth" is set to Integer.MAX_VALUE because a repository can have multiple modules with class files in it. We do not want to miss any ".java" file.  */
         try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
@@ -39,17 +42,17 @@ public class JSR305Probe extends Probe {
                 .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                ? ProbeResult.success(key(), String.format(getSuccessMessage() + " at %s plugin.", plugin.getName()))
-                : ProbeResult.failure(key(), String.format(getFailureMessage() + " at %s plugin for ", plugin.getName()) + javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+                ? this.success(String.format("%s at %s plugin.", getValidMessage(), plugin.getName()))
+                : this.success(String.format(
+                    "%s at %s plugin for %s",
+                    getInvalidMessage(),
+                    plugin.getName(),
+                    javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))
+            ));
         } catch (IOException ex) {
-            LOGGER.error("Could not browse the plugin folder during {} probe. {}", key(), ex);
-            return ProbeResult.error(key(), String.format("Could not browse the plugin folder during {} probe.", plugin.getName()));
+            LOGGER.error("Could not browse the plugin folder during {} probe.", key(), ex);
+            return this.error(String.format("Could not browse the plugin folder during %s probe.", plugin.getName()));
         }
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
     }
 
     @Override
@@ -62,7 +65,6 @@ public class JSR305Probe extends Probe {
         return "The probe checks for deprecated annotations.";
     }
 
-
     /**
      * Fetches all the import for the given file.
      *
@@ -73,7 +75,7 @@ public class JSR305Probe extends Probe {
         try (Stream<String> importStatements = Files.lines(javaFile).filter(line -> line.startsWith("import")).map(this::getFullyQualifiedImportName)) {
             return importStatements.toList();
         } catch (IOException ex) {
-            LOGGER.error("Could not browse the {} plugin folder during probe. {}", key(), ex);
+            LOGGER.error("Could not browse the {} plugin folder during probe.", key(), ex);
         }
         return List.of();
     }
@@ -88,14 +90,14 @@ public class JSR305Probe extends Probe {
     /**
      * @return a success message.
      */
-    String getSuccessMessage() {
+    private String getValidMessage() {
         return "Latest version of imports found";
     }
 
     /**
      * @return a failure message.
      */
-    String getFailureMessage() {
+    private String getInvalidMessage() {
         return "Deprecated imports found";
     }
 
@@ -118,5 +120,10 @@ public class JSR305Probe extends Probe {
     private boolean containsImports(Path javaFile) {
         List<String> imports = getAllImportsInTheFile(javaFile);
         return imports.stream().anyMatch(line -> line.startsWith(getImportToCheck()));
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

@@ -24,12 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,20 +55,21 @@ public abstract class Probe {
             }
             return doApply(plugin, context);
         }
-        return ProbeResult.error(key(), key() + " does not meet the criteria to be executed on " + plugin.getName());
+        final ProbeResult lastResult = plugin.getDetails().get(key());
+        return lastResult != null ?
+            lastResult :
+            this.error(key() + " was not executed on " + plugin.getName());
     }
 
     private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
-        for (String requirementKey : this.getProbeResultRequirement()) {
-            final ProbeResult probeResult = plugin.getDetails().get(requirementKey);
-            if (probeResult == null || probeResult.status().equals(ResultStatus.FAILURE)) {
-                LOGGER.info("{} requires {} on {} before being executed", this.key(), requirementKey, plugin.getName());
-                return false;
-            }
-        }
-
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {
+            return true;
+        }
+        if (this.getVersion() != previousResult.probeVersion()) {
+            return true;
+        }
+        if (ProbeResult.Status.ERROR.equals(previousResult.status())) {
             return true;
         }
         if (!this.requiresRelease() && !this.isSourceCodeRelated()) {
@@ -78,17 +79,22 @@ public abstract class Probe {
             (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
             return true;
         }
-        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
-        if (this.isSourceCodeRelated() && optionalLastCommit.isEmpty()) {
-            LOGGER.error(
-                "{} requires last commit date for {} but was executed before the date time is registered in execution context",
+        final Optional<Path> optionalScmRepository = context.getScmRepository();
+        if (this.isSourceCodeRelated() && optionalScmRepository.isEmpty()) {
+            LOGGER.info(
+                "{} requires the SCM for {} but the SCM was not cloned locally",
                 this.key(), plugin.getName()
             );
+            return false;
         }
+        final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
         if (this.isSourceCodeRelated() &&
             optionalLastCommit
                 .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
-                .orElse(false)) {
+                .orElseGet(() -> {
+                    LOGGER.info("{} is based on code modification but last commit for {} is unknown. It will be executed.", key(), plugin.getName());
+                    return true;
+                })) {
             return true;
         }
 
@@ -107,19 +113,8 @@ public abstract class Probe {
     protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
 
     /**
-     * List of probe key to be present in the {@link Plugin#details} map and to be {@link ResultStatus#SUCCESS} in
-     * order to consider executing the {@link Probe#doApply(Plugin, ProbeContext)} code.
-     * By default, the requirement is an empty array. It cannot be null.
-     *
-     * @return array of {@link Probe#key()} to be present in {@link Plugin#details}.
-     */
-    public String[] getProbeResultRequirement() {
-        return new String[]{};
-    }
-
-    /**
      * Returns the key identifier for the probe.
-     * This is how the different probes can be identified in the {@link Plugin#details} map.
+     * This is how the different probes can be identified in the {@link Plugin#getDetails()} map.
      *
      * @return the identifier of the probe
      */
@@ -151,5 +146,29 @@ public abstract class Probe {
      */
     protected boolean isSourceCodeRelated() {
         return false;
+    }
+
+    public abstract long getVersion();
+
+    /**
+     * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#SUCCESS} status, using the provided
+     * message and the {@link this#key()} and {@link this#getVersion()} values.
+     *
+     * @param message the message to be stored in the returned {@link ProbeResult}
+     * @return a {@link ProbeResult} with a success status, the provided message and the probe version
+     */
+    public final ProbeResult success(String message) {
+        return ProbeResult.success(this.key(), message, this.getVersion());
+    }
+
+    /**
+     * Helper method to create a {@link ProbeResult} with a {@link ProbeResult.Status#ERROR} status, using the provided
+     * message and the {@link this#key()} and {@link this#getVersion()} values.
+     *
+     * @param message the message to be stored in the returned {@link ProbeResult}
+     * @return a {@link ProbeResult} with a error status, the provided message and the probe version
+     */
+    public final ProbeResult error(String message) {
+        return ProbeResult.error(this.key(), message, this.getVersion());
     }
 }

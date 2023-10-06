@@ -24,9 +24,13 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -52,37 +56,32 @@ public class LastCommitDateProbe extends Probe {
 
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Matcher matcher = SCMLinkValidationProbe.GH_PATTERN.matcher(plugin.getScm());
-        if (!matcher.find()) {
-            return ProbeResult.failure(key(), "The SCM link is not valid");
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
-        final String repo = String.format("https://%s/%s", matcher.group("server"), matcher.group("repo"));
-        final Optional<String> folder = context.getScmFolderPath();
-
-        try (Git git = Git.cloneRepository().setURI(repo).setDirectory(context.getScmRepository().toFile()).call()) {
+        final Path scmRepository = context.getScmRepository().get();
+        final Optional<Path> folder = context.getScmFolderPath();
+        try (Git git = Git.open(scmRepository.toFile())) {
             final LogCommand logCommand = git.log().setMaxCount(1);
-            if (folder.isPresent()) {
+            if (folder.isPresent() && !folder.get().toString().isBlank()) {
                 logCommand.addPath(folder.get().toString());
             }
+
             final RevCommit commit = logCommand.call().iterator().next();
             if (commit == null) {
-                return ProbeResult.failure(key(), "Last commit cannot be extracted. Please validate sub-folder if any.");
+                return this.error("Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                commit.getAuthorIdent().getWhenAsInstant(),
-                commit.getAuthorIdent().getZoneId()
-            );
+                    commit.getAuthorIdent().getWhenAsInstant(),
+                    commit.getAuthorIdent().getZoneId()
+                ).withZoneSameInstant(ZoneId.of("UTC"))
+                .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
-            return ProbeResult.success(key(), commitDate.toString());
-        } catch (GitAPIException ex) {
-            LOGGER.error("There was an issue while cloning the plugin repository", ex);
-            return ProbeResult.failure(key(), "Could not clone the plugin repository");
+            return this.success(commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
+        } catch (IOException | GitAPIException ex) {
+            LOGGER.error("There was an issue while accessing the plugin repository", ex);
+            return this.error("Could not access the plugin repository.");
         }
-    }
-
-    @Override
-    public String[] getProbeResultRequirement() {
-        return new String[]{SCMLinkValidationProbe.KEY};
     }
 
     @Override
@@ -103,5 +102,10 @@ public class LastCommitDateProbe extends Probe {
          * ProbeEngine, is must be `false`.
          */
         return false;
+    }
+
+    @Override
+    public long getVersion() {
+        return 1;
     }
 }

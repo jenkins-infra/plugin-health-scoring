@@ -25,10 +25,19 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.util.Objects;
+import java.util.Set;
 
-public record ScoreResult(String key, float value, float coefficient) {
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+/**
+ * @param key     the identifier of the scoring implementation which produced this result
+ * @param value   the score granted to the plugin by a specific scoring implementation, out of 100 (one hundred).
+ * @param weight  the importance of the score facing the others
+ * @param componentsResults a list of {@link ScoringComponentResult} which explain the score
+ */
+public record ScoreResult(String key, int value, @JsonAlias("coefficient") float weight, Set<ScoringComponentResult> componentsResults) {
     public ScoreResult {
-        if (value > 1 || coefficient > 1) {
+        if (weight > 1) {
             throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");
         }
     }

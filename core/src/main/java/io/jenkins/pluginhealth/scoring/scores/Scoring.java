@@ -24,12 +24,19 @@
 
 package io.jenkins.pluginhealth.scoring.scores;
 
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.DoubleStream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.ResultStatus;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
 /**
  * Represents a scoring process of a plugin, based on ProbeResults contained within the Plugin#details map.
@@ -37,35 +44,51 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 public abstract class Scoring {
     /**
      * Starts the scoring process of the plugin.
-     * By default, the method is using the {@link Scoring#getScoreComponents()} map to compute the score based on the
-     * {@link Plugin#getDetails()} map. For each score component, if the probe is present in the plugin details and is
-     * successful, the score get the maximum score for that component.
+     * At the end of the process, a {@link ScoreResult} instance must be returned, describing the score of the plugin and its reasons.
      *
      * @param plugin the plugin to score
      * @return a {@link ScoreResult} describing the plugin based on the ProbeResult and the scoring requirements.
      */
-    public ScoreResult apply(Plugin plugin) {
-        final Map<String, Float> scoreComponents = this.getScoreComponents();
-        float max = 0;
-        float score = 0;
-
-        for (Map.Entry<String, Float> component : scoreComponents.entrySet()) {
-            final float componentMaxValue = component.getValue();
-            if (componentMaxValue > 0) {
-                max += componentMaxValue;
-            }
-            final ProbeResult probeResult = plugin.getDetails().get(component.getKey());
-            if (probeResult != null) {
-                if (componentMaxValue > 0 && probeResult.status().equals(ResultStatus.SUCCESS)) {
-                    score += componentMaxValue;
-                } else if (probeResult.status().equals(ResultStatus.FAILURE) && componentMaxValue < 0) {
-                    score += componentMaxValue;
+    public final ScoreResult apply(Plugin plugin) {
+        return getComponents().stream()
+            .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
+            .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
+                @Override
+                public Supplier<Set<ScoringComponentResult>> supplier() {
+                    return HashSet::new;
                 }
-            }
-        }
 
-        score = Math.round(Math.max(score, 0) / max * 100) / 100f;
-        return new ScoreResult(key(), score, coefficient());
+                @Override
+                public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
+                    return Set::add;
+                }
+
+                @Override
+                public BinaryOperator<Set<ScoringComponentResult>> combiner() {
+                    return (changelogResults, changelogResults2) -> {
+                        changelogResults.addAll(changelogResults2);
+                        return changelogResults;
+                    };
+                }
+
+                @Override
+                public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
+                    return changelogResults -> {
+                        final double sum = changelogResults.stream()
+                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() * changelogResult.weight()))
+                            .sum();
+                        final double weight = changelogResults.stream()
+                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
+                            .sum();
+                        return new ScoreResult(key(), (int) Math.max(0, Math.round(sum / weight)), weight(), changelogResults);
+                    };
+                }
+
+                @Override
+                public Set<Characteristics> characteristics() {
+                    return Set.of(Characteristics.UNORDERED);
+                }
+            });
     }
 
     /**
@@ -81,18 +104,7 @@ public abstract class Scoring {
      *
      * @return the weight of the scoring implementation.
      */
-    public abstract float coefficient();
-
-    /**
-     * Returns a map describing the probe required for the score computation and their maximum score.
-     * <br/>
-     * The key is the probe key to consider.
-     * The value is the value to be added to the score if the probe result is successful.
-     * The value can be negative and in that case, the value will be considered in case the probe result is not
-     *
-     * @return map of Probe key to evaluate and their maximum score
-     */
-    public abstract Map<String, Float> getScoreComponents();
+    public abstract float weight();
 
     /**
      * Returns a description of the scoring implementation.
@@ -101,7 +113,14 @@ public abstract class Scoring {
      */
     public abstract String description();
 
-    public String name() {
+    /**
+     * Provides the list of elements evaluated for this scoring.
+     *
+     * @return the list of {@link ScoringComponent} considered for this score category of a plugin.
+     */
+    public abstract List<ScoringComponent> getComponents();
+
+    public final String name() {
         return getClass().getSimpleName();
     }
 }

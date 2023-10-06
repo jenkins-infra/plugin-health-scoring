@@ -54,38 +54,12 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldRequireValidSCMLink() {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-
-        when(plugin.getDetails()).thenReturn(
-            Map.of(),
-            Map.of(SCMLinkValidationProbe.KEY, ProbeResult.failure(SCMLinkValidationProbe.KEY, ""))
-        );
-
-        final DocumentationMigrationProbe probe = getSpy();
-
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
-
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, ""));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldNotRegisterWhenDocumentationListIfEmpty() {
+    void shouldNotRegisterWhenDocumentationListIsEmpty() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn("foo");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
+        when(plugin.getScm()).thenReturn("this-is-fine-for-now");
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(),
             Map.of("something-else", "not-what-we-are-looking-for")
@@ -96,12 +70,12 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "No link to documentation can be confirmed"));
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "No link to documentation can be confirmed.", probe.getVersion()));
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source"));
+            .isEqualTo(ProbeResult.error(DocumentationMigrationProbe.KEY, "Plugin is not listed in documentation migration source.", probe.getVersion()));
     }
 
     @Test
@@ -113,9 +87,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(pluginName, "https://wiki.jenkins-ci.org/DISPLAY/foo-plugin")
         );
@@ -126,7 +97,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.failure(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository"));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -138,9 +109,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin")
         );
@@ -151,7 +119,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -163,9 +131,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/")
         );
@@ -176,7 +141,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -188,9 +153,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/tree/main")
         );
@@ -201,7 +163,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 
     @Test
@@ -213,9 +175,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/foo-plugin");
-        when(plugin.getDetails()).thenReturn(Map.of(
-            SCMLinkValidationProbe.KEY, ProbeResult.success(SCMLinkValidationProbe.KEY, "")
-        ));
         when(ctx.getPluginDocumentationLinks()).thenReturn(
             Map.of(pluginName, "https://github.com/jenkinsci/foo-plugin/blob/main/this/is/documentation/README.md")
         );
@@ -226,6 +185,6 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository"));
+            .isEqualTo(ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", probe.getVersion()));
     }
 }
