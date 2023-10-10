@@ -89,6 +89,10 @@ public final class ProbeEngine {
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter) {
+        if (plugin.getScm() == null || plugin.getScm().isBlank()) {
+            LOGGER.info("Will not run probes on {} because its SCM is not set correctly.", plugin.getName());
+            return;
+        }
         final ProbeContext probeContext;
         try {
             probeContext = probeService.getProbeContext(plugin, updateCenter);

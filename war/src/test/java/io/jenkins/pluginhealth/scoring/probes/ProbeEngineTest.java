@@ -82,6 +82,7 @@ class ProbeEngineTest {
 
         final ProbeResult expectedResult = ProbeResult.success("foo", "bar", 1);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of());
         when(probe.key()).thenReturn("probe");
         when(probe.doApply(plugin, ctx)).thenReturn(expectedResult);
@@ -105,6 +106,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusDays(1));
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good", 1)));
@@ -130,6 +132,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             "probe", new ProbeResult("probe", "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
@@ -159,6 +162,7 @@ class ProbeEngineTest {
 
         final ProbeResult result = new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, 1);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
@@ -189,6 +193,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)));
 
@@ -215,6 +220,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey,
             new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
@@ -242,6 +248,7 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar", 1));
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
@@ -290,6 +297,8 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probeOne, probeTwo));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
+
         final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
@@ -335,6 +344,7 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final ProbeResult previousResult = new ProbeResult(probeKey, "this is a message", ProbeResult.Status.SUCCESS, version);
+        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey, previousResult
         ));
