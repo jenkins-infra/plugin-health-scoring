@@ -50,6 +50,9 @@ public class SpotBugsProbe extends Probe {
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
             context.getUpdateCenter().plugins().get(plugin.getName());
+        if (ucPlugin == null) {
+            return error("Plugin cannot be found in Update-Center.");
+        }
         final String defaultBranch = ucPlugin.defaultBranch();
         if (defaultBranch == null || defaultBranch.isBlank()) {
             return this.error("No default branch configured for the plugin.");
