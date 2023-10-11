@@ -94,6 +94,6 @@ public class SpotBugsProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }
