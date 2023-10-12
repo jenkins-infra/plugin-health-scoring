@@ -1,0 +1,10 @@
+{
+  "foo": {
+    "url": "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"
+  },
+  "bar": {
+    "url": "https://github.com/jenkinsci/bar-plugin"
+  },
+  "test": {
+  }
+}
