@@ -1,13 +1,10 @@
-<!-- Comment:
- Please start by adding a link to an issue if the pull request is trying to solve one.
- You can used keyword to do the linking automatically: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword.
--->
-
 ### Description
 
 Closes #issue-id.
 
 <!-- Comment:
+ Please start by adding a link to an issue if the pull request is trying to solve one.
+ You can used keyword to do the linking automatically: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword.
  Provide a clear description of the content of the pull request.
  This includes documentation, link to issues, scenario of executions.
  For UI change, a screenshot of before and after the change is also welcome.
@@ -24,7 +21,6 @@ Closes #issue-id.
 
 ```[tasklist]
 ### Submitter checklist
-
 - [ ] If an issue exists, it is well described and linked in the description
 - [ ] The description of this pull request is detailed and explain why this pull request is needed
 - [ ] The changeset is on a specific branch. Using `feature/` for new feature, or improvements ; Using `fix/` for bug fixes ; Using `docs/` for any documentation changes.
