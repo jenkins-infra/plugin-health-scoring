@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -70,8 +71,9 @@ public final class ProbeEngine {
     public void run() throws IOException {
         LOGGER.info("Start running probes on all plugins");
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
+        final Map<String, String> pluginDocumentationUrl = pluginDocumentationService.fetchPluginDocumentationUrl();
         pluginService.streamAll().parallel()
-            .forEach(plugin -> this.runOn(plugin, updateCenter));
+            .forEach(plugin -> this.runOn(plugin, updateCenter, pluginDocumentationUrl));
         LOGGER.info("Probe engine has finished");
     }
 
@@ -84,11 +86,12 @@ public final class ProbeEngine {
     public void runOn(Plugin plugin) throws IOException {
         LOGGER.info("Start running probes on {}", plugin.getName());
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
-        runOn(plugin, updateCenter);
+        final Map<String, String> pluginDocumentationUrl = pluginDocumentationService.fetchPluginDocumentationUrl();
+        runOn(plugin, updateCenter, pluginDocumentationUrl);
         LOGGER.info("Probe engine has finished");
     }
 
-    private void runOn(Plugin plugin, UpdateCenter updateCenter) {
+    private void runOn(Plugin plugin, UpdateCenter updateCenter, Map<String, String> pluginDocumentationUrl) {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             LOGGER.info("Will not run probes on {} because its SCM is not set correctly.", plugin.getName());
             return;
@@ -102,7 +105,7 @@ public final class ProbeEngine {
         }
 
         probeContext.setGitHub(gitHub);
-        probeContext.setPluginDocumentationLinks(pluginDocumentationService.fetchPluginDocumentationUrl());
+        probeContext.setPluginDocumentationLinks(pluginDocumentationUrl);
         probeContext.cloneRepository();
 
         probeService.getProbes().forEach(probe -> {
