@@ -60,6 +60,24 @@ class PluginDocumentationServiceTest {
     }
 
     @Test
+    void shouldBeAbleToParseFileWithNullValue() {
+        final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls-with-nulls.json");
+        assertThat(url).isNotNull();
+
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+            new ApplicationConfiguration.Jenkins("foo", url.toString()),
+            new ApplicationConfiguration.GitHub("foo", null, "bar")
+        );
+
+        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
+        final Map<String, String> map = service.fetchPluginDocumentationUrl();
+
+        assertThat(map)
+            .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
+            .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
+    }
+
+    @Test
     void shouldSurviveIncorrectlyConfiguredDocumentationURL() {
         final ApplicationConfiguration config = new ApplicationConfiguration(
             new ApplicationConfiguration.Jenkins("foo", "this-is-not-a-correct-url"),
