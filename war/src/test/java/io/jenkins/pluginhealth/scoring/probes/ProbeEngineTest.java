@@ -359,4 +359,28 @@ class ProbeEngineTest {
         verify(probe).doApply(plugin, ctx);
         verify(plugin).addDetails(newProbeResult);
     }
+
+    @Test
+    void shouldRequestUpdateCenterAndDocumentationUrlOnce() throws IOException {
+        final Plugin p1 = mock(Plugin.class);
+        final Plugin p2 = mock(Plugin.class);
+        final Probe probe = mock(Probe.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(p1.getScm()).thenReturn("this-is-ok");
+        when(p2.getScm()).thenReturn("this-is-ok");
+
+        when(probe.apply(p1, ctx)).thenReturn(ProbeResult.success("foo", "this is fine", 1));
+        when(probe.apply(p2, ctx)).thenReturn(ProbeResult.success("foo", "this is ok too", 1));
+
+        when(probeService.getProbes()).thenReturn(List.of(probe));
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
+        when(pluginService.streamAll()).thenReturn(Stream.of(p1, p2));
+
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
+        probeEngine.run();
+
+        verify(pluginDocumentationService).fetchPluginDocumentationUrl();
+        verify(updateCenterService).fetchUpdateCenter();
+    }
 }
