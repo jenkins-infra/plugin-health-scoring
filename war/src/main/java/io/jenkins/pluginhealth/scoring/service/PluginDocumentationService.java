@@ -52,11 +52,15 @@ public class PluginDocumentationService {
 
     public Map<String, String> fetchPluginDocumentationUrl() {
         try {
-            final Map<String, Link> foo = objectMapper.readValue(new URL(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
-            return foo.entrySet().stream()
+            final Map<String, Link> documentationUrlsMap = objectMapper.readValue(
+                new URL(configuration.jenkins().documentationUrls()),
+                  new TypeReference<>() {
+                  }
+            );
+            return documentationUrlsMap.entrySet().stream()
                 .collect(Collectors.toMap(
                     Map.Entry::getKey,
-                    e -> e.getValue().url()
+                    e -> e.getValue() == null || e.getValue().url() == null ? "" : e.getValue().url()
                 ));
         } catch (MalformedURLException e) {
             LOGGER.error("URL to documentation link is incorrect.", e);
