@@ -110,19 +110,16 @@ public class AdoptionScoring extends Scoring {
                     if (days < Duration.of(30 * 6, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(100, getWeight(), List.of(defaultReason, "Less than 6 months gap between last release and last commit."));
                     }
-                    if (days < Duration.of(30 * 12 + 1, ChronoUnit.DAYS).toDays()) {
+                    if (days < Duration.of((30 * 12) + 1, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(60, getWeight(), List.of(defaultReason, "Less than a year between last release and last commit."));
                     }
-                    if (days < Duration.of(30 * 24 + 1, ChronoUnit.DAYS).toDays()) {
+                    if (days < Duration.of((30 * 12 * 2) + 1, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(20, getWeight(), List.of(defaultReason, "Less than 2 years between last release and last commit."));
                     }
-                    if (days < Duration.of(30 * 48 + 1, ChronoUnit.DAYS).toDays()) {
+                    if (days < Duration.of((30 * 12 * 4) + 1, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(10, 2, List.of(defaultReason, "Less than 4 years between last release and last commit."));
                     }
-                    if (days > Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(-1000, 100, List.of("There is more than 4 years between the last commit and the last release."));
-                    }
-                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 4 years."));
+                    return new ScoringComponentResult(-1000, getWeight(), List.of("There is more than 4 years between the last commit and the last release."));
                 }
             }
         );
