@@ -119,7 +119,7 @@ public class AdoptionScoring extends Scoring {
                     if (days < Duration.of((30 * 12 * 4) + 1, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(10, 2, List.of(defaultReason, "Less than 4 years between last release and last commit."));
                     }
-                    return new ScoringComponentResult(-1000, getWeight(), List.of("There is more than 4 years between the last commit and the last release."));
+                    return new ScoringComponentResult(-1000, getWeight(), List.of("There is more than 4 years between the last release and the last commit."));
                 }
             }
         );
