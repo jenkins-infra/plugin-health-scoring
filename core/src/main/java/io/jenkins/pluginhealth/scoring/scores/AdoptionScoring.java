@@ -46,7 +46,7 @@ public class AdoptionScoring extends Scoring {
     private static final String KEY = "adoption";
 
     private abstract static class TimeSinceLastCommitScoringComponent implements ScoringComponent {
-        public final Duration getTimeBetweenLastCommitAndDate(String lastCommitDateMessage, ZonedDateTime then) {
+        protected final Duration getTimeBetweenLastCommitAndDate(String lastCommitDateMessage, ZonedDateTime then) {
             final ZonedDateTime commitDate = ZonedDateTime
                 .parse(lastCommitDateMessage, DateTimeFormatter.ISO_DATE_TIME)
                 .withZoneSameInstant(getZone());
@@ -96,27 +96,7 @@ public class AdoptionScoring extends Scoring {
             new TimeSinceLastCommitScoringComponent() {
                 @Override
                 public String getDescription() {
-                    return "There must be less than 6 months between the last commit and the last release.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
-                    }
-
-                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
-                    if (days <= Duration.of(6 * 30, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 6 months between the last release and the last commit."));
-                    }
-                    return new ScoringComponentResult(0, getWeight(), List.of("There is more than 6 months between the last release and the last release."));
-                }
-            },
-            new TimeSinceLastCommitScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "There must be between 6 months and 1 year between the last commit and the last release.";
+                    return "There must be a reasonable time gap between last release and last commit.";
                 }
 
                 @Override
@@ -126,73 +106,20 @@ public class AdoptionScoring extends Scoring {
                         return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
                     final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
-                    if (days <= Duration.of(365, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than a year between the last commit and the last release."));
+                    final String defaultReason = "There are %d days between last release and last commit.".formatted(days);
+                    if (days < Duration.of(30 * 6, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(100, getWeight(), List.of(defaultReason, "Less than 6 months gap between last release and last commit."));
                     }
-                    return new ScoringComponentResult(0, getWeight(), List.of("There is no commit within 6 months to 1 year since the last release."));
-                }
-            },
-            new TimeSinceLastCommitScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "There must be a commit between 1 year and 2 years since the last release.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    if (days < Duration.of((30 * 12) + 1, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(60, getWeight(), List.of(defaultReason, "Less than a year between last release and last commit."));
                     }
-                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
-                    if (days <= Duration.of(2 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 2 years between the last commit and the last release."));
+                    if (days < Duration.of((30 * 12 * 2) + 1, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(20, getWeight(), List.of(defaultReason, "Less than 2 years between last release and last commit."));
                     }
-                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 2 years."));
-                }
-            },
-            new TimeSinceLastCommitScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "There must be a commit between 2 years and 4 years since the last release.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
+                    if (days < Duration.of((30 * 12 * 4) + 1, ChronoUnit.DAYS).toDays()) {
+                        return new ScoringComponentResult(10, 2, List.of(defaultReason, "Less than 4 years between last release and last commit."));
                     }
-                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
-                    if (days <= Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(100, getWeight(), List.of("There is less than 4 years between the last commit and the last release."));
-                    }
-                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 4 years."));
-                }
-            },
-            new TimeSinceLastCommitScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "It must have less than 4 years between the last commit and the last release.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(LastCommitDateProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
-                    }
-                    final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
-                    if (days > Duration.of(4 * 365, ChronoUnit.DAYS).toDays()) {
-                        return new ScoringComponentResult(-1000, 100, List.of("There is more than 4 years between the last commit and the last release."));
-                    }
-                    return new ScoringComponentResult(0, getWeight(), List.of("No commit in the last 4 years."));
-
-                }
-
-                @Override
-                public int getWeight() {
-                    return 0;
+                    return new ScoringComponentResult(-1000, getWeight(), List.of("There is more than 4 years between the last release and the last commit."));
                 }
             }
         );
@@ -207,7 +134,6 @@ public class AdoptionScoring extends Scoring {
     public float weight() {
         return COEFFICIENT;
     }
-
 
     @Override
     public String description() {

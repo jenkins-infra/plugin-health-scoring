@@ -60,6 +60,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         assertThat(result.key()).isEqualTo("adoption");
         assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Cannot determine the last commit date.");
     }
 
     @Test
@@ -90,6 +92,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(0);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Cannot determine the last commit date.");
     }
 
     @Test
@@ -107,6 +111,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(100);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Less than 6 months gap between last release and last commit.");
     }
 
     @Test
@@ -124,6 +130,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(80);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Less than a year between last release and last commit.");
     }
 
     @Test
@@ -141,6 +149,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(60);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Less than 2 years between last release and last commit.");
     }
 
     @Test
@@ -158,6 +168,8 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(40);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("Less than 4 years between last release and last commit.");
     }
 
     @Test
@@ -175,5 +187,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(0);
+        assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
+            .contains("There is more than 4 years between the last release and the last commit.");
     }
 }
