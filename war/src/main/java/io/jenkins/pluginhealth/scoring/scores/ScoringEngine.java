@@ -76,8 +76,19 @@ public final class ScoringEngine {
             .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
         final Optional<Score> latestScore = scoreService.latestScoreFor(plugin.getName());
         if (latestScore.isPresent() && (latestProbeResult.isEmpty() || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
-            LOGGER.debug("Previous score, computed at {} is still valid.", latestScore.get().getComputedAt());
-            return latestScore.get();
+            final Score score = latestScore.get();
+            boolean scoringIsSame = scoringService.getScoringList().stream()
+                .anyMatch(scoring ->
+                    score.getDetails().stream()
+                        .filter(sr -> sr.key().equals(scoring.key()))
+                        .findFirst()
+                        .map(result -> scoring.version() == result.version())
+                        .orElseGet(() -> false)
+                );
+            if (scoringIsSame) {
+                LOGGER.debug("Previous score, computed at {} is still valid.", score.getComputedAt());
+                return score;
+            }
         }
 
         Score score = this.scoringService.getScoringList().stream()
