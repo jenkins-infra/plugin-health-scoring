@@ -87,4 +87,9 @@ public class DeprecatedPluginScoring extends Scoring {
     public String description() {
         return "Scores plugin based on its deprecation status.";
     }
+
+    @Override
+    public int version() {
+        return 1;
+    }
 }

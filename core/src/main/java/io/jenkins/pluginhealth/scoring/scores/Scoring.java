@@ -80,7 +80,7 @@ public abstract class Scoring {
                         final double weight = changelogResults.stream()
                             .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
                             .sum();
-                        return new ScoreResult(key(), (int) Math.max(0, Math.round(sum / weight)), weight(), changelogResults);
+                        return new ScoreResult(key(), (int) Math.max(0, Math.round(sum / weight)), weight(), changelogResults, version());
                     };
                 }
 
@@ -123,4 +123,12 @@ public abstract class Scoring {
     public final String name() {
         return getClass().getSimpleName();
     }
+
+    /**
+     * Returns the version of the scoring implementation.
+     * When a scoring implementation is changed, this needs to be updated.
+     *
+     * @return an integer representing the scoring implementation version.
+     */
+    public abstract int version();
 }

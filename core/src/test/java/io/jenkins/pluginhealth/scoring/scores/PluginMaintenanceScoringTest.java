@@ -253,6 +253,6 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
             .isNotNull()
             .usingRecursiveComparison()
             .comparingOnlyFields("key", "value", "weight")
-            .isEqualTo(new ScoreResult(KEY, value, COEFFICIENT, Set.of()));
+            .isEqualTo(new ScoreResult(KEY, value, COEFFICIENT, Set.of(), scoring.version()));
     }
 }

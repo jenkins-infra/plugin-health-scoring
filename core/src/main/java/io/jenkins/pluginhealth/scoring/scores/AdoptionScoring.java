@@ -139,4 +139,9 @@ public class AdoptionScoring extends Scoring {
     public String description() {
         return "Scores plugin based on the time between the last commit and the last release.";
     }
+
+    @Override
+    public int version() {
+        return 1;
+    }
 }
