@@ -73,17 +73,17 @@ class ScoreAPITest {
         final Score scoreP1 = new Score(p1, ZonedDateTime.now());
         scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
-        )));
+        ), 1));
 
         final Score scoreP2 = new Score(p2, ZonedDateTime.now());
         scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
-        )));
+        ), 1));
         scoreP2.addDetail(new ScoreResult("scoring-2", 50, 1, Set.of(
             new ScoringComponentResult(0, 1, List.of("There is no Jenkinsfile detected on the plugin repository.")),
             new ScoringComponentResult(100, .5f, List.of("The plugin documentation was migrated to its repository.")),
             new ScoringComponentResult(100, .5f, List.of("The plugin is using dependabot.", "0 open pull requests from dependency update tool."))
-        )));
+        ), 1));
 
         when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of(
             "plugin-1", scoreP1,

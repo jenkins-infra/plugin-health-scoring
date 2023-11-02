@@ -198,4 +198,9 @@ public class PluginMaintenanceScoring extends Scoring {
             Scores plugin based on Jenkinsfile presence, documentation migration, dependabot and JEP-229 configuration.
             """;
     }
+
+    @Override
+    public int version() {
+        return 1;
+    }
 }

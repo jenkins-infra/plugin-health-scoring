@@ -95,6 +95,11 @@ class ScoreControllerTest {
                     public List<ScoringComponent> getComponents() {
                         return List.of();
                     }
+
+                    @Override
+                    public int version() {
+                        return 0;
+                    }
                 }
             ));
 
@@ -124,7 +129,7 @@ class ScoreControllerTest {
         when(score.getPlugin()).thenReturn(plugin);
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(
-            new ScoreResult(scoreKey, 42, 1f, Set.of())
+            new ScoreResult(scoreKey, 42, 1f, Set.of(), 1)
         ));
 
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));

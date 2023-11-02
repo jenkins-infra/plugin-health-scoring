@@ -87,4 +87,9 @@ public class UpdateCenterPublishedPluginDetectionScoring extends Scoring {
     public String description() {
         return "Scores a plugin based on its presence or not in the update-center.";
     }
+
+    @Override
+    public int version() {
+        return 1;
+    }
 }

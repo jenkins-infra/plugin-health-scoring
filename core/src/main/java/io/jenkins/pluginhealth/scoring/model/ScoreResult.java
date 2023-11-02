@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  * @param weight  the importance of the score facing the others
  * @param componentsResults a list of {@link ScoringComponentResult} which explain the score
  */
-public record ScoreResult(String key, int value, @JsonAlias("coefficient") float weight, Set<ScoringComponentResult> componentsResults) {
+public record ScoreResult(String key, int value, @JsonAlias("coefficient") float weight, Set<ScoringComponentResult> componentsResults, int version) {
     public ScoreResult {
         if (weight > 1) {
             throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");

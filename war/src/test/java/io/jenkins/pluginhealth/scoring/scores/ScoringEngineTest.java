@@ -68,8 +68,8 @@ class ScoringEngineTest {
         final Scoring scoringB = mock(Scoring.class);
 
         when(plugin.getName()).thenReturn("foo-bar");
-        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 100, .5f, Set.of()));
-        when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1, Set.of()));
+        when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 100, .5f, Set.of(), 1));
+        when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1, Set.of(), 1));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(scoreService.save(any(Score.class))).then(AdditionalAnswers.returnsFirstArg());
@@ -99,8 +99,8 @@ class ScoringEngineTest {
         when(pluginB.getName()).thenReturn("plugin-b");
         when(pluginC.getName()).thenReturn("plugin-c");
 
-        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 100, 0.5f, Set.of()));
-        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", 75, .75f, Set.of()));
+        when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 100, 0.5f, Set.of(), 1));
+        when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", 75, .75f, Set.of(), 1));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
         when(pluginService.streamAll()).thenReturn(Stream.of(pluginA, pluginB, pluginC));
@@ -132,15 +132,22 @@ class ScoringEngineTest {
             "foo-bar", new ProbeResult("foo-bar", "", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(15), 1)
         ));
 
+        final String scoringAKey = "scoring-A";
         final Scoring scoringA = mock(Scoring.class);
+        when(scoringA.version()).thenReturn(1);
+        when(scoringA.key()).thenReturn(scoringAKey);
 
         final Score oldPluginAScore = mock(Score.class);
         when(oldPluginAScore.getComputedAt()).thenReturn(ZonedDateTime.now().minusMinutes(5));
+        when(oldPluginAScore.getDetails()).thenReturn(Set.of(
+            new ScoreResult(scoringAKey, 100, 1, Set.of(), 1)
+        ));
 
+        when(scoringService.getScoringList()).thenReturn(List.of(scoringA));
         when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(oldPluginAScore));
 
-        final ScoringEngine ScoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
-        final Score score = ScoringEngine.runOn(pluginA);
+        final ScoringEngine scoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
+        final Score score = scoringEngine.runOn(pluginA);
 
         verify(scoringA, times(0)).apply(any(Plugin.class));
 
@@ -149,22 +156,42 @@ class ScoringEngineTest {
     }
 
     @Test
-    void shouldNotScorePluginsWithLatestScoreAndEmptyDetailsMap() {
-        final Plugin pluginA = mock(Plugin.class);
-        final String pluginName = "plugin-a";
-        when(pluginA.getName()).thenReturn(pluginName);
-        when(pluginA.getDetails()).thenReturn(Map.of());
-
+    void shouldReRunScoringWhenVersionChanged() {
+        final Plugin plugin = mock(Plugin.class);
         final Scoring scoringA = mock(Scoring.class);
-        final Score oldPluginAScore = mock(Score.class);
-        when(oldPluginAScore.getComputedAt()).thenReturn(ZonedDateTime.now().minusMinutes(5));
-        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(oldPluginAScore));
+        final Score previousScore = mock(Score.class);
+
+        when(plugin.getName()).thenReturn("foo-bar");
+        when(plugin.getDetails()).thenReturn(Map.of(
+            "foo-bar", new ProbeResult("foo-bar", "", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
+        ));
+
+        when(scoringA.key()).thenReturn("scoring-a");
+        when(scoringA.version()).thenReturn(2);
+        final ScoreResult expectedNewScoreResult = new ScoreResult("scoring-a", 100, .5f, Set.of(), 2);
+        when(scoringA.apply(plugin)).thenReturn(
+            expectedNewScoreResult
+        );
+
+        when(previousScore.getDetails()).thenReturn(Set.of(
+            new ScoreResult("scoring-a", 1, 1, Set.of(), 1)
+        ));
+        when(previousScore.getComputedAt()).thenReturn(ZonedDateTime.now().minusHours(1));
+
+        when(scoringService.getScoringList()).thenReturn(List.of(scoringA));
+        when(scoreService.latestScoreFor("foo-bar")).thenReturn(Optional.of(
+            previousScore
+        ));
+        when(scoreService.save(any(Score.class))).then(AdditionalAnswers.returnsFirstArg());
 
         final ScoringEngine ScoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
-        final Score score = ScoringEngine.runOn(pluginA);
+        final Score score = ScoringEngine.runOn(plugin);
 
-        verify(scoringA, times(0)).apply(any(Plugin.class));
-        verify(scoreService, never()).save(any(Score.class));
-        assertThat(score).isEqualTo(oldPluginAScore);
+        verify(scoringA).apply(plugin);
+
+        assertThat(score).isNotNull();
+        assertThat(score.getPlugin()).isEqualTo(plugin);
+        assertThat(score.getDetails()).hasSize(1).contains(expectedNewScoreResult);
+        assertThat(score.getValue()).isEqualTo(100);
     }
 }

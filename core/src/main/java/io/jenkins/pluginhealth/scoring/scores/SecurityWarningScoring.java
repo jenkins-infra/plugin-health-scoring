@@ -82,4 +82,9 @@ public class SecurityWarningScoring extends Scoring {
     public String description() {
         return "Scores plugin based on current and active security warnings.";
     }
+
+    @Override
+    public int version() {
+        return 1;
+    }
 }
