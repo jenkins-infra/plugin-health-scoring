@@ -1,11 +1,11 @@
 == Application architecture
 
-The application is divided into two main parts: link:/core/src/main/java/io/jenkins/pluginhealth/scoring/probes/Probe.java[`Probe`] and link:/core/src/main/java/io/jenkins/pluginhealth/scoring/scores/Scoring.java[`Scoring`].
+The application is divided into two main parts: link:../core/src/main/java/io/jenkins/pluginhealth/scoring/probes/Probe.java[`Probe`] and link:../core/src/main/java/io/jenkins/pluginhealth/scoring/scores/Scoring.java[`Scoring`].
 
 === What is a `Probe`?
 
 Probes have the responsibility to fetch data for each plugins.
-They reach external system, like GitHub, the Jira, etc, and register the wanted data into a link:/core/src/main/java/io/jenkins/pluginhealth/scoring/model/ProbeResult.java[`ProbeResult`].
+They reach external system, like GitHub, the Jira, etc, and register the wanted data into a link:../core/src/main/java/io/jenkins/pluginhealth/scoring/model/ProbeResult.java[`ProbeResult`].
 
 A probe can retrieve any kind of data.
 Probes can determine be used to the presence or not of a file (`pom.xml`,`.github/dependabot.yml`, etc) on the plugin repository, retrieve the number of pull requests, etc.
@@ -27,7 +27,7 @@ It can happen because the requirements to run a probe are not met or because the
 The probes are not making any judgement or observations on the plugin state.
 They are only reporting data.
 
-Probes are executed by the link:/war/src/main/java/io/jenkins/pluginhealth/scoring/probes/ProbeEngine.java[`ProbeEngine`].
+Probes are executed by the link:../war/src/main/java/io/jenkins/pluginhealth/scoring/probes/ProbeEngine.java[`ProbeEngine`].
 There are conditions for each probe to be executed:
 
 - if all the requirements defined by the probe are met
@@ -36,7 +36,7 @@ There are conditions for each probe to be executed:
 - if the last execution of the probe on a specific plugin was done before the last code change of the plugin and the probe is based on the code of the plugin
 - if the last execution of the probe on a specific plugin was done before the last release of the plugin and the probe requires a release to have its result changed
 
-The `ProbeEngine` is scheduled by the link:/war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java[`ProbeEngineScheduler`] class.
+The `ProbeEngine` is scheduled by the link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java[`ProbeEngineScheduler`] class.
 This is using a CRON expression for its scheduling.
 The environment variable `PROBE_ENGINE_CRON` is used to configure this CRON.
 
@@ -48,7 +48,7 @@ Each implementation have a coefficient which dictate how important to the global
 Each implementation can use one or many `ProbeResult` of a plugin, in order to determine its score.
 The value the score is a `float` between 0 and 1.
 
-The link:/war/src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoringEngine.java[`ScoringEngine`] is responsible to execute each `Scoring` implementation on every plugins.
+The link:../war/src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoringEngine.java[`ScoringEngine`] is responsible to execute each `Scoring` implementation on every plugins.
 However, if the last score of a plugin was computed more recently than the most recent `ProbeResult` for a plugin, the scoring implementation is skipped.
 This because the same score would be generated.
 
