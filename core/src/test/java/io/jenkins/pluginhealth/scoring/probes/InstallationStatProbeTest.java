@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
     }
 
     @Test
-    void shouldRequirePluginToBeInUpdateCenter() {
+    void shouldRequirePluginToBeInUpdateCenter() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -76,7 +77,7 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
     }
 
     @Test
-    void shouldBeAbleToFindInstallationCountInUpdateCenter() {
+    void shouldBeAbleToFindInstallationCountInUpdateCenter() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);

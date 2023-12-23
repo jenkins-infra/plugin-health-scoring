@@ -6,6 +6,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldReturnASuccessfulCheckWhenIncrementalBuildConfiguredInBothFiles() {
+    void shouldReturnASuccessfulCheckWhenIncrementalBuildConfiguredInBothFiles() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/plugin-repo-with-correct-configuration")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -44,7 +45,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInExtensionsXML() {
+    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInExtensionsXML() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/plugin-repo-with-missing-maven-config-file")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -55,7 +56,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInMavenConfig() {
+    void shouldReturnFailureWhenIncrementalBuildIsConfiguredOnlyInMavenConfig() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/plugin-repo-with-missing-extensions-file")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -66,7 +67,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInBothFiles() {
+    void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInBothFiles() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/plugin-repo-with-incorrect-configuration-lines-in-both-files")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -77,7 +78,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInExtensionsXML() {
+    void shouldFailWhenIncrementalBuildIsIncorrectlyConfiguredInExtensionsXML() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-extensions-configuration")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -88,7 +89,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldFailWhenIncrementalBuildLinesAreIncorrectInMavenConfig() {
+    void shouldFailWhenIncrementalBuildLinesAreIncorrectInMavenConfig() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-plugin-incorrect-maven-configuration")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -99,7 +100,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldFailWhenIncrementalBuildLinesAreMissingInMavenConfig() {
+    void shouldFailWhenIncrementalBuildLinesAreMissingInMavenConfig() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-plugin-with-missing-lines-maven-configuration")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))
@@ -110,7 +111,7 @@ public class IncrementalBuildDetectionProbeTest extends AbstractProbeTest<Increm
     }
 
     @Test
-    void shouldFailWhenMavenFolderIsNotFound() {
+    void shouldFailWhenMavenFolderIsNotFound() throws IOException {
         when(ctx.getScmRepository()).thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-repo-without-mvn-should-not-be-found")));
         when(plugin.getName()).thenReturn("foo");
         assertThat(probe.apply(plugin, ctx))

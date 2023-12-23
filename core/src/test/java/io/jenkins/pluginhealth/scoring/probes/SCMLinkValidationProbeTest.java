@@ -54,7 +54,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     }
 
     @Test
-    void shouldNotAcceptNullNorEmptyScm() {
+    void shouldNotAcceptNullNorEmptyScm() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -77,7 +77,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
     }
 
     @Test
-    void shouldRecognizeIncorrectSCMUrl() {
+    void shouldRecognizeIncorrectSCMUrl() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final SCMLinkValidationProbe probe = getSpy();

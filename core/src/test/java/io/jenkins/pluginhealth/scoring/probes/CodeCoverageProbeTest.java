@@ -64,7 +64,7 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
     }
 
     @Test
-    public void shouldBeInErrorWhenRepositoryIsNotInOrganization() {
+    public void shouldBeInErrorWhenRepositoryIsNotInOrganization() throws IOException {
         final String pluginName = "foo";
         final String scmLink = "foo-bar";
 

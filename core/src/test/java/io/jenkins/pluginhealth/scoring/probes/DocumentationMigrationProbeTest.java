@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -54,7 +55,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldNotRegisterWhenDocumentationListIsEmpty() {
+    void shouldNotRegisterWhenDocumentationListIsEmpty() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -79,7 +80,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
     }
 
     @Test
-    void shouldBeAbleToDetectNotMigratedDocumentation() {
+    void shouldBeAbleToDetectNotMigratedDocumentation() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -101,7 +102,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
     }
 
     @Test
-    void shouldBeAbleToDetectMigratedDocumentation() {
+    void shouldBeAbleToDetectMigratedDocumentation() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -123,7 +124,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
     }
 
     @Test
-    void shouldBeAbleToAcceptExtraSlashInDocumentationLink() {
+    void shouldBeAbleToAcceptExtraSlashInDocumentationLink() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -145,7 +146,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
     }
 
     @Test
-    void shouldBeAbleToAcceptTreeReference() {
+    void shouldBeAbleToAcceptTreeReference() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -167,7 +168,7 @@ class DocumentationMigrationProbeTest extends AbstractProbeTest<DocumentationMig
     }
 
     @Test
-    void shouldBeAbleToAcceptBlobReference() {
+    void shouldBeAbleToAcceptBlobReference() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

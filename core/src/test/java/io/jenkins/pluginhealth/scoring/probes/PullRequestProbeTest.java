@@ -61,7 +61,7 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
     }
 
     @Test
-    void shouldSurviveInvalidSCMLink() {
+    void shouldSurviveInvalidSCMLink() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

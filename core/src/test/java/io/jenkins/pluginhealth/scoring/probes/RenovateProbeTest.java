@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
     }
 
     @Test
-    void shouldSurvivePluginWithoutLocalRepository() {
+    void shouldSurvivePluginWithoutLocalRepository() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

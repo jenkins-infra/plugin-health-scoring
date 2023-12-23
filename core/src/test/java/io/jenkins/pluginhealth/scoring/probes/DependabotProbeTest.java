@@ -31,6 +31,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -58,7 +59,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldRequireValidSCMAndLastCommit() {
+    void shouldRequireValidSCMAndLastCommit() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

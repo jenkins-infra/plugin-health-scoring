@@ -53,7 +53,7 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
     }
 
     @Test
-    void shouldGenerateErrorWhenThereIsNoRepositoryInContext() {
+    void shouldGenerateErrorWhenThereIsNoRepositoryInContext() throws IOException {
         final String pluginName = "foo";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);

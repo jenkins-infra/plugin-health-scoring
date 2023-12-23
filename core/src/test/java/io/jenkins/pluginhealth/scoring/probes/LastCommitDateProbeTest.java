@@ -64,7 +64,7 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
     }
 
     @Test
-    void shouldBeExecutedAfterSCMLinkValidation() {
+    void shouldBeExecutedAfterSCMLinkValidation() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final LastCommitDateProbe probe = getSpy();

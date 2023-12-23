@@ -24,6 +24,7 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public abstract class Probe {
      * @param context holder of information passed across the probes executed on a single plugin
      * @return the result of the analyze in a {@link ProbeResult}
      */
-    public final ProbeResult apply(Plugin plugin, ProbeContext context) {
+    public final ProbeResult apply(Plugin plugin, ProbeContext context) throws IOException {
         if (shouldBeExecuted(plugin, context)) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
@@ -110,7 +111,7 @@ public abstract class Probe {
      * @param context holder of information passed across the probes executed on a single plugin
      * @return a ProbeResult representing the result of the analysis
      */
-    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context);
+    protected abstract ProbeResult doApply(Plugin plugin, ProbeContext context) throws IOException;
 
     /**
      * Returns the key identifier for the probe.

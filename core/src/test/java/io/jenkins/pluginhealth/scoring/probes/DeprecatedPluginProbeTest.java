@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +56,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
     }
 
     @Test
-    void shouldBeAbleToDetectNonDeprecatedPlugin() {
+    void shouldBeAbleToDetectNonDeprecatedPlugin() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = getSpy();
@@ -76,7 +77,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
     }
 
     @Test
-    void shouldBeAbleToDetectDeprecatedPlugin() {
+    void shouldBeAbleToDetectDeprecatedPlugin() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DeprecatedPluginProbe probe = getSpy();
@@ -96,7 +97,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
     }
 
     @Test
-    void shouldBeAbleToDetectDeprecatedPluginFromLabels() {
+    void shouldBeAbleToDetectDeprecatedPluginFromLabels() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";
@@ -120,7 +121,7 @@ class DeprecatedPluginProbeTest extends AbstractProbeTest<DeprecatedPluginProbe>
     }
 
     @Test
-    void shouldSurviveIfPluginIsNotInUpdateCenter() {
+    void shouldSurviveIfPluginIsNotInUpdateCenter() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final String pluginName = "foo";

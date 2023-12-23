@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +56,7 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
     }
 
     @Test
-    void shouldFailIfPluginNotInUpdateCenter() {
+    void shouldFailIfPluginNotInUpdateCenter() throws IOException {
         final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -77,7 +78,7 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
     }
 
     @Test
-    void shouldBeAbleToExtractJenkinsVersionFromUpdateCenter() {
+    void shouldBeAbleToExtractJenkinsVersionFromUpdateCenter() throws IOException {
         final String pluginName = "plugin";
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);

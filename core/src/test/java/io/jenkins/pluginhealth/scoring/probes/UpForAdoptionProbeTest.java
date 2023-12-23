@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,7 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
     }
 
     @Test
-    void shouldBeAbleToDetectPluginForAdoption() {
+    void shouldBeAbleToDetectPluginForAdoption() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = getSpy();
@@ -74,7 +75,7 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
     }
 
     @Test
-    void shouldBeAbleToDetectPluginNotForAdoption() {
+    void shouldBeAbleToDetectPluginNotForAdoption() throws IOException {
         final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = getSpy();
@@ -95,7 +96,7 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
     }
 
     @Test
-    void shouldFailWhenPluginNotPresentInUpdateCenter() {
+    void shouldFailWhenPluginNotPresentInUpdateCenter() throws IOException {
         final var plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

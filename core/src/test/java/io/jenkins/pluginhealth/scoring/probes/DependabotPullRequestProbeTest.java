@@ -62,7 +62,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
     @SuppressWarnings("unchecked")
     @Test
-    void shouldBeSkippedWhenNoDependabot() {
+    void shouldBeSkippedWhenNoDependabot() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 

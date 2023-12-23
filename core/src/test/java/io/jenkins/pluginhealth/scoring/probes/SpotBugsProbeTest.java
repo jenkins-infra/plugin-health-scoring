@@ -66,7 +66,7 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
     }
 
     @Test
-    public void shouldFailWhenRepositoryIsNotInOrganization() {
+    public void shouldFailWhenRepositoryIsNotInOrganization() throws IOException {
         final String pluginName = "foo";
         final String scmLink = "foo-bar";
         final String defaultBranch = "main";
