@@ -12,7 +12,7 @@ When building, Yarn will bundle the front-end files only.
 . Install tools
 .. Java 17
 .. Maven 3.8.6
-.. Node 18.10.0 and Yarn 3.2.4
+.. Node 18.10.0 and Yarn 3.2.4 (these should be done in the "war" directory)
 .. Optional: have Docker installed in your environment
 . Open the project in your favorite IDE.
 
@@ -23,7 +23,7 @@ Please see the link:ARCHITECTURE.adoc[architecture] document to better understan
 
 == How to build locally the application
 
-Once you have installed the tools listed before, you can generate the application binary by running the command:
+Once you have installed the tools listed before, you can generate the application binary by running the command, but bewware of additional requirements in the xref:how-to-run-the-application-locally[next subsection]:
 
 [source,bash]
 ----
@@ -38,6 +38,7 @@ You can speed up the process by running the command:
 mvn package -Dmaven.test.skip
 ----
 
+[#how-to-run-the-application-locally]
 === How to run the application locally
 
 Before starting the application, it is required to create a GitHub App, configure environment variables and have access to a PostgreSQL Database.
