@@ -47,15 +47,14 @@ public class FailingBuildProbe extends Probe{
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context){
-
-      if (context.getRepositoryName(plugin.getScm()).isPresent()) {
-            return ProbeResult.success(key(),"There is no local repository for plugin " + plugin.getName() + ".");
+      if (context.getRepositoryName().isPresent()) {
+            return this.success("There is no local repository for plugin " + plugin.getName() + ".");
         }
       try {
           if(repoContainsJenkins(context).toString().equals("Jenkinsfile found")){
 
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName(plugin.getScm()).orElseThrow());
+            final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
             repository.getDefaultBranch();
 
             GHCommit commit = repository.getCommit(repository.getDefaultBranch());
@@ -63,32 +62,29 @@ public class FailingBuildProbe extends Probe{
             GHCheckRun.Conclusion conclusion = checkRun.getConclusion();
 
             if(conclusion == GHCheckRun.Conclusion.FAILURE){
-
-                return ProbeResult.success(key(),"Build Failed in Default Branch");
+                return this.success("Build Failed in Default Branch");
             }
             else{
-                return ProbeResult.success(key(),"Build is Success in Default Branch");
+                return this.success("Build is Success in Default Branch");
             }
         }
         else{
-
-         return ProbeResult.failure(key(),"No JenkinsFile found");
+         return this.error("No JenkinsFile found");
         }
       }catch (IOException e) {
-            return ProbeResult.error(key(), "Could not get failingBuilding Check");
+            return this.error("Could not get failingBuilding Check");
         }
-
     }
 
     public ProbeResult repoContainsJenkins(ProbeContext context){
-       final Path repository = context.getScmRepository();
+       final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files.find(repository, 1, (file, $) ->
             Files.isReadable(file) && "JenkinsFile".equals(file.getFileName().toString()))) {
             return paths.findFirst()
-                .map(file -> ProbeResult.success (key(),"Jenkinsfile found"))
-                .orElseGet(() -> ProbeResult.failure(key(),"No Jenkinsfile found"));
+                .map(file -> this.success ("Jenkinsfile found"))
+                .orElseGet(() -> this.error("No Jenkinsfile found"));
         } catch (IOException e) {
-            return ProbeResult.failure(key(),e.getMessage());
+            return this.error(e.getMessage());
         }
     }
     @Override
@@ -101,5 +97,9 @@ public class FailingBuildProbe extends Probe{
         return "Return whether the build is failed on default branch or not";
     }
 
+    @Override
+    public long getVersion() {
+        return 1;
+    }
 
 }
