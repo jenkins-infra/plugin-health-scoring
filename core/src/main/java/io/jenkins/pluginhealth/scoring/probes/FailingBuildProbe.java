@@ -24,69 +24,72 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import org.kohsuke.github.*;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+
+import org.kohsuke.github.GHCheckRun;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * This probe checks whether build failed on Default Branch or not.
  */
 @Component
 @Order(FailingBuildProbe.ORDER)
-public class FailingBuildProbe extends Probe{
+public class FailingBuildProbe extends Probe {
 
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
     public static final String KEY = "failing-buildingProbe";
 
     @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context){
-      if (context.getRepositoryName().isPresent()) {
+    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (context.getRepositoryName().isPresent()) {
             return this.success("There is no local repository for plugin " + plugin.getName() + ".");
         }
-      try {
-          if(repoContainsJenkins(context).toString().equals("Jenkinsfile found")){
+        try {
+            if (repoContainsJenkins(context).toString().equals("Jenkinsfile found")) {
 
-            final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
-            repository.getDefaultBranch();
+                final GitHub gh = context.getGitHub();
+                final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
+                repository.getDefaultBranch();
 
-            GHCommit commit = repository.getCommit(repository.getDefaultBranch());
-            GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
-            GHCheckRun.Conclusion conclusion = checkRun.getConclusion();
+                GHCommit commit = repository.getCommit(repository.getDefaultBranch());
+                GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
+                GHCheckRun.Conclusion conclusion = checkRun.getConclusion();
 
-            if(conclusion == GHCheckRun.Conclusion.FAILURE){
-                return this.success("Build Failed in Default Branch");
+                if (conclusion == GHCheckRun.Conclusion.FAILURE) {
+                    return this.success("Build Failed in Default Branch");
+                } else {
+                    return this.success("Build is Success in Default Branch");
+                }
+            } else {
+                return this.error("No JenkinsFile found");
             }
-            else{
-                return this.success("Build is Success in Default Branch");
-            }
-        }
-        else{
-         return this.error("No JenkinsFile found");
-        }
-      }catch (IOException e) {
+        } catch (IOException e) {
             return this.error("Could not get failingBuilding Check");
         }
     }
 
-    public ProbeResult repoContainsJenkins(ProbeContext context){
-       final Path repository = context.getScmRepository().get();
+    public ProbeResult repoContainsJenkins(ProbeContext context) {
+        final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files.find(repository, 1, (file, $) ->
             Files.isReadable(file) && "JenkinsFile".equals(file.getFileName().toString()))) {
             return paths.findFirst()
-                .map(file -> this.success ("Jenkinsfile found"))
+                .map(file -> this.success("Jenkinsfile found"))
                 .orElseGet(() -> this.error("No Jenkinsfile found"));
         } catch (IOException e) {
             return this.error(e.getMessage());
         }
     }
+
     @Override
     public String key() {
         return KEY;
