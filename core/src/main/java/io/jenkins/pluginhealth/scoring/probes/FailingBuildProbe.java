@@ -59,7 +59,6 @@ public class FailingBuildProbe extends Probe {
 
                 final GitHub gh = context.getGitHub();
                 final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
-                repository.getDefaultBranch();
                 String defaultBranch = repository.getDefaultBranch();
                 GHCommit commit = repository.getCommit(defaultBranch);
                 GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
