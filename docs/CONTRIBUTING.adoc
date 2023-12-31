@@ -103,6 +103,8 @@ yarn dev
 
 This will build and update the front-end files when you modify them.
 
+First remember to run `mvn clean install` at root. Then at the `war directory` run:
+
 In a second terminal run:
 
 [source,bash]
