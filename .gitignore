@@ -25,3 +25,7 @@ node_modules/
 ### IDE
 *.iml
 *.idea
+
+### Other
+war/.yarnrc.yml
+
