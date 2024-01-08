@@ -96,11 +96,10 @@
 		<project.build.outputEncoding>UTF-8</project.build.outputEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<node.version>18.10.0</node.version>
+		<node.version>20.10.0</node.version>
 		<yarn.version>1.22.19</yarn.version>
-		<yarn.lint.skip>false</yarn.lint.skip>
-		<yarn-berry.version>3.2.4</yarn-berry.version>
-		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
+		<yarn-berry.version>4.0.2</yarn-berry.version>
+		<yarn-berry.sha256sum>825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186</yarn-berry.sha256sum>
 
 		<jjwt.version>0.11.5</jjwt.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
