@@ -180,7 +180,7 @@
 						</goals>
 						<phase>validate</phase>
 						<configuration>
-							<tasks>
+							<target>
 								<property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs" />
 								<dirname file="${yarn.dest}" property="yarn.dest.dir" />
 								<mkdir dir="${yarn.dest.dir}" />
@@ -190,7 +190,7 @@
 									<equals arg1="${yarn.checksum.matches}" arg2="false" />
 								</condition>
 								<fail if="yarn.checksum.matches.fail">Checksum error</fail>
-							</tasks>
+							</target>
 						</configuration>
 					</execution>
 				</executions>
