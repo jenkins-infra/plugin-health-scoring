@@ -30,7 +30,7 @@
 		<groupId>io.jenkins.pluginhealth.scoring</groupId>
 		<artifactId>plugin-health-scoring-parent</artifactId>
 		<version>3.3.1-SNAPSHOT</version>
-		<relativePath>../</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>plugin-health-scoring-test</artifactId>
