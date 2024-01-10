@@ -102,7 +102,7 @@
 		<yarn-berry.version>3.2.4</yarn-berry.version>
 		<yarn-berry.sha256sum>ca1a380d840c676152fbf8635a82d838113fe77e1665466699a4e106df4930d2</yarn-berry.sha256sum>
 
-		<jjwt.version>0.11.5</jjwt.version>
+		<jjwt.version>0.12.3</jjwt.version>
 		<testcontainers.version>1.19.1</testcontainers.version>
 		<spring-boot.version>3.1.5</spring-boot.version>
 	</properties>
