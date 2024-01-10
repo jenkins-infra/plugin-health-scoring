@@ -56,7 +56,7 @@ public class ProbeContext {
     private Map<String, String> pluginDocumentationLinks;
     private Path scmFolderPath;
 
-    public ProbeContext(Plugin plugin, UpdateCenter updateCenter) throws IOException {
+    public ProbeContext(Plugin plugin, UpdateCenter updateCenter) {
         this.plugin = plugin;
         this.updateCenter = updateCenter;
     }
