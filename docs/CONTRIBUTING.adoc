@@ -10,8 +10,8 @@ When building, Yarn will bundle the front-end files only.
 
 . Clone the repository.
 . Install tools
-.. Java 17
-.. Maven 3.8.6
+.. Java 21
+.. Maven 3.9.6
 .. Node 18.10.0 and Yarn 3.2.4 (these should be done in the "war" directory)
 .. Optional: have Docker installed in your environment
 . Open the project in your favorite IDE.
