@@ -57,12 +57,16 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && path.getFileName().toString().startsWith(getBotName()))) {
             return paths.findFirst()
-                .map(file -> this.success(String.format("%s is configured.", getBotName())))
-                .orElseGet(() -> this.success(String.format("%s is not configured.", getBotName())));
+                .map(file -> this.success(String.format("%s is configured.", capitalize(getBotName()))))
+                .orElseGet(() -> this.success(String.format("%s is not configured.", capitalize(getBotName()))));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return this.error("Could not browse the plugin folder");
         }
+    }
+
+    private String capitalize(String str) {
+        return str.substring(0,1).toUpperCase() + str.substring(1);
     }
 
     /**
