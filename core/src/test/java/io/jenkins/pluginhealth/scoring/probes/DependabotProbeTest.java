@@ -74,7 +74,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
     }
 
     @Test
-    void shouldDetectMissingDependabotFile() throws Exception {
+    void shouldDetectMissingGithubConfigurationFolder() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DependabotProbe probe = getSpy();
@@ -86,6 +86,23 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
             .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
+
+    @Test
+    void shouldDetectMissingDependabotFile() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DependabotProbe probe = getSpy();
+
+        final Path repo = Files.createTempDirectory("foo");
+        Files.createDirectories(repo.resolve(".github"));
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -104,7 +121,7 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "dependabot is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

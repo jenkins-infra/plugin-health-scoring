@@ -12,12 +12,15 @@ When building, Yarn will bundle the front-end files only.
 . Install tools
 .. Java 21
 .. Maven 3.9.6
-.. Node 18.10.0 and Yarn 3.2.4 (these should be done in the "war" directory)
+.. Node 20.10.0 and Yarn 4.0.2 (these should be done in the "war" directory)
 .. Optional: have Docker installed in your environment
 . Open the project in your favorite IDE.
 
 NOTE: Optionally, you can use the Maven wrapper in the repository.
 In that case, replace the `mvn` command by `./mvnw` in the command listed bellow.
+
+WARNING: Make sure that you follow the instruction to install Yarn 2+.
+See https://yarnpkg.com/getting-started/install.
 
 Please see the link:ARCHITECTURE.adoc[architecture] document to better understand the structure of the code.
 

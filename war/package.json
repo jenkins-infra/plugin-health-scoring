@@ -1,6 +1,6 @@
 {
   "name": "plugin-health-scoring",
-  "packageManager": "yarn@3.2.4",
+  "packageManager": "yarn@4.0.2",
   "license": "MIT",
   "private": true,
   "scripts": {
