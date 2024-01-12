@@ -81,9 +81,9 @@ public class AdoptionScoring extends Scoring {
 
                     return switch (probeResult.message()) {
                         case "This plugin is not up for adoption." ->
-                            new ScoringComponentResult(100, getWeight(), List.of("The plugin is not marked as up for adoption"));
+                            new ScoringComponentResult(100, getWeight(), List.of("The plugin is not marked as up for adoption."));
                         case "This plugin is up for adoption." ->
-                            new ScoringComponentResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption"));
+                            new ScoringComponentResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption."));
                         default -> new ScoringComponentResult(-100, getWeight(), List.of());
                     };
                 }
