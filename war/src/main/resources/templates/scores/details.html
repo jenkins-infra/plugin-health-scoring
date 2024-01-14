@@ -100,15 +100,16 @@
                 <td>
                     <span
                         th:if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
-                           <span th:with="lastSlashIndex=${probeResult.message.lastIndexOf('#')}" th:inline="text">
-                             <a th:text="${probeResult.message.substring(lastSlashIndex + 1)}" th:href="${probeResult.message}">
-                             </a>
-                           </span>
+                        <span th:each="securityNumber : ${#strings.arraySplit(probeResult.message, ' ,')}"
+                              th:inline="text">
+                            <a th:text="${securityNumber}"
+                               th:href="'https://www.jenkins.io/security/issue/' + ${securityNumber}"  >
+                            </a>
+                    </span>
                     </span>
                     <span
                         th:if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.' }"
                         data-th-text="${probeResult.message}">
-                    </span>
                     </span>
                 </td>
             </tr>
