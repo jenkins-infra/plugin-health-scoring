@@ -42,9 +42,9 @@ public class ProbeEngineScheduler {
         this.scoringEngine = scoringEngine;
     }
 
-    @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
+   @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
     public void run() throws IOException {
-        probeEngine.run();
+     //   probeEngine.run();
         scoringEngine.run();
     }
 }

@@ -33,4 +33,7 @@ public record SecurityWarning(
     String url,
     List<SecurityWarningVersion> versions
 ) {
+    public SecurityWarning(String name, String url) {
+        this(null, name, url, List.of());
+    }
 }

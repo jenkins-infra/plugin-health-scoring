@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -109,20 +110,23 @@ public final class ProbeEngine {
         probeContext.cloneRepository();
 
         probeService.getProbes().forEach(probe -> {
-            try {
-                final ProbeResult result = probe.apply(plugin, probeContext);
-                plugin.addDetails(result);
-                if (ProbeResult.Status.ERROR.equals(result.status())) {
-                    LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
-                    LOGGER.info(result.message());
+            if(probe.key().equals("security")) {
+                try {
+                    final ProbeResult result = probe.apply(plugin, probeContext);
+                    plugin.addDetails(result);
+                    if (ProbeResult.Status.ERROR.equals(result.status())) {
+                        LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
+                        LOGGER.info(result.message());
+                    }
+                } catch (Throwable t) {
+                    LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
                 }
-            } catch (Throwable t) {
-                LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
             }
         });
 
         try {
             pluginService.saveOrUpdate(plugin);
+             LOGGER.info("Plugin details saved ", plugin.getName());
         } catch (Throwable e) {
             LOGGER.error("Could not save result of probe engine for plugin {}", plugin.getName(), e);
         }
@@ -132,5 +136,6 @@ public final class ProbeEngine {
         } catch (IOException ex) {
             LOGGER.error("Failed to cleanup {} for {}", probeContext.getScmRepository(), plugin.getName(), ex);
         }
+
     }
 }
