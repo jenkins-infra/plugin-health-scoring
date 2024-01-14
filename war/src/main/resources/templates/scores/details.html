@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" data-layout-decorate="~{layouts/main}">
+<html lang="en" data-layout-decorate="~{layouts/main}"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+>
 <head>
     <title>Score</title>
 </head>
@@ -39,12 +41,15 @@
         <tbody>
         <th-block data-th-each="scoreDetail: ${score.details}">
             <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
-                <td><ion-icon name="chevron-expand"></ion-icon></td>
+                <td>
+                    <ion-icon name="chevron-expand"></ion-icon>
+                </td>
                 <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
                 <td align="center" data-th-text="${scoreDetail.weight}"></td>
             </tr>
-            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_" data-th-id="'collapse-' + ${scoreDetail.key}">
+            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_"
+                data-th-id="'collapse-' + ${scoreDetail.key}">
                 <td colspan="5">
                     <h3>Details:</h3>
                     <table class="table">
@@ -87,10 +92,25 @@
             <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
                 <td><code data-th-text="${probeResult.id}" class="label"></code></td>
                 <td>
-                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success" name="success"></ion-icon>
-                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure" name="failure"></ion-icon>
+                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success"
+                              name="success"></ion-icon>
+                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure"
+                              name="failure"></ion-icon>
                 </td>
-                <td data-th-text="${probeResult.message}"></td>
+                <td>
+                    <span
+                        th:if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
+                           <span th:with="lastSlashIndex=${probeResult.message.lastIndexOf('#')}" th:inline="text">
+                             <a th:text="${probeResult.message.substring(lastSlashIndex + 1)}" th:href="${probeResult.message}">
+                             </a>
+                           </span>
+                    </span>
+                    <span
+                        th:if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.' }"
+                        data-th-text="${probeResult.message}">
+                    </span>
+                    </span>
+                </td>
             </tr>
             </tbody>
         </table>
