@@ -1,10 +1,7 @@
 #!/usr/bin/env groovy
 
 pipeline {
-  agent {
-    // 'docker' is the (legacy) label used on ci.jenkins.io for "Docker Linux AMD64" while 'linux-amd64-docker' is the label used on infra.ci.jenkins.io
-    label 'docker || linux-amd64-docker'
-  }
+  agent none
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
     skipStagesAfterUnstable()
@@ -13,6 +10,9 @@ pipeline {
 
   stages {
     stage('Build') {
+      agent {
+        label 'docker || linux-amd64-docker'
+      }
       environment {
         JAVA_HOME = '/opt/jdk-17/'
       }
