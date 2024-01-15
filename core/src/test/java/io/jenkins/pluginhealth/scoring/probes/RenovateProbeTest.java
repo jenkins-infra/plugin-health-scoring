@@ -74,7 +74,7 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is not configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", probe.getVersion()));
     }
 
     @Test
@@ -92,6 +92,6 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "renovate is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
     }
 }
