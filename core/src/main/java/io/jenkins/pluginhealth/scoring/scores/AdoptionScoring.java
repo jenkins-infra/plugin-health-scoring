@@ -142,6 +142,6 @@ public class AdoptionScoring extends Scoring {
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }
