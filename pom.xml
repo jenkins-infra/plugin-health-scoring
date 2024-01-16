@@ -27,7 +27,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring-parent</artifactId>
-	<version>3.4.0</version>
+	<version>3.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Plugin Health Scoring :: Parent</name>
@@ -73,7 +73,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
-		<tag>v3.4.0</tag>
+		<tag>HEAD</tag>
 		<url>https://github.com/jenkins-infra/plugin-health-scoring</url>
 	</scm>
 	<distributionManagement>
