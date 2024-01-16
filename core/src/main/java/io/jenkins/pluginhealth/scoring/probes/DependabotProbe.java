@@ -41,6 +41,11 @@ public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
     }
 
     @Override
+    protected boolean isPathBotConfigFile(String filename) {
+        return "dependabot.yml".equals(filename) || "dependabot.yaml".equals(filename);
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -52,6 +57,6 @@ public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }

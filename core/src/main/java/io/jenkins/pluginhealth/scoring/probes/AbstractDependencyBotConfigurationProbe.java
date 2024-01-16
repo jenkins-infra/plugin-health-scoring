@@ -24,16 +24,15 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
+import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-
-import io.jenkins.pluginhealth.scoring.model.Plugin;
-import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An abstract class that looks for bot configuration files in a repository.
@@ -55,7 +54,7 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
         }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-            Files.isRegularFile(path) && path.getFileName().toString().startsWith(getBotName()))) {
+            Files.isRegularFile(path) && isPathBotConfigFile(path.getFileName().toString()))) {
             return paths.findFirst()
                 .map(file -> this.success(String.format("%s is configured.", capitalize(getBotName()))))
                 .orElseGet(() -> this.success(String.format("%s is not configured.", capitalize(getBotName()))));
@@ -76,6 +75,14 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
      * @return a "botName" is the name of a dependency bot for ex: dependabot, renovate bot, etc
      */
     protected abstract String getBotName();
+
+    /**
+     * Tests if the provided filename is the same as the bot configuration filename.
+     *
+     * @param filename the path
+     * @return true if the filename is the same as the required bot configuration filename.
+     */
+    protected abstract boolean isPathBotConfigFile(String filename);
 
     @Override
     protected boolean isSourceCodeRelated() {
