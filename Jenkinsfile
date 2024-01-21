@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('Build') {
       environment {
-        JAVA_HOME = '/opt/jdk-17/'
+        JAVA_HOME = '/opt/jdk-21/'
       }
       steps {
         script {

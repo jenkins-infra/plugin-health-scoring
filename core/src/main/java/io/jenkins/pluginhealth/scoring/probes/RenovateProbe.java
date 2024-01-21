@@ -17,6 +17,11 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     }
 
     @Override
+    protected boolean isPathBotConfigFile(String filename) {
+        return "renovate.json".equals(filename);
+    }
+
+    @Override
     public String key() {
         return KEY;
     }
@@ -28,6 +33,6 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }

@@ -124,4 +124,23 @@ class DependabotProbeTest extends AbstractProbeTest<DependabotProbe> {
             .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
+
+    @Test
+    void shouldDetectDependabotFileWithFullFileExtension() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final DependabotProbe probe = getSpy();
+
+        final Path repo = Files.createTempDirectory("foo");
+        final Path github = Files.createDirectories(repo.resolve(".github"));
+
+        Files.createFile(github.resolve("dependabot.yaml"));
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+        assertThat(probe.apply(plugin, ctx))
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", probe.getVersion()));
+        verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
+    }
 }

@@ -27,7 +27,7 @@
 
 	<groupId>io.jenkins.pluginhealth.scoring</groupId>
 	<artifactId>plugin-health-scoring-parent</artifactId>
-	<version>3.3.1-SNAPSHOT</version>
+	<version>3.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Plugin Health Scoring :: Parent</name>
@@ -89,7 +89,7 @@
 	</distributionManagement>
 
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -103,7 +103,7 @@
 
 		<jjwt.version>0.12.3</jjwt.version>
 		<testcontainers.version>1.19.3</testcontainers.version>
-		<spring-boot.version>3.2.0</spring-boot.version>
+		<spring-boot.version>3.2.1</spring-boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -205,7 +205,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>3.2.2</version>
+					<version>3.2.5</version>
 					<configuration>
 						<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					</configuration>
@@ -229,7 +229,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.2.2</version>
+					<version>3.2.5</version>
 				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
