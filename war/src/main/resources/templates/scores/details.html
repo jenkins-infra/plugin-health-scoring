@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-layout-decorate="~{layouts/main}">
+<html lang="en" data-layout-decorate="~{layouts/main}"
+      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+>
+<head>
 <head>
     <title>Score</title>
 </head>
@@ -90,7 +93,23 @@
                     <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success" name="success"></ion-icon>
                     <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure" name="failure"></ion-icon>
                 </td>
-                <td data-th-text="${probeResult.message}"></td>
+                 <td>
+                    <span
+                        th:if="${probeResult.id == 'security'}">
+                           <span th:with="lastSlashIndex=${probeResult.message.lastIndexOf(' ')}" th:inline="text">
+                             <a th:text="${probeResult.message.substring(0,lastSlashIndex)}" th:href="${probeResult.message.substring(lastSlashIndex + 1)}">
+                             </a>
+                           </span>
+                    </span>
+                    <span
+                        th:if="${probeResult.id != 'security'}"
+                        data-th-text="${probeResult.message}">
+                    </span>
+                    </span>
+                </td>
+
+
+
             </tr>
             </tbody>
         </table>

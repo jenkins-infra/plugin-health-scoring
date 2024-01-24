@@ -29,6 +29,7 @@ import java.util.List;
 public record SecurityWarning(
     String id,
     String name,
+    String url,
     List<SecurityWarningVersion> versions
 ) {
 }
