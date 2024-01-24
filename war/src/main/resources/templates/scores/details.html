@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-layout-decorate="~{layouts/main}"
-      xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
->
+<html lang="en" data-layout-decorate="~{layouts/main}">
 <head>
-<head>
-    <title>Score</title>
-</head>
+    <head>
+        <title>Score</title>
+    </head>
 <body>
 
 <section data-layout-fragment="content" data-th-with="plugin = ${score.plugin}">
@@ -42,12 +40,15 @@
         <tbody>
         <th-block data-th-each="scoreDetail: ${score.details}">
             <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
-                <td><ion-icon name="chevron-expand"></ion-icon></td>
+                <td>
+                    <ion-icon name="chevron-expand"></ion-icon>
+                </td>
                 <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
                 <td align="center" data-th-text="${scoreDetail.weight}"></td>
             </tr>
-            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_" data-th-id="'collapse-' + ${scoreDetail.key}">
+            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_"
+                data-th-id="'collapse-' + ${scoreDetail.key}">
                 <td colspan="5">
                     <h3>Details:</h3>
                     <table class="table">
@@ -64,7 +65,17 @@
                             <td data-th-text="${component.weight}"></td>
                             <td>
                                 <ul>
-                                    <li data-th-each="reason: ${component.reasons}" data-th-text="${reason}"/>
+                                   <li data-th-each="reason : ${component.reasons}">
+                                    <span data-th-if="${#strings.contains(reason, 'SECURITY')}">
+                                        <span data-th-with="SpaceIndex=${reason.lastIndexOf(' ')}"
+                                         data-th-inline="text">
+                                     <a data-th-text="${reason.substring(0,SpaceIndex)}"
+                                      data-th-href="${reason.substring(SpaceIndex + 1)}">
+                             </a>
+                           </span>
+                                    </span>
+                                       <span data-th-unless="${#strings.contains(reason, 'SECURITY')}" data-th-text=${reason}></span>
+                                   </li>
                                 </ul>
                             </td>
                         </tr>
@@ -90,26 +101,26 @@
             <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
                 <td><code data-th-text="${probeResult.id}" class="label"></code></td>
                 <td>
-                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success" name="success"></ion-icon>
-                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure" name="failure"></ion-icon>
+                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success"
+                              name="success"></ion-icon>
+                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure"
+                              name="failure"></ion-icon>
                 </td>
-                 <td>
+                <td>
                     <span
-                        th:if="${probeResult.id == 'security'}">
-                           <span th:with="lastSlashIndex=${probeResult.message.lastIndexOf(' ')}" th:inline="text">
-                             <a th:text="${probeResult.message.substring(0,lastSlashIndex)}" th:href="${probeResult.message.substring(lastSlashIndex + 1)}">
+                        data-th-if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
+                           <span data-th-with="SpaceIndex=${probeResult.message.lastIndexOf(' ')}"
+                                 data-th-inline="text">
+                             <a data-th-text="${probeResult.message.substring(0,SpaceIndex)}"
+                                data-th-href="${probeResult.message.substring(SpaceIndex + 1)}">
                              </a>
                            </span>
                     </span>
                     <span
-                        th:if="${probeResult.id != 'security'}"
-                        data-th-text="${probeResult.message}">
-                    </span>
-                    </span>
+                        data-th-if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.'}">
+                       <span data-th-text="${probeResult.message}"></span>
+                   </span>
                 </td>
-
-
-
             </tr>
             </tbody>
         </table>
