@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres-s3cr3t
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driverClassName: org.postgresql.Driver
   jpa:
     hibernate:
@@ -24,12 +24,12 @@ app:
     update-center: https://updates.jenkins.io/current/update-center.actual.json
     documentation-urls: https://updates.jenkins.io/current/plugin-documentation-urls.json
   github:
-    app-id: 744264
-    private-key-path: /Users/aaayush/Downloads/CONVERTED_KEY.pem
-    app-installation-name: plugin Tool
+    app-id: ${GITHUB_APP_ID}
+    private-key-path: ${GITHUB_APP_PRIVATE_KEY_PATH}
+    app-installation-name: ${GITHUB_APP_INSTALLATION_NAME}
   cron:
-    update-center: 0 0 */2 * * *
-    probe-engine:  0 */15 * * * *
+    update-center: ${UPDATE_CENTER_CRON}
+    probe-engine: ${PROBE_ENGINE_CRON}
 
 ---
 
@@ -42,4 +42,3 @@ management:
     health:
       show-components: always
       show-details: always
-
