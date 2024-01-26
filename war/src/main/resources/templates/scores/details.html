@@ -1,134 +1,132 @@
 <!DOCTYPE html>
 <html lang="en" data-layout-decorate="~{layouts/main}">
-<head>
-    <head>
-        <title>Score</title>
-    </head>
-<body>
-
-<section data-layout-fragment="content" data-th-with="plugin = ${score.plugin}">
-    <h1 data-th-utext="'Score of <em>' + ${plugin.name} + '</em> plugin'"></h1>
-
-    <div class="plugin--details">
-        <div class="plugin--details--tab" data-th-if="${ plugin.scm }">
-            <ion-icon name="logo-github"></ion-icon>
-            <a data-th-href="${ plugin.scm }" data-th-text="${ plugin.scm }"></a>
-        </div>
-        <div class="plugin--details--tab">
-            <ion-icon name="version-tag"></ion-icon>
-            <span data-th-text="${ plugin.version }"></span>
-        </div>
-        <div class="plugin--details--tab">
-            <ion-icon name="calendar"></ion-icon>
-            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp) }"></span>
-        </div>
-    </div>
-
-    <div class="card score" data-th-text="${score.value}">
-    </div>
-
-    <h3>Details</h3>
-    <table class="table">
-        <thead>
-        <tr>
-            <th></th>
-            <th>Key</th>
-            <th>Value</th>
-            <th>Weight</th>
-        </tr>
-        </thead>
-        <tbody>
-        <th-block data-th-each="scoreDetail: ${score.details}">
-            <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
-                <td>
-                    <ion-icon name="chevron-expand"></ion-icon>
-                </td>
-                <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
-                <td align="center" data-th-text="${scoreDetail.value}"></td>
-                <td align="center" data-th-text="${scoreDetail.weight}"></td>
-            </tr>
-            <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_"
-                data-th-id="'collapse-' + ${scoreDetail.key}">
-                <td colspan="5">
-                    <h3>Details:</h3>
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>Value</th>
-                            <th>Weight</th>
-                            <th>Message</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr data-th-each="component : ${scoreDetail.componentsResults}">
-                            <td data-th-text="${component.score}"></td>
-                            <td data-th-text="${component.weight}"></td>
-                            <td>
-                                <ul>
-                                   <li data-th-each="reason : ${component.reasons}">
-                                    <span data-th-if="${#strings.contains(reason, 'SECURITY')}">
-                                        <span data-th-with="SpaceIndex=${reason.lastIndexOf(' ')}"
-                                         data-th-inline="text">
-                                     <a data-th-text="${reason.substring(0,SpaceIndex)}"
-                                      data-th-href="${reason.substring(SpaceIndex + 1)}">
-                             </a>
-                           </span>
-                                    </span>
-                                       <span data-th-unless="${#strings.contains(reason, 'SECURITY')}" data-th-text=${reason}></span>
-                                   </li>
-                                </ul>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </th-block>
-        </tbody>
-    </table>
-
-    <h3>Probes results</h3>
-    <div data-th-if="${#maps.size(plugin.details)} > 0">
-        <table class="table">
+   <head>
+      <head>
+         <title>Score</title>
+   </head>
+   <body>
+      <section data-layout-fragment="content" data-th-with="plugin = ${score.plugin}">
+         <h1 data-th-utext="'Score of <em>' + ${plugin.name} + '</em> plugin'"></h1>
+         <div class="plugin--details">
+            <div class="plugin--details--tab" data-th-if="${ plugin.scm }">
+               <ion-icon name="logo-github"></ion-icon>
+               <a data-th-href="${ plugin.scm }" data-th-text="${ plugin.scm }"></a>
+            </div>
+            <div class="plugin--details--tab">
+               <ion-icon name="version-tag"></ion-icon>
+               <span data-th-text="${ plugin.version }"></span>
+            </div>
+            <div class="plugin--details--tab">
+               <ion-icon name="calendar"></ion-icon>
+               <span data-th-text="${ #temporals.format(plugin.releaseTimestamp) }"></span>
+            </div>
+         </div>
+         <div class="card score" data-th-text="${score.value}">
+         </div>
+         <h3>Details</h3>
+         <table class="table">
             <thead>
-            <tr>
-                <th>ID</th>
-                <th>Status</th>
-                <th>Message</th>
-            </tr>
+               <tr>
+                  <th></th>
+                  <th>Key</th>
+                  <th>Value</th>
+                  <th>Weight</th>
+               </tr>
             </thead>
             <tbody>
-            <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
-                <td><code data-th-text="${probeResult.id}" class="label"></code></td>
-                <td>
-                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success"
-                              name="success"></ion-icon>
-                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure"
-                              name="failure"></ion-icon>
-                </td>
-                <td>
-                    <span
-                        data-th-if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
-                           <span data-th-with="SpaceIndex=${probeResult.message.lastIndexOf(' ')}"
-                                 data-th-inline="text">
-                             <a data-th-text="${probeResult.message.substring(0,SpaceIndex)}"
-                                data-th-href="${probeResult.message.substring(SpaceIndex + 1)}">
-                             </a>
-                           </span>
-                    </span>
-                    <span
-                        data-th-if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.'}">
-                       <span data-th-text="${probeResult.message}"></span>
-                   </span>
-                </td>
-            </tr>
+               <th-block data-th-each="scoreDetail: ${score.details}">
+                  <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
+                     <td>
+                        <ion-icon name="chevron-expand"></ion-icon>
+                     </td>
+                     <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
+                     <td align="center" data-th-text="${scoreDetail.value}"></td>
+                     <td align="center" data-th-text="${scoreDetail.weight}"></td>
+                  </tr>
+                  <tr class="collapse-content" data-th-classappend="${scoreDetail.value} != 100 ? 'show':_"
+                     data-th-id="'collapse-' + ${scoreDetail.key}">
+                     <td colspan="5">
+                        <h3>Details:</h3>
+                        <table class="table">
+                           <thead>
+                              <tr>
+                                 <th>Value</th>
+                                 <th>Weight</th>
+                                 <th>Message</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr data-th-each="component : ${scoreDetail.componentsResults}">
+                                 <td data-th-text="${component.score}"></td>
+                                 <td data-th-text="${component.weight}"></td>
+                                 <td>
+                                    <ul>
+                                       <li data-th-each="reason : ${component.reasons}">
+                                          <span data-th-if="${#strings.contains(reason, 'SECURITY')}">
+                                          <span data-th-each="security : ${#strings.arraySplit(reason, ',')}">
+                                          <span data-th-with="SpaceIndex=${security.lastIndexOf(' ')}"
+                                             data-th-inline="text">
+                                          <a data-th-text="${security.substring(0,SpaceIndex)}"
+                                             data-th-href="${security.substring(SpaceIndex + 1)}">
+                                          </a>
+                                          </span>
+                                          </span>
+                                          </span>
+                                          <span data-th-unless="${#strings.contains(reason, 'SECURITY')}" data-th-text=${reason}></span>
+                                       </li>
+                                    </ul>
+                                 </td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </td>
+                  </tr>
+               </th-block>
             </tbody>
-        </table>
-    </div>
-    <p data-th-unless="${#maps.size(plugin.details) > 0}">
-        No probe were executed on the plugin yet.
-    </p>
-</section>
-
-</body>
+         </table>
+         <h3>Probes results</h3>
+         <div data-th-if="${#maps.size(plugin.details)} > 0">
+            <table class="table">
+               <thead>
+                  <tr>
+                     <th>ID</th>
+                     <th>Status</th>
+                     <th>Message</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
+                     <td><code data-th-text="${probeResult.id}" class="label"></code></td>
+                     <td>
+                        <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success"
+                           name="success"></ion-icon>
+                        <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure"
+                           name="failure"></ion-icon>
+                     </td>
+                     <td>
+                        <span
+                           data-th-if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
+                        <span data-th-each="security : ${#strings.arraySplit(probeResult.message, ',')}">
+                        <span data-th-with="SpaceIndex=${security.lastIndexOf(' ')}"
+                           data-th-inline="text">
+                        <a data-th-text="${security.substring(0,SpaceIndex)}"
+                           data-th-href="${security.substring(SpaceIndex + 1)}">
+                        </a>
+                        </span>
+                        </span>
+                        </span>
+                        <span
+                           data-th-if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.'}">
+                        <span data-th-text="${probeResult.message}"></span>
+                        </span>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+         <p data-th-unless="${#maps.size(plugin.details) > 0}">
+            No probe were executed on the plugin yet.
+         </p>
+      </section>
+   </body>
 </html>
