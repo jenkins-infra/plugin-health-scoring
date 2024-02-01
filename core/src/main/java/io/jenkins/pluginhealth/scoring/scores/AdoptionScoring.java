@@ -83,7 +83,12 @@ public class AdoptionScoring extends Scoring {
                         case "This plugin is not up for adoption." ->
                             new ScoringComponentResult(100, getWeight(), List.of("The plugin is not marked as up for adoption."));
                         case "This plugin is up for adoption." ->
-                            new ScoringComponentResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption."));
+                            new ScoringComponentResult(
+                                -1000,
+                                getWeight(),
+                                List.of("The plugin is marked as up for adoption."),
+                                List.of("https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")
+                            );
                         default -> new ScoringComponentResult(-100, getWeight(), List.of());
                     };
                 }
@@ -142,6 +147,6 @@ public class AdoptionScoring extends Scoring {
 
     @Override
     public int version() {
-        return 2;
+        return 3;
     }
 }

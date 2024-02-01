@@ -63,7 +63,12 @@ public class PluginMaintenanceScoring extends Scoring {
                         case "Jenkinsfile found" ->
                             new ScoringComponentResult(100, getWeight(), List.of("Jenkinsfile detected in plugin repository."));
                         case "No Jenkinsfile found" ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Jenkinsfile not detected in plugin repository."));
+                            new ScoringComponentResult(
+                                0,
+                                getWeight(),
+                                List.of("Jenkinsfile not detected in plugin repository."),
+                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                            );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile.", probeResult.message()));
                     };
@@ -90,7 +95,12 @@ public class PluginMaintenanceScoring extends Scoring {
                         case "Documentation is located in the plugin repository." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Documentation is in plugin repository."));
                         case "Documentation is not located in the plugin repository." ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Documentation should be migrated in plugin repository."));
+                            new ScoringComponentResult(
+                                0,
+                                getWeight(),
+                                List.of("Documentation should be migrated in plugin repository."),
+                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
+                            );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
                     };
@@ -124,7 +134,12 @@ public class PluginMaintenanceScoring extends Scoring {
                         return manageOpenDependencyPullRequestValue(renovate, dependencyPullRequest);
                     }
 
-                    return new ScoringComponentResult(0, getWeight(), List.of("No dependency version manager bot are used on the plugin repository."));
+                    return new ScoringComponentResult(
+                        0,
+                        getWeight(),
+                        List.of("No dependency version manager bot are used on the plugin repository."),
+                        List.of("https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                    );
                 }
 
                 private ScoringComponentResult manageOpenDependencyPullRequestValue(ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
@@ -201,6 +216,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }

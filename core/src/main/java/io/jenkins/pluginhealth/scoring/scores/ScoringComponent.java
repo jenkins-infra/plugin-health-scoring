@@ -32,7 +32,7 @@ import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
 public interface ScoringComponent {
     /**
-     * Provides a human readable description of the behavior of the Changelog.
+     * Provides a human-readable description of the behavior of the Changelog.
      *
      * @return the description of the implementation.
      */
