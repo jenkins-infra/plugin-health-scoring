@@ -4,7 +4,7 @@ This page provides information about contributing to the Plugin Health Scoring c
 
 == Getting started
 
-The project is using Maven with Java 17 and Yarn to be built.
+The project is using Maven with Java 21 and Yarn to be built.
 The entire build process can be handled by Maven.
 When building, Yarn will bundle the front-end files only.
 

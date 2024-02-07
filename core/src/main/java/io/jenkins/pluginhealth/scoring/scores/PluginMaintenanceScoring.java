@@ -113,14 +113,14 @@ public class PluginMaintenanceScoring extends Scoring {
                     final ProbeResult renovate = probeResults.get(RenovateProbe.KEY);
                     final ProbeResult dependencyPullRequest = probeResults.get(DependabotPullRequestProbe.KEY);
 
-                    if (dependabot != null && "dependabot is configured.".equals(dependabot.message()) && renovate != null && "renovate is configured.".equals(renovate.message())) {
+                    if (dependabot != null && "Dependabot is configured.".equals(dependabot.message()) && renovate != null && "Renovate is configured.".equals(renovate.message())) {
                         return new ScoringComponentResult(50, getWeight(), List.of("It seems that both dependabot and renovate are configured.", dependabot.message(), renovate.message()));
                     }
 
-                    if (dependabot != null && ProbeResult.Status.SUCCESS.equals(dependabot.status()) && "dependabot is configured.".equals(dependabot.message())) {
+                    if (dependabot != null && ProbeResult.Status.SUCCESS.equals(dependabot.status()) && "Dependabot is configured.".equals(dependabot.message())) {
                         return manageOpenDependencyPullRequestValue(dependabot, dependencyPullRequest);
                     }
-                    if (renovate != null && ProbeResult.Status.SUCCESS.equals(renovate.status()) && "renovate is configured.".equals(renovate.message())) {
+                    if (renovate != null && ProbeResult.Status.SUCCESS.equals(renovate.status()) && "Renovate is configured.".equals(renovate.message())) {
                         return manageOpenDependencyPullRequestValue(renovate, dependencyPullRequest);
                     }
 
