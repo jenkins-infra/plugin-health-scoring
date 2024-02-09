@@ -52,7 +52,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     }
 
     @Test
-    void shouldRequireValidSCMAndLastCommit() {
+    void shouldRequireValidSCM() {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
@@ -84,7 +84,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     }
 
     @Test
-    void shouldDetectMissingDependabotFile() throws Exception {
+    void shouldDetectMissingReleaseDrafterFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DrafterReleaseProbe probe = getSpy();
@@ -101,7 +101,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     }
 
     @Test
-    void shouldDetectDependabotFile() throws Exception {
+    void shouldDetectReleaseDrafterFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DrafterReleaseProbe probe = getSpy();
@@ -120,7 +120,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     }
 
     @Test
-    void shouldDetectDependabotFileWithFullFileExtension() throws Exception {
+    void shouldDetectReleaseDrafterFileWithFullFileExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final DrafterReleaseProbe probe = getSpy();

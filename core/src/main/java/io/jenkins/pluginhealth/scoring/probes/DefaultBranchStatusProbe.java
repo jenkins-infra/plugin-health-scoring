@@ -32,46 +32,48 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.kohsuke.github.GHCheckRun;
+import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+/**
+ * This probe checks whether build failed on Default Branch or not.
+ */
 @Component
-@Order(DrafterReleaseProbe.ORDER)
-public class DrafterReleaseProbe extends  Probe {
+@Order(DefaultBranchStatusProbe.ORDER)
+public class DefaultBranchStatusProbe extends Probe {
 
-    public static final String KEY = "release-drafter";
-
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+    public static final int ORDER = JenkinsCoreProbe.ORDER + 100;
+    public static final String KEY = "default-branch-build-status";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (context.getScmRepository().isEmpty()) {
-            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
+        if (context.getRepositoryName().isPresent()) {
+            return this.success("There is no local repository for plugin " + plugin.getName() + ".");
         }
-        final Path scmRepository = context.getScmRepository().get();
-        final Path githubConfig = scmRepository.resolve(".github");
-        if (Files.notExists(githubConfig)) {
-            LOGGER.trace("No GitHub configuration folder at {} ", key());
-            return this.success("No GitHub configuration folder found.");
+        try {
+
+                final GitHub gh = context.getGitHub();
+                final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
+                String defaultBranch = repository.getDefaultBranch();
+                GHCommit commit = repository.getCommit(defaultBranch);
+                GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
+                GHCheckRun.Conclusion conclusion = checkRun.getConclusion();
+
+                if (conclusion == GHCheckRun.Conclusion.FAILURE) {
+                    return this.success("Build Failed in Default Branch");
+                } else {
+                    return this.success("Build is Success in Default Branch");
+                }
+            }
+        catch (IOException e) {
+            return this.error("Could not get failingBuilding Check");
+        }
         }
 
-        try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-            Files.isRegularFile(path) && isPathDrafterConfigFile((path.getFileName().toString())))) {
-            return paths.findFirst()
-                .map(file -> this.success(String.format("%s is configured.", KEY)))
-                .orElseGet(() -> this.success(String.format("%s is not configured.", KEY)));
-        } catch (IOException ex) {
-            LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
-            return this.error("Could not browse the plugin folder");
-        }
-    }
-
-    private boolean isPathDrafterConfigFile(String filename) {
-        return "release-drafter.yml".equals(filename) || "release-drafter.yaml".equals(filename);
-    }
 
     @Override
     public String key() {
@@ -80,11 +82,12 @@ public class DrafterReleaseProbe extends  Probe {
 
     @Override
     public String getDescription() {
-        return "Check if release-drafter is configured on a plugin or not";
+        return "Return whether the build is failed on default branch or not";
     }
 
     @Override
     public long getVersion() {
         return 1;
     }
+
 }
