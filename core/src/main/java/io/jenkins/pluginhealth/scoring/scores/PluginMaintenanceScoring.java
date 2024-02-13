@@ -118,7 +118,7 @@ public class PluginMaintenanceScoring extends Scoring {
                 }
 
                 @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                public ScoringComponentResult getScore(Plugin pl, Map<String, ProbeResult> probeResults) {
                     final ProbeResult dependabot = probeResults.get(DependabotProbe.KEY);
                     final ProbeResult renovate = probeResults.get(RenovateProbe.KEY);
                     final ProbeResult dependencyPullRequest = probeResults.get(DependabotPullRequestProbe.KEY);
@@ -128,10 +128,10 @@ public class PluginMaintenanceScoring extends Scoring {
                     }
 
                     if (dependabot != null && ProbeResult.Status.SUCCESS.equals(dependabot.status()) && "Dependabot is configured.".equals(dependabot.message())) {
-                        return manageOpenDependencyPullRequestValue(dependabot, dependencyPullRequest);
+                        return manageOpenDependencyPullRequestValue(pl, dependabot, dependencyPullRequest);
                     }
                     if (renovate != null && ProbeResult.Status.SUCCESS.equals(renovate.status()) && "Renovate is configured.".equals(renovate.message())) {
-                        return manageOpenDependencyPullRequestValue(renovate, dependencyPullRequest);
+                        return manageOpenDependencyPullRequestValue(pl, renovate, dependencyPullRequest);
                     }
 
                     return new ScoringComponentResult(
@@ -142,22 +142,27 @@ public class PluginMaintenanceScoring extends Scoring {
                     );
                 }
 
-                private ScoringComponentResult manageOpenDependencyPullRequestValue(ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
-                    if (dependencyPullRequestResult != null && "0".equals(dependencyPullRequestResult.message())) {
-                        return new ScoringComponentResult(
-                            100,
-                            getWeight(),
-                            List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message()))
-                        );
+                private ScoringComponentResult manageOpenDependencyPullRequestValue(Plugin plugin, ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
+                    if (dependencyPullRequestResult != null) {
+                        return "0".equals(dependencyPullRequestResult.message()) ?
+                            new ScoringComponentResult(
+                                100,
+                                getWeight(),
+                                List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message()))
+                            ) :
+                            new ScoringComponentResult(
+                                50,
+                                getWeight(),
+                                List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message())),
+                                List.of( "See %s/pulls for any open pull requests labelled as dependency related.".formatted(plugin.getScm()))
+                            );
                     }
                     return new ScoringComponentResult(
                         0,
                         getWeight(),
                         List.of(
                             dependencyBotResult.message(),
-                            dependencyPullRequestResult == null ?
-                                "Cannot determine if there is any dependency pull request opened on the repository." :
-                                "%s open dependency pull requests".formatted(dependencyPullRequestResult.message())
+                            "Cannot determine if there is any dependency pull request opened on the repository."
                         )
                     );
                 }
