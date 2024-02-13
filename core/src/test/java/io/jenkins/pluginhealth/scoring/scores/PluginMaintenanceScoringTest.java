@@ -122,7 +122,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", 1)
                 ),
-                65
+                73
             ),
             arguments(// Jenkinsfile and dependabot with no open pull request
                 Map.of(
@@ -160,7 +160,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", 1)
                 ),
-                70
+                78
             ),
             arguments(// Jenkinsfile and CD and dependabot with no open pull request
                 Map.of(
@@ -228,7 +228,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
                     DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1)
                 ),
-                15
+                23
             ),
             arguments(// Documentation migration and Dependabot with no open pull requests
                 Map.of(
