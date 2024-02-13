@@ -154,7 +154,7 @@ public class PluginMaintenanceScoring extends Scoring {
                                 50,
                                 getWeight(),
                                 List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message())),
-                                List.of( "See %s/pulls for any open pull requests labelled as dependency related.".formatted(plugin.getScm()))
+                                List.of("%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
                             );
                     }
                     return new ScoringComponentResult(
