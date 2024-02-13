@@ -31,9 +31,10 @@ import org.springframework.stereotype.Component;
  * This probe looks for Dependabot configuration in a plugin.
  */
 @Component
-@Order(AbstractDependencyBotConfigurationProbe.ORDER)
+@Order(DependabotProbe.ORDER)
 public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
     public static final String KEY = "dependabot";
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
 
     @Override
     protected String getBotName() {
@@ -48,6 +49,11 @@ public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
     @Override
     public String key() {
         return KEY;
+    }
+
+    @Override
+    public int getOrder() {
+        return ORDER;
     }
 
     @Override

@@ -83,6 +83,11 @@ public class SpotBugsProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Checks if SpotBugs is enabled in a plugin.";
     }

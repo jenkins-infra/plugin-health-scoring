@@ -58,6 +58,11 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "This probe detects if a specified plugin is still actively published by the update-center.";
     }

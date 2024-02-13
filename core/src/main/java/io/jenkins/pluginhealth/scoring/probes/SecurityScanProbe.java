@@ -43,6 +43,11 @@ public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Checks if Security Scan is configured in GitHub workflow";
     }

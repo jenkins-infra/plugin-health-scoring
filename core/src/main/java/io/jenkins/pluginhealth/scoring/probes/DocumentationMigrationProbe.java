@@ -63,6 +63,11 @@ public class DocumentationMigrationProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Reports if the plugin documentation was migrated from the Wiki to GitHub";
     }

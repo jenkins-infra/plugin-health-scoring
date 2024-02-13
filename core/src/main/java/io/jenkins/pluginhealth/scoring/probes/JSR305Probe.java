@@ -61,6 +61,11 @@ public class JSR305Probe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "The probe checks for deprecated annotations.";
     }

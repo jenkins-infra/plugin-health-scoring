@@ -98,6 +98,11 @@ public class IncrementalBuildDetectionProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "The probe detects whether incremental build is configured in Maven Config.";
     }

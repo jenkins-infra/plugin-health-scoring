@@ -121,6 +121,13 @@ public abstract class Probe {
     public abstract String key();
 
     /**
+     * Returns the execution order for the probe.
+     *
+     * @return the order of the probe
+     */
+    public abstract int getOrder();
+
+    /**
      * Returns a description of the action of the probe.
      *
      * @return the description of the probe

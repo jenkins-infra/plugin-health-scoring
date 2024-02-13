@@ -280,6 +280,11 @@ class ProbeEngineTest {
             }
 
             @Override
+            public int getOrder() {
+                return 0;
+            }
+
+            @Override
             public String getDescription() {
                 return "description";
             }
@@ -309,6 +314,7 @@ class ProbeEngineTest {
     @Test
     void shouldForceProbeExecutionWhenNewVersionOfTheProbe() throws IOException {
         final String probeKey = "foo";
+        final int probeOrder = 0;
         final long version = 1L;
         final ProbeResult newProbeResult = new ProbeResult(
             probeKey, "this is a message", ProbeResult.Status.SUCCESS, version + 1
@@ -324,6 +330,11 @@ class ProbeEngineTest {
             @Override
             public String key() {
                 return probeKey;
+            }
+
+            @Override
+            public int getOrder() {
+                return probeOrder;
             }
 
             @Override
