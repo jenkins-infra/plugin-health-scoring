@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ public class DrafterReleaseProbe extends  Probe {
     public static final String KEY = "release-drafter";
 
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DrafterReleaseProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
@@ -61,8 +61,8 @@ public class DrafterReleaseProbe extends  Probe {
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && isPathDrafterConfigFile((path.getFileName().toString())))) {
             return paths.findFirst()
-                .map(file -> this.success(String.format("%s is configured.", KEY)))
-                .orElseGet(() -> this.success(String.format("%s is not configured.", KEY)));
+                .map(file -> this.success("Release Drafter is configured."))
+                .orElseGet(() -> this.success("Release Drafter is not configured."));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return this.error("Could not browse the plugin folder");
@@ -80,7 +80,7 @@ public class DrafterReleaseProbe extends  Probe {
 
     @Override
     public String getDescription() {
-        return "Check if release-drafter is configured on a plugin or not";
+        return "Check if Release Drafter is configured on a plugin or not";
     }
 
     @Override

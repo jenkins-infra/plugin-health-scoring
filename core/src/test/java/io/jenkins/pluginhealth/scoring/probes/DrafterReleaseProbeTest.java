@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -96,7 +96,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "release-drafter is not configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is not configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -115,7 +115,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "release-drafter is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -134,7 +134,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "release-drafter is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }
