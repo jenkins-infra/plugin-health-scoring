@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +78,7 @@ public final class ScoringEngine {
         if (latestScore.isPresent() && (latestProbeResult.isEmpty() || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
             final Score score = latestScore.get();
             boolean scoringIsSame = scoringService.getScoringList().stream()
-                .anyMatch(scoring ->
+                .allMatch(scoring ->
                     score.getDetails().stream()
                         .filter(sr -> sr.key().equals(scoring.key()))
                         .findFirst()

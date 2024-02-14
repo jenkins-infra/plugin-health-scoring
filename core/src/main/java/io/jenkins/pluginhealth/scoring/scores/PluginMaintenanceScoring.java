@@ -63,7 +63,12 @@ public class PluginMaintenanceScoring extends Scoring {
                         case "Jenkinsfile found" ->
                             new ScoringComponentResult(100, getWeight(), List.of("Jenkinsfile detected in plugin repository."));
                         case "No Jenkinsfile found" ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Jenkinsfile not detected in plugin repository."));
+                            new ScoringComponentResult(
+                                0,
+                                getWeight(),
+                                List.of("Jenkinsfile not detected in plugin repository."),
+                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                            );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile.", probeResult.message()));
                     };
@@ -90,7 +95,12 @@ public class PluginMaintenanceScoring extends Scoring {
                         case "Documentation is located in the plugin repository." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Documentation is in plugin repository."));
                         case "Documentation is not located in the plugin repository." ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Documentation should be migrated in plugin repository."));
+                            new ScoringComponentResult(
+                                0,
+                                getWeight(),
+                                List.of("Documentation should be migrated in plugin repository."),
+                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
+                            );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
                     };
@@ -108,7 +118,7 @@ public class PluginMaintenanceScoring extends Scoring {
                 }
 
                 @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                public ScoringComponentResult getScore(Plugin pl, Map<String, ProbeResult> probeResults) {
                     final ProbeResult dependabot = probeResults.get(DependabotProbe.KEY);
                     final ProbeResult renovate = probeResults.get(RenovateProbe.KEY);
                     final ProbeResult dependencyPullRequest = probeResults.get(DependabotPullRequestProbe.KEY);
@@ -118,31 +128,41 @@ public class PluginMaintenanceScoring extends Scoring {
                     }
 
                     if (dependabot != null && ProbeResult.Status.SUCCESS.equals(dependabot.status()) && "Dependabot is configured.".equals(dependabot.message())) {
-                        return manageOpenDependencyPullRequestValue(dependabot, dependencyPullRequest);
+                        return manageOpenDependencyPullRequestValue(pl, dependabot, dependencyPullRequest);
                     }
                     if (renovate != null && ProbeResult.Status.SUCCESS.equals(renovate.status()) && "Renovate is configured.".equals(renovate.message())) {
-                        return manageOpenDependencyPullRequestValue(renovate, dependencyPullRequest);
+                        return manageOpenDependencyPullRequestValue(pl, renovate, dependencyPullRequest);
                     }
 
-                    return new ScoringComponentResult(0, getWeight(), List.of("No dependency version manager bot are used on the plugin repository."));
+                    return new ScoringComponentResult(
+                        0,
+                        getWeight(),
+                        List.of("No dependency version manager bot are used on the plugin repository."),
+                        List.of("https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                    );
                 }
 
-                private ScoringComponentResult manageOpenDependencyPullRequestValue(ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
-                    if (dependencyPullRequestResult != null && "0".equals(dependencyPullRequestResult.message())) {
-                        return new ScoringComponentResult(
-                            100,
-                            getWeight(),
-                            List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message()))
-                        );
+                private ScoringComponentResult manageOpenDependencyPullRequestValue(Plugin plugin, ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
+                    if (dependencyPullRequestResult != null) {
+                        return "0".equals(dependencyPullRequestResult.message()) ?
+                            new ScoringComponentResult(
+                                100,
+                                getWeight(),
+                                List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message()))
+                            ) :
+                            new ScoringComponentResult(
+                                50,
+                                getWeight(),
+                                List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message())),
+                                List.of("%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
+                            );
                     }
                     return new ScoringComponentResult(
                         0,
                         getWeight(),
                         List.of(
                             dependencyBotResult.message(),
-                            dependencyPullRequestResult == null ?
-                                "Cannot determine if there is any dependency pull request opened on the repository." :
-                                "%s open dependency pull requests".formatted(dependencyPullRequestResult.message())
+                            "Cannot determine if there is any dependency pull request opened on the repository."
                         )
                     );
                 }
@@ -201,6 +221,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -83,7 +83,12 @@ public class AdoptionScoring extends Scoring {
                         case "This plugin is not up for adoption." ->
                             new ScoringComponentResult(100, getWeight(), List.of("The plugin is not marked as up for adoption."));
                         case "This plugin is up for adoption." ->
-                            new ScoringComponentResult(-1000, getWeight(), List.of("The plugin is marked as up for adoption."));
+                            new ScoringComponentResult(
+                                -1000,
+                                getWeight(),
+                                List.of("The plugin is marked as up for adoption."),
+                                List.of("https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")
+                            );
                         default -> new ScoringComponentResult(-100, getWeight(), List.of());
                     };
                 }
@@ -142,6 +147,6 @@ public class AdoptionScoring extends Scoring {
 
     @Override
     public int version() {
-        return 2;
+        return 3;
     }
 }

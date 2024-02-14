@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -84,9 +84,11 @@ public class Score {
 
     private void computeValue() {
         var sum = details.stream()
+            .filter(Objects::nonNull)
             .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
             .sum();
         var coefficient = details.stream()
+            .filter(Objects::nonNull)
             .flatMapToDouble(res -> DoubleStream.of(res.weight()))
             .sum();
         this.value = Math.round((sum / coefficient));

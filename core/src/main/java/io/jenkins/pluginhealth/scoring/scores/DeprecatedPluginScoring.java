@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,7 +57,12 @@ public class DeprecatedPluginScoring extends Scoring {
 
                     return switch (probeResult.message()) {
                         case "This plugin is marked as deprecated." ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Plugin is marked as deprecated."));
+                            new ScoringComponentResult(
+                                0,
+                                getWeight(),
+                                List.of("Plugin is marked as deprecated."),
+                                List.of("https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
+                            );
                         case "This plugin is NOT deprecated." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));
                         default ->
@@ -90,6 +95,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }

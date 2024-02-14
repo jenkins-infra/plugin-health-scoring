@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
 public interface ScoringComponent {
     /**
-     * Provides a human readable description of the behavior of the Changelog.
+     * Provides a human-readable description of the behavior of the Changelog.
      *
      * @return the description of the implementation.
      */
