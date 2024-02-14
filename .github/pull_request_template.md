@@ -2,9 +2,9 @@
  DO NOT DELETE
  
  This template was created to help contributors validate their contribution
- and help maintainers understanding the contribution.
+ and help maintainers understand the contribution.
  Do not delete the template, but complete it. Check the tasklist items that
- the contribution validate, add your contribution description and what kind
+ the contribution validates, add your contribution description and what kind
  of testing you have done on it.
  The template was not created to be ignored.
  -->
