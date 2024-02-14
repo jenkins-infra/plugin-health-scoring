@@ -5,7 +5,11 @@ defineCustomElements(window, {
   resourcesUrl: '/',
 });
 
-new DataTable("#probes-table");
+
+const probesTable = document.getElementById('probes-table');
+if (probesTable !== null) {
+    new DataTable("#probes-table");
+}
 
 const updateCollapseIcon = (container, target) => {
   if (target.classList.contains('show')) {
