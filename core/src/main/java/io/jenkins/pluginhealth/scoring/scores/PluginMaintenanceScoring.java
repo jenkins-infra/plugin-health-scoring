@@ -79,38 +79,6 @@ public class PluginMaintenanceScoring extends Scoring {
                     return 65;
                 }
             },
-            new ScoringComponent() { // Documentation migration done
-                @Override
-                public String getDescription() {
-                    return "Plugin documentation should be migrated from the wiki.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(DocumentationMigrationProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration."));
-                    }
-                    return switch (probeResult.message()) {
-                        case "Documentation is located in the plugin repository." ->
-                            new ScoringComponentResult(100, getWeight(), List.of("Documentation is in plugin repository."));
-                        case "Documentation is not located in the plugin repository." ->
-                            new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of("Documentation should be migrated in plugin repository."),
-                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
-                            );
-                        default ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
-                    };
-                }
-
-                @Override
-                public int getWeight() {
-                    return 15;
-                }
-            },
             new ScoringComponent() { // Dependabot and not dependency pull requests
                 @Override
                 public String getDescription() {
@@ -221,6 +189,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 2;
+        return 3;
     }
 }
