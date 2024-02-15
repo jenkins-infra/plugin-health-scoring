@@ -53,10 +53,6 @@ public class DrafterReleaseProbe extends  Probe {
         }
         final Path scmRepository = context.getScmRepository().get();
         final Path githubConfig = scmRepository.resolve(".github");
-        if (Files.notExists(githubConfig)) {
-            LOGGER.trace("No GitHub configuration folder at {} ", key());
-            return this.success("No GitHub configuration folder found.");
-        }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && isPathDrafterConfigFile((path.getFileName().toString())))) {
@@ -64,8 +60,8 @@ public class DrafterReleaseProbe extends  Probe {
                 .map(file -> this.success("Release Drafter is configured."))
                 .orElseGet(() -> this.success("Release Drafter is not configured."));
         } catch (IOException ex) {
-            LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
-            return this.error("Could not browse the plugin folder");
+            LOGGER.error("Could not browse {} for plugin {}", scmRepository.toAbsolutePath(), plugin.getName(), ex);
+            return this.error("Could not browse the plugin folder.");
         }
     }
 
