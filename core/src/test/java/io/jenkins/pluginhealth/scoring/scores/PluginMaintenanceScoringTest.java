@@ -40,7 +40,6 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
-import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 import io.jenkins.pluginhealth.scoring.probes.RenovateProbe;
 
