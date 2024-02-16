@@ -91,10 +91,16 @@ public class ScoreAPI {
         }
     }
 
+    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<Resolution> resolutions) {
+        private record Resolution(String text, String link) {
+        }
 
-    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<String> resolutions) {
         private PluginScoreDetailComponent(ScoringComponentResult result) {
-            this(result.score(), result.weight(), result.reasons(), result.resolutions());
+            this(result.score(), result.weight(), result.reasons(),
+                result.resolutions().entrySet().stream()
+                    .map(entry -> new Resolution(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList())
+            );
         }
     }
 }

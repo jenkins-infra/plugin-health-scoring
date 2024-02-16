@@ -25,6 +25,7 @@
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.util.List;
+import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
 
@@ -34,10 +35,10 @@ import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
  * @param score       the score representing the points granted to the plugin, out of 100 (one hundred).
  * @param weight      the weight of the score
  * @param reasons     the list of string explaining the score granted to the plugin
- * @param resolutions the list of link providing help to increase the score
+ * @param resolutions the map of link providing help to increase the score with human-readable description as key
  */
-public record ScoringComponentResult(int score, float weight, List<String> reasons, List<String> resolutions) {
+public record ScoringComponentResult(int score, float weight, List<String> reasons, Map<String, String> resolutions) {
     public ScoringComponentResult(int score, float weight, List<String> reasons) {
-        this(score, weight, reasons, List.of());
+        this(score, weight, reasons, Map.of());
     }
 }
