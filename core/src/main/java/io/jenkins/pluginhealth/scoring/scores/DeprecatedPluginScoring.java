@@ -61,7 +61,7 @@ public class DeprecatedPluginScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of("Plugin is marked as deprecated."),
-                                List.of("https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
+                                Map.of("See deprecation guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
                             );
                         case "This plugin is NOT deprecated." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));
@@ -95,6 +95,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 2;
+        return 3;
     }
 }
