@@ -53,6 +53,10 @@ public class DrafterReleaseProbe extends  Probe {
         }
         final Path scmRepository = context.getScmRepository().get();
         final Path githubConfig = scmRepository.resolve(".github");
+        if (Files.notExists(githubConfig)) {
+            LOGGER.trace("No GitHub configuration folder at {} ", key());
+            return this.success("No GitHub configuration folder found.");
+        }
 
         try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
             Files.isRegularFile(path) && isPathDrafterConfigFile((path.getFileName().toString())))) {
