@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
 import org.springframework.http.MediaType;
@@ -45,7 +46,7 @@ public class ScoreAPI {
         this.scoreService = scoreService;
     }
 
-    @GetMapping(value = { "", "/" }, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ScoreReport getReport() {
         final ScoreService.ScoreStatistics stats = scoreService.getScoresStatistics();
         record Tuple(String name, PluginScoreSummary summary) {
@@ -61,21 +62,10 @@ public class ScoreAPI {
                         score.getValue(),
                         score.getDetails().stream()
                             .collect(Collectors.toMap(
-                                ScoreResult::key,
-                                scoreResult -> new PluginScoreDetail(
-                                    scoreResult.value(),
-                                    scoreResult.weight(),
-                                    scoreResult.componentsResults().stream()
-                                        .map(changelogResult ->
-                                            new PluginScoreDetailComponent(
-                                                changelogResult.score(),
-                                                changelogResult.weight(),
-                                                changelogResult.reasons()
-                                            )
-                                        )
-                                        .collect(Collectors.toList())
+                                    ScoreResult::key,
+                                    PluginScoreDetail::new
                                 )
-                            ))
+                            )
                     )
                 );
             })
@@ -83,15 +73,28 @@ public class ScoreAPI {
         return new ScoreReport(plugins, stats);
     }
 
-    private record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
+    public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
     }
 
     private record PluginScoreSummary(long value, Map<String, PluginScoreDetail> details) {
     }
 
     private record PluginScoreDetail(float value, float weight, List<PluginScoreDetailComponent> components) {
+        private PluginScoreDetail(ScoreResult result) {
+            this(
+                result.value(),
+                result.weight(),
+                result.componentsResults().stream()
+                    .map(PluginScoreDetailComponent::new)
+                    .collect(Collectors.toList())
+            );
+        }
     }
 
-    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons) {
+
+    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<String> resolutions) {
+        private PluginScoreDetailComponent(ScoringComponentResult result) {
+            this(result.score(), result.weight(), result.reasons(), result.resolutions());
+        }
     }
 }

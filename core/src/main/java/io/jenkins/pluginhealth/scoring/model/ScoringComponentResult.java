@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,9 +31,13 @@ import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
 /**
  * Describes the evaluation from a {@link ScoringComponent} on a specific plugin.
  *
- * @param score   the score representing the points granted to the plugin, out of 100 (one hundred).
- * @param weight  the weight of the score
- * @param reasons the list of string explaining the score granted to the plugin
+ * @param score       the score representing the points granted to the plugin, out of 100 (one hundred).
+ * @param weight      the weight of the score
+ * @param reasons     the list of string explaining the score granted to the plugin
+ * @param resolutions the list of link providing help to increase the score
  */
-public record ScoringComponentResult(int score, float weight, List<String> reasons) {
+public record ScoringComponentResult(int score, float weight, List<String> reasons, List<String> resolutions) {
+    public ScoringComponentResult(int score, float weight, List<String> reasons) {
+        this(score, weight, reasons, List.of());
+    }
 }
