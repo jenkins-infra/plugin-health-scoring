@@ -29,6 +29,7 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 
@@ -61,7 +62,9 @@ public class DeprecatedPluginScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of("Plugin is marked as deprecated."),
-                                Map.of("See deprecation guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
+                                List.of(
+                                    new Resolution("See deprecation guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
+                                )
                             );
                         case "This plugin is NOT deprecated." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,14 @@
 
 package io.jenkins.pluginhealth.scoring.model;
 
-import java.util.List;
-
-import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
-
 /**
- * Describes the evaluation from a {@link ScoringComponent} on a specific plugin.
+ * Represents the text and link to be used to guide users and maintainers to resolve an incomplete score.
  *
- * @param score       the score representing the points granted to the plugin, out of 100 (one hundred).
- * @param weight      the weight of the score
- * @param reasons     the list of string explaining the score granted to the plugin
- * @param resolutions a list of {@link Resolution} to help increase the score with human-readable description as key
+ * @param text a human-readable text to be used to point to the guide
+ * @param link the URI of the guide to resolve the problem
  */
-public record ScoringComponentResult(int score, float weight, List<String> reasons, List<Resolution> resolutions) {
-    public ScoringComponentResult(int score, float weight, List<String> reasons) {
-        this(score, weight, reasons, List.of());
+public record Resolution(String text, String link) {
+    public Resolution(String link) {
+        this(link, link);
     }
 }

@@ -34,6 +34,7 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.LastCommitDateProbe;
 import io.jenkins.pluginhealth.scoring.probes.UpForAdoptionProbe;
@@ -87,7 +88,9 @@ public class AdoptionScoring extends Scoring {
                                 -1000,
                                 getWeight(),
                                 List.of("The plugin is marked as up for adoption."),
-                                Map.of("See adoption guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")
+                                List.of(
+                                    new Resolution("See adoption guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")
+                                )
                             );
                         default -> new ScoringComponentResult(-100, getWeight(), List.of());
                     };

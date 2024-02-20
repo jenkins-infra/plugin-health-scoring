@@ -29,6 +29,7 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
@@ -66,7 +67,9 @@ public class PluginMaintenanceScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of("Jenkinsfile not detected in plugin repository."),
-                                Map.of("See how to add a Jenkinsfile", "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                                List.of(
+                                    new Resolution("See how to add a Jenkinsfile", "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                                )
                             );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile.", probeResult.message()));
@@ -105,7 +108,9 @@ public class PluginMaintenanceScoring extends Scoring {
                         0,
                         getWeight(),
                         List.of("No dependency version manager bot are used on the plugin repository."),
-                        Map.of("See how to automate the dependencies updates", "https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                        List.of(
+                            new Resolution("See how to automate the dependencies updates", "https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                        )
                     );
                 }
 
@@ -121,7 +126,9 @@ public class PluginMaintenanceScoring extends Scoring {
                                 50,
                                 getWeight(),
                                 List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message())),
-                                Map.of("See the open pull requests of the plugin", "%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
+                                List.of(
+                                    new Resolution("See the open pull requests of the plugin", "%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
+                                )
                             );
                     }
                     return new ScoringComponentResult(
