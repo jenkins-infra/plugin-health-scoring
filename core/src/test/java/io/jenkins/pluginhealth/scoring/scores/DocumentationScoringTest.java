@@ -37,7 +37,9 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
 
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 
 class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring> {
@@ -53,7 +55,8 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
-            ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1)
+            ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1),
+            ReleaseDrafterProbe.KEY, ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", 1)
         ));
 
         ScoreResult result = scoring.apply(plugin);
@@ -61,6 +64,33 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
             .isNotNull()
             .usingRecursiveComparison().comparingOnlyFields("key", "value")
             .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 100, .5f, Set.of(), 1));
+    }
+
+    @Test
+    void shouldScoreOneHundredEvenWithoutReleaseDrafter() {
+        final Plugin plugin = mock(Plugin.class);
+        final DocumentationScoring scoring = getSpy();
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
+            ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1),
+            ReleaseDrafterProbe.KEY, ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter not is configured.", 1)
+        ));
+
+        ScoreResult result = scoring.apply(plugin);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison().comparingOnlyFields("key", "value")
+            .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 100, .5f, Set.of(), 1));
+        assertThat(result.componentsResults())
+            .hasSize(3)
+            .haveAtLeastOne(new Condition<>(
+                res -> {
+                    return res.weight() == 0 && res.score() == 0 && res.resolutions().size() == 1 &&
+                        res.reasons().contains("Plugin is not using Release Drafter to manage its changelog.");
+                },
+                ""
+            ));
     }
 
     @Test

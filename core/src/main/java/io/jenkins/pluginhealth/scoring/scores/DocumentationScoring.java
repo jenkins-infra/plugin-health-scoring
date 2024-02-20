@@ -33,6 +33,7 @@ import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
 
 import org.springframework.stereotype.Component;
 
@@ -118,6 +119,38 @@ public class DocumentationScoring extends Scoring {
                 @Override
                 public int getWeight() {
                     return 8;
+                }
+            },
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "Recommend to setup Release Drafter on the plugin repository.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    ProbeResult result = probeResults.get(ReleaseDrafterProbe.KEY);
+                    if (result != null && "Release Drafter is configured.".equals(result.message())) {
+                        return new ScoringComponentResult(
+                            100,
+                            getWeight(),
+                            List.of("Plugin is using Release Drafter.")
+                        );
+                    }
+                    return new ScoringComponentResult(
+                        0,
+                        0,
+                        List.of("Plugin is not using Release Drafter to manage its changelog."),
+                        List.of(new Resolution(
+                            "Plugin could benefit from using Release Drafter.",
+                            "https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc"
+                        ))
+                    );
+                }
+
+                @Override
+                public int getWeight() {
+                    return 0;
                 }
             }
         );
