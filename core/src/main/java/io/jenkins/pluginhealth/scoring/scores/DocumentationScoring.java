@@ -57,26 +57,35 @@ public class DocumentationScoring extends Scoring {
 
     @Override
     public List<ScoringComponent> getComponents() {
-        return List.of(new ScoringComponent() {
-            @Override
-            public String getDescription() {
-                return "The plugin has a specific contributing guide.";
-            }
-
-            @Override
-            public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                ProbeResult probeResult = probeResults.get(ContributingGuidelinesProbe.KEY);
-                if (probeResult != null && "Contributing guidelines found.".equals(probeResult.message())) {
-                    return new ScoringComponentResult(100, getWeight(), List.of("Plugin has a contributing guide."));
+        return List.of(
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "The plugin has a specific contributing guide.";
                 }
-                return new ScoringComponentResult(0, getWeight(), List.of("The plugin relies on the global contributing guide."));
-            }
 
-            @Override
-            public int getWeight() {
-                return 2;
-            }
-        },
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    ProbeResult probeResult = probeResults.get(ContributingGuidelinesProbe.KEY);
+                    if (probeResult != null && "Contributing guidelines found.".equals(probeResult.message())) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("Plugin has a contributing guide."));
+                    }
+                    return new ScoringComponentResult(
+                        0,
+                        getWeight(),
+                        List.of("The plugin relies on the global contributing guide."),
+                        List.of(new Resolution(
+                            "See why and how to add a contributing guide",
+                            "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-contributing-guide/"
+                        ))
+                    );
+                }
+
+                @Override
+                public int getWeight() {
+                    return 2;
+                }
+            },
             new ScoringComponent() {
                 @Override
                 public String getDescription() {
@@ -110,11 +119,12 @@ public class DocumentationScoring extends Scoring {
                 public int getWeight() {
                     return 8;
                 }
-            });
+            }
+        );
     }
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }
