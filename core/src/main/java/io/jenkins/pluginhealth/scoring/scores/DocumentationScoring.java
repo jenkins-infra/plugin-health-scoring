@@ -29,6 +29,7 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
@@ -96,7 +97,9 @@ public class DocumentationScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of("Documentation should be migrated in plugin repository."),
-                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
+                                List.of(
+                                    new Resolution("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
+                                )
                             );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
