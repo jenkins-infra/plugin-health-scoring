@@ -31,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
+import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
@@ -129,6 +130,14 @@ public class DocumentationScoring extends Scoring {
 
                 @Override
                 public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    ProbeResult cdProbe = probeResults.get(ContinuousDeliveryProbe.KEY);
+                    if (cdProbe != null && "JEP-229 workflow definition found.".equals(cdProbe.message())) {
+                        return new ScoringComponentResult(
+                            100,
+                            getWeight(),
+                            List.of("Plugin using Release Drafter because it has CD configured.")
+                        );
+                    }
                     ProbeResult result = probeResults.get(ReleaseDrafterProbe.KEY);
                     if (result != null && "Release Drafter is configured.".equals(result.message())) {
                         return new ScoringComponentResult(
