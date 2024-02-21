@@ -31,8 +31,10 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
+import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
 
 import org.springframework.stereotype.Component;
 
@@ -57,26 +59,35 @@ public class DocumentationScoring extends Scoring {
 
     @Override
     public List<ScoringComponent> getComponents() {
-        return List.of(new ScoringComponent() {
-            @Override
-            public String getDescription() {
-                return "The plugin has a specific contributing guide.";
-            }
-
-            @Override
-            public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
-                ProbeResult probeResult = probeResults.get(ContributingGuidelinesProbe.KEY);
-                if (probeResult != null && "Contributing guidelines found.".equals(probeResult.message())) {
-                    return new ScoringComponentResult(100, getWeight(), List.of("Plugin has a contributing guide."));
+        return List.of(
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "The plugin has a specific contributing guide.";
                 }
-                return new ScoringComponentResult(0, getWeight(), List.of("The plugin relies on the global contributing guide."));
-            }
 
-            @Override
-            public int getWeight() {
-                return 2;
-            }
-        },
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    ProbeResult probeResult = probeResults.get(ContributingGuidelinesProbe.KEY);
+                    if (probeResult != null && "Contributing guidelines found.".equals(probeResult.message())) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("Plugin has a contributing guide."));
+                    }
+                    return new ScoringComponentResult(
+                        0,
+                        getWeight(),
+                        List.of("The plugin relies on the global contributing guide."),
+                        List.of(new Resolution(
+                            "See why and how to add a contributing guide",
+                            "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-contributing-guide/"
+                        ))
+                    );
+                }
+
+                @Override
+                public int getWeight() {
+                    return 2;
+                }
+            },
             new ScoringComponent() {
                 @Override
                 public String getDescription() {
@@ -110,11 +121,52 @@ public class DocumentationScoring extends Scoring {
                 public int getWeight() {
                     return 8;
                 }
-            });
+            },
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "Recommend to setup Release Drafter on the plugin repository.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    ProbeResult cdProbe = probeResults.get(ContinuousDeliveryProbe.KEY);
+                    if (cdProbe != null && "JEP-229 workflow definition found.".equals(cdProbe.message())) {
+                        return new ScoringComponentResult(
+                            100,
+                            getWeight(),
+                            List.of("Plugin using Release Drafter because it has CD configured.")
+                        );
+                    }
+                    ProbeResult result = probeResults.get(ReleaseDrafterProbe.KEY);
+                    if (result != null && "Release Drafter is configured.".equals(result.message())) {
+                        return new ScoringComponentResult(
+                            100,
+                            getWeight(),
+                            List.of("Plugin is using Release Drafter.")
+                        );
+                    }
+                    return new ScoringComponentResult(
+                        0,
+                        0,
+                        List.of("Plugin is not using Release Drafter to manage its changelog."),
+                        List.of(new Resolution(
+                            "Plugin could benefit from using Release Drafter.",
+                            "https://github.com/jenkinsci/.github/blob/master/.github/release-drafter.adoc"
+                        ))
+                    );
+                }
+
+                @Override
+                public int getWeight() {
+                    return 0;
+                }
+            }
+        );
     }
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }
