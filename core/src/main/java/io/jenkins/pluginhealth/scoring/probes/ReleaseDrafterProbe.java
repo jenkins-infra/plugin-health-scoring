@@ -77,6 +77,11 @@ public class ReleaseDrafterProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Check if Release Drafter is configured on a plugin or not";
     }
