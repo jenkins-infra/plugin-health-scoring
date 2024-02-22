@@ -24,10 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.ZonedDateTime;
@@ -70,12 +72,13 @@ class ScoreAPITest {
         final Plugin p1 = mock(Plugin.class);
         final Plugin p2 = mock(Plugin.class);
 
-        final Score scoreP1 = new Score(p1, ZonedDateTime.now());
+        ZonedDateTime computedAt = ZonedDateTime.now().minusMinutes(1);
+        final Score scoreP1 = new Score(p1, computedAt);
         scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
 
-        final Score scoreP2 = new Score(p2, ZonedDateTime.now());
+        final Score scoreP2 = new Score(p2, ZonedDateTime.now().minusDays(1));
         scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
@@ -96,6 +99,7 @@ class ScoreAPITest {
         mockMvc.perform(get("/api/scores"))
             .andExpectAll(
                 status().isOk(),
+                header().string("ETag", equalTo("\"" + computedAt.toEpochSecond() + "\"")),
                 content().contentType(MediaType.APPLICATION_JSON),
                 content().json("""
                     {
