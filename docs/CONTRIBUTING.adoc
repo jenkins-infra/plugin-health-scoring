@@ -13,7 +13,7 @@ When building, Yarn will bundle the front-end files only.
 .. Java 21
 .. Maven 3.9.6
 .. Node 20.10.0 and Yarn 4.0.2 (these should be done in the "war" directory)
-.. Optional: have Docker installed in your environment
+.. Docker installed and running in your environment
 . Open the project in your favorite IDE.
 
 NOTE: Optionally, you can use the Maven wrapper in the repository.

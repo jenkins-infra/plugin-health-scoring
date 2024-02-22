@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,11 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
-import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
 import io.jenkins.pluginhealth.scoring.probes.RenovateProbe;
 
@@ -67,7 +67,9 @@ public class PluginMaintenanceScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of("Jenkinsfile not detected in plugin repository."),
-                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                                List.of(
+                                    new Resolution("See how to add a Jenkinsfile", "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")
+                                )
                             );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile.", probeResult.message()));
@@ -77,38 +79,6 @@ public class PluginMaintenanceScoring extends Scoring {
                 @Override
                 public int getWeight() {
                     return 65;
-                }
-            },
-            new ScoringComponent() { // Documentation migration done
-                @Override
-                public String getDescription() {
-                    return "Plugin documentation should be migrated from the wiki.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(DocumentationMigrationProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration."));
-                    }
-                    return switch (probeResult.message()) {
-                        case "Documentation is located in the plugin repository." ->
-                            new ScoringComponentResult(100, getWeight(), List.of("Documentation is in plugin repository."));
-                        case "Documentation is not located in the plugin repository." ->
-                            new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of("Documentation should be migrated in plugin repository."),
-                                List.of("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
-                            );
-                        default ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
-                    };
-                }
-
-                @Override
-                public int getWeight() {
-                    return 15;
                 }
             },
             new ScoringComponent() { // Dependabot and not dependency pull requests
@@ -138,7 +108,9 @@ public class PluginMaintenanceScoring extends Scoring {
                         0,
                         getWeight(),
                         List.of("No dependency version manager bot are used on the plugin repository."),
-                        List.of("https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                        List.of(
+                            new Resolution("See how to automate the dependencies updates", "https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")
+                        )
                     );
                 }
 
@@ -154,7 +126,9 @@ public class PluginMaintenanceScoring extends Scoring {
                                 50,
                                 getWeight(),
                                 List.of(dependencyBotResult.message(), "%s open dependency pull request".formatted(dependencyPullRequestResult.message())),
-                                List.of("%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
+                                List.of(
+                                    new Resolution("See the open pull requests of the plugin", "%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies".formatted(plugin.getScm()))
+                                )
                             );
                     }
                     return new ScoringComponentResult(
@@ -221,6 +195,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 2;
+        return 3;
     }
 }

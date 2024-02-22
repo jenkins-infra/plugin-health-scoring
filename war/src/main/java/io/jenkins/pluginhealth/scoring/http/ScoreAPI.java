@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
@@ -91,8 +92,7 @@ public class ScoreAPI {
         }
     }
 
-
-    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<String> resolutions) {
+    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<Resolution> resolutions) {
         private PluginScoreDetailComponent(ScoringComponentResult result) {
             this(result.score(), result.weight(), result.reasons(), result.resolutions());
         }
