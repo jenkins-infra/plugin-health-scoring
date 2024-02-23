@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,12 +57,11 @@ public class ScoreAPI {
     @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ScoreReport> getReport() {
         final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap();
-        final String etag = latestScoresSummaryMap.values().stream()
+        final Optional<String> optETag = latestScoresSummaryMap.values().stream()
             .max(Comparator.comparing(Score::getComputedAt))
             .map(Score::getComputedAt)
             .map(ZonedDateTime::toEpochSecond)
-            .map(String::valueOf)
-            .orElse(null);
+            .map(String::valueOf);
 
         record Tuple(String name, PluginScoreSummary summary) {
         }
@@ -85,11 +85,11 @@ public class ScoreAPI {
             })
             .collect(Collectors.toMap(Tuple::name, Tuple::summary));
 
-        return ResponseEntity
-            .ok()
-            .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
-            .eTag(etag)
-            .body(new ScoreReport(plugins, scoreService.getScoresStatistics()));
+        final ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS));
+        optETag.ifPresent(bodyBuilder::eTag);
+
+        return bodyBuilder.body(new ScoreReport(plugins, scoreService.getScoresStatistics()));
     }
 
     public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
