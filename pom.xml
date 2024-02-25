@@ -103,7 +103,7 @@
 
 		<jjwt.version>0.12.5</jjwt.version>
 		<testcontainers.version>1.19.5</testcontainers.version>
-		<spring-boot.version>3.2.2</spring-boot.version>
+		<spring-boot.version>3.2.3</spring-boot.version>
 	</properties>
 
 	<dependencyManagement>
