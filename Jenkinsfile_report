@@ -1,0 +1,46 @@
+def cronExpr = env.BRANCH_IS_PRIMARY ? 'H/30 * * * *' : ''
+
+pipeline {
+  agent any
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    timeout(time: 5, unit: 'MINUTES')
+    disableConcurrentBuilds()
+  }
+
+  triggers {
+    cron( cronExpr )
+  }
+
+  stages {
+    stage('Fetch API') {
+      steps {
+        sh '''
+          # TODO: get etags.txt file from previous successful build
+          curl --etag-compare etags.txt \
+            --etag-save etags.txt \
+            -LSs https://plugin-health.jenkins.io/api/scores \
+            -o api.json
+          jq '. + { lastUpdate: (now | todate) }' api.json > plugin-health-scoring.json
+        '''
+      }
+
+      post {
+        success {
+          archiveArtifacts artifacts: 'plugin-health-scoring.json, etags.txt'
+        }
+      }
+    }
+
+    stage('Publish') {
+      when {
+        infra.isTrusted()
+      }
+
+      steps {
+        publishReports([ 'plugin-health-scoring.json' ])
+      }
+    }
+  }
+}
