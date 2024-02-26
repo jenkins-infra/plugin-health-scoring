@@ -22,7 +22,7 @@ pipeline {
             --etag-save etags.txt \
             -LSs https://plugin-health.jenkins.io/api/scores \
             -o api.json
-          jq '. + { lastUpdate: (now | todate) }' api.json > plugin-health-scoring.json
+          jq -cM '. + { lastUpdate: (now | todate) }' api.json > plugin-health-scoring.json
         '''
       }
 
