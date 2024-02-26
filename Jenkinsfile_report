@@ -1,5 +1,9 @@
 def cronExpr = env.BRANCH_IS_PRIMARY ? 'H * * * *' : ''
 
+def reportsFolder = 'plugin-health-scoring'
+def etagsFile = 'etags.txt'
+def reportFile = 'scores.json'
+
 pipeline {
   agent any
 
@@ -15,20 +19,25 @@ pipeline {
 
   stages {
     stage('Fetch API') {
+      environment {
+        REPORTS_FOLDER = reportsFolder
+        ETAGS_FILE = etagsFile
+        REPORT_FILE = reportFile
+        URL = 'https://plugin-health.jenkins.io/api/scores'
+      }
+
       steps {
         sh '''
-          # TODO: get etags.txt file from previous successful build
-          curl --etag-compare etags.txt \
-            --etag-save etags.txt \
-            -LSs https://plugin-health.jenkins.io/api/scores \
-            -o api.json
-          jq -cM '. + { lastUpdate: (now | todate) }' api.json > plugin-health-scoring.json
+          curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
+          bash fetch-report.sh
+          mkdir -p "${reportsFolder}"
+          cp "${reportFile}" "${etagsFile}" "${reportsFolder}"
         '''
       }
 
       post {
         success {
-          archiveArtifacts artifacts: 'plugin-health-scoring.json, etags.txt'
+          archiveArtifacts artifacts: "${reportFile}, ${etagsFile}"
         }
       }
     }
@@ -39,7 +48,7 @@ pipeline {
       }
 
       steps {
-        publishReports([ 'plugin-health-scoring.json' ])
+        publishReports([ "${reportsFolder}/${reportFile}", "${reportsFolder}/${etagsFile}" ])
       }
     }
   }
