@@ -44,7 +44,7 @@ pipeline {
 
     stage('Publish') {
       when {
-        infra.isTrusted()
+        infra.isInfra()
       }
 
       steps {
