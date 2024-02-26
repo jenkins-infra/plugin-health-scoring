@@ -25,13 +25,11 @@ set -euxo pipefail
 # SOFTWARE.
 #
 
-curl --etag-compare "${ETAGS_FILE}" \
-    --etag-save "${ETAGS_FILE}" \
-    -LSs "${URL}" \
-    -o api.json
 ###
 # using --compact-output to reduce output file by half.
 # adding report generation date in 'lastUpdate' key of the report.
 ###
-jq --compact-output '. + { lastUpdate: (now | todate) }' api.json > "${REPORT_FILE}"
-rm api.json
+curl --etag-compare "${ETAGS_FILE}" \
+    --etag-save "${ETAGS_FILE}" \
+    -LSs "${URL}" \
+    | jq --compact-output '. + { lastUpdate: (now | todate) }' > "${REPORT_FILE}"

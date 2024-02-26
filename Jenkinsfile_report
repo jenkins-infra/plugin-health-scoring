@@ -3,6 +3,7 @@ def cronExpr = env.BRANCH_IS_PRIMARY ? 'H * * * *' : ''
 def reportsFolder = 'plugin-health-scoring'
 def etagsFile = 'etags.txt'
 def reportFile = 'scores.json'
+def reportLines = 0
 
 pipeline {
   agent any
@@ -27,12 +28,14 @@ pipeline {
       }
 
       steps {
-        sh '''
+        reportLines = sh(returnStdout:true, script: '''
           curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
           bash fetch-report.sh
           mkdir -p "${reportsFolder}"
-          cp "${reportFile}" "${etagsFile}" "${reportsFolder}"
-        '''
+          cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
+
+          wc -l ${REPORT_FILE}
+        ''').trim()
       }
 
       post {
@@ -44,7 +47,9 @@ pipeline {
 
     stage('Publish') {
       when {
-        infra.isInfra()
+        expression {
+          infra.isInfra() && reportLines > 0
+        }
       }
 
       steps {
