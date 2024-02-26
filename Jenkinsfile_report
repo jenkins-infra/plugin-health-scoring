@@ -1,4 +1,4 @@
-def cronExpr = env.BRANCH_IS_PRIMARY ? 'H/30 * * * *' : ''
+def cronExpr = env.BRANCH_IS_PRIMARY ? 'H * * * *' : ''
 
 pipeline {
   agent any
