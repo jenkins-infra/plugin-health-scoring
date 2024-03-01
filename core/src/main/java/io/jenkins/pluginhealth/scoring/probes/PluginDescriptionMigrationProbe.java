@@ -55,4 +55,9 @@ public class PluginDescriptionMigrationProbe extends Probe {
     public long getVersion() {
         return 1;
     }
+
+    @Override
+    protected boolean requiresRelease() {
+        return true;
+    }
 }
