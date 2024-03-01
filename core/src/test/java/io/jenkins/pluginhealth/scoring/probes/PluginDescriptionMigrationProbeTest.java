@@ -77,7 +77,7 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         assertThat(result)
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "There is no file `src/main/resources/index.jelly`", 0));
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "There is no `index.jelly` file in `src/main/resources`.", 0));
     }
 
     @Test
@@ -119,6 +119,7 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
             </div>
             """);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
+        when(ctx.getScmFolderPath()).thenReturn(Optional.of(module));
 
         final PluginDescriptionMigrationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -168,6 +169,7 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
             </div>
             """);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
+        when(ctx.getScmFolderPath()).thenReturn(Optional.of(module));
 
         final PluginDescriptionMigrationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
