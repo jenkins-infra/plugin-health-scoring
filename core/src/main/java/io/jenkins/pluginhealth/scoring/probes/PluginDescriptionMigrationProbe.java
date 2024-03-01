@@ -24,6 +24,12 @@
 
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
@@ -38,7 +44,30 @@ public class PluginDescriptionMigrationProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        return null;
+        final Optional<Path> scmRepositoryOpt = context.getScmRepository();
+        if (scmRepositoryOpt.isEmpty()) {
+            return error("Cannot access plugin repository.");
+        }
+
+        final Path repository = scmRepositoryOpt.get();
+        final Path pluginFolder = context.getScmFolderPath().map(repository::resolve).orElse(repository);
+
+        try (final Stream<Path> files = Files.find(
+            pluginFolder.resolve("src").resolve("main").resolve("resources"),
+            1,
+            (path, attributes) -> "index.jelly".equals(path.getFileName().toString())
+        )) {
+            final Optional<Path> jellyFileOpt = files.findFirst();
+            if (jellyFileOpt.isEmpty()) {
+                return success("There is no `index.jelly` file in `src/main/resources`.");
+            }
+            final Path jellyFile = jellyFileOpt.get();
+            return Files.readAllLines(jellyFile).stream().map(String::trim).anyMatch(s -> s.contains("TODO")) ?
+                    success("Plugin is using description from the plugin archetype.") :
+                    success("Plugin seems to have a correct description.");
+        } catch (IOException e) {
+            return error("Cannot browse plugin source code folder.");
+        }
     }
 
     @Override
