@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(PluginDescriptionMigrationProbe.ORDER)
 public class PluginDescriptionMigrationProbe extends Probe {
-    public final static String KEY = "description-migration";
+    public static final String KEY = "description-migration";
     public static final int ORDER = DocumentationMigrationProbe.ORDER + 100;
 
     @Override
