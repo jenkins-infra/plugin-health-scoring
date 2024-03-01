@@ -64,11 +64,29 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
     }
 
     @Test
+    void shouldFailWhenPluginRepositoryIsEmpty() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        final Path repository = Files.createTempDirectory(getClass().getSimpleName());
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
+
+        final PluginDescriptionMigrationProbe probe = getSpy();
+        final ProbeResult result = probe.apply(plugin, ctx);
+
+        assertThat(result)
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.error(PluginDescriptionMigrationProbe.KEY, "Cannot browse plugin source code folder.", 0));
+    }
+
+    @Test
     void shouldDetectMissingJellyFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final Path repository = Files.createTempDirectory(getClass().getSimpleName());
+        Files.createDirectories(repository.resolve("src").resolve("main").resolve("resources"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         final PluginDescriptionMigrationProbe probe = getSpy();
