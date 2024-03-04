@@ -52,7 +52,7 @@ public class PluginDescriptionMigrationProbe extends Probe {
         final Path repository = scmRepositoryOpt.get();
         final Path pluginFolder = context.getScmFolderPath().map(repository::resolve).orElse(repository);
 
-        try (final Stream<Path> files = Files.find(
+        try (Stream<Path> files = Files.find(
             pluginFolder.resolve("src").resolve("main").resolve("resources"),
             1,
             (path, attributes) -> "index.jelly".equals(path.getFileName().toString())
