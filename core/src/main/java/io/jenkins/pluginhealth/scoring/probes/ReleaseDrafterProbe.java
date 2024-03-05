@@ -38,13 +38,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(DrafterReleaseProbe.ORDER)
-public class DrafterReleaseProbe extends  Probe {
-
+@Order(ReleaseDrafterProbe.ORDER)
+public class ReleaseDrafterProbe extends Probe {
     public static final String KEY = "release-drafter";
-
     public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DrafterReleaseProbe.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseDrafterProbe.class);
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {

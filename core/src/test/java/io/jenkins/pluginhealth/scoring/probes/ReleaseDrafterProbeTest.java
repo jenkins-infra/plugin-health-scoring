@@ -40,10 +40,10 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.junit.jupiter.api.Test;
 
-class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
+class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
     @Override
-    DrafterReleaseProbe getSpy() {
-        return spy(DrafterReleaseProbe.class);
+    ReleaseDrafterProbe getSpy() {
+        return spy(ReleaseDrafterProbe.class);
     }
 
     @Test
@@ -59,19 +59,19 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         when(plugin.getName()).thenReturn("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
-        final DrafterReleaseProbe probe = getSpy();
+        final ReleaseDrafterProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.error(DrafterReleaseProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
+            .isEqualTo(ProbeResult.error(ReleaseDrafterProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
     }
 
     @Test
     void shouldDetectMissingGithubConfigurationFolder() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DrafterReleaseProbe probe = getSpy();
+        final ReleaseDrafterProbe probe = getSpy();
 
         final Path repo = Files.createTempDirectory("foo");
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
@@ -79,7 +79,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -87,7 +87,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     void shouldDetectMissingReleaseDrafterFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DrafterReleaseProbe probe = getSpy();
+        final ReleaseDrafterProbe probe = getSpy();
 
         final Path repo = Files.createTempDirectory("foo");
         Files.createDirectories(repo.resolve(".github"));
@@ -96,7 +96,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is not configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is not configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -104,7 +104,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     void shouldDetectReleaseDrafterFile() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DrafterReleaseProbe probe = getSpy();
+        final ReleaseDrafterProbe probe = getSpy();
 
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));
@@ -115,7 +115,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -123,7 +123,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
     void shouldDetectReleaseDrafterFileWithFullFileExtension() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-        final DrafterReleaseProbe probe = getSpy();
+        final ReleaseDrafterProbe probe = getSpy();
 
         final Path repo = Files.createTempDirectory("foo");
         final Path github = Files.createDirectories(repo.resolve(".github"));
@@ -134,7 +134,7 @@ class DrafterReleaseProbeTest extends AbstractProbeTest<DrafterReleaseProbe> {
         assertThat(probe.apply(plugin, ctx))
             .usingRecursiveComparison()
             .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(DrafterReleaseProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
+            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }
