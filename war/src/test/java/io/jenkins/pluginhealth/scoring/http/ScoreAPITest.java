@@ -24,10 +24,13 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.ZonedDateTime;
@@ -51,9 +54,11 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @ExtendWith({ SpringExtension.class, MockitoExtension.class })
 @ImportAutoConfiguration({ ProjectInfoAutoConfiguration.class, SecurityConfiguration.class })
@@ -70,12 +75,13 @@ class ScoreAPITest {
         final Plugin p1 = mock(Plugin.class);
         final Plugin p2 = mock(Plugin.class);
 
-        final Score scoreP1 = new Score(p1, ZonedDateTime.now());
+        final ZonedDateTime computedAt = ZonedDateTime.now().minusMinutes(1);
+        final Score scoreP1 = new Score(p1, computedAt);
         scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
 
-        final Score scoreP2 = new Score(p2, ZonedDateTime.now());
+        final Score scoreP2 = new Score(p2, ZonedDateTime.now().minusDays(1));
         scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
@@ -96,6 +102,7 @@ class ScoreAPITest {
         mockMvc.perform(get("/api/scores"))
             .andExpectAll(
                 status().isOk(),
+                header().string("ETag", equalTo("\"" + computedAt.toEpochSecond() + "\"")),
                 content().contentType(MediaType.APPLICATION_JSON),
                 content().json("""
                     {
@@ -159,6 +166,62 @@ class ScoreAPITest {
                         }
                     }
                     """, false)
+            );
+    }
+
+    @Test
+    void shouldGet304WhenNoNewScoring() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+
+        final ZonedDateTime computedAt = ZonedDateTime.now().minusHours(2);
+        final Score scoreP1 = new Score(plugin, computedAt);
+        scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
+            new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
+        ), 1));
+
+        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of(
+            "plugin-1", scoreP1
+        ));
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/scores"))
+            .andExpectAll(
+                status().isOk(),
+                header().string("ETag", equalTo("\"%s\"".formatted(computedAt.toEpochSecond()))),
+                content().contentType(MediaType.APPLICATION_JSON)
+            )
+            .andReturn();
+
+        final HttpHeaders httpHeaders = new HttpHeaders();
+        String responseETag = mvcResult.getResponse().getHeader("ETag");
+        assertThat(responseETag).isNotNull();
+        httpHeaders.setIfNoneMatch(responseETag);
+
+        mvcResult = mockMvc.perform(get("/api/scores").headers(httpHeaders))
+            .andExpectAll(
+                status().isNotModified(),
+                header().string("ETag", equalTo("\"%s\"".formatted(computedAt.toEpochSecond())))
+            )
+            .andReturn();
+
+        responseETag = mvcResult.getResponse().getHeader("ETag");
+        assertThat(responseETag).isNotNull();
+        httpHeaders.setIfNoneMatch(responseETag);
+
+        final ZonedDateTime newScoreComputedAt = ZonedDateTime.now().minusMinutes(5);
+        final Score newScoreP1 = new Score(plugin, newScoreComputedAt);
+        scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
+            new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
+        ), 1));
+
+        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of(
+            "plugin-1", newScoreP1
+        ));
+
+        mockMvc.perform(get("/api/scores").headers(httpHeaders))
+            .andExpectAll(
+                status().isOk(),
+                header().string("ETag", equalTo("\"%s\"".formatted(newScoreComputedAt.toEpochSecond()))),
+                content().contentType(MediaType.APPLICATION_JSON)
             );
     }
 }
