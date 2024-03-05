@@ -181,6 +181,20 @@
 					<groupId>com.diffplug.spotless</groupId>
 					<artifactId>spotless-maven-plugin</artifactId>
 					<version>2.43.0</version>
+					<configuration>
+						<pom>
+							<sortPom>
+								<encoding>${project.build.sourceEncoding}</encoding>
+								<expandEmptyElements>false</expandEmptyElements>
+								<indentBlankLines>false</indentBlankLines>
+								<indentSchemaLocation>false</indentSchemaLocation>
+								<spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+
+								<sortDependencies>scope,groupId,artifactId</sortDependencies>
+								<sortPlugins>scope,groupId,artifactId</sortPlugins>
+							</sortPom>
+						</pom>
+					</configuration>
 				</plugin>
 				<plugin>
 					<artifactId>maven-checkstyle-plugin</artifactId>
