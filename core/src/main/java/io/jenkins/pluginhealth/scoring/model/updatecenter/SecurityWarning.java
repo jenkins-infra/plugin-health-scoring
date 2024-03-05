@@ -26,10 +26,16 @@ package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
 import java.util.List;
 
+import io.jenkins.pluginhealth.scoring.model.Resolution;
+
 public record SecurityWarning(
     String id,
+
     String name,
+
     String url,
+
+    Resolution resolution,
     List<SecurityWarningVersion> versions
 ) {
 }
