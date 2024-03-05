@@ -183,6 +183,9 @@
 					<version>2.43.0</version>
 					<configuration>
 						<java>
+							<licenseHeader>
+								<file>${maven.multiModuleProjectDirectory}/license-header/java.txt</file>
+							</licenseHeader>
 							<toggleOffOn>
 								<off>@formatter:off</off>
     						<on>@formatter:on</on>
