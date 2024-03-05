@@ -182,6 +182,22 @@
 					<artifactId>spotless-maven-plugin</artifactId>
 					<version>2.43.0</version>
 					<configuration>
+						<java>
+							<toggleOffOn>
+								<off>@formatter:off</off>
+    						<on>@formatter:on</on>
+							</toggleOffOn>
+							<endWithNewline/>
+							<importOrder>
+								<order>\#,java|javax,io.jenkins.pluginhealth.scoring,</order>
+							</importOrder>
+							<indent>
+								<spaces>true</spaces>
+							</indent>
+							<formatAnnotations/>
+							<removeUnusedImports/>
+							<trimTrailingWhitespace/>
+						</java>
 						<pom>
 							<sortPom>
 								<encoding>${project.build.sourceEncoding}</encoding>
