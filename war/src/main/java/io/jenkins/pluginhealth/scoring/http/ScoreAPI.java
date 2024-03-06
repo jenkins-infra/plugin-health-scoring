@@ -24,16 +24,23 @@
 
 package io.jenkins.pluginhealth.scoring.http;
 
+import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Resolution;
+import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,12 +55,18 @@ public class ScoreAPI {
     }
 
     @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ScoreReport getReport() {
-        final ScoreService.ScoreStatistics stats = scoreService.getScoresStatistics();
+    public ResponseEntity<ScoreReport> getReport() {
+        final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap();
+        final Optional<String> optETag = latestScoresSummaryMap.values().stream()
+            .max(Comparator.comparing(Score::getComputedAt))
+            .map(Score::getComputedAt)
+            .map(ZonedDateTime::toEpochSecond)
+            .map(String::valueOf);
+
         record Tuple(String name, PluginScoreSummary summary) {
         }
 
-        final Map<String, PluginScoreSummary> plugins = scoreService.getLatestScoresSummaryMap()
+        final Map<String, PluginScoreSummary> plugins = latestScoresSummaryMap
             .entrySet().stream()
             .map(entry -> {
                 final var score = entry.getValue();
@@ -71,7 +84,12 @@ public class ScoreAPI {
                 );
             })
             .collect(Collectors.toMap(Tuple::name, Tuple::summary));
-        return new ScoreReport(plugins, stats);
+
+        final ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.ok()
+            .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS));
+        optETag.ifPresent(bodyBuilder::eTag);
+
+        return bodyBuilder.body(new ScoreReport(plugins, scoreService.getScoresStatistics()));
     }
 
     public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
