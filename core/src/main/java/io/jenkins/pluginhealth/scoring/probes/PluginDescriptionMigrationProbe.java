@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -50,21 +49,20 @@ public class PluginDescriptionMigrationProbe extends Probe {
         }
 
         final Path repository = scmRepositoryOpt.get();
-        final Path pluginFolder = context.getScmFolderPath().map(repository::resolve).orElse(repository);
+        final Path pluginFolder =
+                context.getScmFolderPath().map(repository::resolve).orElse(repository);
 
         try (Stream<Path> files = Files.find(
-            pluginFolder.resolve("src").resolve("main").resolve("resources"),
-            1,
-            (path, attributes) -> "index.jelly".equals(path.getFileName().toString())
-        )) {
+                pluginFolder.resolve("src").resolve("main").resolve("resources"), 1, (path, attributes) -> "index.jelly"
+                        .equals(path.getFileName().toString()))) {
             final Optional<Path> jellyFileOpt = files.findFirst();
             if (jellyFileOpt.isEmpty()) {
                 return success("There is no `index.jelly` file in `src/main/resources`.");
             }
             final Path jellyFile = jellyFileOpt.get();
-            return Files.readAllLines(jellyFile).stream().map(String::trim).anyMatch(s -> s.contains("TODO")) ?
-                    success("Plugin is using description from the plugin archetype.") :
-                    success("Plugin seems to have a correct description.");
+            return Files.readAllLines(jellyFile).stream().map(String::trim).anyMatch(s -> s.contains("TODO"))
+                    ? success("Plugin is using description from the plugin archetype.")
+                    : success("Plugin seems to have a correct description.");
         } catch (IOException e) {
             return error("Cannot browse plugin source code folder.");
         }
