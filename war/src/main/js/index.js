@@ -8,7 +8,12 @@ defineCustomElements(window, {
 
 const probesTable = document.getElementById('probes-table');
 if (probesTable !== null) {
-    new DataTable("#probes-table");
+    new DataTable("#probes-table", {
+      perPageSelect: [10, 25, 50],
+      columns: [
+        { select: 1, sortable: false },
+      ]
+    });
 }
 
 const updateCollapseIcon = (container, target) => {
