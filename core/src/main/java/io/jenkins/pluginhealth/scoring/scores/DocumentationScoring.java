@@ -34,6 +34,7 @@ import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.PluginDescriptionMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
 
 import org.springframework.stereotype.Component;
@@ -103,15 +104,14 @@ public class DocumentationScoring extends Scoring {
                     return switch (probeResult.message()) {
                         case "Documentation is located in the plugin repository." ->
                             new ScoringComponentResult(100, getWeight(), List.of("Documentation is in plugin repository."));
-                        case "Documentation is not located in the plugin repository." ->
-                            new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of("Documentation should be migrated in plugin repository."),
-                                List.of(
-                                    new Resolution("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
-                                )
-                            );
+                        case "Documentation is not located in the plugin repository." -> new ScoringComponentResult(
+                            0,
+                            getWeight(),
+                            List.of("Documentation should be migrated in plugin repository."),
+                            List.of(
+                                new Resolution("https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")
+                            )
+                        );
                         default ->
                             new ScoringComponentResult(0, getWeight(), List.of("Cannot confirm or not the documentation migration.", probeResult.message()));
                     };
@@ -119,7 +119,7 @@ public class DocumentationScoring extends Scoring {
 
                 @Override
                 public int getWeight() {
-                    return 8;
+                    return 4;
                 }
             },
             new ScoringComponent() {
@@ -160,6 +160,39 @@ public class DocumentationScoring extends Scoring {
                 @Override
                 public int getWeight() {
                     return 0;
+                }
+            },
+            new ScoringComponent() {
+                @Override
+                public String getDescription() {
+                    return "Plugin description should be located in the index.jelly file.";
+                }
+
+                @Override
+                public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                    final ProbeResult result = probeResults.get(PluginDescriptionMigrationProbe.KEY);
+                    if (result == null || ProbeResult.Status.ERROR.equals(result.status())) {
+                        return new ScoringComponentResult(
+                            0,
+                            getWeight(),
+                            List.of("Cannot determine if the plugin description was correctly migrated.")
+                        );
+                    }
+
+                    final String message = result.message();
+                    if ("Plugin seems to have a correct description.".equals(message)) {
+                        return new ScoringComponentResult(100, getWeight(), List.of(message));
+                    }
+                    return new ScoringComponentResult(0, getWeight(), List.of(message),
+                        List.of(new Resolution(
+                            "Please see how to migrate the plugin description for the plugin.",
+                            "https://www.jenkins.io/doc/developer/tutorial-improve/move-description-to-index/"
+                        )));
+                }
+
+                @Override
+                public int getWeight() {
+                    return 4;
                 }
             }
         );

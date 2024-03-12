@@ -38,6 +38,7 @@ import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContributingGuidelinesProbe;
 import io.jenkins.pluginhealth.scoring.probes.DocumentationMigrationProbe;
+import io.jenkins.pluginhealth.scoring.probes.PluginDescriptionMigrationProbe;
 import io.jenkins.pluginhealth.scoring.probes.ReleaseDrafterProbe;
 
 import org.assertj.core.api.Condition;
@@ -56,6 +57,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 1),
             ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1),
             ReleaseDrafterProbe.KEY, ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", 1)
         ));
@@ -74,6 +76,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 1),
             ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1),
             ReleaseDrafterProbe.KEY, ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter not is configured.", 1)
         ));
@@ -84,7 +87,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
             .usingRecursiveComparison().comparingOnlyFields("key", "value")
             .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 100, .5f, Set.of(), 1));
         assertThat(result.componentsResults())
-            .hasSize(3)
+            .hasSize(4)
             .haveAtLeastOne(new Condition<>(
                 res -> {
                     return res.weight() == 0 && res.score() == 0 && res.resolutions().size() == 1 &&
@@ -101,6 +104,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 1),
             ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", 1),
             ReleaseDrafterProbe.KEY, ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter not is configured.", 1),
             ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
@@ -112,7 +116,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
             .usingRecursiveComparison().comparingOnlyFields("key", "value")
             .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 100, .5f, Set.of(), 1));
         assertThat(result.componentsResults())
-            .hasSize(3)
+            .hasSize(4)
             .haveAtLeastOne(new Condition<>(
                 res -> {
                     return res.weight() == 0 && res.score() == 100 && res.reasons().size() == 1 &&
@@ -123,12 +127,13 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
     }
 
     @Test
-    void shouldScoreEightyWithMigratedDocumentationOnly() {
+    void shouldScoreFortyWithMigratedDocumentationOnly() {
         final Plugin plugin = mock(Plugin.class);
         final DocumentationScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin is using description from the plugin archetype.", 1),
             ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", 1)
         ));
 
@@ -136,7 +141,25 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
         assertThat(result)
             .isNotNull()
             .usingRecursiveComparison().comparingOnlyFields("key", "value")
-            .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 80, .5f, Set.of(), 1));
+            .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 40, .5f, Set.of(), 1));
+    }
+
+    @Test
+    void shouldScoreFortyWithMigratedDescriptionOnly() {
+        final Plugin plugin = mock(Plugin.class);
+        final DocumentationScoring scoring = getSpy();
+
+        when(plugin.getDetails()).thenReturn(Map.of(
+            DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 1),
+            ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", 1)
+        ));
+
+        ScoreResult result = scoring.apply(plugin);
+        assertThat(result)
+            .isNotNull()
+            .usingRecursiveComparison().comparingOnlyFields("key", "value")
+            .isEqualTo(new ScoreResult(DocumentationScoring.KEY, 40, .5f, Set.of(), 1));
     }
 
     @Test
@@ -146,6 +169,7 @@ class DocumentationScoringTest extends AbstractScoringTest<DocumentationScoring>
 
         when(plugin.getDetails()).thenReturn(Map.of(
             DocumentationMigrationProbe.KEY, ProbeResult.success(DocumentationMigrationProbe.KEY, "Documentation is not located in the plugin repository.", 1),
+            PluginDescriptionMigrationProbe.KEY, ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin is using description from the plugin archetype.", 1),
             ContributingGuidelinesProbe.KEY, ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", 1)
         ));
 
