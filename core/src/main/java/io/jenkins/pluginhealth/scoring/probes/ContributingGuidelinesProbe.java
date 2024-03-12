@@ -47,13 +47,17 @@ public class ContributingGuidelinesProbe extends Probe {
         }
 
         final Path repository = context.getScmRepository().get();
-        try (Stream<Path> paths = Files.find(repository, 2,
-            (file, basicFileAttributes) -> Files.isReadable(file)
-                && ("CONTRIBUTING.md".equalsIgnoreCase(file.getFileName().toString())
-                || "CONTRIBUTING.adoc".equalsIgnoreCase(file.getFileName().toString())))) {
+        try (Stream<Path> paths = Files.find(
+                repository,
+                2,
+                (file, basicFileAttributes) -> Files.isReadable(file)
+                        && ("CONTRIBUTING.md"
+                                        .equalsIgnoreCase(file.getFileName().toString())
+                                || "CONTRIBUTING.adoc"
+                                        .equalsIgnoreCase(file.getFileName().toString())))) {
             return paths.findAny()
-                .map(file -> this.success("Contributing guidelines found."))
-                .orElseGet(() -> this.success("No contributing guidelines found."));
+                    .map(file -> this.success("Contributing guidelines found."))
+                    .orElseGet(() -> this.success("No contributing guidelines found."));
         } catch (IOException e) {
             return this.error(e.getMessage());
         }

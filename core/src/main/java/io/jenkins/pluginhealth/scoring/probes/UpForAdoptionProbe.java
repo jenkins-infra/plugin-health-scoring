@@ -45,7 +45,8 @@ public class UpForAdoptionProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl =
+                updateCenter.plugins().get(plugin.getName());
         if (pl == null) {
             LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
             return this.error("This plugin is not in the update-center.");

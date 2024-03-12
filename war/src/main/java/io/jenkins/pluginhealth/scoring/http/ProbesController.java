@@ -56,12 +56,11 @@ public class ProbesController {
         final ModelAndView modelAndView = new ModelAndView("probes/listing");
 
         modelAndView.addObject(
-            "probes",
-            probeService.getProbes().stream()
-                .map(ProbeDetails::map)
-                .sorted(Comparator.comparing(ProbeDetails::id))
-                .toList()
-        );
+                "probes",
+                probeService.getProbes().stream()
+                        .map(ProbeDetails::map)
+                        .sorted(Comparator.comparing(ProbeDetails::id))
+                        .toList());
         return modelAndView;
     }
 
@@ -70,19 +69,15 @@ public class ProbesController {
         final ModelAndView modelAndView = new ModelAndView("probes/results");
 
         modelAndView
-            .addObject("probeResults", probeService.getProbesFinalResults())
-            .addObject("pluginsCount", pluginService.getPluginsCount());
+                .addObject("probeResults", probeService.getProbesFinalResults())
+                .addObject("pluginsCount", pluginService.getPluginsCount());
 
         return modelAndView;
     }
 
     record ProbeDetails(String id, String description, int executionOrder) {
         static ProbeDetails map(Probe probe) {
-            return new ProbeDetails(
-                probe.key(),
-                probe.getDescription(),
-                probe.getOrder()
-            );
+            return new ProbeDetails(probe.key(), probe.getDescription(), probe.getOrder());
         }
     }
 }

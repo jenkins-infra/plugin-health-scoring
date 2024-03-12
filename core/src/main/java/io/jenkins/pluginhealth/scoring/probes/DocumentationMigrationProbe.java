@@ -49,11 +49,11 @@ public class DocumentationMigrationProbe extends Probe {
         }
         final String linkDocumentationForPlugin = pluginDocumentationLinks.get(plugin.getName());
 
-        return linkDocumentationForPlugin == null ?
-            this.error("Plugin is not listed in documentation migration source.") :
-            linkDocumentationForPlugin.contains(scm) ?
-                this.success("Documentation is located in the plugin repository.") :
-                this.success("Documentation is not located in the plugin repository.");
+        return linkDocumentationForPlugin == null
+                ? this.error("Plugin is not listed in documentation migration source.")
+                : linkDocumentationForPlugin.contains(scm)
+                        ? this.success("Documentation is located in the plugin repository.")
+                        : this.success("Documentation is not located in the plugin repository.");
     }
 
     @Override

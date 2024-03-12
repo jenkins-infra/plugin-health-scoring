@@ -91,11 +91,10 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
                     RevCommit parent = revCommit.getParent(0);
                     DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
                     diffFormatter.setRepository(git.getRepository());
-                    diffFormatter.scan(parent.getTree(), revCommit.getTree())
-                        .stream()
-                        .map(diffEntry -> diffEntry.getPath(DiffEntry.Side.NEW))
-                        .filter(s -> paths.stream().anyMatch(s::startsWith))
-                        .forEach(files::add);
+                    diffFormatter.scan(parent.getTree(), revCommit.getTree()).stream()
+                            .map(diffEntry -> diffEntry.getPath(DiffEntry.Side.NEW))
+                            .filter(s -> paths.stream().anyMatch(s::startsWith))
+                            .forEach(files::add);
 
                 } else {
                     TreeWalk treeWalk = new TreeWalk(git.getRepository());
@@ -113,10 +112,10 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
                 }
             }
 
-            return files.isEmpty() ?
-                this.success("All production modifications were released.") :
-                this.success("Unreleased production modifications might exist in the plugin source code at "
-                    + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+            return files.isEmpty()
+                    ? this.success("All production modifications were released.")
+                    : this.success("Unreleased production modifications might exist in the plugin source code at "
+                            + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException | GitAPIException ex) {
             return this.error(ex.getMessage());
         }

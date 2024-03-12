@@ -39,10 +39,11 @@ public class JenkinsCoreProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter uc = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = uc.plugins().get(plugin.getName());
-        return ucPlugin != null ?
-            this.success(ucPlugin.requiredCore()) :
-            this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
+                uc.plugins().get(plugin.getName());
+        return ucPlugin != null
+                ? this.success(ucPlugin.requiredCore())
+                : this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
     }
 
     @Override

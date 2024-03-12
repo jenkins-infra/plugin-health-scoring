@@ -71,10 +71,10 @@ public class LastCommitDateProbe extends Probe {
                 return this.error("Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                    commit.getAuthorIdent().getWhenAsInstant(),
-                    commit.getAuthorIdent().getZoneId()
-                ).withZoneSameInstant(ZoneId.of("UTC"))
-                .truncatedTo(ChronoUnit.SECONDS);
+                            commit.getAuthorIdent().getWhenAsInstant(),
+                            commit.getAuthorIdent().getZoneId())
+                    .withZoneSameInstant(ZoneId.of("UTC"))
+                    .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
             return this.success(commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {
