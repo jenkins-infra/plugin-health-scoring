@@ -76,6 +76,11 @@ public class PluginDescriptionMigrationProbe extends Probe {
     }
 
     @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Override
     public String getDescription() {
         return "Checks if the plugin description is located in the `src/main/resources/index.jelly` file.";
     }
