@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import org.springframework.core.annotation.Order;
@@ -31,9 +30,10 @@ import org.springframework.stereotype.Component;
  * Looks for Renovate bot configuration in a plugin.
  */
 @Component
-@Order(AbstractDependencyBotConfigurationProbe.ORDER)
+@Order(RenovateProbe.ORDER)
 public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     public static final String KEY = "renovate";
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER;
 
     @Override
     protected String getBotName() {
@@ -48,6 +48,11 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
     @Override
     public String key() {
         return KEY;
+    }
+
+    @Override
+    public int getOrder() {
+        return ORDER;
     }
 
     @Override
