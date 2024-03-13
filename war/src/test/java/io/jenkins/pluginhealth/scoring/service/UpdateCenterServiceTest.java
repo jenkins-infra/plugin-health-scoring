@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +37,8 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
 @JsonTest
 class UpdateCenterServiceTest {
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldBeAbleToParseUpdateCenterWithNoDeprecations() throws Exception {
@@ -46,9 +46,8 @@ class UpdateCenterServiceTest {
         assertThat(updateCenterURL).isNotNull();
 
         final ApplicationConfiguration configuration = new ApplicationConfiguration(
-            new ApplicationConfiguration.Jenkins(updateCenterURL.toString(), "foo"),
-            new ApplicationConfiguration.GitHub("foo", null, "bar")
-        );
+                new ApplicationConfiguration.Jenkins(updateCenterURL.toString(), "foo"),
+                new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
         UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, configuration);
 

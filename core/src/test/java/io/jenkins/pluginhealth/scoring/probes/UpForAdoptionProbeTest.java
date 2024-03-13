@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,39 +58,64 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder", "adopt-this-plugin"), 0, "", "main")),
-            Collections.emptyMap(),
-            Collections.emptyList()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                "foo",
+                                new Plugin(
+                                        "foo",
+                                        new VersionNumber("1.0"),
+                                        "not-a-scm",
+                                        ZonedDateTime.now().minusDays(1),
+                                        List.of("builder", "adopt-this-plugin"),
+                                        0,
+                                        "",
+                                        "main")),
+                        Collections.emptyMap(),
+                        Collections.emptyList()));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", upForAdoptionProbe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        UpForAdoptionProbe.KEY, "This plugin is up for adoption.", upForAdoptionProbe.getVersion()));
     }
 
     @Test
     void shouldBeAbleToDetectPluginNotForAdoption() {
-        final io.jenkins.pluginhealth.scoring.model.Plugin plugin = mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
+        final io.jenkins.pluginhealth.scoring.model.Plugin plugin =
+                mock(io.jenkins.pluginhealth.scoring.model.Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final UpForAdoptionProbe upForAdoptionProbe = getSpy();
 
         when(plugin.getName()).thenReturn("foo");
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of("foo", new Plugin("foo", new VersionNumber("1.0"), "not-a-scm", ZonedDateTime.now().minusDays(1), List.of("builder"), 0, "", "main")),
-            Collections.emptyMap(),
-            Collections.emptyList()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                "foo",
+                                new Plugin(
+                                        "foo",
+                                        new VersionNumber("1.0"),
+                                        "not-a-scm",
+                                        ZonedDateTime.now().minusDays(1),
+                                        List.of("builder"),
+                                        0,
+                                        "",
+                                        "main")),
+                        Collections.emptyMap(),
+                        Collections.emptyList()));
 
         final ProbeResult result = upForAdoptionProbe.apply(plugin, ctx);
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", upForAdoptionProbe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        UpForAdoptionProbe.KEY,
+                        "This plugin is not up for adoption.",
+                        upForAdoptionProbe.getVersion()));
     }
 
     @Test
@@ -100,18 +124,15 @@ class UpForAdoptionProbeTest extends AbstractProbeTest<UpForAdoptionProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn("foo");
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(Map.of(), Map.of(), List.of()));
 
         final UpForAdoptionProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(UpForAdoptionProbe.KEY, "This plugin is not in the update-center.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        UpForAdoptionProbe.KEY, "This plugin is not in the update-center.", probe.getVersion()));
     }
 }

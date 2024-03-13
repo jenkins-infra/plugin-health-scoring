@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -44,15 +43,17 @@ public class DeprecatedPluginProbe extends Probe {
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
         if (updateCenter.deprecations().containsKey(plugin.getName())) {
-            return this.success(updateCenter.deprecations().get(plugin.getName()).url());
+            return this.success(
+                    updateCenter.deprecations().get(plugin.getName()).url());
         }
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin =
+                updateCenter.plugins().get(plugin.getName());
         if (updateCenterPlugin == null) {
             return this.error("This plugin is not in update-center.");
         }
-        return updateCenterPlugin.labels().contains("deprecated") ?
-            this.success("This plugin is marked as deprecated.") :
-            this.success("This plugin is NOT deprecated.");
+        return updateCenterPlugin.labels().contains("deprecated")
+                ? this.success("This plugin is marked as deprecated.")
+                : this.success("This plugin is NOT deprecated.");
     }
 
     @Override

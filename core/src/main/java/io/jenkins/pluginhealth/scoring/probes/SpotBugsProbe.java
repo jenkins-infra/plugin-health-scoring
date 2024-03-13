@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -49,7 +48,7 @@ public class SpotBugsProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
-            context.getUpdateCenter().plugins().get(plugin.getName());
+                context.getUpdateCenter().plugins().get(plugin.getName());
         if (ucPlugin == null) {
             return error("Plugin cannot be found in Update-Center.");
         }
@@ -61,8 +60,9 @@ public class SpotBugsProbe extends Probe {
             final Optional<String> repositoryName = context.getRepositoryName();
             if (repositoryName.isPresent()) {
                 final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-                final List<GHCheckRun> ghCheckRuns =
-                    ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")).toList();
+                final List<GHCheckRun> ghCheckRuns = ghRepository
+                        .getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs"))
+                        .toList();
                 if (ghCheckRuns.size() != 1) {
                     return this.success("SpotBugs not found in build configuration.");
                 } else {

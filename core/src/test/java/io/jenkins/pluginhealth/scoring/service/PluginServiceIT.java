@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,8 +42,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class PluginServiceIT extends AbstractDBContainerTest {
-    @Autowired private TestEntityManager entityManager;
-    @Autowired private PluginRepository pluginRepository;
+    @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
+    private PluginRepository pluginRepository;
+
     private PluginService pluginService;
 
     @BeforeEach
@@ -55,42 +58,34 @@ class PluginServiceIT extends AbstractDBContainerTest {
     @Test
     void shouldNotDuplicatePluginWhenNameIsTheSame() {
         final Plugin p1 = entityManager.persist(
-            new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null)
-        );
-        final Plugin p2 = entityManager.persist(
-            new Plugin("bar", new VersionNumber("1.2"), "scm-2", ZonedDateTime.now())
-        );
+                new Plugin("myPlugin", new VersionNumber("1.0"), "https://github.com/jenkinsci/my-plugin", null));
+        final Plugin p2 =
+                entityManager.persist(new Plugin("bar", new VersionNumber("1.2"), "scm-2", ZonedDateTime.now()));
 
-        assertThat(pluginService.streamAll())
-            .hasSize(2)
-            .containsExactlyInAnyOrder(p2, p1);
+        assertThat(pluginService.streamAll()).hasSize(2).containsExactlyInAnyOrder(p2, p1);
 
-        final Plugin copy = new Plugin("myPlugin", new VersionNumber("1.1"), "https://github.com/jenkinsci/my-plugin", null);
+        final Plugin copy =
+                new Plugin("myPlugin", new VersionNumber("1.1"), "https://github.com/jenkinsci/my-plugin", null);
         pluginService.saveOrUpdate(copy);
-        assertThat(pluginService.streamAll())
-            .hasSize(2)
-            .containsExactlyInAnyOrder(p2, copy);
+        assertThat(pluginService.streamAll()).hasSize(2).containsExactlyInAnyOrder(p2, copy);
     }
 
     @Test
     void shouldBeAbleToSavePluginWithThreeDigitVersion() {
-        final Plugin plugin = entityManager.persist(
-            new Plugin("foo-bar", new VersionNumber("1.0.1"), null, ZonedDateTime.now())
-        );
+        final Plugin plugin =
+                entityManager.persist(new Plugin("foo-bar", new VersionNumber("1.0.1"), null, ZonedDateTime.now()));
 
         assertThat(pluginService.getPluginsCount()).isEqualTo(1);
         assertThat(pluginService.findByName("foo-bar"))
-            .isPresent()
-            .get()
-            .extracting("version")
-            .isNotNull()
-            .isEqualTo(new VersionNumber("1.0.1"));
+                .isPresent()
+                .get()
+                .extracting("version")
+                .isNotNull()
+                .isEqualTo(new VersionNumber("1.0.1"));
     }
 
     @Test
     void shouldReturnsNonNullObjectWhenNoPluginWithName() {
-        assertThat(pluginService.findByName("not-existing"))
-            .isNotNull()
-            .isEmpty();
+        assertThat(pluginService.findByName("not-existing")).isNotNull().isEmpty();
     }
 }

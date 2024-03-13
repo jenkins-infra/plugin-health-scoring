@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Map;
@@ -60,12 +59,12 @@ public class ScoreController {
 
     @GetMapping(path = "/{pluginName}")
     public ModelAndView getScoreOf(@PathVariable String pluginName) {
-        return scoreService.latestScoreFor(pluginName)
-            .map(score -> {
-                return new ModelAndView("scores/details", Map.of(
-                    "score", score
-                ));
-            })
-            .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
+        return scoreService
+                .latestScoreFor(pluginName)
+                .map(score -> {
+                    return new ModelAndView("scores/details", Map.of("score", score));
+                })
+                .orElseGet(() ->
+                        new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 }

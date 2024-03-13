@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +41,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class PluginRepositoryIT extends AbstractDBContainerTest {
-    @Autowired private PluginRepository repository;
-    @Autowired private TestEntityManager entityManager;
+    @Autowired
+    private PluginRepository repository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     void shouldBeEmpty() {
@@ -52,7 +54,8 @@ class PluginRepositoryIT extends AbstractDBContainerTest {
 
     @Test
     void shouldBeAbleToSaveOnePlugin() {
-        final Plugin myPlugin = repository.save(new Plugin("myPlugin", new VersionNumber("1.0"), "this-is-ok", ZonedDateTime.now()));
+        final Plugin myPlugin =
+                repository.save(new Plugin("myPlugin", new VersionNumber("1.0"), "this-is-ok", ZonedDateTime.now()));
         assertThat(myPlugin).extracting("name").isEqualTo("myPlugin");
         assertThat(myPlugin).extracting("version").isEqualTo(new VersionNumber("1.0"));
         assertThat(myPlugin).extracting("scm").isEqualTo("this-is-ok");
@@ -84,12 +87,17 @@ class PluginRepositoryIT extends AbstractDBContainerTest {
 
     @Test
     void shouldBeAbleToUpdatePlugin() {
-        final Plugin plugin1 = new Plugin("plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(10));
+        final Plugin plugin1 = new Plugin(
+                "plugin-1", new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(10));
         entityManager.persist(plugin1);
         final Plugin plugin2 = new Plugin("plugin-2", new VersionNumber("1.0"), "scm", ZonedDateTime.now());
         entityManager.persist(plugin2);
 
-        final Plugin plugin1Updated = new Plugin("plugin-1", new VersionNumber("1.1"), "update-scm", ZonedDateTime.now().minusMinutes(2));
+        final Plugin plugin1Updated = new Plugin(
+                "plugin-1",
+                new VersionNumber("1.1"),
+                "update-scm",
+                ZonedDateTime.now().minusMinutes(2));
 
         final Optional<Plugin> pluginFromDBOpt = repository.findByName(plugin1Updated.getName());
         assertThat(pluginFromDBOpt).isPresent();
@@ -103,17 +111,13 @@ class PluginRepositoryIT extends AbstractDBContainerTest {
 
         final Optional<Plugin> pluginToCheck = repository.findByName(plugin1.getName());
         assertThat(pluginToCheck)
-            .isPresent()
-            .get()
-            .extracting(
-                Plugin::getName,
-                Plugin::getScm,
-                Plugin::getVersion,
-                Plugin::getReleaseTimestamp)
-            .containsExactly(
-                plugin1Updated.getName(),
-                plugin1Updated.getScm(),
-                plugin1Updated.getVersion(),
-                plugin1Updated.getReleaseTimestamp());
+                .isPresent()
+                .get()
+                .extracting(Plugin::getName, Plugin::getScm, Plugin::getVersion, Plugin::getReleaseTimestamp)
+                .containsExactly(
+                        plugin1Updated.getName(),
+                        plugin1Updated.getScm(),
+                        plugin1Updated.getVersion(),
+                        plugin1Updated.getReleaseTimestamp());
     }
 }

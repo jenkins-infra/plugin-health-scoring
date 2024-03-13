@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
 import java.time.ZonedDateTime;
@@ -29,10 +28,17 @@ import java.util.List;
 
 import hudson.util.VersionNumber;
 
-public record Plugin(String name, VersionNumber version, String scm,
-                     ZonedDateTime releaseTimestamp, List<String> labels,
-                     int popularity, String requiredCore, String defaultBranch) {
+public record Plugin(
+        String name,
+        VersionNumber version,
+        String scm,
+        ZonedDateTime releaseTimestamp,
+        List<String> labels,
+        int popularity,
+        String requiredCore,
+        String defaultBranch) {
     public io.jenkins.pluginhealth.scoring.model.Plugin toPlugin() {
-        return new io.jenkins.pluginhealth.scoring.model.Plugin(this.name(), this.version(), this.scm(), this.releaseTimestamp());
+        return new io.jenkins.pluginhealth.scoring.model.Plugin(
+                this.name(), this.version(), this.scm(), this.releaseTimestamp());
     }
 }

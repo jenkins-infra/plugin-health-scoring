@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,26 +75,32 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
 
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
         when(ctx.getRepositoryName()).thenReturn(Optional.empty());
 
         final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SpotBugsProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        SpotBugsProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -113,35 +118,39 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         final GHCheckRun checkRun = mock(GHCheckRun.class);
-        when(checkRuns.toList()).thenReturn(
-            List.of(checkRun)
-        );
+        when(checkRuns.toList()).thenReturn(List.of(checkRun));
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")))
-            .thenReturn(checkRuns);
+                .thenReturn(checkRuns);
 
         final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs found in build configuration.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SpotBugsProbe.KEY, "SpotBugs found in build configuration.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -159,30 +168,36 @@ class SpotBugsProbeTest extends AbstractProbeTest<SpotBugsProbe> {
         final GHRepository ghRepository = mock(GHRepository.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
         when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "SpotBugs")))
-            .thenReturn(checkRuns);
+                .thenReturn(checkRuns);
 
         final SpotBugsProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SpotBugsProbe.KEY, "SpotBugs not found in build configuration.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SpotBugsProbe.KEY, "SpotBugs not found in build configuration.", probe.getVersion()));
     }
 }

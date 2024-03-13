@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -61,17 +60,14 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
         }
 
         try (Stream<Path> files = Files.find(workflowPath, 1, (path, $) -> Files.isRegularFile(path))) {
-            boolean isWorkflowConfigured = files
-                .map(this::parseWorkflowFile)
-                .filter(this::hasWorkflowJobs)
-                .flatMap(workflow -> workflow.jobs().values().stream())
-                .map(WorkflowJobDefinition::uses)
-                .filter(Objects::nonNull)
-                .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
+            boolean isWorkflowConfigured = files.map(this::parseWorkflowFile)
+                    .filter(this::hasWorkflowJobs)
+                    .flatMap(workflow -> workflow.jobs().values().stream())
+                    .map(WorkflowJobDefinition::uses)
+                    .filter(Objects::nonNull)
+                    .anyMatch(jobDefinition -> jobDefinition.startsWith(getWorkflowDefinition()));
 
-            return isWorkflowConfigured ?
-                this.success(getValidMessage()) :
-                this.success(getInvalidMessage());
+            return isWorkflowConfigured ? this.success(getValidMessage()) : this.success(getInvalidMessage());
         } catch (IOException e) {
             LOGGER.warn("Couldn't not read file for plugin {} during probe {}", plugin.getName(), key(), e);
             return this.error(e.getMessage());
@@ -104,15 +100,13 @@ public abstract class AbstractGitHubWorkflowProbe extends Probe {
      * Partial object mapping of a GitHub workflow YAML file, containing only the "jobs" that are defined in it.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {
-    }
+    private record WorkflowDefinition(Map<String, WorkflowJobDefinition> jobs) {}
 
     /**
      * Partial Object mapping of a GitHub workflow job definition, containing only the "uses" field of its YAML content.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record WorkflowJobDefinition(String uses) {
-    }
+    private record WorkflowJobDefinition(String uses) {}
 
     @Override
     protected boolean isSourceCodeRelated() {

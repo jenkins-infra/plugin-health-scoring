@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,40 +32,66 @@ import org.junit.jupiter.api.Test;
 class ProbeResultTest {
     @Test
     void shouldBeEqualsWithSameStatusAndIdAndMessage() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1);
-        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult result1 = new ProbeResult(
+                "probe",
+                "this is a message",
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusDays(1),
+                1);
+        final ProbeResult result2 =
+                new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         assertThat(result1).isEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentMessages() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1);
-        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult result1 = new ProbeResult(
+                "probe",
+                "this is a message",
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusDays(1),
+                1);
+        final ProbeResult result2 = new ProbeResult(
+                "probe", "this is a different message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         assertThat(result1).isNotEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentStatues() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1);
-        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.ERROR, ZonedDateTime.now(), 1);
+        final ProbeResult result1 = new ProbeResult(
+                "probe",
+                "this is a message",
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusDays(1),
+                1);
+        final ProbeResult result2 =
+                new ProbeResult("probe", "this is a message", ProbeResult.Status.ERROR, ZonedDateTime.now(), 1);
 
         assertThat(result1).isNotEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualsWithDifferentMessagesAndStatues() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1);
-        final ProbeResult result2 = new ProbeResult("probe", "this is a different message", ProbeResult.Status.ERROR, ZonedDateTime.now(), 1);
+        final ProbeResult result1 = new ProbeResult(
+                "probe",
+                "this is a message",
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusDays(1),
+                1);
+        final ProbeResult result2 = new ProbeResult(
+                "probe", "this is a different message", ProbeResult.Status.ERROR, ZonedDateTime.now(), 1);
 
         assertThat(result1).isNotEqualTo(result2);
     }
 
     @Test
     void shouldNotBeEqualWithDifferentVersions() {
-        final ProbeResult result1 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
-        final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 2);
+        final ProbeResult result1 =
+                new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult result2 =
+                new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 2);
 
         assertThat(result1).isNotEqualTo(result2);
     }

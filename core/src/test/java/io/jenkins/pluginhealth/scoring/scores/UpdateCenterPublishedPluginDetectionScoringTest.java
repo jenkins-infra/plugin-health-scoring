@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -38,7 +37,8 @@ import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe
 
 import org.junit.jupiter.api.Test;
 
-class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTest<UpdateCenterPublishedPluginDetectionScoring> {
+class UpdateCenterPublishedPluginDetectionScoringTest
+        extends AbstractScoringTest<UpdateCenterPublishedPluginDetectionScoring> {
     @Override
     UpdateCenterPublishedPluginDetectionScoring getSpy() {
         return spy(UpdateCenterPublishedPluginDetectionScoring.class);
@@ -47,11 +47,16 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
     @Test
     public void shouldScoreCorrectlyWhenPluginInUpdateCenter() {
         final Plugin plugin = mock(Plugin.class);
-        final UpdateCenterPublishedPluginDetectionScoring scoring = spy(UpdateCenterPublishedPluginDetectionScoring.class);
+        final UpdateCenterPublishedPluginDetectionScoring scoring =
+                spy(UpdateCenterPublishedPluginDetectionScoring.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.", 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin is still actively published by the update-center.",
+                                1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
@@ -79,9 +84,10 @@ class UpdateCenterPublishedPluginDetectionScoringTest extends AbstractScoringTes
         final Plugin plugin = mock(Plugin.class);
         final UpdateCenterPublishedPluginDetectionScoring scoring = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpdateCenterPluginPublicationProbe.KEY, ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 

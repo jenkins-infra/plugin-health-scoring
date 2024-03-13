@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import org.springframework.core.annotation.Order;
@@ -35,7 +34,8 @@ import org.springframework.stereotype.Component;
 public class SecurityScanProbe extends AbstractGitHubWorkflowProbe {
     public static final int ORDER = AbstractGitHubWorkflowProbe.ORDER;
     public static final String KEY = "security-scan";
-    private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER = "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
+    private static final String SECURITY_SCAN_WORKFLOW_IDENTIFIER =
+            "jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml";
 
     @Override
     public String key() {

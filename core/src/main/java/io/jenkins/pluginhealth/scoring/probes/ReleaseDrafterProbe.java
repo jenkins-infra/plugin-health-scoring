@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -56,11 +55,14 @@ public class ReleaseDrafterProbe extends Probe {
             return this.success("No GitHub configuration folder found.");
         }
 
-        try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-            Files.isRegularFile(path) && isPathDrafterConfigFile((path.getFileName().toString())))) {
+        try (Stream<Path> paths = Files.find(
+                githubConfig,
+                1,
+                (path, $) -> Files.isRegularFile(path)
+                        && isPathDrafterConfigFile((path.getFileName().toString())))) {
             return paths.findFirst()
-                .map(file -> this.success("Release Drafter is configured."))
-                .orElseGet(() -> this.success("Release Drafter is not configured."));
+                    .map(file -> this.success("Release Drafter is configured."))
+                    .orElseGet(() -> this.success("Release Drafter is not configured."));
         } catch (IOException ex) {
             LOGGER.error("Could not browse {} for plugin {}", scmRepository.toAbsolutePath(), plugin.getName(), ex);
             return this.error("Could not browse the plugin folder.");

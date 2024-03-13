@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -43,7 +42,8 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin =
+                updateCenter.plugins().get(plugin.getName());
 
         if (updateCenterPlugin == null) {
             return this.error("This plugin's publication has been stopped by the update-center.");
@@ -67,4 +67,3 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
         return 1;
     }
 }
-

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,10 +65,13 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(JenkinsfileProbe.KEY, "There is no local repository for plugin " + pluginName + ".", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        JenkinsfileProbe.KEY,
+                        "There is no local repository for plugin " + pluginName + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -82,10 +84,10 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found", probe.getVersion()));
     }
 
     @Test
@@ -99,9 +101,9 @@ class JenkinsfileProbeTest extends AbstractProbeTest<JenkinsfileProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", probe.getVersion()));
     }
 }

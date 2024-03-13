@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,9 +61,12 @@ class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
         final ReleaseDrafterProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.error(ReleaseDrafterProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.error(
+                        ReleaseDrafterProbe.KEY,
+                        "There is no local repository for plugin " + plugin.getName() + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -77,9 +79,10 @@ class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        ReleaseDrafterProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -94,9 +97,10 @@ class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is not configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        ReleaseDrafterProbe.KEY, "Release Drafter is not configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -113,9 +117,10 @@ class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -132,9 +137,10 @@ class ReleaseDrafterProbeTest extends AbstractProbeTest<ReleaseDrafterProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        ReleaseDrafterProbe.KEY, "Release Drafter is configured.", probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 }

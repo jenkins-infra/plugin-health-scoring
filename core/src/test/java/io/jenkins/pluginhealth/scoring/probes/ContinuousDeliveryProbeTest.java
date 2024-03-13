@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,9 +64,10 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
     }
 
     @Test
@@ -81,9 +81,12 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY,
+                        "Could not find JEP-229 workflow definition.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -97,20 +100,22 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path cdWorkflowDef = Files.createFile(workflows.resolve("continuous-delivery.yml"));
 
-        Files.write(cdWorkflowDef, List.of(
-            "name: Probably CD",
-            "jobs:",
-            "  maven-cd:",
-            "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v0"
-        ));
+        Files.write(
+                cdWorkflowDef,
+                List.of(
+                        "name: Probably CD",
+                        "jobs:",
+                        "  maven-cd:",
+                        "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v0"));
 
         final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
     }
 
     @Test
@@ -124,20 +129,22 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path cdWorkflowDef = Files.createFile(workflows.resolve("continuous-delivery.yml"));
 
-        Files.write(cdWorkflowDef, List.of(
-            "name: Probably CD",
-            "jobs:",
-            "  another-name:",
-            "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v32"
-        ));
+        Files.write(
+                cdWorkflowDef,
+                List.of(
+                        "name: Probably CD",
+                        "jobs:",
+                        "  another-name:",
+                        "    uses: jenkins-infra/github-reusable-workflows/.github/workflows/maven-cd.yml@v32"));
 
         final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", probe.getVersion()));
     }
 
     @Test
@@ -151,20 +158,24 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
 
-        Files.write(cdWorkflowDef, List.of(
-            "name: Probably Not CD",
-            "jobs:",
-            "  another-name:",
-            "    uses: this-is-not-the-workflow-you-are-looking-for"
-        ));
+        Files.write(
+                cdWorkflowDef,
+                List.of(
+                        "name: Probably Not CD",
+                        "jobs:",
+                        "  another-name:",
+                        "    uses: this-is-not-the-workflow-you-are-looking-for"));
 
         final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY,
+                        "Could not find JEP-229 workflow definition.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -178,17 +189,18 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
 
-        Files.write(cdWorkflowDef, List.of(
-            "name: Probably Not CD"
-        ));
+        Files.write(cdWorkflowDef, List.of("name: Probably Not CD"));
 
         final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY,
+                        "Could not find JEP-229 workflow definition.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -202,21 +214,25 @@ class ContinuousDeliveryProbeTest extends AbstractProbeTest<ContinuousDeliveryPr
         final Path workflows = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path cdWorkflowDef = Files.createFile(workflows.resolve("cd.yml"));
 
-        Files.write(cdWorkflowDef, List.of(
-            "name: Probably Not CD",
-            "jobs:",
-            "  build:",
-            "    runs-on: ubuntu",
-            "    steps:",
-            "      - users: foo-bar"
-        ));
+        Files.write(
+                cdWorkflowDef,
+                List.of(
+                        "name: Probably Not CD",
+                        "jobs:",
+                        "  build:",
+                        "    runs-on: ubuntu",
+                        "    steps:",
+                        "      - users: foo-bar"));
 
         final ContinuousDeliveryProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContinuousDeliveryProbe.KEY,
+                        "Could not find JEP-229 workflow definition.",
+                        probe.getVersion()));
     }
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
@@ -61,31 +60,31 @@ public class ProbeService {
     }
 
     private static final List<String> IGNORE_RAW_RESULT_PROBES = List.of(
-        DependabotPullRequestProbe.KEY,
-        InstallationStatProbe.KEY,
-        JenkinsCoreProbe.KEY,
-        LastCommitDateProbe.KEY,
-        PullRequestProbe.KEY
-    );
+            DependabotPullRequestProbe.KEY,
+            InstallationStatProbe.KEY,
+            JenkinsCoreProbe.KEY,
+            LastCommitDateProbe.KEY,
+            PullRequestProbe.KEY);
 
     @Transactional(readOnly = true)
     public Map<String, ProbeResult> getProbesFinalResults() {
         return probes.stream()
-            .filter(probe -> !IGNORE_RAW_RESULT_PROBES.contains(probe.key()))
-            .collect(Collectors.toMap(Probe::key, probe -> new ProbeResult(
-                    getProbesRawResultsFromDatabase(probe.key(), true),
-                    getProbesRawResultsFromDatabase(probe.key(), false)
-                )
-            ));
+                .filter(probe -> !IGNORE_RAW_RESULT_PROBES.contains(probe.key()))
+                .collect(Collectors.toMap(
+                        Probe::key,
+                        probe -> new ProbeResult(
+                                getProbesRawResultsFromDatabase(probe.key(), true),
+                                getProbesRawResultsFromDatabase(probe.key(), false))));
     }
 
-    private record ProbeResult(long validated, long unvalidated) {
-    }
+    private record ProbeResult(long validated, long unvalidated) {}
 
     private long getProbesRawResultsFromDatabase(String probeID, boolean valid) {
         return switch (probeID) {
-            case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
-                pluginRepository.getProbeRawResult(probeID, valid ? "FAILURE" : "SUCCESS");
+            case UpForAdoptionProbe.KEY,
+                    KnownSecurityVulnerabilityProbe.KEY,
+                    DeprecatedPluginProbe.KEY -> pluginRepository.getProbeRawResult(
+                    probeID, valid ? "FAILURE" : "SUCCESS");
             default -> pluginRepository.getProbeRawResult(probeID, valid ? "SUCCESS" : "FAILURE");
         };
     }
@@ -96,10 +95,9 @@ public class ProbeService {
 
     public Map<String, ProbeView> getProbesView() {
         return getProbes().stream()
-            .map(probe -> new ProbeView(probe.key(), probe.getDescription()))
-            .collect(Collectors.toMap(ProbeView::key, p -> p));
+                .map(probe -> new ProbeView(probe.key(), probe.getDescription()))
+                .collect(Collectors.toMap(ProbeView::key, p -> p));
     }
 
-    public record ProbeView(String key, String description) {
-    }
+    public record ProbeView(String key, String description) {}
 }

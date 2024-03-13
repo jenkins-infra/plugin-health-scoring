@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
@@ -44,7 +43,7 @@ public class DeleteOldScoreScheduler {
     public void deleteOldScores() {
         LOGGER.info("Deleting old scores");
 
-        int numberOfRowsDeleted  = scoreService.deleteOldScores();
+        int numberOfRowsDeleted = scoreService.deleteOldScores();
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Deleted {} rows when deleting old scores", numberOfRowsDeleted);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
@@ -57,9 +56,9 @@ public class GithubConfiguration {
         final GitHubBuilder gitHubBuilder = new GitHubBuilder();
 
         try {
-            final OkHttpClient httpClient = new OkHttpClient.Builder().cache(
-                new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024)
-            ).build();
+            final OkHttpClient httpClient = new OkHttpClient.Builder()
+                    .cache(new Cache(Files.createTempDirectory("http_cache").toFile(), 50 * 1024 * 1024))
+                    .build();
             gitHubBuilder.withConnector(new OkHttpGitHubConnector(httpClient));
         } catch (IOException ex) {
             LOGGER.warn("Could not create cache folder for GitHub connection. Will work without.", ex);
@@ -77,21 +76,21 @@ public class GithubConfiguration {
         return gitHubBuilder.build();
     }
 
-    private AppInstallationAuthorizationProvider createAuthorizationProvider() throws GeneralSecurityException, IOException {
+    private AppInstallationAuthorizationProvider createAuthorizationProvider()
+            throws GeneralSecurityException, IOException {
         final String appId = configuration.gitHub().appId();
         final Path privateKeyPath = configuration.gitHub().privateKeyPath();
         final String appInstallationName = configuration.gitHub().appInstallationName();
 
         final JWTTokenProvider jwtTokenProvider = new JWTTokenProvider(appId, privateKeyPath);
         return new AppInstallationAuthorizationProvider(
-            app -> {
-                try {
-                    return app.getInstallationByOrganization(appInstallationName);
-                } catch (GHFileNotFoundException ex) {
-                    return app.getInstallationByUser(appInstallationName);
-                }
-            },
-            jwtTokenProvider
-        );
+                app -> {
+                    try {
+                        return app.getInstallationByOrganization(appInstallationName);
+                    } catch (GHFileNotFoundException ex) {
+                        return app.getInstallationByUser(appInstallationName);
+                    }
+                },
+                jwtTokenProvider);
     }
 }

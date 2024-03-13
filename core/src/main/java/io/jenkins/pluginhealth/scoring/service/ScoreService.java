@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.Arrays;
@@ -52,17 +51,13 @@ public class ScoreService {
 
     @Transactional(readOnly = true)
     public Optional<Score> latestScoreFor(String pluginName) {
-        return pluginService.findByName(pluginName)
-            .flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
+        return pluginService.findByName(pluginName).flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
     }
 
     @Transactional(readOnly = true)
     public Map<String, Score> getLatestScoresSummaryMap() {
         return repository.findLatestScoreForAllPlugins().stream()
-            .collect(Collectors.toMap(
-                score -> score.getPlugin().getName(),
-                score -> score
-            ));
+                .collect(Collectors.toMap(score -> score.getPlugin().getName(), score -> score));
     }
 
     @Transactional(readOnly = true)
@@ -72,13 +67,12 @@ public class ScoreService {
         final int numberOfElement = values.length;
 
         return new ScoreStatistics(
-            Math.round((float) Arrays.stream(values).sum() / numberOfElement),
-            values[0],
-            values[numberOfElement - 1],
-            values[(int) (numberOfElement * .25)],
-            values[(int) (numberOfElement * .5)],
-            values[(int) (numberOfElement * .75)]
-        );
+                Math.round((float) Arrays.stream(values).sum() / numberOfElement),
+                values[0],
+                values[numberOfElement - 1],
+                values[(int) (numberOfElement * .25)],
+                values[(int) (numberOfElement * .5)],
+                values[(int) (numberOfElement * .75)]);
     }
 
     @Transactional
@@ -86,7 +80,6 @@ public class ScoreService {
         return repository.deleteOldScoreFromPlugin();
     }
 
-    public record ScoreStatistics(double average, int minimum, int maximum, int firstQuartile, int median,
-                                  int thirdQuartile) {
-    }
+    public record ScoreStatistics(
+            double average, int minimum, int maximum, int firstQuartile, int median, int thirdQuartile) {}
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,16 +51,17 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                        ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
         assertThat(result.weight()).isEqualTo(.8f);
         assertThat(result.value()).isEqualTo(0);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Cannot determine the last commit date.");
+                .contains("Cannot determine the last commit date.");
     }
 
     @Test
@@ -70,10 +70,15 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(4));
-        when(plugin.getDetails()).thenReturn(Map.of(
-            UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1),
-            LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
@@ -86,14 +91,15 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
-        when(plugin.getDetails()).thenReturn(
-            Map.of(UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1))
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                        ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(0);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Cannot determine the last commit date.");
+                .contains("Cannot determine the last commit date.");
     }
 
     @Test
@@ -102,17 +108,20 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(2));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-            )
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(100);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Less than 6 months gap between last release and last commit.");
+                .contains("Less than 6 months gap between last release and last commit.");
     }
 
     @Test
@@ -121,17 +130,20 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(8));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-            )
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(80);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Less than a year between last release and last commit.");
+                .contains("Less than a year between last release and last commit.");
     }
 
     @Test
@@ -140,17 +152,20 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMonths(18));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-            )
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(60);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Less than 2 years between last release and last commit.");
+                .contains("Less than 2 years between last release and last commit.");
     }
 
     @Test
@@ -159,17 +174,20 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(3));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-            )
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(40);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("Less than 4 years between last release and last commit.");
+                .contains("Less than 4 years between last release and last commit.");
     }
 
     @Test
@@ -178,16 +196,19 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final Plugin plugin = mock(Plugin.class);
 
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusYears(5));
-        when(plugin.getDetails()).thenReturn(
-            Map.of(
-                UpForAdoptionProbe.KEY, ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
-                LastCommitDateProbe.KEY, ProbeResult.success(LastCommitDateProbe.KEY, ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME), 1)
-            )
-        );
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                                ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1),
+                        LastCommitDateProbe.KEY,
+                                ProbeResult.success(
+                                        LastCommitDateProbe.KEY,
+                                        ZonedDateTime.now().minusHours(3).format(DateTimeFormatter.ISO_DATE_TIME),
+                                        1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.value()).isEqualTo(0);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
-            .contains("There is more than 4 years between the last release and the last commit.");
+                .contains("There is more than 4 years between the last release and the last commit.");
     }
 }

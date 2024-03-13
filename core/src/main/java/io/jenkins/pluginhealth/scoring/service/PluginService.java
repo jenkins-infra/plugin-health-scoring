@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.Optional;
@@ -43,14 +42,15 @@ public class PluginService {
 
     @Transactional
     public void saveOrUpdate(Plugin plugin) {
-        pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase
-                .setScm(plugin.getScm())
-                .setReleaseTimestamp(plugin.getReleaseTimestamp())
-                .setVersion(plugin.getVersion())
-                .addDetails(plugin.getDetails()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+        pluginRepository
+                .findByName(plugin.getName())
+                .map(pluginFromDatabase -> pluginFromDatabase
+                        .setScm(plugin.getScm())
+                        .setReleaseTimestamp(plugin.getReleaseTimestamp())
+                        .setVersion(plugin.getVersion())
+                        .addDetails(plugin.getDetails()))
+                .map(pluginRepository::save)
+                .orElseGet(() -> pluginRepository.save(plugin));
     }
 
     @Transactional(readOnly = true)

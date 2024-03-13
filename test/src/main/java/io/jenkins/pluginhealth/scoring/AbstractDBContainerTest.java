@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,9 +38,11 @@ public abstract class AbstractDBContainerTest {
     @Container
     private static final PostgreSQLContainer<?> DB_CONTAINER = PluginHealthScoringDatabaseContainer.getInstance();
 
-    static class DockerPostgresDatasourceInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    static class DockerPostgresDatasourceInitializer
+            implements ApplicationContextInitializer<ConfigurableApplicationContext> {
         @Override
         public void initialize(@NotNull ConfigurableApplicationContext applicationContext) {
+            // @formatter:off
             TestPropertyValues.of(
                 "spring.datasource.url=" + DB_CONTAINER.getJdbcUrl(),
                 "spring.datasource.username=" + DB_CONTAINER.getUsername(),
@@ -49,6 +50,7 @@ public abstract class AbstractDBContainerTest {
                 "app.cron.update-center=0 0 */2 * * *",
                 "app.cron.probe-engine=0 0 */2 * * *"
             ).applyTo(applicationContext);
+            // @formatter:on
         }
     }
 }

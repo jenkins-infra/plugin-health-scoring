@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -92,11 +91,10 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
                     RevCommit parent = revCommit.getParent(0);
                     DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
                     diffFormatter.setRepository(git.getRepository());
-                    diffFormatter.scan(parent.getTree(), revCommit.getTree())
-                        .stream()
-                        .map(diffEntry -> diffEntry.getPath(DiffEntry.Side.NEW))
-                        .filter(s -> paths.stream().anyMatch(s::startsWith))
-                        .forEach(files::add);
+                    diffFormatter.scan(parent.getTree(), revCommit.getTree()).stream()
+                            .map(diffEntry -> diffEntry.getPath(DiffEntry.Side.NEW))
+                            .filter(s -> paths.stream().anyMatch(s::startsWith))
+                            .forEach(files::add);
 
                 } else {
                     TreeWalk treeWalk = new TreeWalk(git.getRepository());
@@ -114,10 +112,10 @@ public class HasUnreleasedProductionChangesProbe extends Probe {
                 }
             }
 
-            return files.isEmpty() ?
-                this.success("All production modifications were released.") :
-                this.success("Unreleased production modifications might exist in the plugin source code at "
-                    + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
+            return files.isEmpty()
+                    ? this.success("All production modifications were released.")
+                    : this.success("Unreleased production modifications might exist in the plugin source code at "
+                            + files.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", ")));
         } catch (IOException | GitAPIException ex) {
             return this.error(ex.getMessage());
         }

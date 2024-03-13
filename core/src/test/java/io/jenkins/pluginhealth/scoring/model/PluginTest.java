@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,15 +51,20 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult previousProbeResult = new ProbeResult(
+                probeKey,
+                probeResultMessage,
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusMinutes(10),
+                1);
+        final ProbeResult probeResult =
+                new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails())
-            .containsExactly(entry(probeKey, probeResult));
+        assertThat(plugin.getDetails()).containsExactly(entry(probeKey, probeResult));
     }
 
     @Test
@@ -69,15 +73,20 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult previousProbeResult = new ProbeResult(
+                probeKey,
+                probeResultMessage,
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusMinutes(10),
+                1);
+        final ProbeResult probeResult =
+                new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails())
-            .containsExactly(entry(probeKey, previousProbeResult));
+        assertThat(plugin.getDetails()).containsExactly(entry(probeKey, previousProbeResult));
     }
 
     @Test
@@ -86,15 +95,20 @@ class PluginTest {
         final String probeKey = "foo";
         final String probeResultMessage = "this is a message";
 
-        final ProbeResult previousProbeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusMinutes(10), 1);
-        final ProbeResult probeResult = new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+        final ProbeResult previousProbeResult = new ProbeResult(
+                probeKey,
+                probeResultMessage,
+                ProbeResult.Status.SUCCESS,
+                ZonedDateTime.now().minusMinutes(10),
+                1);
+        final ProbeResult probeResult =
+                new ProbeResult(probeKey, probeResultMessage, ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         plugin.addDetails(previousProbeResult);
         plugin.addDetails(probeResult);
 
         assertThat(plugin.getDetails()).hasSize(1);
-        assertThat(plugin.getDetails())
-            .containsExactly(entry(probeKey, probeResult));
+        assertThat(plugin.getDetails()).containsExactly(entry(probeKey, probeResult));
     }
 
     @Test

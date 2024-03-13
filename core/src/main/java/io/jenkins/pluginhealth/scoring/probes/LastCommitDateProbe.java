@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -72,10 +71,10 @@ public class LastCommitDateProbe extends Probe {
                 return this.error("Last commit cannot be extracted. Please validate sub-folder if any.");
             }
             final ZonedDateTime commitDate = ZonedDateTime.ofInstant(
-                    commit.getAuthorIdent().getWhenAsInstant(),
-                    commit.getAuthorIdent().getZoneId()
-                ).withZoneSameInstant(ZoneId.of("UTC"))
-                .truncatedTo(ChronoUnit.SECONDS);
+                            commit.getAuthorIdent().getWhenAsInstant(),
+                            commit.getAuthorIdent().getZoneId())
+                    .withZoneSameInstant(ZoneId.of("UTC"))
+                    .truncatedTo(ChronoUnit.SECONDS);
             context.setLastCommitDate(commitDate);
             return this.success(commitDate.format(DateTimeFormatter.ISO_DATE_TIME));
         } catch (IOException | GitAPIException ex) {

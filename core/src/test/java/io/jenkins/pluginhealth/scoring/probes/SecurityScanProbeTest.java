@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,10 +63,11 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SecurityScanProbe.KEY, "Plugin has no GitHub Action configured.", probe.getVersion()));
     }
 
     @Test
@@ -77,10 +77,13 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SecurityScanProbe.KEY,
+                        "GitHub workflow security scan is not configured in the plugin.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -89,19 +92,23 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
-        Files.write(workflowFile, List.of(
-            "name: Test Security Scan Job",
-            "jobs:",
-            "  security-scan-name:",
-            "    uses: this-is-not-the-workflow-we-are-looking-for"
-        ));
+        Files.write(
+                workflowFile,
+                List.of(
+                        "name: Test Security Scan Job",
+                        "jobs:",
+                        "  security-scan-name:",
+                        "    uses: this-is-not-the-workflow-we-are-looking-for"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is not configured in the plugin.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SecurityScanProbe.KEY,
+                        "GitHub workflow security scan is not configured in the plugin.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -110,19 +117,23 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
-        Files.write(workflowFile, List.of(
-            "name: Test Security Scan Job",
-            "jobs:",
-            "  this-is-a-valid-security-scan:",
-            "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml"
-        ));
+        Files.write(
+                workflowFile,
+                List.of(
+                        "name: Test Security Scan Job",
+                        "jobs:",
+                        "  this-is-a-valid-security-scan:",
+                        "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SecurityScanProbe.KEY,
+                        "GitHub workflow security scan is configured in the plugin.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -131,18 +142,22 @@ class SecurityScanProbeTest extends AbstractProbeTest<SecurityScanProbe> {
         Path workflowPath = Files.createDirectories(repo.resolve(".github/workflows"));
         final Path workflowFile = Files.createFile(workflowPath.resolve("jenkins-security-scan.yaml"));
 
-        Files.write(workflowFile, List.of(
-            "name: Test Security Scan Job",
-            "jobs:",
-            "  security-scan:",
-            "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v42"
-        ));
+        Files.write(
+                workflowFile,
+                List.of(
+                        "name: Test Security Scan Job",
+                        "jobs:",
+                        "  security-scan:",
+                        "    uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v42"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SecurityScanProbe.KEY, "GitHub workflow security scan is configured in the plugin.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SecurityScanProbe.KEY,
+                        "GitHub workflow security scan is configured in the plugin.",
+                        probe.getVersion()));
     }
 }

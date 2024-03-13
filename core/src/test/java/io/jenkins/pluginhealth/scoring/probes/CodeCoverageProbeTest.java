@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,16 +73,21 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", "main"
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        "main")),
+                        Map.of(),
+                        List.of()));
         when(ctx.getScmRepository()).thenReturn(Optional.empty());
         when(ctx.getRepositoryName()).thenReturn(Optional.empty());
 
@@ -91,9 +95,10 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(CodeCoverageProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        CodeCoverageProbe.KEY, "Cannot determine plugin repository.", probe.getVersion()));
     }
 
     @SuppressWarnings("unchecked")
@@ -112,16 +117,21 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
@@ -132,19 +142,19 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
         final GHCheckRun.Output output = mock(GHCheckRun.Output.class);
         when(output.getTitle()).thenReturn("Line Coverage: 70.56% (+0.00%), Branch Coverage: 63.37% (+0.00%)");
         when(checkRun.getOutput()).thenReturn(output);
-        when(checkRuns.toList()).thenReturn(
-            List.of(checkRun)
-        );
-        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage"))).thenReturn(checkRuns);
+        when(checkRuns.toList()).thenReturn(List.of(checkRun));
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
+                .thenReturn(checkRuns);
 
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(probe).doApply(plugin, ctx);
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(CodeCoverageProbe.KEY, "Line coverage: 70.56%. Branch coverage: 63.37%.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        CodeCoverageProbe.KEY, "Line coverage: 70.56%. Branch coverage: 63.37%.", probe.getVersion()));
     }
 
     @Test
@@ -162,16 +172,21 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, new VersionNumber("1.0"), scmLink, ZonedDateTime.now(), List.of(), 0,
-                    "42", defaultBranch
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
         when(ctx.getGitHub()).thenReturn(gh);
         when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
 
@@ -179,19 +194,19 @@ class CodeCoverageProbeTest extends AbstractProbeTest<CodeCoverageProbe> {
 
         final PagedIterable<GHCheckRun> checkRuns = (PagedIterable<GHCheckRun>) mock(PagedIterable.class);
         when(checkRuns.toList()).thenReturn(List.of());
-        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage"))).thenReturn(checkRuns);
+        when(ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")))
+                .thenReturn(checkRuns);
 
         final CodeCoverageProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(probe).doApply(plugin, ctx);
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(
-                CodeCoverageProbe.KEY,
-                "Could not determine code coverage for the plugin.",
-                probe.getVersion()
-            ));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        CodeCoverageProbe.KEY,
+                        "Could not determine code coverage for the plugin.",
+                        probe.getVersion()));
     }
 }

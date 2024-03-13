@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,9 +73,12 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.empty());
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(LastCommitDateProbe.KEY, "There is no local repository for plugin " + pluginName + ".", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        LastCommitDateProbe.KEY,
+                        "There is no local repository for plugin " + pluginName + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -90,24 +92,23 @@ class LastCommitDateProbeTest extends AbstractProbeTest<LastCommitDateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         final ZoneId commitZoneId = ZoneId.of("Europe/Paris");
-        final ZonedDateTime commitDate = ZonedDateTime.now(commitZoneId)
-            .minusHours(1).minusMinutes(2)
-            .truncatedTo(ChronoUnit.SECONDS);
+        final ZonedDateTime commitDate =
+                ZonedDateTime.now(commitZoneId).minusHours(1).minusMinutes(2).truncatedTo(ChronoUnit.SECONDS);
 
         try (Git git = Git.init().setDirectory(repo.toFile()).call()) {
             git.commit()
-                .setAllowEmpty(true)
-                .setSign(false)
-                .setMessage("This commit")
-                .setCommitter(new PersonIdent("Foo", "foo@bar.xyz", commitDate.toInstant(), commitZoneId))
-                .call();
+                    .setAllowEmpty(true)
+                    .setSign(false)
+                    .setMessage("This commit")
+                    .setCommitter(new PersonIdent("Foo", "foo@bar.xyz", commitDate.toInstant(), commitZoneId))
+                    .call();
         }
 
         final ProbeResult result = probe.apply(plugin, ctx);
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, "", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(ProbeResult.success(LastCommitDateProbe.KEY, "", probe.getVersion()));
 
         final ZonedDateTime parsedDateTime = ZonedDateTime.parse(result.message(), DateTimeFormatter.ISO_DATE_TIME);
         assertThat(parsedDateTime).isEqualTo(commitDate);

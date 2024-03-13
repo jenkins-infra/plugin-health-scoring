@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,17 +61,16 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
 
         final String pluginName = "foo";
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(Map.of(), Map.of(), List.of()));
 
         final InstallationStatProbe probe = spy(InstallationStatProbe.class);
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(InstallationStatProbe.KEY, "Could not find plugin " + pluginName + " in Update Center.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        InstallationStatProbe.KEY,
+                        "Could not find plugin " + pluginName + " in Update Center.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -83,14 +81,14 @@ class InstallationStatProbeTest extends AbstractProbeTest<InstallationStatProbe>
 
         final String pluginName = "plugin";
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(pluginName, null, null, null, List.of(), 100, "", "main")
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName, null, null, null, List.of(), 100, "", "main")),
+                        Map.of(),
+                        List.of()));
 
         final ProbeResult result = probe.apply(plugin, ctx);
 

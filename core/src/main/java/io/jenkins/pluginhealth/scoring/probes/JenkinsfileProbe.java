@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -48,11 +47,14 @@ public class JenkinsfileProbe extends Probe {
         }
 
         final Path repository = context.getScmRepository().get();
-        try (Stream<Path> paths = Files.find(repository, 1, (file, $) ->
-            Files.isReadable(file) && "Jenkinsfile".equals(file.getFileName().toString()))) {
+        try (Stream<Path> paths = Files.find(
+                repository,
+                1,
+                (file, $) -> Files.isReadable(file)
+                        && "Jenkinsfile".equals(file.getFileName().toString()))) {
             return paths.findFirst()
-                .map(file -> this.success("Jenkinsfile found"))
-                .orElseGet(() -> this.success("No Jenkinsfile found"));
+                    .map(file -> this.success("Jenkinsfile found"))
+                    .orElseGet(() -> this.success("No Jenkinsfile found"));
         } catch (IOException e) {
             return this.error(e.getMessage());
         }

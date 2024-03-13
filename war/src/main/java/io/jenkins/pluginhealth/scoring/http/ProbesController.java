@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Comparator;
@@ -57,12 +56,11 @@ public class ProbesController {
         final ModelAndView modelAndView = new ModelAndView("probes/listing");
 
         modelAndView.addObject(
-            "probes",
-            probeService.getProbes().stream()
-                .map(ProbeDetails::map)
-                .sorted(Comparator.comparing(ProbeDetails::id))
-                .toList()
-        );
+                "probes",
+                probeService.getProbes().stream()
+                        .map(ProbeDetails::map)
+                        .sorted(Comparator.comparing(ProbeDetails::id))
+                        .toList());
         return modelAndView;
     }
 
@@ -71,18 +69,15 @@ public class ProbesController {
         final ModelAndView modelAndView = new ModelAndView("probes/results");
 
         modelAndView
-            .addObject("probeResults", probeService.getProbesFinalResults())
-            .addObject("pluginsCount", pluginService.getPluginsCount());
+                .addObject("probeResults", probeService.getProbesFinalResults())
+                .addObject("pluginsCount", pluginService.getPluginsCount());
 
         return modelAndView;
     }
 
     record ProbeDetails(String id, String description) {
         static ProbeDetails map(Probe probe) {
-            return new ProbeDetails(
-                probe.key(),
-                probe.getDescription()
-            );
+            return new ProbeDetails(probe.key(), probe.getDescription());
         }
     }
 }

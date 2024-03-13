@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,9 +48,11 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123, link-to-security-advisory", 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        KnownSecurityVulnerabilityProbe.KEY,
+                        ProbeResult.success(
+                                KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123, link-to-security-advisory", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
@@ -79,9 +80,11 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = getSpy();
 
-        when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "No known security vulnerabilities.", 1)
-        ));
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        KnownSecurityVulnerabilityProbe.KEY,
+                        ProbeResult.success(
+                                KnownSecurityVulnerabilityProbe.KEY, "No known security vulnerabilities.", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 

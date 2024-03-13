@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,12 +67,14 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
 
         final DependabotPullRequestProbe probe = getSpy();
 
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
-        assertThat(probe.apply(plugin, ctx)).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status")
+                .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "", probe.getVersion()));
     }
 
     @Test
@@ -96,16 +97,15 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         final GHPullRequest pr_2 = mock(GHPullRequest.class);
         final GHPullRequest pr_3 = mock(GHPullRequest.class);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(
-            List.of(pr_1, pr_2, pr_3)
-        );
+        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0", probe.getVersion()));
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0", probe.getVersion()));
     }
 
     @Test
@@ -132,16 +132,15 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(pr_3.getLabels()).thenReturn(List.of(dependenciesLabel));
         final GHPullRequest pr_4 = mock(GHPullRequest.class);
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(
-            List.of(pr_1, pr_2, pr_3, pr_4, pr_5)
-        );
+        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result).usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2", probe.getVersion()));
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2", probe.getVersion()));
     }
 
     @Test
@@ -161,8 +160,11 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(DependabotPullRequestProbe.KEY, "Could not count dependabot pull requests.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        DependabotPullRequestProbe.KEY,
+                        "Could not count dependabot pull requests.",
+                        probe.getVersion()));
     }
 }

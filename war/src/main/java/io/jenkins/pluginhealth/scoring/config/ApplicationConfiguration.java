@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.nio.file.Path;
@@ -34,9 +33,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "app")
 @Validated
 public record ApplicationConfiguration(@Valid Jenkins jenkins, @Valid GitHub gitHub) {
-    public record Jenkins(@NotBlank String updateCenter, @NotBlank String documentationUrls) {
-    }
+    public record Jenkins(@NotBlank String updateCenter, @NotBlank String documentationUrls) {}
 
-    public record GitHub(@NotBlank String appId, Path privateKeyPath, @NotBlank String appInstallationName) {
-    }
+    public record GitHub(@NotBlank String appId, Path privateKeyPath, @NotBlank String appInstallationName) {}
 }

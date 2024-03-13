@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,19 +60,19 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(Map.of(), Map.of(), List.of()));
 
         final JenkinsCoreProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison().comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(JenkinsCoreProbe.KEY, "Could not find plugin " + pluginName + " in Update Center.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        JenkinsCoreProbe.KEY,
+                        "Could not find plugin " + pluginName + " in Update Center.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -83,25 +82,23 @@ class JenkinsCoreProbeTest extends AbstractProbeTest<JenkinsCoreProbe> {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(
-                pluginName,
-                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                    pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
-                )
-            ),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName, null, null, null, List.of(), 0, "2.361.1", "main")),
+                        Map.of(),
+                        List.of()));
 
         final JenkinsCoreProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result).isNotNull();
         assertThat(result)
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(JenkinsCoreProbe.KEY, "2.361.1", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(JenkinsCoreProbe.KEY, "2.361.1", probe.getVersion()));
     }
 }

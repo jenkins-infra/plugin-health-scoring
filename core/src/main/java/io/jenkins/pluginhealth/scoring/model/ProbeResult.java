@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
@@ -48,7 +47,10 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProbeResult that = (ProbeResult) o;
-        return id.equals(that.id) && message.equals(that.message) && status == that.status && probeVersion == that.probeVersion;
+        return id.equals(that.id)
+                && message.equals(that.message)
+                && status == that.status
+                && probeVersion == that.probeVersion;
     }
 
     @Override
@@ -69,7 +71,8 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
      * the execution of the probe.
      */
     public enum Status {
-        SUCCESS, @JsonAlias("FAILURE") ERROR
+        SUCCESS,
+        @JsonAlias("FAILURE")
+        ERROR
     }
 }
-

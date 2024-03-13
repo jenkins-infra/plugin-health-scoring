@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.HashSet;
@@ -51,44 +50,50 @@ public abstract class Scoring {
      */
     public final ScoreResult apply(Plugin plugin) {
         return getComponents().stream()
-            .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
-            .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
-                @Override
-                public Supplier<Set<ScoringComponentResult>> supplier() {
-                    return HashSet::new;
-                }
+                .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
+                .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
+                    @Override
+                    public Supplier<Set<ScoringComponentResult>> supplier() {
+                        return HashSet::new;
+                    }
 
-                @Override
-                public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
-                    return Set::add;
-                }
+                    @Override
+                    public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
+                        return Set::add;
+                    }
 
-                @Override
-                public BinaryOperator<Set<ScoringComponentResult>> combiner() {
-                    return (changelogResults, changelogResults2) -> {
-                        changelogResults.addAll(changelogResults2);
-                        return changelogResults;
-                    };
-                }
+                    @Override
+                    public BinaryOperator<Set<ScoringComponentResult>> combiner() {
+                        return (changelogResults, changelogResults2) -> {
+                            changelogResults.addAll(changelogResults2);
+                            return changelogResults;
+                        };
+                    }
 
-                @Override
-                public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
-                    return changelogResults -> {
-                        final double sum = changelogResults.stream()
-                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() * changelogResult.weight()))
-                            .sum();
-                        final double weight = changelogResults.stream()
-                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
-                            .sum();
-                        return new ScoreResult(key(), (int) Math.max(0, Math.round(sum / weight)), weight(), changelogResults, version());
-                    };
-                }
+                    @Override
+                    public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
+                        return changelogResults -> {
+                            final double sum = changelogResults.stream()
+                                    .flatMapToDouble(changelogResult ->
+                                            DoubleStream.of(changelogResult.score() * changelogResult.weight()))
+                                    .sum();
+                            final double weight = changelogResults.stream()
+                                    .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
+                                    .sum();
+                            return new ScoreResult(
+                                    key(),
+                                    (int) Math.max(0, Math.round(sum / weight)),
+                                    weight(),
+                                    changelogResults,
+                                    version());
+                        };
+                    }
 
-                @Override
-                public Set<Characteristics> characteristics() {
-                    return Set.of(Characteristics.UNORDERED);
-                }
-            });
+                    @Override
+                    public Set<Characteristics> characteristics() {
+                        return Set.of(Characteristics.UNORDERED);
+                    }
+                });
     }
 
     /**

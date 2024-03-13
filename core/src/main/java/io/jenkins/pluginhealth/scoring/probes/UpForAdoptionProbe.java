@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -46,7 +45,8 @@ public class UpForAdoptionProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter updateCenter = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl = updateCenter.plugins().get(plugin.getName());
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin pl =
+                updateCenter.plugins().get(plugin.getName());
         if (pl == null) {
             LOGGER.info("Couldn't not find {} in update-center", plugin.getName());
             return this.error("This plugin is not in the update-center.");

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,9 +65,10 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", probe.getVersion()));
     }
 
     @Test
@@ -83,9 +83,10 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
     }
 
     @Test
@@ -100,8 +101,9 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
     }
 }

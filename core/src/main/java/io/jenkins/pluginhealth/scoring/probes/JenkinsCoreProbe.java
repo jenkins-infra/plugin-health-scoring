@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -40,10 +39,11 @@ public class JenkinsCoreProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final UpdateCenter uc = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin = uc.plugins().get(plugin.getName());
-        return ucPlugin != null ?
-            this.success(ucPlugin.requiredCore()) :
-            this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
+                uc.plugins().get(plugin.getName());
+        return ucPlugin != null
+                ? this.success(ucPlugin.requiredCore())
+                : this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
     }
 
     @Override

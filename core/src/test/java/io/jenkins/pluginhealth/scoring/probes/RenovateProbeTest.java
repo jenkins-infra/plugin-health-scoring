@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,10 +63,13 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
 
         final RenovateProbe probe = getSpy();
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        RenovateProbe.KEY,
+                        "There is no local repository for plugin " + plugin.getName() + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -80,9 +82,10 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        RenovateProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
     }
 
     @Test
@@ -96,9 +99,9 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", probe.getVersion()));
     }
 
     @Test
@@ -114,8 +117,8 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
     }
 }
