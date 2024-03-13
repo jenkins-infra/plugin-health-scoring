@@ -1,6 +1,10 @@
 == Application architecture
 
-The application is divided into two main parts: link:../core/src/main/java/io/jenkins/pluginhealth/scoring/probes/Probe.java[`Probe`] and link:../core/src/main/java/io/jenkins/pluginhealth/scoring/scores/Scoring.java[`Scoring`].
+The application is fetching the list of plugins from the Update Center of Jenkins community.
+This is done in link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java[`UpdateCenterScheduler`].
+It registers all the known plugins into the database.
+
+Once this is done, the application is divided into two main parts: link:../core/src/main/java/io/jenkins/pluginhealth/scoring/probes/Probe.java[`Probe`] and link:../core/src/main/java/io/jenkins/pluginhealth/scoring/scores/Scoring.java[`Scoring`].
 
 === What is a `Probe`?
 
@@ -14,7 +18,7 @@ This means, that, more than its order, a probe requires another probe to have a 
 
 The probe, when executed, returns a `ProbeResult` which embedded a key, a status, a message and a timestamp of the execution of the probe.
 
-* The `key` of the `ProbeResult` is the `key` of the Probe which was executed.
+* The `id` of the link:../core/src/main/java/io/jenkins/pluginhealth/scoring/model/ProbeResult.java[`ProbeResult`] is the `key` of the Probe which was executed.
 * The `message` can provides more details about the probe execution result.
 * The `status` can be one of `ProbeResult.Status.ERROR` or `ProbeResult.Status.SUCCESS`.
 * The `timestamp` is used to know when the result was produced.
@@ -48,7 +52,7 @@ Each implementation have a coefficient which dictate how important to the global
 Each implementation can use one or many `ProbeResult` of a plugin, in order to determine its score.
 The value the score is a `float` between 0 and 1.
 
-The link:../war/src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoringEngine.java[`ScoringEngine`] is responsible to execute each `Scoring` implementation on every plugins.
+The link:../war/src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoringEngine.java[`ScoringEngine`] is responsible to execute each `Scoring` implementation on every plugin.
 However, if the last score of a plugin was computed more recently than the most recent `ProbeResult` for a plugin, the scoring implementation is skipped.
 This because the same score would be generated.
 
