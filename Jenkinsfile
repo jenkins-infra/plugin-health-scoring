@@ -20,7 +20,8 @@ pipeline {
         script {
           infra.withArtifactCachingProxy() {
             def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
-            sh """
+            OPTS += env.TAG_NAME ? ' -Dspotless.check.skip=true' : ''
+            sh '''
               ./mvnw -V \
                 --no-transfer-progress \
                 ${OPTS} \
@@ -30,7 +31,7 @@ pipeline {
                 -Dmaven.test.failure.ignore \
                 -Dcheckstyle.failOnViolation=false \
                 -Dspotbugs.failOnError=false
-            """
+            '''
           }
         }
       }
