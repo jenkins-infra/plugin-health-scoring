@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
@@ -51,7 +50,7 @@ public class AdoptionScoring extends Scoring {
             final ZonedDateTime commitDate = ZonedDateTime
                 .parse(lastCommitDateMessage, DateTimeFormatter.ISO_DATE_TIME)
                 .withZoneSameInstant(getZone());
-            return Duration.between(then, commitDate).abs();
+            return Duration.between(then, commitDate);
         }
 
         protected ZoneId getZone() {
@@ -114,6 +113,9 @@ public class AdoptionScoring extends Scoring {
                         return new ScoringComponentResult(-100, 100, List.of("Cannot determine the last commit date."));
                     }
                     final long days = getTimeBetweenLastCommitAndDate(probeResult.message(), plugin.getReleaseTimestamp().withZoneSameInstant(getZone())).toDays();
+                    if (days < 0) {
+                        return new ScoringComponentResult(100, getWeight(), List.of("The latest release is more recent than the latest commit on the plugin."));
+                    }
                     final String defaultReason = "There are %d days between last release and last commit.".formatted(days);
                     if (days < Duration.of(30 * 6, ChronoUnit.DAYS).toDays()) {
                         return new ScoringComponentResult(100, getWeight(), List.of(defaultReason, "Less than 6 months gap between last release and last commit."));
