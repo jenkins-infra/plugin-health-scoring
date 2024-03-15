@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Order(PluginDescriptionMigrationProbe.ORDER)
 public class PluginDescriptionMigrationProbe extends Probe {
     public static final String KEY = "description-migration";
-    public static final int ORDER = DocumentationMigrationProbe.ORDER + 100;
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
