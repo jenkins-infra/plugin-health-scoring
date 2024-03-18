@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,8 @@ import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -75,13 +78,14 @@ class ScoreAPITest {
         final Plugin p1 = mock(Plugin.class);
         final Plugin p2 = mock(Plugin.class);
 
-        final ZonedDateTime computedAt = ZonedDateTime.now().minusMinutes(1);
-        final Score scoreP1 = new Score(p1, computedAt);
+        final ZonedDateTime scoreP1Date = ZonedDateTime.now().minusMinutes(1);
+        final Score scoreP1 = new Score(p1, scoreP1Date);
         scoreP1.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
 
-        final Score scoreP2 = new Score(p2, ZonedDateTime.now().minusDays(1));
+        final ZonedDateTime scoreP2Date = ZonedDateTime.now().minusDays(1);
+        final Score scoreP2 = new Score(p2, scoreP2Date);
         scoreP2.addDetail(new ScoreResult("scoring-1", 100, 1, Set.of(
             new ScoringComponentResult(100, 1, List.of("There is no active security advisory for the plugin."))
         ), 1));
@@ -99,16 +103,18 @@ class ScoreAPITest {
             87.5, 50, 100, 100, 100, 100
         ));
 
+        // @formatter:off
         mockMvc.perform(get("/api/scores"))
             .andExpectAll(
                 status().isOk(),
-                header().string("ETag", equalTo("\"" + computedAt.toEpochSecond() + "\"")),
+                header().string("ETag", equalTo("\"" + scoreP1Date.toEpochSecond() + "\"")),
                 content().contentType(MediaType.APPLICATION_JSON),
                 content().json("""
                     {
                         'plugins': {
                             'plugin-1': {
                                 'value': 100,
+                                'date': "%s",
                                 'details': {
                                     'scoring-1': {
                                         'value': 100,
@@ -123,6 +129,7 @@ class ScoreAPITest {
                             },
                             'plugin-2': {
                                 'value': 75,
+                                'date': "%s",
                                 'details': {
                                     'scoring-1': {
                                         'value': 100,
@@ -165,8 +172,13 @@ class ScoreAPITest {
                             'thirdQuartile': 100
                         }
                     }
-                    """, false)
+                    """.formatted(
+                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                        scoreP2Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    ),
+                    false)
             );
+        // @formatter:on
     }
 
     @Test
