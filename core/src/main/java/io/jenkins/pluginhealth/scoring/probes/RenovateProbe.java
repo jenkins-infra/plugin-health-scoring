@@ -59,6 +59,6 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
 
     @Override
     public long getVersion() {
-        return 2;
+        return 3;
     }
 }
