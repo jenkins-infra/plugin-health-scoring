@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -48,17 +47,15 @@ public abstract class AbstractDependencyBotConfigurationProbe extends Probe {
             return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
-        final Path githubConfig = scmRepository.resolve(".github");
-        if (Files.notExists(githubConfig)) {
-            LOGGER.trace("No GitHub configuration folder at {} ", key());
-            return this.success("No GitHub configuration folder found.");
-        }
 
-        try (Stream<Path> paths = Files.find(githubConfig, 1, (path, $) ->
-            Files.isRegularFile(path) && isPathBotConfigFile(path.getFileName().toString()))) {
+        try (Stream<Path> paths = Files.find(
+                scmRepository,
+                2,
+                (path, $) -> Files.isRegularFile(path)
+                        && isPathBotConfigFile(path.getFileName().toString()))) {
             return paths.findFirst()
-                .map(file -> this.success(String.format("%s is configured.", capitalize(getBotName()))))
-                .orElseGet(() -> this.success(String.format("%s is not configured.", capitalize(getBotName()))));
+                    .map(file -> this.success(String.format("%s is configured.", capitalize(getBotName()))))
+                    .orElseGet(() -> this.success(String.format("%s is not configured.", capitalize(getBotName()))));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
             return this.error("Could not browse the plugin folder");

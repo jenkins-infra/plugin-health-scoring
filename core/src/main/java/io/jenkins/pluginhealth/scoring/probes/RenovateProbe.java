@@ -21,8 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
+
+import java.util.List;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,8 @@ public class RenovateProbe extends AbstractDependencyBotConfigurationProbe {
 
     @Override
     protected boolean isPathBotConfigFile(String filename) {
-        return "renovate.json".equals(filename);
+        return List.of("renovate.json", "renovate.json5", ".renovaterc", ".renovaterc.json", ".renovaterc.json5")
+                .contains(filename);
     }
 
     @Override
