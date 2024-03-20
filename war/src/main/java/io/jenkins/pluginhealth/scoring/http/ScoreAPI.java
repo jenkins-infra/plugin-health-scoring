@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.time.ZonedDateTime;
@@ -54,63 +53,56 @@ public class ScoreAPI {
         this.scoreService = scoreService;
     }
 
-    @GetMapping(value = {"", "/"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(
+            value = {"", "/"},
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ScoreReport> getReport() {
         final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap();
         final Optional<String> optETag = latestScoresSummaryMap.values().stream()
-            .max(Comparator.comparing(Score::getComputedAt))
-            .map(Score::getComputedAt)
-            .map(ZonedDateTime::toEpochSecond)
-            .map(String::valueOf);
+                .max(Comparator.comparing(Score::getComputedAt))
+                .map(Score::getComputedAt)
+                .map(ZonedDateTime::toEpochSecond)
+                .map(String::valueOf);
 
-        record Tuple(String name, PluginScoreSummary summary) {
-        }
+        record Tuple(String name, PluginScoreSummary summary) {}
 
-        final Map<String, PluginScoreSummary> plugins = latestScoresSummaryMap
-            .entrySet().stream()
-            .map(entry -> {
-                final var score = entry.getValue();
-                return new Tuple(
-                    entry.getKey(),
-                    new PluginScoreSummary(
-                        score.getValue(),
-                        score.getDetails().stream()
-                            .collect(Collectors.toMap(
-                                    ScoreResult::key,
-                                    PluginScoreDetail::new
-                                )
-                            )
-                    )
-                );
-            })
-            .collect(Collectors.toMap(Tuple::name, Tuple::summary));
+        final Map<String, PluginScoreSummary> plugins = latestScoresSummaryMap.entrySet().stream()
+                .map(entry -> {
+                    final var score = entry.getValue();
+                    return new Tuple(
+                            entry.getKey(),
+                            new PluginScoreSummary(
+                                    score.getValue(),
+                                    score.getComputedAt(),
+                                    score.getDetails().stream()
+                                            .collect(Collectors.toMap(ScoreResult::key, PluginScoreDetail::new))));
+                })
+                .collect(Collectors.toMap(Tuple::name, Tuple::summary));
 
-        final ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.ok()
-            .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS));
+        final ResponseEntity.BodyBuilder bodyBuilder =
+                ResponseEntity.ok().cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS));
         optETag.ifPresent(bodyBuilder::eTag);
 
         return bodyBuilder.body(new ScoreReport(plugins, scoreService.getScoresStatistics()));
     }
 
-    public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {
-    }
+    public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {}
 
-    private record PluginScoreSummary(long value, Map<String, PluginScoreDetail> details) {
-    }
+    private record PluginScoreSummary(long value, ZonedDateTime date, Map<String, PluginScoreDetail> details) {}
 
     private record PluginScoreDetail(float value, float weight, List<PluginScoreDetailComponent> components) {
         private PluginScoreDetail(ScoreResult result) {
             this(
-                result.value(),
-                result.weight(),
-                result.componentsResults().stream()
-                    .map(PluginScoreDetailComponent::new)
-                    .collect(Collectors.toList())
-            );
+                    result.value(),
+                    result.weight(),
+                    result.componentsResults().stream()
+                            .map(PluginScoreDetailComponent::new)
+                            .collect(Collectors.toList()));
         }
     }
 
-    private record PluginScoreDetailComponent(int value, float weight, List<String> reasons, List<Resolution> resolutions) {
+    private record PluginScoreDetailComponent(
+            int value, float weight, List<String> reasons, List<Resolution> resolutions) {
         private PluginScoreDetailComponent(ScoringComponentResult result) {
             this(result.score(), result.weight(), result.reasons(), result.resolutions());
         }
