@@ -62,7 +62,18 @@ public class Score {
     @Type(JsonType.class)
     private final Set<ScoreResult> details = new HashSet<>();
 
+    @Column(name="changeScore")
+    private Long changeScore;
+
     public Score() {
+    }
+
+    public long getChangeScore() {
+        return changeScore;
+    }
+
+    public void setChangeScore(long changeScore) {
+        this.changeScore = changeScore;
     }
 
     public Score(Plugin plugin, ZonedDateTime computedAt) {
