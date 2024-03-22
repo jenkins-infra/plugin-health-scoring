@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 package io.jenkins.pluginhealth.scoring.scores;
+
 import java.util.List;
 import java.util.Map;
 
@@ -69,13 +70,16 @@ public class DocumentationScoring extends Scoring {
                     public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
                         ProbeResult probeResult = probeResults.get(ContributingGuidelinesProbe.KEY);
                         if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                            return new ScoringComponentResult(0, getWeight(), List.of("Cannot determine if the plugin has contributing guide."));
+                            return new ScoringComponentResult(
+                                    0, getWeight(), List.of("Cannot determine if the plugin has contributing guide."));
                         }
                         if ("Inherit from organization contributing guide.".equals(probeResult.message())) {
-                            return new ScoringComponentResult(100, 0, List.of("Plugin is inheriting the organization contributing guide."));
+                            return new ScoringComponentResult(
+                                    100, 0, List.of("Plugin is inheriting the organization contributing guide."));
                         }
                         if ("Contributing guidelines found.".equals(probeResult.message())) {
-                            return new ScoringComponentResult(100, getWeight(), List.of("Plugin seems to have a dedicated contributing guide."));
+                            return new ScoringComponentResult(
+                                    100, getWeight(), List.of("Plugin seems to have a dedicated contributing guide."));
                         }
                         return new ScoringComponentResult(
                                 0,
