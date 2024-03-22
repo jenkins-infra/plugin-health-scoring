@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -48,13 +47,19 @@ public class ContributingGuidelinesProbe extends Probe {
         }
 
         final Path repository = context.getScmRepository().get();
-        try (Stream<Path> paths = Files.find(repository, 2,
-            (file, basicFileAttributes) -> Files.isReadable(file)
-                && ("CONTRIBUTING.md".equalsIgnoreCase(file.getFileName().toString())
-                || "CONTRIBUTING.adoc".equalsIgnoreCase(file.getFileName().toString())))) {
+        try (Stream<Path> paths = Files.find(
+                repository,
+                2,
+                (file, basicFileAttributes) -> Files.isReadable(file)
+                        && ("CONTRIBUTING.md"
+                                        .equalsIgnoreCase(file.getFileName().toString())
+                                || "CONTRIBUTING.adoc"
+                                        .equalsIgnoreCase(file.getFileName().toString())))) {
             return paths.findAny()
-                .map(file -> this.success("Contributing guidelines found."))
-                .orElseGet(() -> this.success("No contributing guidelines found."));
+                    .map(file -> file.toFile().length() != 0
+                            ? this.success("Contributing guidelines found.")
+                            : this.success("Contributing guide seems to be empty."))
+                    .orElseGet(() -> this.success("Inherit from organization contributing guide."));
         } catch (IOException e) {
             return this.error(e.getMessage());
         }
