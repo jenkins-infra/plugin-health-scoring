@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
 import org.kohsuke.github.GHCheckRun;
+import org.kohsuke.github.GHCheckRun.Conclusion;
 import org.kohsuke.github.GHCommit;
 import org.kohsuke.github.GHRepository;
 import org.springframework.core.annotation.Order;
@@ -48,32 +47,31 @@ public class DefaultBranchBuildStatusProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
-            context.getUpdateCenter().plugins().get(plugin.getName());
-        if (ucPlugin == null) {
-            return error("Plugin cannot be found in Update-Center.");
-        }
-        final String defaultBranch = ucPlugin.defaultBranch();
-        if (defaultBranch == null || defaultBranch.isBlank()) {
-            return this.error("No default branch configured for the plugin.");
-        }
-        try
-            {
-                final Optional<String> repositoryName = context.getRepositoryName();
-                final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-                GHCommit commit = ghRepository.getCommit(defaultBranch);
-                GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
-                GHCheckRun.Conclusion conclusion = checkRun.getConclusion();
+        try {
+            final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
+                    context.getUpdateCenter().plugins().get(plugin.getName());
+            if (ucPlugin == null) {
+                return error("Plugin cannot be found in Update-Center.");
+            }
+            final String defaultBranch = ucPlugin.defaultBranch();
+            if (defaultBranch == null || defaultBranch.isBlank()) {
+                return this.error("No default branch configured for the plugin.");
+            }
 
-                if (conclusion == GHCheckRun.Conclusion.FAILURE) {
-                    return this.success("Build Failed in Default Branch");
-                } else {
-                    return this.success("Build is Success in Default Branch");
-                }
-            } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+            final Optional<String> repositoryName = context.getRepositoryName();
+            final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+            GHCommit commit = ghRepository.getCommit(ucPlugin.defaultBranch());
+            GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
+            Conclusion conclusion = checkRun.getConclusion();
 
+            if (conclusion == Conclusion.FAILURE) {
+                return this.success("Build Failed in Default Branch");
+            } else {
+                return this.success("Build is Success in Default Branch");
+            }
+        } catch (Exception ex) {
+            return this.error("Failed to obtain the status of the default Branch.");
+        }
     }
 
     @Override
@@ -90,5 +88,4 @@ public class DefaultBranchBuildStatusProbe extends Probe {
     public long getVersion() {
         return 1;
     }
-
 }
