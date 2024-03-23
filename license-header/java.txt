@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) $today.year Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jenkins.pluginhealth.scoring.probes;
-
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
-/**
- * This probe looks for Dependabot configuration in a plugin.
- */
-@Component
-@Order(AbstractDependencyBotConfigurationProbe.ORDER)
-public class DependabotProbe extends AbstractDependencyBotConfigurationProbe {
-    public static final String KEY = "dependabot";
-
-    @Override
-    protected String getBotName() {
-        return KEY;
-    }
-
-    @Override
-    protected boolean isPathBotConfigFile(String filename) {
-        return "dependabot.yml".equals(filename) || "dependabot.yaml".equals(filename);
-    }
-
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "Checks if Dependabot is configured on a plugin.";
-    }
-
-    @Override
-    public long getVersion() {
-        return 3;
-    }
-}

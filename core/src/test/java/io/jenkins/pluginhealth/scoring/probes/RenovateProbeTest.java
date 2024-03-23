@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023-2024 Jenkins Infra
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,25 +63,13 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
 
         final RenovateProbe probe = getSpy();
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(RenovateProbe.KEY, "There is no local repository for plugin " + plugin.getName() + ".", probe.getVersion()));
-    }
-
-    @Test
-    void shouldDetectMissingGitHubActionFolder() throws Exception {
-        final Plugin plugin = mock(Plugin.class);
-        final ProbeContext ctx = mock(ProbeContext.class);
-        final RenovateProbe probe = getSpy();
-
-        final Path repo = Files.createTempDirectory("foo");
-        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
-
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "No GitHub configuration folder found.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        RenovateProbe.KEY,
+                        "There is no local repository for plugin " + plugin.getName() + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -72,26 +83,108 @@ public class RenovateProbeTest extends AbstractProbeTest<RenovateProbe> {
         when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", probe.getVersion()));
     }
 
     @Test
-    void shouldDetectRenovateFile() throws Exception {
+    void shouldAcceptAnyOfRenovateConfigFileLocation() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final RenovateProbe probe = getSpy();
 
-        final Path repo = Files.createTempDirectory("foo");
-        final Path github = Files.createDirectories(repo.resolve(".github"));
+        // /renovate.json
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Files.createFile(repo.resolve("renovate.json"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
-        Files.createFile(github.resolve("renovate.json"));
-        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find 'renovate.json'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
 
-        assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        // /renovate.json5
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Files.createFile(repo.resolve("renovate.json5"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find 'renovate.json5'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
+
+        // /.github/renovate.json
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Path github = Files.createDirectories(repo.resolve(".github"));
+            Files.createFile(github.resolve("renovate.json"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find '.github/renovate.json'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
+
+        // /.github/renovate.json5
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            final Path github = Files.createDirectories(repo.resolve(".github"));
+            Files.createFile(github.resolve("renovate.json5"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find '.github/renovate.json5'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
+
+        // /.renovaterc
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Files.createFile(repo.resolve(".renovaterc"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find '.renovaterc'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
+
+        // /.renovaterc.json
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Files.createFile(repo.resolve(".renovaterc.json"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find '.renovaterc.json'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
+
+        // /.renovaterc.json5
+        {
+            final Path repo = Files.createTempDirectory("foo");
+            Files.createFile(repo.resolve(".renovaterc.json5"));
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+
+            assertThat(probe.apply(plugin, ctx))
+                    .withFailMessage(() -> "Cannot find '.renovaterc.json5'")
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", probe.getVersion()));
+        }
     }
 }

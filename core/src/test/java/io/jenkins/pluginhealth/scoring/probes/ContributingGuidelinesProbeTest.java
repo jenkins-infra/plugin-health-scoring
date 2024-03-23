@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,9 +65,12 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "No contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY,
+                        "Inherit from organization contributing guide.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -79,13 +81,17 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
 
         when(plugin.getName()).thenReturn("foo");
         final Path repository = Files.createTempDirectory(plugin.getName());
-        Files.createFile(repository.resolve("CONTRIBUTING.md"));
+        final Path guide = Files.createFile(repository.resolve("CONTRIBUTING.md"));
+        Files.writeString(guide, """
+            Everything is awesome.
+            """);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
     }
 
     @Test
@@ -96,12 +102,35 @@ public class ContributingGuidelinesProbeTest extends AbstractProbeTest<Contribut
 
         when(plugin.getName()).thenReturn("foo");
         final Path repository = Files.createTempDirectory(plugin.getName());
+        final Path guide = Files.createFile(
+                Files.createDirectory(repository.resolve("docs")).resolve("CONTRIBUTING.md"));
+        Files.writeString(guide, """
+            Everything is awesome.
+            """);
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
+
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
+    }
+
+    @Test
+    public void shouldDetectEmptyContributingGuidelines() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+        final ContributingGuidelinesProbe probe = getSpy();
+
+        when(plugin.getName()).thenReturn("foo");
+        final Path repository = Files.createTempDirectory(plugin.getName());
         Files.createFile(Files.createDirectory(repository.resolve("docs")).resolve("CONTRIBUTING.md"));
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(ContributingGuidelinesProbe.KEY, "Contributing guidelines found.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        ContributingGuidelinesProbe.KEY, "Contributing guide seems to be empty.", probe.getVersion()));
     }
 }

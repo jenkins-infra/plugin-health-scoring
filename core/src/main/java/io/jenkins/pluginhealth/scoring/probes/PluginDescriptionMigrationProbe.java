@@ -26,6 +26,7 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -35,33 +36,35 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = ContributingGuidelinesProbe.ORDER)
-public class ContributingGuidelinesProbe extends Probe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    public static final String KEY = "contributing-guidelines";
+@Order(PluginDescriptionMigrationProbe.ORDER)
+public class PluginDescriptionMigrationProbe extends Probe {
+    public static final String KEY = "description-migration";
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (context.getScmRepository().isEmpty()) {
-            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
+        final Optional<Path> scmRepositoryOpt = context.getScmRepository();
+        if (scmRepositoryOpt.isEmpty()) {
+            return error("Cannot access plugin repository.");
         }
 
-        final Path repository = context.getScmRepository().get();
-        try (Stream<Path> paths = Files.find(
-                repository,
-                2,
-                (file, basicFileAttributes) -> Files.isReadable(file)
-                        && ("CONTRIBUTING.md"
-                                        .equalsIgnoreCase(file.getFileName().toString())
-                                || "CONTRIBUTING.adoc"
-                                        .equalsIgnoreCase(file.getFileName().toString())))) {
-            return paths.findAny()
-                    .map(file -> file.toFile().length() != 0
-                            ? this.success("Contributing guidelines found.")
-                            : this.success("Contributing guide seems to be empty."))
-                    .orElseGet(() -> this.success("Inherit from organization contributing guide."));
+        final Path repository = scmRepositoryOpt.get();
+        final Path pluginFolder =
+                context.getScmFolderPath().map(repository::resolve).orElse(repository);
+
+        try (Stream<Path> files = Files.find(
+                pluginFolder.resolve("src").resolve("main").resolve("resources"), 1, (path, attributes) -> "index.jelly"
+                        .equals(path.getFileName().toString()))) {
+            final Optional<Path> jellyFileOpt = files.findFirst();
+            if (jellyFileOpt.isEmpty()) {
+                return success("There is no `index.jelly` file in `src/main/resources`.");
+            }
+            final Path jellyFile = jellyFileOpt.get();
+            return Files.readAllLines(jellyFile).stream().map(String::trim).anyMatch(s -> s.contains("TODO"))
+                    ? success("Plugin is using description from the plugin archetype.")
+                    : success("Plugin seems to have a correct description.");
         } catch (IOException e) {
-            return this.error(e.getMessage());
+            return error("Cannot browse plugin source code folder.");
         }
     }
 
@@ -72,16 +75,16 @@ public class ContributingGuidelinesProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Validates the existence of a `CONTRIBUTING.adoc` or `CONTRIBUTING.md` file in the repository.";
-    }
-
-    @Override
-    protected boolean isSourceCodeRelated() {
-        return true;
+        return "Checks if the plugin description is located in the `src/main/resources/index.jelly` file.";
     }
 
     @Override
     public long getVersion() {
         return 1;
+    }
+
+    @Override
+    protected boolean requiresRelease() {
+        return true;
     }
 }
