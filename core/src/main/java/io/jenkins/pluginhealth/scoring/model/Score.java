@@ -62,7 +62,7 @@ public class Score {
     @Type(JsonType.class)
     private final Set<ScoreResult> details = new HashSet<>();
 
-    @Column(name="changeScore")
+    @Column(name = "changeScore")
     private Long changeScore;
 
     public Score() {
