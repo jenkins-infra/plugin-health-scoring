@@ -1,0 +1,12 @@
+{
+  "name": "Java/Maven",
+  "postCreateCommand": "yes Y | sdk install java 17.0.6-tem && yes Y | sdk install maven 3.9.0",
+  "forwardPorts": [8080],
+  "customizations": {
+	  "vscode": {
+		  "extensions": [
+			  "vscjava.vscode-java-pack"
+		  ]
+	  }
+  }
+}
