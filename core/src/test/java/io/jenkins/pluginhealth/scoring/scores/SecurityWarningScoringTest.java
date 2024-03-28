@@ -50,7 +50,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123, link-to-security-advisory", 1)
+            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123:link-to-security-advisory", 2)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
@@ -80,7 +80,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         final SecurityWarningScoring scoring = getSpy();
 
         when(plugin.getDetails()).thenReturn(Map.of(
-            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "No known security vulnerabilities.", 1)
+            KnownSecurityVulnerabilityProbe.KEY, ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, "No known security vulnerabilities.", 2)
         ));
 
         final ScoreResult result = scoring.apply(plugin);
