@@ -50,7 +50,6 @@ public class SecurityWarningScoring extends Scoring {
             @Override
             public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
                 final ProbeResult probeResult = probeResults.get(KnownSecurityVulnerabilityProbe.KEY);
-                final int index = probeResult.message().indexOf(":");
                 if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
                     return new ScoringComponentResult(
                             -100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
@@ -59,6 +58,7 @@ public class SecurityWarningScoring extends Scoring {
                     return new ScoringComponentResult(
                             100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                 }
+                final int index = probeResult.message().indexOf(":");
                 return new ScoringComponentResult(
                         0,
                         getWeight(),
