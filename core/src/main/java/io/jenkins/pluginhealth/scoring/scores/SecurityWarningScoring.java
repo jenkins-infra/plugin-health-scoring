@@ -23,6 +23,8 @@
  */
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -58,14 +60,17 @@ public class SecurityWarningScoring extends Scoring {
                     return new ScoringComponentResult(
                             100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                 }
-                final int index = probeResult.message().indexOf(":");
+                final List<Resolution> resolutions = new ArrayList<>();
+                Arrays.stream(probeResult.message().split(",")).forEach(message -> {
+                    final int index = message.indexOf(":");
+                    resolutions.add(new Resolution(message.substring(0, index), message.substring(index + 1)));
+                });
+
                 return new ScoringComponentResult(
                         0,
                         getWeight(),
                         List.of("Plugin seem to have on-going security advisory.", probeResult.message()),
-                        List.of(new Resolution(
-                                probeResult.message().substring(0, index),
-                                probeResult.message().substring(index))));
+                        resolutions);
             }
 
             @Override

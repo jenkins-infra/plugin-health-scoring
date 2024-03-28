@@ -44,7 +44,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
     }
 
     @Test
-    void shouldBeAbleToDetectPluginWithSecurityWarning() {
+    void shouldBeAbleToDetectPluginWithSingleSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = getSpy();
 
@@ -53,6 +53,26 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
                         KnownSecurityVulnerabilityProbe.KEY,
                         ProbeResult.success(
                                 KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123:link-to-security-advisory", 2)));
+
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("security");
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldBeAbleToDetectPluginWithMultipleSecurityWarning() {
+        final Plugin plugin = mock(Plugin.class);
+        final SecurityWarningScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        KnownSecurityVulnerabilityProbe.KEY,
+                        ProbeResult.success(
+                                KnownSecurityVulnerabilityProbe.KEY,
+                                "SECURITY-123:link-to-security-advisory, SECURITY-123:link-to-security-advisory",
+                                2)));
 
         final ScoreResult result = scoring.apply(plugin);
 
