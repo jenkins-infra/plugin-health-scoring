@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,10 +58,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(
-                        ProbeResult.error(PluginDescriptionMigrationProbe.KEY, "Cannot access plugin repository.", 0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "status", "message")
+            .isEqualTo(ProbeResult.error(PluginDescriptionMigrationProbe.KEY, "Cannot access plugin repository.", 0));
     }
 
     @Test
@@ -75,10 +75,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.error(
-                        PluginDescriptionMigrationProbe.KEY, "Cannot browse plugin source code folder.", 0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.error(PluginDescriptionMigrationProbe.KEY, "Cannot browse plugin source code folder.", 0));
     }
 
     @Test
@@ -94,12 +93,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        PluginDescriptionMigrationProbe.KEY,
-                        "There is no `index.jelly` file in `src/main/resources`.",
-                        0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "There is no `index.jelly` file in `src/main/resources`.", 0));
     }
 
     @Test
@@ -108,8 +104,7 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final Path repository = Files.createTempDirectory(getClass().getSimpleName());
-        final Path resources = Files.createDirectories(
-                repository.resolve("src").resolve("main").resolve("resources"));
+        final Path resources = Files.createDirectories(repository.resolve("src").resolve("main").resolve("resources"));
         final Path jelly = Files.createFile(resources.resolve("index.jelly"));
         Files.writeString(jelly, """
             <div>
@@ -122,12 +117,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        PluginDescriptionMigrationProbe.KEY,
-                        "Plugin is using description from the plugin archetype.",
-                        0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin is using description from the plugin archetype.", 0));
     }
 
     @Test
@@ -137,8 +129,7 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
 
         final Path repository = Files.createTempDirectory(getClass().getSimpleName());
         final Path module = Files.createDirectory(repository.resolve("plugin"));
-        final Path resources =
-                Files.createDirectories(module.resolve("src").resolve("main").resolve("resources"));
+        final Path resources = Files.createDirectories(module.resolve("src").resolve("main").resolve("resources"));
         final Path jelly = Files.createFile(resources.resolve("index.jelly"));
         Files.writeString(jelly, """
             <div>
@@ -152,12 +143,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        PluginDescriptionMigrationProbe.KEY,
-                        "Plugin is using description from the plugin archetype.",
-                        0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin is using description from the plugin archetype.", 0));
     }
 
     @Test
@@ -166,12 +154,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final Path repository = Files.createTempDirectory(getClass().getSimpleName());
-        final Path resources = Files.createDirectories(
-                repository.resolve("src").resolve("main").resolve("resources"));
+        final Path resources = Files.createDirectories(repository.resolve("src").resolve("main").resolve("resources"));
         final Path jelly = Files.createFile(resources.resolve("index.jelly"));
-        Files.writeString(
-                jelly,
-                """
+        Files.writeString(jelly, """
             <div>
                 This is a plugin doing something.
             </div>
@@ -182,10 +167,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 0));
     }
 
     @Test
@@ -195,12 +179,9 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
 
         final Path repository = Files.createTempDirectory(getClass().getSimpleName());
         final Path module = Files.createDirectory(repository.resolve("plugin"));
-        final Path resources =
-                Files.createDirectories(module.resolve("src").resolve("main").resolve("resources"));
+        final Path resources = Files.createDirectories(module.resolve("src").resolve("main").resolve("resources"));
         final Path jelly = Files.createFile(resources.resolve("index.jelly"));
-        Files.writeString(
-                jelly,
-                """
+        Files.writeString(jelly, """
             <div>
                 This is a plugin doing something.
             </div>
@@ -212,9 +193,8 @@ public class PluginDescriptionMigrationProbeTest extends AbstractProbeTest<Plugi
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 0));
+            .usingRecursiveComparison()
+            .comparingOnlyFields("id", "message", "status")
+            .isEqualTo(ProbeResult.success(PluginDescriptionMigrationProbe.KEY, "Plugin seems to have a correct description.", 0));
     }
 }

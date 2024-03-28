@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -58,25 +59,20 @@ public class JSR305Probe extends Probe {
         final Path scmRepository = context.getScmRepository().get();
 
         /* The "maxDepth" is set to Integer.MAX_VALUE because a repository can have multiple modules with class files in it. We do not want to miss any ".java" file.  */
-        try (Stream<Path> javaFiles = Files.find(
-                scmRepository,
-                Integer.MAX_VALUE,
-                (path, $) -> Files.isRegularFile(path)
-                        && path.getFileName().toString().endsWith(".java"))) {
+        try (Stream<Path> javaFiles = Files.find(scmRepository, Integer.MAX_VALUE, (path, $) -> Files.isRegularFile(path) && path.getFileName().toString().endsWith(".java"))) {
             Set<String> javaFilesWithDetectedImports = javaFiles
-                    .filter(this::containsImports)
-                    .map(javaFile -> javaFile.getFileName().toString())
-                    .collect(Collectors.toSet());
+                .filter(this::containsImports)
+                .map(javaFile -> javaFile.getFileName().toString())
+                .collect(Collectors.toSet());
 
             return javaFilesWithDetectedImports.isEmpty()
-                    ? this.success(String.format("%s at %s plugin.", getValidMessage(), plugin.getName()))
-                    : this.success(String.format(
-                            "%s at %s plugin for %s",
-                            getInvalidMessage(),
-                            plugin.getName(),
-                            javaFilesWithDetectedImports.stream()
-                                    .sorted(Comparator.naturalOrder())
-                                    .collect(Collectors.joining(", "))));
+                ? this.success(String.format("%s at %s plugin.", getValidMessage(), plugin.getName()))
+                : this.success(String.format(
+                    "%s at %s plugin for %s",
+                    getInvalidMessage(),
+                    plugin.getName(),
+                    javaFilesWithDetectedImports.stream().sorted(Comparator.naturalOrder()).collect(Collectors.joining(", "))
+            ));
         } catch (IOException ex) {
             LOGGER.error("Could not browse the plugin folder during {} probe.", key(), ex);
             return this.error(String.format("Could not browse the plugin folder during %s probe.", plugin.getName()));
@@ -100,9 +96,7 @@ public class JSR305Probe extends Probe {
      * @return a List with imports is returned when imports are found. Otherwise, an empty list is returned.
      */
     private List<String> getAllImportsInTheFile(Path javaFile) {
-        try (Stream<String> importStatements = Files.lines(javaFile)
-                .filter(line -> line.startsWith("import"))
-                .map(this::getFullyQualifiedImportName)) {
+        try (Stream<String> importStatements = Files.lines(javaFile).filter(line -> line.startsWith("import")).map(this::getFullyQualifiedImportName)) {
             return importStatements.toList();
         } catch (IOException ex) {
             LOGGER.error("Could not browse the {} plugin folder during probe.", key(), ex);
