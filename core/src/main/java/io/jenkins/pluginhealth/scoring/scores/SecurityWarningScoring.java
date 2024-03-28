@@ -63,7 +63,7 @@ public class SecurityWarningScoring extends Scoring {
                         0,
                         getWeight(),
                         List.of("Plugin seem to have on-going security advisory.", probeResult.message()),
-                        List.of(new Resolution(probeResult.message().substring(0,index),probeResult.message().substring(index))));
+                        List.of(new Resolution(probeResult.message().substring(0, index), probeResult.message().substring(index))));
             }
 
             @Override
