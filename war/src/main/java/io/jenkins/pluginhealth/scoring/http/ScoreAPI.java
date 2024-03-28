@@ -57,7 +57,9 @@ public class ScoreAPI {
             value = {"", "/"},
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ScoreReport> getReport() {
-        final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap();
+        final List<Score> scores = scoreService.getLatestScoresSummary();
+        final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap(scores);
+        final Map<String, Long> previousScoreSummaryMap = scoreService.getPreviousScoreMap(scores);
         final Optional<String> optETag = latestScoresSummaryMap.values().stream()
                 .max(Comparator.comparing(Score::getComputedAt))
                 .map(Score::getComputedAt)
@@ -73,6 +75,8 @@ public class ScoreAPI {
                             entry.getKey(),
                             new PluginScoreSummary(
                                     score.getValue(),
+                                    previousScoreSummaryMap.get(
+                                            score.getPlugin().getName()),
                                     score.getComputedAt(),
                                     score.getDetails().stream()
                                             .collect(Collectors.toMap(ScoreResult::key, PluginScoreDetail::new))));
@@ -88,7 +92,8 @@ public class ScoreAPI {
 
     public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {}
 
-    private record PluginScoreSummary(long value, ZonedDateTime date, Map<String, PluginScoreDetail> details) {}
+    private record PluginScoreSummary(
+            long value, long previousScore, ZonedDateTime date, Map<String, PluginScoreDetail> details) {}
 
     private record PluginScoreDetail(float value, float weight, List<PluginScoreDetailComponent> components) {
         private PluginScoreDetail(ScoreResult result) {

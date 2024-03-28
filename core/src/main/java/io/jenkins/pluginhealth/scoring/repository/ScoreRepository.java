@@ -41,16 +41,20 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     @Query(
             value =
                     """
-                SELECT DISTINCT ON (s.plugin_id)
-                    s.plugin_id,
-                    s.value,
-                    s.computed_at,
-                    s.details,
-                    s.id,
-                    s.change_score
-                FROM scores s
-                JOIN plugins p on s.plugin_id = p.id
-                ORDER BY s.plugin_id, s.computed_at DESC;
+                SELECT plugin_id, value, computed_at, details, id
+                FROM (
+                    SELECT
+                        s.plugin_id,
+                        s.value,
+                        s.computed_at,
+                        s.details,
+                        s.id,
+                        ROW_NUMBER() OVER (PARTITION BY s.plugin_id ORDER BY s.computed_at DESC) AS row_num
+                    FROM scores s
+                    JOIN plugins p ON s.plugin_id = p.id
+                ) AS ranked_scores
+                WHERE row_num <= 2
+                ORDER BY plugin_id, computed_at DESC;
             """,
             nativeQuery = true)
     List<Score> findLatestScoreForAllPlugins();
