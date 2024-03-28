@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +115,11 @@ class ScoreAPITest {
                                         "0 open pull requests from dependency update tool."))),
                 1));
 
-        when(scoreService.getLatestScoresSummaryMap())
+        List<Score> scores = new ArrayList<>();
+        scores.add(scoreP1);
+        scores.add(scoreP2);
+
+        when(scoreService.getLatestScoresSummaryMap(scores))
                 .thenReturn(Map.of(
                         "plugin-1", scoreP1,
                         "plugin-2", scoreP2));
@@ -213,7 +218,10 @@ class ScoreAPITest {
                         100, 1, List.of("There is no active security advisory for the plugin."))),
                 1));
 
-        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of("plugin-1", scoreP1));
+        List<Score> scores = new ArrayList<>();
+        scores.add(scoreP1);
+
+        when(scoreService.getLatestScoresSummaryMap(scores)).thenReturn(Map.of("plugin-1", scoreP1));
 
         MvcResult mvcResult = mockMvc.perform(get("/api/scores"))
                 .andExpectAll(
@@ -247,7 +255,10 @@ class ScoreAPITest {
                         100, 1, List.of("There is no active security advisory for the plugin."))),
                 1));
 
-        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of("plugin-1", newScoreP1));
+        List<Score> scoreList = new ArrayList<>();
+        scoreList.add(newScoreP1);
+
+        when(scoreService.getLatestScoresSummaryMap(scores)).thenReturn(Map.of("plugin-1", newScoreP1));
 
         mockMvc.perform(get("/api/scores").headers(httpHeaders))
                 .andExpectAll(

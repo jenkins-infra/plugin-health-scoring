@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.repository;
 
 import java.util.List;
@@ -40,35 +39,41 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
     Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
 
     @Query(
-        value = """
-                SELECT DISTINCT ON (s.plugin_id)
-                    s.plugin_id,
-                    s.value,
-                    s.computed_at,
-                    s.details,
-                    s.id
-                FROM scores s
-                JOIN plugins p on s.plugin_id = p.id
-                ORDER BY s.plugin_id, s.computed_at DESC;
+            value =
+                    """
+                SELECT plugin_id, value, computed_at, details, id
+                FROM (
+                    SELECT
+                        s.plugin_id,
+                        s.value,
+                        s.computed_at,
+                        s.details,
+                        s.id,
+                        ROW_NUMBER() OVER (PARTITION BY s.plugin_id ORDER BY s.computed_at DESC) AS row_num
+                    FROM scores s
+                    JOIN plugins p ON s.plugin_id = p.id
+                ) AS ranked_scores
+                WHERE row_num <= 2
+                ORDER BY plugin_id, computed_at DESC;
             """,
-        nativeQuery = true
-    )
+            nativeQuery = true)
     List<Score> findLatestScoreForAllPlugins();
 
     @Query(
-        value = """
+            value =
+                    """
             SELECT DISTINCT ON (s.plugin_id)
                 s.value
             FROM scores s
             ORDER BY s.plugin_id, s.computed_at DESC, s.value;
             """,
-        nativeQuery = true
-    )
+            nativeQuery = true)
     int[] getLatestScoreValueOfEveryPlugin();
 
     @Modifying
     @Query(
-        value = """
+            value =
+                    """
         DELETE FROM scores
         WHERE id NOT IN (
             SELECT id
@@ -79,7 +84,6 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             WHERE row_num <= 5
         );
         """,
-        nativeQuery = true
-    )
+            nativeQuery = true)
     int deleteOldScoreFromPlugin();
 }

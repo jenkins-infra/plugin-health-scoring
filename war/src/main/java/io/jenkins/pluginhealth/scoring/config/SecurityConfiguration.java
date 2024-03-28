@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.config;
 
 import org.springframework.context.annotation.Bean;
@@ -36,19 +35,21 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(request ->
-                request
-                    .requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*").permitAll()
-                    .requestMatchers(HttpMethod.GET,
+        http.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*")
+                .permitAll()
+                .requestMatchers(
+                        HttpMethod.GET,
                         "/api/scores",
+                        "/api/scores/*",
                         "/",
-                        "/probes", "/probes/*",
-                        "/scores", "/scores/*",
-                        "/actuator/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
-            );
+                        "/probes",
+                        "/probes/*",
+                        "/scores",
+                        "/scores/*",
+                        "/actuator/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated());
         return http.build();
     }
 }
