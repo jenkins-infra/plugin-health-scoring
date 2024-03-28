@@ -138,6 +138,7 @@ class ScoreAPITest {
                             'plugin-1': {
                                 'value': 100,
                                 'date': "%s",
+                                'previousScore': -1,
                                 'details': {
                                     'scoring-1': {
                                         'value': 100,

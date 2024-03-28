@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
@@ -61,7 +62,8 @@ public class Score {
     @Type(JsonType.class)
     private final Set<ScoreResult> details = new HashSet<>();
 
-    public Score() {}
+    public Score() {
+    }
 
     public Score(Plugin plugin, ZonedDateTime computedAt) {
         this.plugin = plugin;
@@ -82,13 +84,13 @@ public class Score {
 
     private void computeValue() {
         var sum = details.stream()
-                .filter(Objects::nonNull)
-                .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
-                .sum();
+            .filter(Objects::nonNull)
+            .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
+            .sum();
         var coefficient = details.stream()
-                .filter(Objects::nonNull)
-                .flatMapToDouble(res -> DoubleStream.of(res.weight()))
-                .sum();
+            .filter(Objects::nonNull)
+            .flatMapToDouble(res -> DoubleStream.of(res.weight()))
+            .sum();
         this.value = Math.round((sum / coefficient));
     }
 
