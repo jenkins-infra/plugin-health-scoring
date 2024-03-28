@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.List;
@@ -64,7 +63,9 @@ public class SecurityWarningScoring extends Scoring {
                         0,
                         getWeight(),
                         List.of("Plugin seem to have on-going security advisory.", probeResult.message()),
-                        List.of(new Resolution(probeResult.message().substring(0, index), probeResult.message().substring(index))));
+                        List.of(new Resolution(
+                                probeResult.message().substring(0, index),
+                                probeResult.message().substring(index))));
             }
 
             @Override
