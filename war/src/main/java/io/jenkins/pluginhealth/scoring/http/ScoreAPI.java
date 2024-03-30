@@ -75,8 +75,8 @@ public class ScoreAPI {
                             entry.getKey(),
                             new PluginScoreSummary(
                                     score.getValue(),
-                                    previousScoreSummaryMap.get(
-                                            score.getPlugin().getName()),
+                                    previousScoreSummaryMap.getOrDefault(
+                                            score.getPlugin().getName(), -1L),
                                     score.getComputedAt(),
                                     score.getDetails().stream()
                                             .collect(Collectors.toMap(ScoreResult::key, PluginScoreDetail::new))));
