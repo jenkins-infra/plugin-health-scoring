@@ -21,19 +21,17 @@ pipeline {
           infra.withArtifactCachingProxy() {
             def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
             OPTS += env.TAG_NAME ? ' -Dspotless.check.skip=true' : ''
-            withEnv(["OPTS=${OPTS}"]) {
-              sh '''
-                ./mvnw -V \
-                  --no-transfer-progress \
-                  ${OPTS} \
-                  verify \
-                  checkstyle:checkstyle \
-                  spotbugs:spotbugs \
-                  -Dmaven.test.failure.ignore \
-                  -Dcheckstyle.failOnViolation=false \
-                  -Dspotbugs.failOnError=false
-              '''
-            }
+            sh '''
+              ./mvnw -V \
+                --no-transfer-progress \
+                ${OPTS} \
+                verify \
+                checkstyle:checkstyle \
+                spotbugs:spotbugs \
+                -Dmaven.test.failure.ignore \
+                -Dcheckstyle.failOnViolation=false \
+                -Dspotbugs.failOnError=false
+            '''
           }
         }
       }
