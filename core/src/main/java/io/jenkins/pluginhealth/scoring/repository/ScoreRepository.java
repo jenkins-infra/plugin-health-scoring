@@ -57,7 +57,7 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
                 ORDER BY plugin_id, computed_at DESC;
             """,
             nativeQuery = true)
-    List<Score> findLatestScoreForAllPlugins();
+    List<Score> findLastTwoScoreForAllPlugins();
 
     @Query(
             value =

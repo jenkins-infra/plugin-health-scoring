@@ -56,8 +56,8 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<Score> getLatestScoresSummary() {
-        return repository.findLatestScoreForAllPlugins();
+    public List<Score> getLastTwoScoresSummary() {
+        return repository.findLastTwoScoreForAllPlugins();
     }
 
     @Transactional(readOnly = true)

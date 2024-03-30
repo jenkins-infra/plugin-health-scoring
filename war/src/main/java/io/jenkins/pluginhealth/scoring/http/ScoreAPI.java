@@ -57,7 +57,7 @@ public class ScoreAPI {
             value = {"", "/"},
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ScoreReport> getReport() {
-        final List<Score> scores = scoreService.getLatestScoresSummary();
+        final List<Score> scores = scoreService.getLastTwoScoresSummary();
         final Map<String, Score> latestScoresSummaryMap = scoreService.getLatestScoresSummaryMap(scores);
         final Map<String, Long> previousScoreSummaryMap = scoreService.getPreviousScoreMap(scores);
         final Optional<String> optETag = latestScoresSummaryMap.values().stream()

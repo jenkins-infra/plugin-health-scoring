@@ -119,7 +119,7 @@ class ScoreAPITest {
         scores.add(scoreP1);
         scores.add(scoreP2);
 
-        when(scoreService.getLatestScoresSummary()).thenReturn(List.of(scoreP1, scoreP2));
+        when(scoreService.getLastTwoScoresSummary()).thenReturn(List.of(scoreP1, scoreP2));
         when(scoreService.getLatestScoresSummaryMap(scores))
                 .thenReturn(Map.of(
                         "plugin-1", scoreP1,
@@ -224,7 +224,7 @@ class ScoreAPITest {
         List<Score> scores = new ArrayList<>();
         scores.add(scoreP1);
 
-        when(scoreService.getLatestScoresSummary()).thenReturn(scores);
+        when(scoreService.getLastTwoScoresSummary()).thenReturn(scores);
         when(scoreService.getLatestScoresSummaryMap(scores)).thenReturn(Map.of("plugin-1", scoreP1));
 
         MvcResult mvcResult = mockMvc.perform(get("/api/scores"))
