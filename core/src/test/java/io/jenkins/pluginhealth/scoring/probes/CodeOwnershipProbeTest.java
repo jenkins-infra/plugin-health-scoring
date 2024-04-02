@@ -26,6 +26,12 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -39,9 +45,12 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
     }
 
     @Test
-    void shouldDetectMissingCodeOwnershipFile() {
+    void shouldDetectMissingCodeOwnershipFile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+
+        final Path repo = Files.createTempDirectory(getClass().getName());
+        when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
 
         final CodeOwnershipProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -53,9 +62,41 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
     }
 
     @Test
-    void shouldDetectCodeOwnershipFileWithInvalidContent() {
+    void shouldDetectCodeOwnershipFileWithInvalidContent() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("new-super");
+
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path codeowners = Files.createFile(repo.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path github = Files.createDirectory(repo.resolve(".github"));
+            final Path codeowners = Files.createFile(github.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path docs = Files.createDirectory(repo.resolve("docs"));
+            final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
 
         final CodeOwnershipProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -64,16 +105,64 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
     }
 
     @Test
-    void shouldDetectCodeOwnershipFileWithValidTeam() {
+    void shouldDetectCodeOwnershipFileWithValidTeam() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn("sample");
+
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path codeowners = Files.createFile(repo.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path github = Files.createDirectory(repo.resolve(".github"));
+            final Path codeowners = Files.createFile(github.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path docs = Files.createDirectory(repo.resolve("docs"));
+            final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
 
         final CodeOwnershipProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
+        assertThat(result)
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
         assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
