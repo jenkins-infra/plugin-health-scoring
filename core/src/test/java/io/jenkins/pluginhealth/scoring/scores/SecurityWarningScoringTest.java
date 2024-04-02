@@ -28,10 +28,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
@@ -59,6 +64,12 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         assertThat(result.key()).isEqualTo("security");
         assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
+        result.componentsResults().forEach(ScoringComponentResult -> {
+            ScoringComponentResult.resolutions().forEach(resolution -> {
+                assertThat(resolution.link()).isEqualTo("link-to-security-advisory");
+                assertThat(resolution.text()).isEqualTo("SECURITY-123");
+            });
+        });
     }
 
     @Test
@@ -79,6 +90,28 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         assertThat(result.key()).isEqualTo("security");
         assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
+
+        List<Resolution> resolutionList = new ArrayList<>();
+        result.componentsResults().forEach(ScoringComponentResult -> {
+            ScoringComponentResult.reasons().forEach(message -> {
+                if (!message.equals("Plugin seem to have on-going security advisory.")) {
+                    String[] res = message.split(",");
+                    Arrays.stream(res).forEach(securityMessage -> {
+                        String[] securityInfo = securityMessage.split(":");
+                        resolutionList.add(new Resolution(securityInfo[0].trim(), securityInfo[1]));
+                    });
+                }
+            });
+            AtomicInteger count = new AtomicInteger();
+
+            ScoringComponentResult.resolutions().forEach(resolution -> {
+                assertThat(resolutionList.get(0).link())
+                        .isEqualTo(resolution.link().trim());
+                assertThat(resolutionList.get(1).text())
+                        .isEqualTo(resolution.text().trim());
+                count.incrementAndGet();
+            });
+        });
     }
 
     @Test
