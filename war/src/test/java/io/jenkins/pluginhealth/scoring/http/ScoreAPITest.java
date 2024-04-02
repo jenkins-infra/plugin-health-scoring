@@ -35,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -269,5 +270,131 @@ class ScoreAPITest {
                         status().isOk(),
                         header().string("ETag", equalTo("\"%s\"".formatted(newScoreComputedAt.toEpochSecond()))),
                         content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void shouldBeAbleToProvideOldScoresSummary() throws Exception {
+        final Plugin p1 = mock(Plugin.class);
+        final Plugin p2 = mock(Plugin.class);
+        final ZonedDateTime scoreP1Date = ZonedDateTime.now().minusMinutes(1);
+        final Score scoreP1 = new Score(p1, scoreP1Date);
+        scoreP1.addDetail(new ScoreResult(
+                "scoring-1",
+                100,
+                1,
+                Set.of(new ScoringComponentResult(
+                        100, 1, List.of("There is no active security advisory for the plugin."))),
+                1));
+
+        final Score scoreP2 = new Score(p2, scoreP1Date);
+        scoreP2.addDetail(new ScoreResult(
+                "scoring-1",
+                100,
+                1,
+                Set.of(new ScoringComponentResult(
+                        100, 1, List.of("There is no active security advisory for the plugin."))),
+                1));
+
+        final ZonedDateTime latestTimePlugin2 = ZonedDateTime.now().minusMinutes(2);
+        final Score latestScore = new Score(p2, scoreP1Date);
+        latestScore.addDetail(new ScoreResult(
+                "scoring-1",
+                100,
+                1,
+                Set.of(new ScoringComponentResult(
+                        100, 1, List.of("There is no active security advisory for the plugin."))),
+                1));
+
+        final Score oldScore = new Score(p2, scoreP1Date);
+        oldScore.addDetail(new ScoreResult(
+                "scoring-1",
+                10,
+                1,
+                Set.of(new ScoringComponentResult(
+                        100, 1, List.of("There is no active security advisory for the plugin."))),
+                1));
+
+        final List<Score> scores = new ArrayList<>();
+        scores.add(scoreP1);
+        scores.add(scoreP2);
+        scores.add(oldScore);
+        scores.add(latestScore);
+        when(p1.getName()).thenReturn("plugin-1");
+        when(p2.getName()).thenReturn("plugin-2");
+        // Prepare maps for mock return values
+        Map<String, Score> latestScoresMap = new HashMap<>();
+        latestScoresMap.put("plugin-1", scoreP1);
+        latestScoresMap.put("plugin-2", latestScore);
+        Map<String, Long> previousScoreMap = new HashMap<>();
+        previousScoreMap.put("plugin-1", 100L);
+        previousScoreMap.put("plugin-2", 10L);
+        when(scoreService.getLastTwoScoresSummary()).thenReturn(scores);
+
+        when(scoreService.getLatestScoresSummaryMap(scores)).thenReturn(latestScoresMap);
+        when(scoreService.getPreviousScoreMap(scores)).thenReturn(previousScoreMap);
+        when(scoreService.getScoresStatistics())
+                .thenReturn(new ScoreService.ScoreStatistics(87.5, 50, 100, 100, 100, 100));
+
+        // @formatter:off
+        mockMvc.perform(get("/api/scores"))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType(MediaType.APPLICATION_JSON),
+                        header().string("ETag", equalTo("\"" + scoreP1Date.toEpochSecond() + "\"")),
+                        content()
+                                .json(
+                                        """
+                    {
+                        'plugins': {
+                            'plugin-1': {
+                                'value': 100,
+                                'date': "%s",
+                                'previousScore': 100,
+                                'details': {
+                                    'scoring-1': {
+                                        'value': 100,
+                                        'weight': 1,
+                                        'components': [{
+                                            'value': 100,
+                                            'weight': 1,
+                                            'reasons': ['There is no active security advisory for the plugin.']
+                                        }]
+                                    }
+                                }
+                            },
+                            'plugin-2': {
+                                'value': 100,
+                                'date': "%s",
+                                'previousScore': 10,
+                                'details': {
+                                    'scoring-1': {
+                                        'value': 100,
+                                        'weight': 1,
+                                        'components': [{
+                                            'value': 100,
+                                            'weight': 1,
+                                            'reasons': ['There is no active security advisory for the plugin.']
+                                        }]
+                                    }
+
+                                    }
+
+                            }
+
+                        },
+                        'statistics': {
+                            'average': 87.5,
+                            'minimum': 50,
+                            'maximum': 100,
+                            'firstQuartile': 100,
+                            'median': 100,
+                            'thirdQuartile': 100
+                        }
+                    }
+                    """
+                                                .formatted(
+                                                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                                                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
+                                        false));
     }
 }
