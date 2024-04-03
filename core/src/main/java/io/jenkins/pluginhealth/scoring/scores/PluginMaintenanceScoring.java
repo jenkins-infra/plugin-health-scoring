@@ -244,6 +244,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 3;
+        return 4;
     }
 }
