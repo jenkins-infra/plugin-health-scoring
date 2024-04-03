@@ -99,17 +99,16 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         }
 
         final CodeOwnershipProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
@@ -153,17 +152,16 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         }
 
         final CodeOwnershipProbe probe = getSpy();
-        final ProbeResult result = probe.apply(plugin, ctx);
 
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
-        assertThat(result)
+        assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
