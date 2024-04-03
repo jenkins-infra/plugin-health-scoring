@@ -31,5 +31,5 @@ set -euxo pipefail
 ###
 curl --etag-compare "${ETAGS_FILE}" \
     --etag-save "${ETAGS_FILE}" \
-    -LSs "${URL}" \
+    -LSs "${HEALTH_URL}" \
     | jq --compact-output '. + { lastUpdate: (now | todate) }' > "${REPORT_FILE}"
