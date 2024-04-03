@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Order(CodeOwnershipProbe.ORDER)
 public class CodeOwnershipProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
-    private static final String KEY = "code-ownership";
+    public static final String KEY = "code-ownership";
     public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER + 100;
 
     @Override

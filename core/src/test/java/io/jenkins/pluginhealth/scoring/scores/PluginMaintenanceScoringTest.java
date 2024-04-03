@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.probes.CodeOwnershipProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
 import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
@@ -68,7 +69,8 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
                 0
             ),
@@ -78,7 +80,8 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
                 0
             ),
@@ -88,7 +91,8 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
                 ),
                 100
             ),
@@ -98,7 +102,8 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
                 ),
                 100
             ),
@@ -107,9 +112,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                76
+                50
             ),
             arguments(// Jenkinsfile and dependabot but with open pull request
                 Map.of(
@@ -117,9 +123,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                85
+                60
             ),
             arguments(// Jenkinsfile and dependabot with no open pull request
                 Map.of(
@@ -127,9 +134,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                94
+                70
             ),
             arguments(// Jenkinsfile and renovate but with open pull request
                 Map.of(
@@ -137,9 +145,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot not is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                85
+                60
             ),
             arguments(// Jenkinsfile and renovate with no open pull request
                 Map.of(
@@ -147,18 +156,20 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot not is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                94
+                70
             ),
             arguments(// Jenkinsfile and CD
                 Map.of(
                     JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                82
+                60
             ),
             arguments(// Jenkinsfile and CD and dependabot but with open pull request
                 Map.of(
@@ -166,9 +177,21 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                91
+                70
+            ),
+            arguments(// Jenkinsfile and CD and dependabot but with no open pull request
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
+                ),
+                80
             ),
             arguments(// Dependabot only with no open pull requests
                 Map.of(
@@ -176,9 +199,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                18
+                20
             ),
             arguments(// Dependabot only with open pull requests
                 Map.of(
@@ -186,9 +210,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                9
+                10
             ),
             arguments(// Dependabot with no open pull request and CD
                 Map.of(
@@ -196,9 +221,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                24
+                30
             ),
             arguments(// Renovate only with no open pull requests
                 Map.of(
@@ -206,9 +232,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                18
+                20
             ),
             arguments(// Renovate only with open pull requests
                 Map.of(
@@ -216,9 +243,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                9
+                10
             ),
             arguments(// Renovate with no open pull request and CD
                 Map.of(
@@ -226,9 +254,10 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                24
+                30
             ),
             arguments(// CD only
                 Map.of(
@@ -236,9 +265,65 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                     DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
                     RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                     DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
-                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1)
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)
                 ),
-                6
+                10
+            ),
+            arguments(// Codeownership only
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "No Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
+                ),
+                20
+            ),
+            arguments(// Codeownership + Jenkinsfile
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
+                ),
+                70
+            ),
+            arguments(// Codeownership + Jenkinsfile + CD
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is not configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
+                ),
+                80
+            ),
+            arguments(// Codeownership + Jenkinsfile + CD + Dependabot
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
+                ),
+                90
+            ),
+            arguments(// Codeownership + Jenkinsfile + CD
+                Map.of(
+                    JenkinsfileProbe.KEY, ProbeResult.success(JenkinsfileProbe.KEY, "Jenkinsfile found", 1),
+                    DependabotProbe.KEY, ProbeResult.success(DependabotProbe.KEY, "Dependabot is configured.", 1),
+                    RenovateProbe.KEY, ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
+                    DependabotPullRequestProbe.KEY, ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                    ContinuousDeliveryProbe.KEY, ProbeResult.success(ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
+                    CodeOwnershipProbe.KEY, ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)
+                ),
+                100
             )
         );
     }
@@ -253,7 +338,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
 
         final ScoreResult result = scoring.apply(plugin);
 
-        assertThat(result.componentsResults().size()).isEqualTo(3);
+        assertThat(result.componentsResults().size()).isEqualTo(4);
         assertThat(result)
             .isNotNull()
             .usingRecursiveComparison()
