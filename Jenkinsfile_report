@@ -21,9 +21,9 @@ pipeline {
   stages {
     stage('Fetch API') {
       environment {
-        REPORTS_FOLDER = reportsFolder
-        ETAGS_FILE = etagsFile
-        REPORT_FILE = reportFile
+        REPORTS_FOLDER = "${reportsFolder}"
+        ETAGS_FILE = "${etagsFile}"
+        REPORT_FILE = "${reportFile}"
         URL = 'https://plugin-health.jenkins.io/api/scores'
       }
 
