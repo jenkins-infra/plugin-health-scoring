@@ -60,7 +60,6 @@ public class ScoreService {
         return repository.findLastTwoScoreForAllPlugins();
     }
 
-    @Transactional(readOnly = true)
     public Map<String, Score> getLatestScoresSummaryMap(List<Score> scores) {
         return scores.stream()
                 .collect(Collectors.toMap(
@@ -69,7 +68,6 @@ public class ScoreService {
                         (existingScore, newScore) -> existingScore));
     }
 
-    @Transactional(readOnly = true)
     public Map<String, Long> getPreviousScoreMap(List<Score> scores) {
         return scores.stream()
                 .collect(Collectors.toMap(

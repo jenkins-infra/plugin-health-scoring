@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,11 +98,8 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         Set.of(p1s, p2s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(2);
 
-        List<Score> scoreList = new ArrayList<>();
-        scoreList.add(p1s);
-        scoreList.add(p2s);
-
-        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap(scoreList);
+        final List<Score> scores = scoreService.getLastTwoScoresSummary();
+        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap(scores);
 
         assertThat(summary)
                 .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
@@ -138,14 +134,8 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         Set.of(p1s, p2s, p1sOld, p2sOld, p1sOld2).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(5);
 
-        List<Score> scoreList = new ArrayList<>();
-        scoreList.add(p1s);
-        scoreList.add(p2s);
-        scoreList.add(p2sOld);
-        scoreList.add(p1sOld);
-        scoreList.add(p1sOld2);
-
-        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap(scoreList);
+        final List<Score> scores = scoreService.getLastTwoScoresSummary();
+        final Map<String, Score> summary = scoreService.getLatestScoresSummaryMap(scores);
 
         assertThat(summary)
                 .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)

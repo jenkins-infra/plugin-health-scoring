@@ -295,7 +295,6 @@ class ScoreAPITest {
                         100, 1, List.of("There is no active security advisory for the plugin."))),
                 1));
 
-        final ZonedDateTime latestTimePlugin2 = ZonedDateTime.now().minusMinutes(2);
         final Score latestScore = new Score(p2, scoreP1Date);
         latestScore.addDetail(new ScoreResult(
                 "scoring-1",
@@ -380,7 +379,6 @@ class ScoreAPITest {
                                     }
 
                             }
-
                         },
                         'statistics': {
                             'average': 87.5,
