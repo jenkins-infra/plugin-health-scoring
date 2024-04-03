@@ -28,14 +28,16 @@ pipeline {
       }
 
       steps {
-        reportLines = sh(returnStdout:true, script: '''
-          curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
-          bash fetch-report.sh
-          mkdir -p "${reportsFolder}"
-          cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
+        script {
+          reportLines = sh(returnStdout:true, script: '''
+            curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
+            bash fetch-report.sh
+            mkdir -p "${reportsFolder}"
+            cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
 
-          wc -l ${REPORT_FILE}
-        ''').trim()
+            wc -l ${REPORT_FILE}
+          ''').trim()
+        }
       }
 
       post {
