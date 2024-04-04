@@ -15,11 +15,18 @@
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="version-tag"></ion-icon>
+            <span>Latest version: </span>
             <span data-th-text="${ plugin.version }"></span>
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="calendar"></ion-icon>
-            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp) }"></span>
+            <span>Last release date:</span>
+            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp, 'yyyy-MM-dd HH:mm', 'UTC') }"></span>
+        </div>
+        <div class="plugin--details--tab">
+            <ion-icon name="calendar"></ion-icon>
+            <span>Last score computation:</span>
+            <span data-th-text="${ #temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC') }"></span>
         </div>
     </div>
 
