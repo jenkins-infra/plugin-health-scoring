@@ -104,17 +104,12 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Status</th>
                 <th>Message</th>
             </tr>
             </thead>
             <tbody>
             <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
                 <td><code data-th-text="${probeResult.id}" class="label"></code></td>
-                <td>
-                    <ion-icon data-th-if="${probeResult.status.name} == 'SUCCESS'" class="success" name="success"></ion-icon>
-                    <ion-icon data-th-unless="${probeResult.status.name} == 'SUCCESS'" class="failure" name="failure"></ion-icon>
-                </td>
                 <td data-th-text="${probeResult.message}"></td>
             </tr>
             </tbody>
