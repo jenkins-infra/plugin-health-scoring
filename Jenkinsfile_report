@@ -21,21 +21,23 @@ pipeline {
   stages {
     stage('Fetch API') {
       environment {
-        REPORTS_FOLDER = reportsFolder
-        ETAGS_FILE = etagsFile
-        REPORT_FILE = reportFile
-        URL = 'https://plugin-health.jenkins.io/api/scores'
+        REPORTS_FOLDER = "${reportsFolder}"
+        ETAGS_FILE = "${etagsFile}"
+        REPORT_FILE = "${reportFile}"
+        HEALTH_URL = 'https://plugin-health.jenkins.io/api/scores'
       }
 
       steps {
-        reportLines = sh(returnStdout:true, script: '''
-          curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
-          bash fetch-report.sh
-          mkdir -p "${reportsFolder}"
-          cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
+        script {
+          reportLines = sh(returnStdout:true, script: '''
+            curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
+            bash fetch-report.sh
+            mkdir -p "${REPORTS_FOLDER}"
+            cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
 
-          wc -l ${REPORT_FILE}
-        ''').trim()
+            wc -l ${REPORT_FILE}
+          ''').trim()
+        }
       }
 
       post {
