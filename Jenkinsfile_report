@@ -32,7 +32,7 @@ pipeline {
           reportLines = sh(returnStdout:true, script: '''
             curl -LSsO https://reports.jenkins.io/${REPORTS_FOLDER}/${ETAGS_FILE} || echo "No previous etags file."
             bash fetch-report.sh
-            mkdir -p "${reportsFolder}"
+            mkdir -p "${REPORTS_FOLDER}"
             cp ${REPORT_FILE} ${ETAGS_FILE} ${REPORTS_FOLDER}
 
             wc -l ${REPORT_FILE}
