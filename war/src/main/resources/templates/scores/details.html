@@ -38,6 +38,7 @@
         <thead>
         <tr>
             <th></th>
+            <th>Status</th>
             <th>Key</th>
             <th>Value</th>
             <th>Weight</th>
@@ -46,7 +47,11 @@
         <tbody>
         <th-block data-th-each="scoreDetail: ${score.details}">
             <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
-                <td><ion-icon name="chevron-expand"></ion-icon></td>
+                <td><ion-icon data-collapse name="chevron-expand"></ion-icon></td>
+                <td>
+                    <ion-icon data-th-if="${scoreDetail.value} == 100" class="success" name="success"></ion-icon>
+                    <ion-icon data-th-unless="${scoreDetail.value} == 100" class="failure" name="failure"></ion-icon>
+                </td>
                 <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
                 <td align="center" data-th-text="${scoreDetail.weight}"></td>
@@ -57,13 +62,19 @@
                     <table class="table">
                         <thead>
                         <tr>
+                            <th></th>
                             <th>Value</th>
                             <th>Weight</th>
                             <th>Message</th>
+                            <th>Help</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr data-th-each="component : ${scoreDetail.componentsResults}">
+                            <td>
+                                <ion-icon data-th-if="${component.score} == 100" class="success" name="success"></ion-icon>
+                                <ion-icon data-th-unless="${component.score} == 100" class="failure" name="failure"></ion-icon>
+                            </td>
                             <td data-th-text="${component.score}"></td>
                             <td data-th-text="${component.weight}"></td>
                             <td>
