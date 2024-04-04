@@ -82,6 +82,13 @@
                                     <li data-th-each="reason: ${component.reasons}" data-th-text="${reason}"/>
                                 </ul>
                             </td>
+                            <td>
+                                <ul>
+                                    <li data-th-each="resolution: ${component.resolutions}">
+                                        <a data-th-href="${resolution.link}" data-th-text="${resolution.text}"></a>
+                                    </li>
+                                </ul>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
