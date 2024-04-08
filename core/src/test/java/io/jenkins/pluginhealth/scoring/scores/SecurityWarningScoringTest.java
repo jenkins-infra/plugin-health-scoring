@@ -84,7 +84,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
                         KnownSecurityVulnerabilityProbe.KEY,
                         ProbeResult.success(
                                 KnownSecurityVulnerabilityProbe.KEY,
-                            secruityInfo.get(0) + "," + secruityInfo.get(1),
+                                secruityInfo.get(0) + "," + secruityInfo.get(1),
                                 2)));
 
         final ScoreResult result = scoring.apply(plugin);
