@@ -45,6 +45,11 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
     }
 
     @Test
+    void shouldRequiresCodeModifications() {
+        assertThat(getSpy().isSourceCodeRelated()).isTrue();
+    }
+
+    @Test
     void shouldDetectMissingCodeOwnershipFile() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
