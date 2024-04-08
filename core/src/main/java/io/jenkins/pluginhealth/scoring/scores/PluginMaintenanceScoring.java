@@ -184,7 +184,12 @@ public class PluginMaintenanceScoring extends Scoring {
                             case "JEP-229 workflow definition found." -> new ScoringComponentResult(
                                     100, getWeight(), List.of("JEP-229 is configured on the plugin."));
                             case "Could not find JEP-229 workflow definition." -> new ScoringComponentResult(
-                                    0, getWeight(), List.of("JEP-229 is not configured on the plugin."));
+                                    0,
+                                    getWeight(),
+                                    List.of("JEP-229 is not configured on the plugin."),
+                                    List.of(new Resolution(
+                                            "See how to setup JEP-229 on the plugin.",
+                                            "https://www.jenkins.io/doc/developer/publishing/releasing-cd/")));
                             default -> new ScoringComponentResult(
                                     0,
                                     getWeight(),
@@ -271,6 +276,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 5;
+        return 6;
     }
 }
