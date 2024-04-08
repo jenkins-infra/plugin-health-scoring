@@ -197,7 +197,7 @@ public class PluginMaintenanceScoring extends Scoring {
                         return 10;
                     }
                 },
-                new ScoringComponent() {
+                new ScoringComponent() { // CodeOwnership
                     @Override
                     public String getDescription() {
                         return "Plugin should have a valid CODEOWNERS file.";
@@ -207,14 +207,41 @@ public class PluginMaintenanceScoring extends Scoring {
                     public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
                         final ProbeResult result = probeResults.get(CodeOwnershipProbe.KEY);
                         if (result == null || ProbeResult.Status.ERROR.equals(result.status())) {
-                            return new ScoringComponentResult(0, getWeight(), List.of());
+                            return new ScoringComponentResult(
+                                    0,
+                                    getWeight(),
+                                    List.of("Could not determine the plugins code ownership."),
+                                    List.of(
+                                            new Resolution(
+                                                    "Please open a bug on plugin-health-scoring project.",
+                                                    "https://github.com/jenkins-infra/plugin-health-scoring/issues/new/choose")));
                         }
 
                         return switch (result.message()) {
-                            case "CODEOWNERS file is valid." -> new ScoringComponentResult(100, getWeight(), List.of());
+                            case "CODEOWNERS file is valid." -> new ScoringComponentResult(
+                                    100, getWeight(), List.of("Code Ownership definition found and is valid."));
                             case "CODEOWNERS file is not set correctly." -> new ScoringComponentResult(
-                                    50, getWeight(), List.of());
-                            default -> new ScoringComponentResult(0, getWeight(), List.of());
+                                    50,
+                                    getWeight(),
+                                    List.of("Code Ownership is not set properly."),
+                                    List.of(
+                                            new Resolution(
+                                                    "Learn about code owners",
+                                                    "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
+                                            new Resolution(
+                                                    "See OpenRewrite recipe to fix this.",
+                                                    "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
+                            default -> new ScoringComponentResult(
+                                    0,
+                                    getWeight(),
+                                    List.of("Repository would benefit from defining the code ownership."),
+                                    List.of(
+                                            new Resolution(
+                                                    "Learn about code owners",
+                                                    "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
+                                            new Resolution(
+                                                    "See OpenRewrite recipe to fix this.",
+                                                    "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
                         };
                     }
 
@@ -244,6 +271,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 4;
+        return 5;
     }
 }
