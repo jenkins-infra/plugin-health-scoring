@@ -18,11 +18,18 @@
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="version-tag"></ion-icon>
+            <span>Latest version: </span>
             <span data-th-text="${ plugin.version }"></span>
         </div>
         <div class="plugin--details--tab">
             <ion-icon name="calendar"></ion-icon>
-            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp) }"></span>
+            <span>Last release date:</span>
+            <span data-th-text="${ #temporals.format(plugin.releaseTimestamp, 'yyyy-MM-dd HH:mm', 'UTC') }"></span>
+        </div>
+        <div class="plugin--details--tab">
+            <ion-icon name="calendar"></ion-icon>
+            <span>Last score computation:</span>
+            <span data-th-text="${ #temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC') }"></span>
         </div>
     </div>
 
@@ -34,6 +41,7 @@
         <thead>
         <tr>
             <th></th>
+            <th>Status</th>
             <th>Key</th>
             <th>Value</th>
             <th>Weight</th>
@@ -42,7 +50,11 @@
         <tbody>
         <th-block data-th-each="scoreDetail: ${score.details}">
             <tr class="collapse" data-th-data-target="'collapse-' + ${scoreDetail.key}">
-                <td><ion-icon name="chevron-expand"></ion-icon></td>
+                <td><ion-icon data-collapse name="chevron-expand"></ion-icon></td>
+                <td>
+                    <ion-icon data-th-if="${scoreDetail.value} == 100" class="success" name="success"></ion-icon>
+                    <ion-icon data-th-unless="${scoreDetail.value} == 100" class="failure" name="failure"></ion-icon>
+                </td>
                 <td><code class="label" data-th-text="${scoreDetail.key}"></code></td>
                 <td align="center" data-th-text="${scoreDetail.value}"></td>
                 <td align="center" data-th-text="${scoreDetail.weight}"></td>
@@ -53,18 +65,31 @@
                     <table class="table">
                         <thead>
                         <tr>
+                            <th></th>
                             <th>Value</th>
                             <th>Weight</th>
                             <th>Message</th>
+                            <th>Help</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr data-th-each="component : ${scoreDetail.componentsResults}">
+                          <tr data-th-each="component : ${scoreDetail.componentsResults}">
+                            <td>
+                                <ion-icon data-th-if="${component.score} == 100" class="success" name="success"></ion-icon>
+                                <ion-icon data-th-unless="${component.score} == 100" class="failure" name="failure"></ion-icon>
+                            </td>
                             <td data-th-text="${component.score}"></td>
                             <td data-th-text="${component.weight}"></td>
                             <td>
                                 <ul>
                                     <li data-th-each="reason: ${component.reasons}" data-th-text="${reason}"/>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li data-th-each="resolution: ${component.resolutions}">
+                                        <a data-th-href="${resolution.link}" data-th-text="${resolution.text}"></a>
+                                    </li>
                                 </ul>
                             </td>
                         </tr>
@@ -82,7 +107,6 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Status</th>
                 <th>Message</th>
             </tr>
             </thead>
@@ -107,9 +131,7 @@
                     </span>
                     </span>
                 </td>
-
-
-
+                <td data-th-text="${probeResult.message}"></td>
             </tr>
             </tbody>
         </table>
