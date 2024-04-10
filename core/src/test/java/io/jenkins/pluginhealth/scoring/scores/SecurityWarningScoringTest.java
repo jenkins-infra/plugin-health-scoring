@@ -28,11 +28,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -76,39 +75,30 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
     void shouldBeAbleToDetectPluginWithMultipleSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = getSpy();
-        final List<String> secruityInfo = new ArrayList<>();
-        secruityInfo.add("SECURITY-123:link-to-security-advisory");
-        secruityInfo.add("SECURITY-123:link-to-security-advisory");
+        final List<String> securityInfo =
+                List.of("SECURITY-123:link-to-security-advisory", "SECURITY-123:link-to-security-advisory");
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         KnownSecurityVulnerabilityProbe.KEY,
-                        ProbeResult.success(
-                                KnownSecurityVulnerabilityProbe.KEY,
-                                secruityInfo.get(0) + "," + secruityInfo.get(1),
-                                2)));
+                        ProbeResult.success(KnownSecurityVulnerabilityProbe.KEY, String.join(", ", securityInfo), 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("security");
         assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
-        final List<Resolution> resolutionList = new ArrayList<>();
-        secruityInfo.stream().forEach(securityDetail -> {
-            String[] res = securityDetail.split(",");
-            Arrays.stream(res).forEach(securityMessage -> {
-                String[] securityInfo = securityMessage.split(":");
-                resolutionList.add(new Resolution(securityInfo[0].trim(), securityInfo[1]));
-            });
-        });
+        final List<Resolution> resolutionList = securityInfo.stream()
+                .map(securityDetail -> securityDetail.split(","))
+                .flatMap(Arrays::stream)
+                .map(securityMessage -> {
+                    String[] securityDetails = securityMessage.split(":");
+                    return new Resolution(securityDetails[0].trim(), securityDetails[1]);
+                })
+                .collect(Collectors.toList());
 
-        result.componentsResults().forEach(ScoringComponentResult -> {
-            AtomicInteger count = new AtomicInteger();
-            ScoringComponentResult.resolutions().forEach(resolution -> {
-                assertThat(resolutionList.get(0).link())
-                        .isEqualTo(resolution.link().trim());
-                assertThat(resolutionList.get(1).text())
-                        .isEqualTo(resolution.text().trim());
-                count.incrementAndGet();
+        result.componentsResults().forEach(componentResult -> {
+            componentResult.resolutions().forEach(resolution -> {
+                assert resolutionList.contains(resolution);
             });
         });
     }

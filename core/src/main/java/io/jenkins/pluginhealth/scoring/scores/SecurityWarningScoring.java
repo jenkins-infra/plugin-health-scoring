@@ -62,7 +62,7 @@ public class SecurityWarningScoring extends Scoring {
                 final List<Resolution> resolutions = Arrays.stream(
                                 probeResult.message().split(","))
                         .map(m -> {
-                            final String[] parts = m.split(":");
+                            final String[] parts = m.trim().split(":");
                             return new Resolution(parts[0], parts[1]);
                         })
                         .toList();
