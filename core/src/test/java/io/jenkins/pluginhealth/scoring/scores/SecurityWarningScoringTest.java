@@ -56,7 +56,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
                 .thenReturn(Map.of(
                         KnownSecurityVulnerabilityProbe.KEY,
                         ProbeResult.success(
-                                KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123:link-to-security-advisory", 2)));
+                                KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123:link-to-security-advisory", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
