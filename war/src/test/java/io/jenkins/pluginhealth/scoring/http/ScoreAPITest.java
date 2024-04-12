@@ -389,10 +389,13 @@ class ScoreAPITest {
                             'thirdQuartile': 100
                         }
                     }
-                    """
-                                                .formatted(
-                                                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
-                                                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
-                                        false));
+                    """.formatted(
+                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                        scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                    ),
+                    false)
+            );
+        // @formatter:on
+
     }
 }
