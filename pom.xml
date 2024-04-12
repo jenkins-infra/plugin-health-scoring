@@ -27,7 +27,7 @@
 
   <groupId>io.jenkins.pluginhealth.scoring</groupId>
   <artifactId>plugin-health-scoring-parent</artifactId>
-  <version>3.8.1-SNAPSHOT</version>
+  <version>3.9.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Plugin Health Scoring :: Parent</name>
@@ -238,13 +238,13 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.14.2</version>
+              <version>10.15.0</version>
             </dependency>
           </dependencies>
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
+          <version>3.13.0</version>
           <configuration>
             <release>${maven.compiler.target}</release>
             <compilerArgs>
@@ -283,7 +283,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.11</version>
+          <version>0.8.12</version>
           <configuration>
             <formats>
               <format>XML</format>

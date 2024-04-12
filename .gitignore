@@ -25,7 +25,3 @@ node_modules/
 ### IDE
 *.iml
 *.idea
-
-### fetch-report.sh
-etags.txt
-scores.json

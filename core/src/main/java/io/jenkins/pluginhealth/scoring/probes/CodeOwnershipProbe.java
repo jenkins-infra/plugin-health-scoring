@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,37 +31,46 @@ import java.util.stream.Stream;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(value = ContributingGuidelinesProbe.ORDER)
-public class ContributingGuidelinesProbe extends Probe {
-    public static final int ORDER = LastCommitDateProbe.ORDER + 100;
-    public static final String KEY = "contributing-guidelines";
+@Order(CodeOwnershipProbe.ORDER)
+public class CodeOwnershipProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+    public static final String KEY = "code-ownership";
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
             return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
+        final Path scmRepository = context.getScmRepository().get();
 
-        final Path repository = context.getScmRepository().get();
         try (Stream<Path> paths = Files.find(
-                repository,
+                scmRepository,
                 2,
-                (file, basicFileAttributes) -> Files.isReadable(file)
-                        && ("CONTRIBUTING.md"
-                                        .equalsIgnoreCase(file.getFileName().toString())
-                                || "CONTRIBUTING.adoc"
-                                        .equalsIgnoreCase(file.getFileName().toString())))) {
-            return paths.findAny()
-                    .map(file -> file.toFile().length() != 0
-                            ? this.success("Contributing guidelines found.")
-                            : this.success("Contributing guide seems to be empty."))
-                    .orElseGet(() -> this.success("Inherit from organization contributing guide."));
-        } catch (IOException e) {
-            return this.error(e.getMessage());
+                (path, $) -> Files.isRegularFile(path)
+                        && "CODEOWNERS".equals(path.getFileName().toString()))) {
+            return paths.findFirst()
+                    .map(file -> {
+                        try {
+                            return Files.readAllLines(file).stream()
+                                            .anyMatch(line -> line.contains(
+                                                    "@jenkinsci/%s-plugin-developers".formatted(plugin.getName())))
+                                    ? this.success("CODEOWNERS file is valid.")
+                                    : this.success("CODEOWNERS file is not set correctly.");
+                        } catch (IOException ex) {
+                            return this.error("Could not read CODEOWNERS file.");
+                        }
+                    })
+                    .orElseGet(() -> this.success("No CODEOWNERS file found in plugin repository."));
+        } catch (IOException ex) {
+            LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
+            return this.error("Could not browse the plugin folder.");
         }
     }
 
@@ -72,16 +81,16 @@ public class ContributingGuidelinesProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Validates the existence of a `CONTRIBUTING.adoc` or `CONTRIBUTING.md` file in the repository.";
-    }
-
-    @Override
-    protected boolean isSourceCodeRelated() {
-        return true;
+        return "Detects if the code ownership file is set correctly or not.";
     }
 
     @Override
     public long getVersion() {
         return 2;
+    }
+
+    @Override
+    protected boolean isSourceCodeRelated() {
+        return true;
     }
 }
