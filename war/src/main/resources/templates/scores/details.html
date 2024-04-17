@@ -113,11 +113,11 @@
               <td>
               <td>
                 <span data-th-if="${probeResult.id == 'security'}">
-                <span data-th-each="part : ${#strings.arraySplit(probeResult.message, ',')}" data-th-inline="text">
-                <span data-th-with="parts=${#strings.arraySplit(part, ' ')}">
-                <a data-th-text="${parts[0]}" data-th-href="${parts[1]}"></a>
-                </span>
-                </span>
+                  <span data-th-each="part : ${#strings.arraySplit(probeResult.message, ',')}" data-th-inline="text">
+                    <span data-th-with="parts=${#strings.arraySplit(part, ' ')}">
+                        <a data-th-text="${parts[0]}" data-th-href="${parts[1]}"></a>
+                    </span>
+                   </span>
                 </span>
                 <span data-th-if="${probeResult.id != 'security'}" data-th-text="${probeResult.message}"></span>
               </td>
