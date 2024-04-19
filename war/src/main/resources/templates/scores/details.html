@@ -108,22 +108,20 @@
             </tr>
             </thead>
             <tbody>
-             <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
-              <td><code data-th-text="${probeResult.id}" class="label"></code></td>
-              <td>
-              <td>
-                <span data-th-if="${probeResult.id == 'security'}">
-                  <span data-th-if="${probeResult.message == 'No known security vulnerabilities.'}" data-th-text="${probeResult.message}"></span>
-                  <span data-th-if="${probeResult.message != 'No known security vulnerabilities.'}">
-                       <span data-th-each="part : ${#strings.arraySplit(probeResult.message, ',')}" data-th-inline="text">
-                           <span data-th-with="parts=${#strings.arraySplit(part, ' ')}">
-                           <a data-th-text="${parts[0]}" data-th-href="${parts[1]}"></a>
-                           </span>
-                       </span>
+            <tr data-th-each="item: ${plugin.details}" data-th-with="probeResult = ${item.value}">
+                <td><code data-th-text="${probeResult.id}" class="label"></code></td>
+                <td>
+                    <span data-th-if="${probeResult.id == 'security' && probeResult.message != 'No known security vulnerabilities.'}">
+                        <span data-th-each="part : ${#strings.arraySplit(probeResult.message, ',')}" data-th-inline="text">
+                            <span data-th-with="parts=${#strings.arraySplit(part, ' ')}">
+                                <a data-th-text="${parts[0]}" data-th-href="${parts[1]}"></a>
+                            </span>
+                        </span>
+                    </span>
+                  <span data-th-if="${probeResult.id != 'security' || probeResult.message == 'No known security vulnerabilities.'}"
+                      data-th-text="${probeResult.message}">
                   </span>
-                </span>
-                <span data-th-if="${probeResult.id != 'security'}" data-th-text="${probeResult.message}"></span>
-              </td>
+                </td>
             </tr>
             </tbody>
         </table>
