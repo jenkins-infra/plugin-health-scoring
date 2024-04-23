@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
+import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.KnownSecurityVulnerabilityProbe;
 
@@ -41,31 +42,39 @@ public class SecurityWarningScoring extends Scoring {
 
     @Override
     public List<ScoringComponent> getComponents() {
-        return List.of(
-            new ScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "The plugin must not have on-going security advisory.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(KnownSecurityVulnerabilityProbe.KEY);
-                    if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
-                        return new ScoringComponentResult(-100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
-                    }
-                    if ("No known security vulnerabilities.".equals(probeResult.message())) {
-                        return new ScoringComponentResult(100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
-                    }
-                    return new ScoringComponentResult(0, getWeight(), List.of("Plugin seem to have on-going security advisory.", probeResult.message()));
-                }
-
-                @Override
-                public int getWeight() {
-                    return 1;
-                }
+        return List.of(new ScoringComponent() {
+            @Override
+            public String getDescription() {
+                return "The plugin must not have on-going security advisory.";
             }
-        );
+
+            @Override
+            public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                final ProbeResult probeResult = probeResults.get(KnownSecurityVulnerabilityProbe.KEY);
+                if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                    return new ScoringComponentResult(
+                            -100, 100, List.of("Cannot determine if plugin has on-going security advisory."));
+                }
+                if ("No known security vulnerabilities.".equals(probeResult.message())) {
+                    return new ScoringComponentResult(
+                            100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
+                }
+                final List<Resolution> resolutions = Arrays.stream(
+                                probeResult.message().split(","))
+                        .map(m -> {
+                            final String[] parts = m.trim().split("\\|");
+                            return new Resolution(parts[0], parts[1]);
+                        })
+                        .toList();
+                return new ScoringComponentResult(
+                        0, getWeight(), List.of("Plugin seem to have on-going security advisory."), resolutions);
+            }
+
+            @Override
+            public int getWeight() {
+                return 1;
+            }
+        });
     }
 
     @Override
@@ -85,6 +94,6 @@ public class SecurityWarningScoring extends Scoring {
 
     @Override
     public int version() {
-        return 1;
+        return 2;
     }
 }

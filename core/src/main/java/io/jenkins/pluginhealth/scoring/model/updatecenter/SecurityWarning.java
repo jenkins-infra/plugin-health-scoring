@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model.updatecenter;
 
 import java.util.List;
 
-public record SecurityWarning(
-    String id,
-    String name,
-    List<SecurityWarningVersion> versions
-) {
-}
+public record SecurityWarning(String id, String name, String url, List<SecurityWarningVersion> versions) {}
