@@ -27,7 +27,7 @@
 
   <groupId>io.jenkins.pluginhealth.scoring</groupId>
   <artifactId>plugin-health-scoring-parent</artifactId>
-  <version>3.9.2-SNAPSHOT</version>
+  <version>3.9.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Plugin Health Scoring :: Parent</name>
@@ -103,7 +103,7 @@
 
     <jjwt.version>0.12.5</jjwt.version>
     <testcontainers.version>1.19.7</testcontainers.version>
-    <spring-boot.version>3.2.4</spring-boot.version>
+    <spring-boot.version>3.2.5</spring-boot.version>
   </properties>
 
   <dependencyManagement>
@@ -220,7 +220,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.3.1</version>
+          <version>4.8.4.0</version>
           <configuration>
             <excludeFilterFile>analytics/spotbugs-exclude.xml</excludeFilterFile>
             <effort>Max</effort>
