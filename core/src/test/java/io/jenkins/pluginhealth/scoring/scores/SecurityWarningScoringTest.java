@@ -28,10 +28,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -56,7 +54,9 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
                 .thenReturn(Map.of(
                         KnownSecurityVulnerabilityProbe.KEY,
                         ProbeResult.success(
-                                KnownSecurityVulnerabilityProbe.KEY, "SECURITY-123:link-to-security-advisory", 1)));
+                                KnownSecurityVulnerabilityProbe.KEY,
+                                "SECURITY-123|https://link-to-security-advisory",
+                                1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
@@ -65,7 +65,7 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         assertThat(result.value()).isEqualTo(0);
         result.componentsResults().forEach(ScoringComponentResult -> {
             ScoringComponentResult.resolutions().forEach(resolution -> {
-                assertThat(resolution.link()).isEqualTo("link-to-security-advisory");
+                assertThat(resolution.link()).isEqualTo("https://link-to-security-advisory");
                 assertThat(resolution.text()).isEqualTo("SECURITY-123");
             });
         });
@@ -75,8 +75,8 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
     void shouldBeAbleToDetectPluginWithMultipleSecurityWarning() {
         final Plugin plugin = mock(Plugin.class);
         final SecurityWarningScoring scoring = getSpy();
-        final List<String> securityInfo =
-                List.of("SECURITY-123:link-to-security-advisory", "SECURITY-123:link-to-security-advisory");
+        final List<String> securityInfo = List.of(
+                "SECURITY-123|https://link-to-security-advisory", "SECURITY-123|https://link-to-security-advisory");
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         KnownSecurityVulnerabilityProbe.KEY,
@@ -88,13 +88,11 @@ class SecurityWarningScoringTest extends AbstractScoringTest<SecurityWarningScor
         assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
         final List<Resolution> resolutionList = securityInfo.stream()
-                .map(securityDetail -> securityDetail.split(","))
-                .flatMap(Arrays::stream)
                 .map(securityMessage -> {
-                    String[] securityDetails = securityMessage.split(":");
+                    String[] securityDetails = securityMessage.split("\\|");
                     return new Resolution(securityDetails[0].trim(), securityDetails[1]);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         result.componentsResults().forEach(componentResult -> {
             componentResult.resolutions().forEach(resolution -> {
