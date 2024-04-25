@@ -1071,6 +1071,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dayjs@npm:^1.11.10":
+  version: 1.11.10
+  resolution: "dayjs@npm:1.11.10"
+  checksum: 27e8f5bc01c0a76f36c656e62ab7f08c2e7b040b09e613cd4844abf03fb258e0350f0a83b02c887b84d771c1f11e092deda0beef8c6df2a1afbc3f6c1fade279
+  languageName: node
+  linkType: hard
+
 "del@npm:^4.1.1":
   version: 4.1.1
   resolution: "del@npm:4.1.1"
@@ -1083,6 +1090,13 @@ __metadata:
     pify: "npm:^4.0.1"
     rimraf: "npm:^2.6.3"
   checksum: 521f7da44bd79da841c06d573923d1f64f423aee8b8219c973478d3150ce1dcc024d03ad605929292adbff56d6448bca60d96dcdd2d8a53b46dbcb27e265c94b
+  languageName: node
+  linkType: hard
+
+"diff-dom@npm:^5.1.3":
+  version: 5.1.3
+  resolution: "diff-dom@npm:5.1.3"
+  checksum: c3eecb6a0487e49b8429474994d9236959805666699e9074cf9c9a7e39f6a11818a9b80a2c4af58ec74496c08bbae7eb53b64184817e79699fba1f8f21a2ffe5
   languageName: node
   linkType: hard
 
@@ -2160,6 +2174,7 @@ __metadata:
     path: "npm:0.12.7"
     postcss: "npm:8.4.38"
     postcss-loader: "npm:8.1.1"
+    simple-datatables: "npm:^9.0.0"
     style-loader: "npm:3.3.4"
     webpack: "npm:5.91.0"
     webpack-cli: "npm:5.1.4"
@@ -2806,6 +2821,16 @@ __metadata:
   version: 3.0.0
   resolution: "shebang-regex@npm:3.0.0"
   checksum: 1a2bcae50de99034fcd92ad4212d8e01eedf52c7ec7830eedcf886622804fe36884278f2be8be0ea5fde3fd1c23911643a4e0f726c8685b61871c8908af01222
+  languageName: node
+  linkType: hard
+
+"simple-datatables@npm:^9.0.0":
+  version: 9.0.3
+  resolution: "simple-datatables@npm:9.0.3"
+  dependencies:
+    dayjs: "npm:^1.11.10"
+    diff-dom: "npm:^5.1.3"
+  checksum: 0a68e2b124b5c9d8f582b697a8584cca13137834768fd713d8fd07542112389264cbafe9acc23ef486ec65fff0798a77bc8750bfc600aa4253681895dcef4fa0
   languageName: node
   linkType: hard
 
