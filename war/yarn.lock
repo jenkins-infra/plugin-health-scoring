@@ -2174,7 +2174,7 @@ __metadata:
     path: "npm:0.12.7"
     postcss: "npm:8.4.38"
     postcss-loader: "npm:8.1.1"
-    simple-datatables: "npm:^9.0.0"
+    simple-datatables: "npm:9.0.3"
     style-loader: "npm:3.3.4"
     webpack: "npm:5.91.0"
     webpack-cli: "npm:5.1.4"
@@ -2824,7 +2824,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simple-datatables@npm:^9.0.0":
+"simple-datatables@npm:9.0.3":
   version: 9.0.3
   resolution: "simple-datatables@npm:9.0.3"
   dependencies:
