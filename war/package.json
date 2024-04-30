@@ -24,7 +24,8 @@
     "webpack-remove-empty-scripts": "1.0.4"
   },
   "dependencies": {
-    "ionicons": "7.3.1"
+    "ionicons": "7.3.1",
+    "simple-datatables": "9.0.3"
   },
   "browserslist": [
     "defaults",
