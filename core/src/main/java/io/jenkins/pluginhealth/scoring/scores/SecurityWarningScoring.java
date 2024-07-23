@@ -60,7 +60,7 @@ public class SecurityWarningScoring extends Scoring {
                             100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                 }
                 final List<Resolution> resolutions = Arrays.stream(
-                                probeResult.message().split(","))
+                                probeResult.message().split(", "))
                         .map(m -> {
                             final String[] parts = m.trim().split("\\|");
                             return new Resolution(parts[0], parts[1]);

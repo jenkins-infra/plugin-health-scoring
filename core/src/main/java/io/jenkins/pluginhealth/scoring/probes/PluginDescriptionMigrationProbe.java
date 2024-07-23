@@ -43,12 +43,11 @@ public class PluginDescriptionMigrationProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final Optional<Path> scmRepositoryOpt = context.getScmRepository();
-        if (scmRepositoryOpt.isEmpty()) {
-            return error("Cannot access plugin repository.");
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
 
-        final Path repository = scmRepositoryOpt.get();
+        final Path repository = context.getScmRepository().get();
         final Path pluginFolder =
                 context.getScmFolderPath().map(repository::resolve).orElse(repository);
 
