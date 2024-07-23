@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +48,7 @@ public class CodeCoverageProbe extends Probe {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeCoverageProbe.class);
 
     private static final String COVERAGE_TITLE_REGEXP =
-        "^Line(?: Coverage)?: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch(?: Coverage)?: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?\\.?$";
+            "^Line(?: Coverage)?: (?<line>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?. Branch(?: Coverage)?: (?<branch>\\d{1,2}(?:\\.\\d{1,2})?)%(?: \\(.+\\))?\\.?$";
     private static final Pattern COVERAGE_TITLE_PATTERN = Pattern.compile(COVERAGE_TITLE_REGEXP);
 
     public static final String KEY = "code-coverage";
@@ -59,7 +57,7 @@ public class CodeCoverageProbe extends Probe {
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
-            context.getUpdateCenter().plugins().get(plugin.getName());
+                context.getUpdateCenter().plugins().get(plugin.getName());
         if (ucPlugin == null) {
             return error("Plugin cannot be found in Update-Center.");
         }
@@ -67,32 +65,34 @@ public class CodeCoverageProbe extends Probe {
         if (defaultBranch == null || defaultBranch.isBlank()) {
             return this.error("No default branch configured for the plugin.");
         }
+        if (context.getRepositoryName().isEmpty()) {
+            return this.error("Cannot determine plugin repository.");
+        }
         try {
-            final Optional<String> repositoryName = context.getRepositoryName();
-            if (repositoryName.isPresent()) {
-                final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-                final List<GHCheckRun> ghCheckRuns =
-                    ghRepository.getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage")).toList();
-                if (ghCheckRuns.isEmpty()) {
-                    return this.success("Could not determine code coverage for the plugin.");
-                }
-
-                double overall_line_coverage = 100;
-                double overall_branch_coverage = 100;
-                for (GHCheckRun checkRun : ghCheckRuns) {
-                    final Matcher matcher = COVERAGE_TITLE_PATTERN.matcher(checkRun.getOutput().getTitle());
-                    if (matcher.matches()) {
-                        final double line_coverage = Double.parseDouble(matcher.group("line"));
-                        final double branch_coverage = Double.parseDouble(matcher.group("branch"));
-                        overall_line_coverage = Math.min(overall_line_coverage, line_coverage);
-                        overall_branch_coverage = Math.min(overall_branch_coverage, branch_coverage);
-                    }
-                }
-
-                return this.success("Line coverage: " + overall_line_coverage + "%. Branch coverage: " + overall_branch_coverage + "%.");
-            } else {
-                return this.error("Cannot determine plugin repository.");
+            final String repositoryName = context.getRepositoryName().get();
+            final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName);
+            final List<GHCheckRun> ghCheckRuns = ghRepository
+                    .getCheckRuns(defaultBranch, Map.of("check_name", "Code Coverage"))
+                    .toList();
+            if (ghCheckRuns.isEmpty()) {
+                return this.success("Could not determine code coverage for the plugin.");
             }
+
+            double overall_line_coverage = 100;
+            double overall_branch_coverage = 100;
+            for (GHCheckRun checkRun : ghCheckRuns) {
+                final Matcher matcher =
+                        COVERAGE_TITLE_PATTERN.matcher(checkRun.getOutput().getTitle());
+                if (matcher.matches()) {
+                    final double line_coverage = Double.parseDouble(matcher.group("line"));
+                    final double branch_coverage = Double.parseDouble(matcher.group("branch"));
+                    overall_line_coverage = Math.min(overall_line_coverage, line_coverage);
+                    overall_branch_coverage = Math.min(overall_branch_coverage, branch_coverage);
+                }
+            }
+
+            return this.success("Line coverage: " + overall_line_coverage + "%. Branch coverage: "
+                    + overall_branch_coverage + "%.");
         } catch (IOException e) {
             LOGGER.warn("Could not get Coverage check for {}", plugin.getName(), e);
             return this.error("Could not get coverage check");

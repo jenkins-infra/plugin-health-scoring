@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -50,14 +49,18 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (context.getRepositoryName().isEmpty()) {
+            return this.error("There is no repository for " + plugin.getName() + ".");
+        }
         try {
             final GitHub gh = context.getGitHub();
-            final GHRepository repository = gh.getRepository(context.getRepositoryName().orElseThrow());
+            final GHRepository repository =
+                    gh.getRepository(context.getRepositoryName().get());
             final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
 
             final long count = pullRequests.stream()
-                .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
-                .count();
+                    .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
+                    .count();
 
             return this.success("%d".formatted(count));
         } catch (NoSuchElementException | IOException e) {
