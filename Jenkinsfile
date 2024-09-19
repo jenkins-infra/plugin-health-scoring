@@ -10,6 +10,9 @@ pipeline {
     skipStagesAfterUnstable()
     timestamps()
   }
+  triggers {
+    cron('@daily')
+  }
 
   stages {
     stage('Build') {
