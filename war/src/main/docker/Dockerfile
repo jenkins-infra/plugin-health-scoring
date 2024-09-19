@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk as builder
+FROM eclipse-temurin:21-jdk AS builder
 
 WORKDIR /src
 
@@ -7,7 +7,7 @@ RUN jar -xf plugin-health-scoring.jar
 
 FROM eclipse-temurin:21-jre
 
-ENV HOME /app
+ENV HOME=/app
 
 ARG user=phs
 ARG uid=4242
@@ -23,8 +23,8 @@ USER ${user}:${group}
 
 WORKDIR ${HOME}
 
-ENV SPRING_PROFILES_ACTIVE ${spring_profile}
-ENV SERVER_PORT ${server_port}
+ENV SPRING_PROFILES_ACTIVE=${spring_profile}
+ENV SERVER_PORT=${server_port}
 
 ENTRYPOINT ["/bin/bash", "/app/docker-entrypoint.sh"]
 
