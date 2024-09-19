@@ -10,9 +10,9 @@ FROM eclipse-temurin:21-jre
 ENV HOME /app
 
 ARG user=phs
-ARG uid=1000
+ARG uid=4242
 ARG group=phs
-ARG gid=1000
+ARG gid=4242
 
 ARG server_port=8080
 ARG spring_profile=production
