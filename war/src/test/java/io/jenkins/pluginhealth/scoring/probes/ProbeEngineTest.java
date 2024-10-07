@@ -162,7 +162,6 @@ class ProbeEngineTest {
 
         final ProbeResult result = new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, 1);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey, new ProbeResult(probeKey, "message", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
         ));
@@ -193,7 +192,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now());
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)));
 
@@ -220,7 +218,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey,
             new ProbeResult(probeKey, "this is ok", ProbeResult.Status.SUCCESS, ZonedDateTime.now().minusDays(1), 1)
@@ -248,7 +245,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.error("foo", "bar", 1));
 
         when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
@@ -297,8 +293,6 @@ class ProbeEngineTest {
         when(probeService.getProbes()).thenReturn(List.of(probeOne, probeTwo));
         when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
-
         final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
         probeEngine.run();
 
@@ -344,7 +338,6 @@ class ProbeEngineTest {
         final ProbeContext ctx = mock(ProbeContext.class);
 
         final ProbeResult previousResult = new ProbeResult(probeKey, "this is a message", ProbeResult.Status.SUCCESS, version);
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of(
             probeKey, previousResult
         ));
@@ -367,9 +360,6 @@ class ProbeEngineTest {
         final Probe probe = mock(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(p1.getScm()).thenReturn("this-is-ok");
-        when(p2.getScm()).thenReturn("this-is-ok");
-
         when(probe.apply(p1, ctx)).thenReturn(ProbeResult.success("foo", "this is fine", 1));
         when(probe.apply(p2, ctx)).thenReturn(ProbeResult.success("foo", "this is ok too", 1));
 
@@ -382,5 +372,24 @@ class ProbeEngineTest {
 
         verify(pluginDocumentationService).fetchPluginDocumentationUrl();
         verify(updateCenterService).fetchUpdateCenter();
+    }
+
+    @Test
+    void shouldNotPreventProbeExecutionWithNoSCM() throws Exception {
+        final Plugin plugin = mock(Plugin.class);
+        final Probe probe = spy(Probe.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(probe.key()).thenReturn("probe");
+        when(probe.doApply(plugin, ctx)).thenReturn(ProbeResult.success("probe", "this is fine", 1));
+
+        when(probeService.getProbes()).thenReturn(List.of(probe));
+        when(probeService.getProbeContext(any(Plugin.class), any(UpdateCenter.class))).thenReturn(ctx);
+        when(pluginService.streamAll()).thenReturn(Stream.of(plugin));
+
+        final ProbeEngine probeEngine = new ProbeEngine(probeService, pluginService, updateCenterService, gitHub, pluginDocumentationService);
+        probeEngine.run();
+
+        verify(probe).doApply(plugin, ctx);
     }
 }
