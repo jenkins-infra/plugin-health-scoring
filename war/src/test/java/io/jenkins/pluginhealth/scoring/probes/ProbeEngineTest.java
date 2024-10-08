@@ -86,7 +86,6 @@ class ProbeEngineTest {
 
         final ProbeResult expectedResult = ProbeResult.success("foo", "bar", 1);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails()).thenReturn(Map.of());
         when(probe.key()).thenReturn("probe");
         when(probe.doApply(plugin, ctx)).thenReturn(expectedResult);
@@ -112,7 +111,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getName()).thenReturn("foo");
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusDays(1));
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "This is good", 1)));
@@ -140,7 +138,6 @@ class ProbeEngineTest {
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn("this-is-ok-for-testing");
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         "probe",
