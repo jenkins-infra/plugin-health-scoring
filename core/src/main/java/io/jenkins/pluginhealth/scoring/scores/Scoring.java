@@ -38,10 +38,15 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a scoring process of a plugin, based on ProbeResults contained within the Plugin#details map.
  */
 public abstract class Scoring {
+    private final static Logger LOGGER = LoggerFactory.getLogger(Scoring.class);
+
     /**
      * Starts the scoring process of the plugin.
      * At the end of the process, a {@link ScoreResult} instance must be returned, describing the score of the plugin and its reasons.
@@ -51,7 +56,14 @@ public abstract class Scoring {
      */
     public final ScoreResult apply(Plugin plugin) {
         return getComponents().stream()
-            .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
+            .map(changelog -> {
+                try {
+                    return changelog.getScore(plugin, plugin.getDetails());
+                } catch (Throwable e) {
+                    LOGGER.warn("Problem running {} on {} because of {}", this.getClass().getCanonicalName(), plugin.getName(), e.getClass().getCanonicalName(), e);
+                    return new ScoringComponentResult(0, changelog.getWeight(), List.of("Could not run scoring because of " + e.getClass().getCanonicalName()));
+                }
+            })
             .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
                 @Override
                 public Supplier<Set<ScoringComponentResult>> supplier() {

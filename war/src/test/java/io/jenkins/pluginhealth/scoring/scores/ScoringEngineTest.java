@@ -26,8 +26,10 @@ package io.jenkins.pluginhealth.scoring.scores;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +46,7 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
+import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
@@ -263,5 +266,37 @@ class ScoringEngineTest {
 
         verify(scoringA).apply(plugin);
         verify(scoringB).apply(plugin);
+    }
+
+    @Test
+    void shouldNotPreventScoringWhenExceptionOnOnePlugin() {
+        final Plugin p1 = mock(Plugin.class);
+        final Plugin p2 = mock(Plugin.class);
+        final Scoring s1 = spy(Scoring.class);
+        final Scoring s2 = spy(Scoring.class);
+        final ScoringComponent sc1 = spy(ScoringComponent.class);
+        final ScoringComponent sc2 = spy(ScoringComponent.class);
+
+        when(p2.getName()).thenReturn("plugin-2");
+        when(s1.key()).thenReturn("scoring-a");
+        when(s2.key()).thenReturn("scoring-b");
+
+        when(s1.getComponents()).thenReturn(List.of(sc1));
+        when(s2.getComponents()).thenReturn(List.of(sc2));
+
+        when(sc1.getScore(p1, Map.of())).thenReturn(new ScoringComponentResult(100, 1, List.of()));
+        when(sc2.getScore(any(Plugin.class), anyMap())).thenReturn(new ScoringComponentResult(100, 1, List.of()));
+        when(sc1.getScore(p2, Map.of())).thenThrow(ArrayIndexOutOfBoundsException.class);
+
+        when(scoringService.getScoringList()).thenReturn(List.of(s1, s2));
+        when(pluginService.streamAll()).thenReturn(Stream.of(p1, p2));
+
+        final ScoringEngine scoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
+        scoringEngine.run();
+
+        verify(s1).apply(p1);
+        verify(s1).apply(p2);
+        verify(s2).apply(p1);
+        verify(s2).apply(p2);
     }
 }
