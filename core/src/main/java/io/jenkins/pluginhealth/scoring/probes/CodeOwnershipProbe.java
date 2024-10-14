@@ -60,7 +60,7 @@ public class CodeOwnershipProbe extends Probe {
                         try {
                             return Files.readAllLines(file).stream()
                                             .anyMatch(line -> line.contains(
-                                                    "@jenkinsci/%s-plugin-developers".formatted(plugin.getName())))
+                                                    "@jenkinsci/%s-developers".formatted(context.getRepositoryName().orElse("NOT_VALID"))))
                                     ? this.success("CODEOWNERS file is valid.")
                                     : this.success("CODEOWNERS file is not set correctly.");
                         } catch (IOException ex) {
