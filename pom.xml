@@ -45,25 +45,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>adi10hero</id>
-      <name>Aditya Srivastava</name>
-    </developer>
-    <developer>
-      <id>alecharp</id>
-      <name>Adrien Lecharpentier</name>
-    </developer>
-    <developer>
-      <id>dheerajodha</id>
-      <name>Dheeraj Singh Jodha</name>
-    </developer>
-    <developer>
-      <id>jleon33</id>
-      <name>Jake Leon</name>
-    </developer>
-  </developers>
-
   <modules>
     <module>test</module>
     <module>core</module>
