@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.FileInputStream;
@@ -88,7 +87,8 @@ public class SCMLinkValidationProbe extends Probe {
         }
         try {
             context.getGitHub().getRepository(matcher.group("repo"));
-            Optional<Path> pluginPathInRepository = findPluginPom(context.getScmRepository().get(), pluginName);
+            Optional<Path> pluginPathInRepository =
+                    findPluginPom(context.getScmRepository().get(), pluginName);
             Optional<Path> folderPath = pluginPathInRepository.map(path -> path.getParent());
             if (folderPath.isEmpty()) {
                 return this.success(String.format("No valid POM file found in %s plugin.", pluginName));
@@ -117,11 +117,9 @@ public class SCMLinkValidationProbe extends Probe {
          * The `maxDepth` is 3 because a lot of plugins aren't located deeper than <root>/plugins/<pom.xml>.
          * If the `maxDepth` is more than 3, we will be navigating the `src/main/java/io/jenkins/plugins/artifactId/` folder.
          * */
-        try (Stream<Path> paths = Files.find(directory, 3, (path, $) ->
-            "pom.xml".equals(path.getFileName().toString()))) {
-            return paths
-                .filter(pom -> pomFileMatchesPlugin(pom, pluginName))
-                .findFirst();
+        try (Stream<Path> paths = Files.find(
+                directory, 3, (path, $) -> "pom.xml".equals(path.getFileName().toString()))) {
+            return paths.filter(pom -> pomFileMatchesPlugin(pom, pluginName)).findFirst();
         } catch (IOException e) {
             LOGGER.error("Could not browse the folder during probe {}.", pluginName, e);
         }

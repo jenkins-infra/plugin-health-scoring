@@ -97,7 +97,7 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path docs = Files.createDirectory(repo.resolve("docs"));
             final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
             Files.writeString(
-                codeowners, """
+                    codeowners, """
                 * @jenkinsci/sample-plugin-developers
                 """);
             when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
@@ -106,8 +106,7 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path repo = Files.createTempDirectory(getClass().getName());
             final Path docs = Files.createDirectory(repo.resolve(".github"));
             final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
-            Files.writeString(
-                codeowners, """
+            Files.writeString(codeowners, """
                 * @alecharp
                 """);
             when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
@@ -124,13 +123,13 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
                 .comparingOnlyFields("id", "status", "message")
                 .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
     }
 
     @Test
@@ -197,7 +196,8 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path repo = Files.createTempDirectory(getClass().getName());
             final Path codeowners = Files.createFile(repo.resolve("CODEOWNERS"));
             Files.writeString(
-                codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
                 * @alecharp @jenkinsci
                 """);
@@ -208,7 +208,8 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path github = Files.createDirectory(repo.resolve(".github"));
             final Path codeowners = Files.createFile(github.resolve("CODEOWNERS"));
             Files.writeString(
-                codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
                 * @alecharp @jenkinsci
                 """);
@@ -219,7 +220,8 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path docs = Files.createDirectory(repo.resolve("docs"));
             final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
             Files.writeString(
-                codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
                 * @alecharp @jenkinsci
                 """);
@@ -229,16 +231,16 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         final CodeOwnershipProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
     }
 }
