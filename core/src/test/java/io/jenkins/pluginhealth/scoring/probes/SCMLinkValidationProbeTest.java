@@ -99,7 +99,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/test-repo";
+        final String repositoryName = "jenkinsci/test-repo-plugin";
 
         when(plugin.getName()).thenReturn("test-repo");
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
@@ -124,7 +124,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/this-is-not-going-to-work";
+        final String repositoryName = "jenkinsci/this-is-not-going-to-work-plugin";
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getName()).thenReturn("foo");
@@ -150,13 +150,13 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepo = mock(GHRepository.class);
 
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/this-is-fine");
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/this-is-fine-plugin");
         when(plugin.getName()).thenReturn("test-repo");
 
         when(ctx.getScmRepository())
                 .thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1")));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(gh.getRepository("jenkinsci/this-is-fine")).thenReturn(ghRepo);
+        when(gh.getRepository("jenkinsci/this-is-fine-plugin")).thenReturn(ghRepo);
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);

@@ -56,7 +56,7 @@ public class SCMLinkValidationProbe extends Probe {
     public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
     public static final String KEY = "scm";
     private static final Logger LOGGER = LoggerFactory.getLogger(SCMLinkValidationProbe.class);
-    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*)";
+    private static final String GH_REGEXP = "https://(?<server>[^/]*)/(?<repo>jenkinsci/[^/]*-plugin)";
     public static final Pattern GH_PATTERN = Pattern.compile(GH_REGEXP);
 
     @Override
