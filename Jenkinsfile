@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-# Do not rebuild daily if not on the principal branch (e.g. not on PR, not on other branches, not on tags)
+// Do not rebuild daily if not on the principal branch (e.g. not on PR, not on other branches, not on tags)
 String cronPattern = env.BRANCH_IS_PRIMARY ? '@daily : ''
 
 pipeline {
