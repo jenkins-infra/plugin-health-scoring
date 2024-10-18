@@ -71,7 +71,7 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(ctx.getRepositoryName()).thenReturn(Optional.of("new-super-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/new-super-plugin"));
 
         {
             final Path repo = Files.createTempDirectory(getClass().getName());
@@ -137,7 +137,7 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(ctx.getRepositoryName()).thenReturn(Optional.of("sample-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/sample-plugin"));
 
         {
             final Path repo = Files.createTempDirectory(getClass().getName());
@@ -190,7 +190,7 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(ctx.getRepositoryName()).thenReturn(Optional.of("sample-plugin"));
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/sample-plugin"));
 
         {
             final Path repo = Files.createTempDirectory(getClass().getName());
