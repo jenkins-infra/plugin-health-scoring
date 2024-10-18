@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.File;
@@ -76,8 +75,12 @@ public class ProbeContext {
         final String pluginName = this.plugin.getName();
         try {
             final Path repo = Files.createTempDirectory(pluginName);
-            try (Git git = Git.cloneRepository().setURI(plugin.getScm()).setDirectory(repo.toFile()).call()) {
-                this.scmRepository = Paths.get(git.getRepository().getDirectory().getParentFile().toURI());
+            try (Git git = Git.cloneRepository()
+                    .setURI(plugin.getScm())
+                    .setDirectory(repo.toFile())
+                    .call()) {
+                this.scmRepository = Paths.get(
+                        git.getRepository().getDirectory().getParentFile().toURI());
             } catch (GitAPIException e) {
                 LOGGER.warn("Could not clone Git repository for plugin {}", pluginName, e);
             }
@@ -140,9 +143,7 @@ public class ProbeContext {
     /* default */ void cleanUp() throws IOException {
         if (scmRepository != null) {
             try (Stream<Path> paths = Files.walk(this.scmRepository)) {
-                paths.sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+                paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             }
         }
     }
