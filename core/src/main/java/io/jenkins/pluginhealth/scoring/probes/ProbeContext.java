@@ -114,6 +114,13 @@ public class ProbeContext {
         return pluginDocumentationLinks;
     }
 
+    /**
+     * Returns the GitHub repository of the plugin source code.
+     * This needs to be in the format 'organization/repository' for the GitHub.
+     * Returns empty if the scm link of the plugin is not set to point to jenkinsci organization.
+     *
+     * @return the GitHub repository of the plugin source code or empty if not formatted correctly
+     */
     public Optional<String> getRepositoryName() {
         if (plugin.getScm() == null || plugin.getScm().isBlank()) {
             return Optional.empty();
