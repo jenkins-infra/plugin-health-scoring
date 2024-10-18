@@ -60,8 +60,7 @@ public class CodeOwnershipProbe extends Probe {
                     .map(file -> {
                         try {
                             return Files.readAllLines(file).stream()
-                                            .anyMatch(line ->
-                                                    line.contains("@%s-developers".formatted(repositoryName)))
+                                            .anyMatch(line -> line.contains("@%s-developers".formatted(repositoryName)))
                                     ? this.success("CODEOWNERS file is valid.")
                                     : this.success("CODEOWNERS file is not set correctly.");
                         } catch (IOException ex) {
