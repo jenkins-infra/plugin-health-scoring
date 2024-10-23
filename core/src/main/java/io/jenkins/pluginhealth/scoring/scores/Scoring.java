@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.HashSet;
@@ -38,10 +37,15 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a scoring process of a plugin, based on ProbeResults contained within the Plugin#details map.
  */
 public abstract class Scoring {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Scoring.class);
+
     /**
      * Starts the scoring process of the plugin.
      * At the end of the process, a {@link ScoreResult} instance must be returned, describing the score of the plugin and its reasons.
@@ -51,44 +55,66 @@ public abstract class Scoring {
      */
     public final ScoreResult apply(Plugin plugin) {
         return getComponents().stream()
-            .map(changelog -> changelog.getScore(plugin, plugin.getDetails()))
-            .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
-                @Override
-                public Supplier<Set<ScoringComponentResult>> supplier() {
-                    return HashSet::new;
-                }
+                .map(changelog -> {
+                    try {
+                        return changelog.getScore(plugin, plugin.getDetails());
+                    } catch (Throwable e) {
+                        LOGGER.warn(
+                                "Problem running {} on {} because of {}",
+                                this.getClass().getCanonicalName(),
+                                plugin.getName(),
+                                e.getClass().getCanonicalName(),
+                                e);
+                        return new ScoringComponentResult(
+                                0,
+                                changelog.getWeight(),
+                                List.of("Could not run scoring because of "
+                                        + e.getClass().getCanonicalName()));
+                    }
+                })
+                .collect(new Collector<ScoringComponentResult, Set<ScoringComponentResult>, ScoreResult>() {
+                    @Override
+                    public Supplier<Set<ScoringComponentResult>> supplier() {
+                        return HashSet::new;
+                    }
 
-                @Override
-                public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
-                    return Set::add;
-                }
+                    @Override
+                    public BiConsumer<Set<ScoringComponentResult>, ScoringComponentResult> accumulator() {
+                        return Set::add;
+                    }
 
-                @Override
-                public BinaryOperator<Set<ScoringComponentResult>> combiner() {
-                    return (changelogResults, changelogResults2) -> {
-                        changelogResults.addAll(changelogResults2);
-                        return changelogResults;
-                    };
-                }
+                    @Override
+                    public BinaryOperator<Set<ScoringComponentResult>> combiner() {
+                        return (changelogResults, changelogResults2) -> {
+                            changelogResults.addAll(changelogResults2);
+                            return changelogResults;
+                        };
+                    }
 
-                @Override
-                public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
-                    return changelogResults -> {
-                        final double sum = changelogResults.stream()
-                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.score() * changelogResult.weight()))
-                            .sum();
-                        final double weight = changelogResults.stream()
-                            .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
-                            .sum();
-                        return new ScoreResult(key(), (int) Math.max(0, Math.round(sum / weight)), weight(), changelogResults, version());
-                    };
-                }
+                    @Override
+                    public Function<Set<ScoringComponentResult>, ScoreResult> finisher() {
+                        return changelogResults -> {
+                            final double sum = changelogResults.stream()
+                                    .flatMapToDouble(changelogResult ->
+                                            DoubleStream.of(changelogResult.score() * changelogResult.weight()))
+                                    .sum();
+                            final double weight = changelogResults.stream()
+                                    .flatMapToDouble(changelogResult -> DoubleStream.of(changelogResult.weight()))
+                                    .sum();
+                            return new ScoreResult(
+                                    key(),
+                                    (int) Math.max(0, Math.round(sum / weight)),
+                                    weight(),
+                                    changelogResults,
+                                    version());
+                        };
+                    }
 
-                @Override
-                public Set<Characteristics> characteristics() {
-                    return Set.of(Characteristics.UNORDERED);
-                }
-            });
+                    @Override
+                    public Set<Characteristics> characteristics() {
+                        return Set.of(Characteristics.UNORDERED);
+                    }
+                });
     }
 
     /**

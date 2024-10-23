@@ -49,6 +49,7 @@ public class CodeOwnershipProbe extends Probe {
             return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
         final Path scmRepository = context.getScmRepository().get();
+        final String repositoryName = context.getRepositoryName().orElse("NOT_VALID");
 
         try (Stream<Path> paths = Files.find(
                 scmRepository,
@@ -59,8 +60,7 @@ public class CodeOwnershipProbe extends Probe {
                     .map(file -> {
                         try {
                             return Files.readAllLines(file).stream()
-                                            .anyMatch(line -> line.contains(
-                                                    "@jenkinsci/%s-plugin-developers".formatted(plugin.getName())))
+                                            .anyMatch(line -> line.contains("@%s-developers".formatted(repositoryName)))
                                     ? this.success("CODEOWNERS file is valid.")
                                     : this.success("CODEOWNERS file is not set correctly.");
                         } catch (IOException ex) {
@@ -86,7 +86,7 @@ public class CodeOwnershipProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 2;
+        return 3;
     }
 
     @Override

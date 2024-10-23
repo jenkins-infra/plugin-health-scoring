@@ -27,7 +27,7 @@
 
   <groupId>io.jenkins.pluginhealth.scoring</groupId>
   <artifactId>plugin-health-scoring-parent</artifactId>
-  <version>3.9.3-SNAPSHOT</version>
+  <version>4.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Plugin Health Scoring :: Parent</name>
@@ -45,25 +45,6 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>adi10hero</id>
-      <name>Aditya Srivastava</name>
-    </developer>
-    <developer>
-      <id>alecharp</id>
-      <name>Adrien Lecharpentier</name>
-    </developer>
-    <developer>
-      <id>dheerajodha</id>
-      <name>Dheeraj Singh Jodha</name>
-    </developer>
-    <developer>
-      <id>jleon33</id>
-      <name>Jake Leon</name>
-    </developer>
-  </developers>
-
   <modules>
     <module>test</module>
     <module>core</module>
@@ -73,7 +54,7 @@
   <scm>
     <connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
     <developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v4.0.0</tag>
     <url>https://github.com/jenkins-infra/plugin-health-scoring</url>
   </scm>
   <distributionManagement>
@@ -101,9 +82,9 @@
     <yarn-berry.version>4.0.2</yarn-berry.version>
     <yarn-berry.sha256sum>825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186</yarn-berry.sha256sum>
 
-    <jjwt.version>0.12.5</jjwt.version>
-    <testcontainers.version>1.19.7</testcontainers.version>
-    <spring-boot.version>3.2.4</spring-boot.version>
+    <jjwt.version>0.12.6</jjwt.version>
+    <testcontainers.version>1.20.2</testcontainers.version>
+    <spring-boot.version>3.3.4</spring-boot.version>
   </properties>
 
   <dependencyManagement>
@@ -151,7 +132,7 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-model</artifactId>
-        <version>3.9.6</version>
+        <version>3.9.9</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke</groupId>
@@ -220,7 +201,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.8.3.1</version>
+          <version>4.8.6.4</version>
           <configuration>
             <excludeFilterFile>analytics/spotbugs-exclude.xml</excludeFilterFile>
             <effort>Max</effort>
@@ -228,7 +209,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.5.0</version>
           <configuration>
             <linkXRef>false</linkXRef>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -238,7 +219,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.15.0</version>
+              <version>10.18.2</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -254,7 +235,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.5.1</version>
           <configuration>
             <classesDirectory>${project.build.outputDirectory}</classesDirectory>
           </configuration>
@@ -269,7 +250,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.1.1</version>
           <configuration>
             <goals>verify</goals>
             <signTag>true</signTag>
@@ -278,7 +259,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.5.1</version>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
@@ -311,7 +292,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>tidy-maven-plugin</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
         <executions>
           <execution>
             <id>tidy-pom</id>

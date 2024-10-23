@@ -71,7 +71,73 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getName()).thenReturn("new-super");
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/new-super-plugin"));
+
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path codeowners = Files.createFile(repo.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path github = Files.createDirectory(repo.resolve(".github"));
+            final Path codeowners = Files.createFile(github.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path docs = Files.createDirectory(repo.resolve("docs"));
+            final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
+            Files.writeString(
+                    codeowners, """
+                * @jenkinsci/sample-plugin-developers
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+        {
+            final Path repo = Files.createTempDirectory(getClass().getName());
+            final Path docs = Files.createDirectory(repo.resolve(".github"));
+            final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
+            Files.writeString(codeowners, """
+                * @alecharp
+                """);
+            when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
+        }
+
+        final CodeOwnershipProbe probe = getSpy();
+
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+    }
+
+    @Test
+    void shouldDetectCodeOwnershipFileWithValidTeam() throws IOException {
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/sample-plugin"));
 
         {
             final Path repo = Files.createTempDirectory(getClass().getName());
@@ -108,30 +174,32 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
         assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
         assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
         assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is not set correctly.", 0));
+                .isEqualTo(ProbeResult.success(probe.key(), "CODEOWNERS file is valid.", 0));
     }
 
     @Test
-    void shouldDetectCodeOwnershipFileWithValidTeam() throws IOException {
+    void shouldDetectCodeOwnershipFileWithValidTeamAndMore() throws IOException {
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getName()).thenReturn("sample");
+        when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/sample-plugin"));
 
         {
             final Path repo = Files.createTempDirectory(getClass().getName());
             final Path codeowners = Files.createFile(repo.resolve("CODEOWNERS"));
             Files.writeString(
-                    codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
+                * @alecharp @jenkinsci
                 """);
             when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
         }
@@ -140,8 +208,10 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path github = Files.createDirectory(repo.resolve(".github"));
             final Path codeowners = Files.createFile(github.resolve("CODEOWNERS"));
             Files.writeString(
-                    codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
+                * @alecharp @jenkinsci
                 """);
             when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
         }
@@ -150,8 +220,10 @@ public class CodeOwnershipProbeTest extends AbstractProbeTest<CodeOwnershipProbe
             final Path docs = Files.createDirectory(repo.resolve("docs"));
             final Path codeowners = Files.createFile(docs.resolve("CODEOWNERS"));
             Files.writeString(
-                    codeowners, """
+                    codeowners,
+                    """
                 * @jenkinsci/sample-plugin-developers
+                * @alecharp @jenkinsci
                 """);
             when(ctx.getScmRepository()).thenReturn(Optional.of(repo));
         }

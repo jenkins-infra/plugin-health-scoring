@@ -1,5 +1,8 @@
 #!/usr/bin/env groovy
 
+// Do not rebuild daily if not on the principal branch (e.g. not on PR, not on other branches, not on tags)
+String cronPattern = env.BRANCH_IS_PRIMARY ? '@daily' : ''
+
 pipeline {
   agent {
     // 'docker' is the (legacy) label used on ci.jenkins.io for "Docker Linux AMD64" while 'linux-amd64-docker' is the label used on infra.ci.jenkins.io
@@ -9,6 +12,9 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '10'))
     skipStagesAfterUnstable()
     timestamps()
+  }
+  triggers {
+    cron(cronPattern)
   }
 
   stages {
