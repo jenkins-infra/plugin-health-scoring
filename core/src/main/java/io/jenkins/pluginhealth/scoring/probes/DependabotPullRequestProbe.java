@@ -24,8 +24,8 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.StreamSupport;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
@@ -34,6 +34,7 @@ import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.PagedIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -56,9 +57,9 @@ public class DependabotPullRequestProbe extends Probe {
             final GitHub gh = context.getGitHub();
             final GHRepository repository =
                     gh.getRepository(context.getRepositoryName().get());
-            final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
-
-            final long count = pullRequests.stream()
+            final PagedIterable<GHPullRequest> pullRequests =
+                    repository.queryPullRequests().state(GHIssueState.OPEN).list();
+            final long count = StreamSupport.stream(pullRequests.spliterator(), false)
                     .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
                     .count();
 
