@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.util.List;
@@ -32,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
+import io.jenkins.pluginhealth.scoring.probes.RepositoryArchivedStatusProbe;
 
 import org.springframework.stereotype.Component;
 
@@ -43,42 +43,73 @@ public class DeprecatedPluginScoring extends Scoring {
     @Override
     public List<ScoringComponent> getComponents() {
         return List.of(
-            new ScoringComponent() {
-                @Override
-                public String getDescription() {
-                    return "The plugin must not be marked as deprecated.";
-                }
-
-                @Override
-                public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
-                    final ProbeResult probeResult = probeResults.get(DeprecatedPluginProbe.KEY);
-                    if (probeResult == null) {
-                        return new ScoringComponentResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not."));
+                new ScoringComponent() {
+                    @Override
+                    public String getDescription() {
+                        return "The plugin must not be marked as deprecated.";
                     }
 
-                    return switch (probeResult.message()) {
-                        case "This plugin is marked as deprecated." ->
-                            new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of("Plugin is marked as deprecated."),
-                                List.of(
-                                    new Resolution("See deprecation guidelines", "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")
-                                )
-                            );
-                        case "This plugin is NOT deprecated." ->
-                            new ScoringComponentResult(100, getWeight(), List.of("Plugin is not marked as deprecated."));
-                        default ->
-                            new ScoringComponentResult(0, getWeight(), List.of("Cannot determine if the plugin is marked as deprecated or not.", probeResult.message()));
-                    };
-                }
+                    @Override
+                    public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                        final ProbeResult probeResult = probeResults.get(DeprecatedPluginProbe.KEY);
+                        if (probeResult == null) {
+                            return new ScoringComponentResult(
+                                    0,
+                                    getWeight(),
+                                    List.of("Cannot determine if the plugin is marked as deprecated or not."));
+                        }
 
-                @Override
-                public int getWeight() {
-                    return 1;
-                }
-            }
-        );
+                        return switch (probeResult.message()) {
+                            case "This plugin is marked as deprecated." -> new ScoringComponentResult(
+                                    0,
+                                    getWeight(),
+                                    List.of("Plugin is marked as deprecated."),
+                                    List.of(
+                                            new Resolution(
+                                                    "See deprecation guidelines",
+                                                    "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")));
+                            case "This plugin is NOT deprecated." -> new ScoringComponentResult(
+                                    100, 0, List.of("Plugin is not marked as deprecated."));
+                            default -> new ScoringComponentResult(
+                                    0,
+                                    getWeight(),
+                                    List.of(
+                                            "Cannot determine if the plugin is marked as deprecated or not.",
+                                            probeResult.message()));
+                        };
+                    }
+
+                    @Override
+                    public int getWeight() {
+                        return 1;
+                    }
+                },
+                new ScoringComponent() {
+                    @Override
+                    public String getDescription() {
+                        return "The plugin's repository must not be archived";
+                    }
+
+                    @Override
+                    public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                        final ProbeResult probeResult = probeResults.get(RepositoryArchivedStatusProbe.KEY);
+                        if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                            return new ScoringComponentResult(
+                                    -100, 100, List.of("Cannot determine if the repository is archived or not."));
+                        }
+
+                        final boolean isArchived = Boolean.parseBoolean(probeResult.message());
+                        return isArchived
+                                ? new ScoringComponentResult(
+                                        0, getWeight(), List.of("The plugin repository is archived."))
+                                : new ScoringComponentResult(100, 0, List.of("The repository is not archived."));
+                    }
+
+                    @Override
+                    public int getWeight() {
+                        return 1;
+                    }
+                });
     }
 
     @Override
@@ -98,6 +129,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 3;
+        return 4;
     }
 }
