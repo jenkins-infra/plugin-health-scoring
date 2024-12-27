@@ -40,6 +40,8 @@ There are conditions for each probe to be executed:
 - if the last execution of the probe on a specific plugin was done before the last code change of the plugin and the probe is based on the code of the plugin
 - if the last execution of the probe on a specific plugin was done before the last release of the plugin and the probe requires a release to have its result changed
 
+Each probe can override the method `Probe#isApplicable(Plugin, ProbeContext)` to use other data and decide if it should be executed or no by the `ProbeEngine`.
+
 The `ProbeEngine` is scheduled by the link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java[`ProbeEngineScheduler`] class.
 This is using a CRON expression for its scheduling.
 The environment variable `PROBE_ENGINE_CRON` is used to configure this CRON.

@@ -48,7 +48,7 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        if (shouldBeExecuted(plugin, context)) {
+        if (isApplicable(plugin, context)) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
             }
@@ -58,7 +58,14 @@ public abstract class Probe {
         return lastResult != null ? lastResult : this.error(key() + " was not executed on " + plugin.getName());
     }
 
-    private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
+    /**
+     * Determine if the current probe should or should not be applied to the plugin with its context.
+     *
+     * @param plugin  the plugin to apply the probe to
+     * @param context the built context to run the probe with
+     * @return true if the probe have to be applied to the plugin
+     */
+    protected boolean isApplicable(Plugin plugin, ProbeContext context) {
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {
             return true;

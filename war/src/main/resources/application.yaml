@@ -15,11 +15,13 @@ spring:
     open-in-view: false
 
 management:
-  endpoint:
-    health:
-      db.enabled: true
-      defaults.enabled: false
-      gitHub.enabled: true
+  health:
+    db.enabled: true
+    defaults.enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 app:
   jenkins:
