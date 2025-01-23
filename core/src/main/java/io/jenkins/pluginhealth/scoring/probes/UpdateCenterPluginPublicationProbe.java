@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Check if a plugin is still published by the Update Center.
- * */
+ */
 @Component
 @Order(UpdateCenterPluginPublicationProbe.ORDER)
 public class UpdateCenterPluginPublicationProbe extends Probe {
@@ -43,13 +42,12 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
     @Override
     public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
         final UpdateCenter updateCenter = ctx.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin = updateCenter.plugins().get(plugin.getName());
+        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin =
+                updateCenter.plugins().get(plugin.getName());
 
-        if (updateCenterPlugin == null) {
-            return this.error("This plugin's publication has been stopped by the update-center.");
-        }
-
-        return this.success("This plugin is still actively published by the update-center.");
+        return updateCenterPlugin == null
+                ? this.success("This plugin's publication has been stopped by the update-center.")
+                : this.success("This plugin is still actively published by the update-center.");
     }
 
     @Override
@@ -67,4 +65,3 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
         return 1;
     }
 }
-
