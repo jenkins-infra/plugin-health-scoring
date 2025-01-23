@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,19 +56,18 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         final String pluginName = "foo";
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(),
-            Map.of(),
-            Collections.emptyList()
-        ));
+        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(Map.of(), Map.of(), Collections.emptyList()));
 
         final UpdateCenterPluginPublicationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(UpdateCenterPluginPublicationProbe.KEY, "This plugin's publication has been stopped by the update-center.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        "This plugin's publication has been stopped by the update-center.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -79,20 +77,24 @@ class UpdateCenterPluginPublicationProbeTest extends AbstractProbeTest<UpdateCen
         final String pluginName = "foo";
 
         when(plugin.getName()).thenReturn(pluginName);
-        when(ctx.getUpdateCenter()).thenReturn(new UpdateCenter(
-            Map.of(pluginName, new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
-                pluginName, null, null, null, List.of(), 0, "2.361.1", "main"
-            )),
-            Map.of(),
-            List.of()
-        ));
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName, null, null, null, List.of(), 0, "2.361.1", "main")),
+                        Map.of(),
+                        List.of()));
 
         final UpdateCenterPluginPublicationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(UpdateCenterPluginPublicationProbe.KEY, "This plugin is still actively published by the update-center.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        "This plugin is still actively published by the update-center.",
+                        probe.getVersion()));
     }
 }

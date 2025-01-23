@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 import io.jenkins.pluginhealth.scoring.probes.RepositoryArchivedStatusProbe;
+import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,13 +55,66 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1)));
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin is still actively published by the update-center.",
+                                1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(100);
+    }
+
+    @Test
+    void shouldScoreZeroIfRepositoryIsArchivedEvenIfPluginIsPublished() {
+        final Plugin plugin = mock(Plugin.class);
+        final DeprecatedPluginScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        DeprecatedPluginProbe.KEY,
+                        ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
+                        RepositoryArchivedStatusProbe.KEY,
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin is still actively published by the update-center.",
+                                1)));
+
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("deprecation");
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
+    }
+
+    @Test
+    void shouldScoreZeroIfRepositoryIsNotArchivedButPluginIsNotPublished() {
+        final Plugin plugin = mock(Plugin.class);
+        final DeprecatedPluginScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        DeprecatedPluginProbe.KEY,
+                        ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
+                        RepositoryArchivedStatusProbe.KEY,
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin's publication has been stopped by the update-center.",
+                                1)));
+
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("deprecation");
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
     }
 
     @Test
@@ -73,7 +127,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
     }
 
@@ -92,7 +146,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
     }
 
@@ -111,7 +165,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
     }
 
@@ -125,12 +179,17 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1)));
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin's publication has been stopped by the update-center.",
+                                1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
         assertThat(result.key()).isEqualTo("deprecation");
-        assertThat(result.weight()).isEqualTo(.8f);
+        assertThat(result.weight()).isEqualTo(1f);
         assertThat(result.value()).isEqualTo(0);
     }
 }

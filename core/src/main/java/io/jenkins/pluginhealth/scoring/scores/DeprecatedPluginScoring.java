@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,12 +32,13 @@ import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.DeprecatedPluginProbe;
 import io.jenkins.pluginhealth.scoring.probes.RepositoryArchivedStatusProbe;
+import io.jenkins.pluginhealth.scoring.probes.UpdateCenterPluginPublicationProbe;
 
 import org.springframework.stereotype.Component;
 
 @Component
 public class DeprecatedPluginScoring extends Scoring {
-    private static final float COEFFICIENT = .8f;
+    private static final float COEFFICIENT = 1f;
     private static final String KEY = "deprecation";
 
     @Override
@@ -109,6 +110,39 @@ public class DeprecatedPluginScoring extends Scoring {
                     public int getWeight() {
                         return 1;
                     }
+                },
+                new ScoringComponent() {
+                    @Override
+                    public String getDescription() {
+                        return "Plugin should be present in the update-center to be distributed.";
+                    }
+
+                    @Override
+                    public ScoringComponentResult getScore(Plugin $, Map<String, ProbeResult> probeResults) {
+                        final ProbeResult probeResult = probeResults.get(UpdateCenterPluginPublicationProbe.KEY);
+                        if (probeResult == null || ProbeResult.Status.ERROR.equals(probeResult.status())) {
+                            return new ScoringComponentResult(
+                                    -100, 100, List.of("Cannot determine if the plugin is part of the update-center."));
+                        }
+
+                        return switch (probeResult.message()) {
+                            case "This plugin is still actively published by the update-center." -> new ScoringComponentResult(
+                                    100, 0, List.of("The plugin appears in the update-center."));
+                            case "This plugin's publication has been stopped by the update-center." -> new ScoringComponentResult(
+                                    0, getWeight(), List.of("Ths plugin is not part of the update-center."));
+                            default -> new ScoringComponentResult(
+                                    -5,
+                                    getWeight(),
+                                    List.of(
+                                            "Cannot determine if the plugin is part of the update-center or not.",
+                                            probeResult.message()));
+                        };
+                    }
+
+                    @Override
+                    public int getWeight() {
+                        return 1;
+                    }
                 });
     }
 
@@ -129,6 +163,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 4;
+        return 5;
     }
 }
