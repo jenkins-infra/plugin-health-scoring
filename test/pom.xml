@@ -28,7 +28,7 @@
   <parent>
     <groupId>io.jenkins.pluginhealth.scoring</groupId>
     <artifactId>plugin-health-scoring-parent</artifactId>
-    <version>4.3.2-SNAPSHOT</version>
+    <version>4.4.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
