@@ -94,6 +94,30 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
     }
 
     @Test
+    void shouldScoreZeroIfRepositoryIsNotArchivedButPluginIsNotPublished() {
+        final Plugin plugin = mock(Plugin.class);
+        final DeprecatedPluginScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        DeprecatedPluginProbe.KEY,
+                        ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
+                        RepositoryArchivedStatusProbe.KEY,
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin's publication has been stopped by the update-center.",
+                                1)));
+
+        final ScoreResult result = scoring.apply(plugin);
+
+        assertThat(result.key()).isEqualTo("deprecation");
+        assertThat(result.weight()).isEqualTo(1f);
+        assertThat(result.value()).isEqualTo(0);
+    }
+
+    @Test
     void shouldBadlyScorePluginWithNoProbe() {
         final Plugin plugin = mock(Plugin.class);
         final DeprecatedPluginScoring scoring = getSpy();
@@ -155,7 +179,12 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1)));
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1),
+                        UpdateCenterPluginPublicationProbe.KEY,
+                        ProbeResult.success(
+                                UpdateCenterPluginPublicationProbe.KEY,
+                                "This plugin's publication has been stopped by the update-center.",
+                                1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
