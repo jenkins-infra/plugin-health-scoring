@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,22 +57,23 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
 
-        when(plugin.getScm()).thenReturn(
-            null, ""
-        );
+        when(plugin.getName()).thenReturn("plugin-a");
+        when(plugin.getScm()).thenReturn(null, "");
         final SCMLinkValidationProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        SCMLinkValidationProbe.KEY, "The plugin SCM link is empty.", probe.getVersion()));
     }
 
     @Test
@@ -85,10 +85,13 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         when(plugin.getScm()).thenReturn("this-is-not-correct");
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(SCMLinkValidationProbe.KEY, "SCM link doesn't match GitHub plugin repositories.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        SCMLinkValidationProbe.KEY,
+                        "SCM link doesn't match GitHub plugin repositories.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -96,23 +99,24 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/test-repo";
+        final String repositoryName = "jenkinsci/test-repo-plugin";
 
         when(plugin.getName()).thenReturn("test-repo");
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
-        when(ctx.getScmRepository()).thenReturn(Optional.of(
-            Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1/test-nested-dir-2")
-        ));
+        when(ctx.getScmRepository())
+                .thenReturn(Optional.of(
+                        Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1/test-nested-dir-2")));
         when(ctx.getGitHub()).thenReturn(gh);
         when(gh.getRepository(repositoryName)).thenReturn(new GHRepository());
 
         final SCMLinkValidationProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(SCMLinkValidationProbe.KEY, "The plugin SCM link is valid.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        SCMLinkValidationProbe.KEY, "The plugin SCM link is valid.", probe.getVersion()));
     }
 
     @Test
@@ -120,7 +124,7 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
         final GitHub gh = mock(GitHub.class);
-        final String repositoryName = "jenkinsci/this-is-not-going-to-work";
+        final String repositoryName = "jenkinsci/this-is-not-going-to-work-plugin";
 
         when(plugin.getScm()).thenReturn("https://github.com/" + repositoryName);
         when(plugin.getName()).thenReturn("foo");
@@ -132,10 +136,10 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final SCMLinkValidationProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .isNotNull()
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid.", probe.getVersion()));
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success("scm", "The plugin SCM link is invalid.", probe.getVersion()));
     }
 
     @Test
@@ -146,22 +150,21 @@ class SCMLinkValidationProbeTest extends AbstractProbeTest<SCMLinkValidationProb
         final GitHub gh = mock(GitHub.class);
         final GHRepository ghRepo = mock(GHRepository.class);
 
-        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/this-is-fine");
+        when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/this-is-fine-plugin");
         when(plugin.getName()).thenReturn("test-repo");
 
-        when(ctx.getScmRepository()).thenReturn(Optional.of(
-            Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1")
-        ));
+        when(ctx.getScmRepository())
+                .thenReturn(Optional.of(Path.of("src/test/resources/jenkinsci/test-repo/test-nested-dir-1")));
         when(ctx.getGitHub()).thenReturn(gh);
-        when(gh.getRepository("jenkinsci/this-is-fine")).thenReturn(ghRepo);
+        when(gh.getRepository("jenkinsci/this-is-fine-plugin")).thenReturn(ghRepo);
 
         final SCMLinkValidationProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(probe.key(), "The plugin SCM link is valid.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(probe.key(), "The plugin SCM link is valid.", probe.getVersion()));
 
         verify(ctx).setScmFolderPath(Path.of("test-nested-dir-2"));
     }

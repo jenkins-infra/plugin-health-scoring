@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.nio.file.Path;
@@ -49,19 +48,24 @@ public abstract class Probe {
      * @return the result of the analyze in a {@link ProbeResult}
      */
     public final ProbeResult apply(Plugin plugin, ProbeContext context) {
-        if (shouldBeExecuted(plugin, context)) {
+        if (isApplicable(plugin, context)) {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Running {} on {}", this.key(), plugin.getName());
             }
             return doApply(plugin, context);
         }
         final ProbeResult lastResult = plugin.getDetails().get(key());
-        return lastResult != null ?
-            lastResult :
-            this.error(key() + " was not executed on " + plugin.getName());
+        return lastResult != null ? lastResult : this.error(key() + " was not executed on " + plugin.getName());
     }
 
-    private boolean shouldBeExecuted(Plugin plugin, ProbeContext context) {
+    /**
+     * Determine if the current probe should or should not be applied to the plugin with its context.
+     *
+     * @param plugin  the plugin to apply the probe to
+     * @param context the built context to run the probe with
+     * @return true if the probe have to be applied to the plugin
+     */
+    protected boolean isApplicable(Plugin plugin, ProbeContext context) {
         final ProbeResult previousResult = plugin.getDetails().get(this.key());
         if (previousResult == null) {
             return true;
@@ -75,26 +79,28 @@ public abstract class Probe {
         if (!this.requiresRelease() && !this.isSourceCodeRelated()) {
             return true;
         }
-        if (this.requiresRelease() &&
-            (previousResult.timestamp() != null && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
+        if (this.requiresRelease()
+                && (previousResult.timestamp() != null
+                        && previousResult.timestamp().isBefore(plugin.getReleaseTimestamp()))) {
             return true;
         }
         final Optional<Path> optionalScmRepository = context.getScmRepository();
         if (this.isSourceCodeRelated() && optionalScmRepository.isEmpty()) {
-            LOGGER.info(
-                "{} requires the SCM for {} but the SCM was not cloned locally",
-                this.key(), plugin.getName()
-            );
+            LOGGER.info("{} requires the SCM for {} but the SCM was not cloned locally", this.key(), plugin.getName());
             return false;
         }
         final Optional<ZonedDateTime> optionalLastCommit = context.getLastCommitDate();
-        if (this.isSourceCodeRelated() &&
-            optionalLastCommit
-                .map(date -> previousResult.timestamp() != null && previousResult.timestamp().isBefore(date))
-                .orElseGet(() -> {
-                    LOGGER.info("{} is based on code modification but last commit for {} is unknown. It will be executed.", key(), plugin.getName());
-                    return true;
-                })) {
+        if (this.isSourceCodeRelated()
+                && optionalLastCommit
+                        .map(date -> previousResult.timestamp() != null
+                                && previousResult.timestamp().isBefore(date))
+                        .orElseGet(() -> {
+                            LOGGER.info(
+                                    "{} is based on code modification but last commit for {} is unknown. It will be executed.",
+                                    key(),
+                                    plugin.getName());
+                            return true;
+                        })) {
             return true;
         }
 

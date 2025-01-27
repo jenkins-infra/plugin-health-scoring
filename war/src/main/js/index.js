@@ -1,9 +1,19 @@
 import {defineCustomElements} from "ionicons/dist/loader";
+import { DataTable } from "simple-datatables";
 
 defineCustomElements(window, {
   resourcesUrl: '/',
 });
 
+const probesTable = document.getElementById('probes-table');
+if (probesTable !== null) {
+    new DataTable("#probes-table", {
+      perPageSelect: [10, 25, 50],
+      columns: [
+        { select: 1, sortable: false },
+      ]
+    });
+}
 
 const updateCollapseIcon = (container, target) => {
   if (target.classList.contains('show')) {
@@ -15,18 +25,14 @@ const updateCollapseIcon = (container, target) => {
 
 const triggers = document.getElementsByClassName('collapse')
 for (const trigger of triggers) {
-  const iconContainers = trigger.getElementsByTagName('ion-icon');
+  const iconContainer = trigger.querySelector('ion-icon[data-collapse]');
   const target = document.getElementById(trigger.getAttribute('data-target'));
   if (target != null) {
-    for (const container of iconContainers) {
-      updateCollapseIcon(container, target)
-    }
+    updateCollapseIcon(iconContainer, target)
     trigger.addEventListener('click', e => {
       e.preventDefault();
       target.classList.toggle('show');
-      for (const container of iconContainers) {
-        updateCollapseIcon(container, target)
-      }
+      updateCollapseIcon(iconContainer, target)
     });
   }
 }

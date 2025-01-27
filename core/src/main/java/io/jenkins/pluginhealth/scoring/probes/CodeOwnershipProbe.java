@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,44 +26,51 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(PluginDescriptionMigrationProbe.ORDER)
-public class PluginDescriptionMigrationProbe extends Probe {
-    public static final String KEY = "description-migration";
-    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
+@Order(CodeOwnershipProbe.ORDER)
+public class CodeOwnershipProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDependencyBotConfigurationProbe.class);
+    public static final String KEY = "code-ownership";
+    public static final int ORDER = AbstractDependencyBotConfigurationProbe.ORDER + 100;
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
         if (context.getScmRepository().isEmpty()) {
             return this.error("There is no local repository for plugin " + plugin.getName() + ".");
         }
+        final Path scmRepository = context.getScmRepository().get();
+        final String repositoryName = context.getRepositoryName().orElse("NOT_VALID");
 
-        final Path repository = context.getScmRepository().get();
-        final Path pluginFolder =
-                context.getScmFolderPath().map(repository::resolve).orElse(repository);
-
-        try (Stream<Path> files = Files.find(
-                pluginFolder.resolve("src").resolve("main").resolve("resources"), 1, (path, attributes) -> "index.jelly"
-                        .equals(path.getFileName().toString()))) {
-            final Optional<Path> jellyFileOpt = files.findFirst();
-            if (jellyFileOpt.isEmpty()) {
-                return success("There is no `index.jelly` file in `src/main/resources`.");
-            }
-            final Path jellyFile = jellyFileOpt.get();
-            return Files.readAllLines(jellyFile).stream().map(String::trim).anyMatch(s -> s.contains("TODO"))
-                    ? success("Plugin is using description from the plugin archetype.")
-                    : success("Plugin seems to have a correct description.");
-        } catch (IOException e) {
-            return error("Cannot browse plugin source code folder.");
+        try (Stream<Path> paths = Files.find(
+                scmRepository,
+                2,
+                (path, $) -> Files.isRegularFile(path)
+                        && "CODEOWNERS".equals(path.getFileName().toString()))) {
+            return paths.findFirst()
+                    .map(file -> {
+                        try {
+                            return Files.readAllLines(file).stream()
+                                            .anyMatch(line -> line.contains("@%s-developers".formatted(repositoryName)))
+                                    ? this.success("CODEOWNERS file is valid.")
+                                    : this.success("CODEOWNERS file is not set correctly.");
+                        } catch (IOException ex) {
+                            return this.error("Could not read CODEOWNERS file.");
+                        }
+                    })
+                    .orElseGet(() -> this.success("No CODEOWNERS file found in plugin repository."));
+        } catch (IOException ex) {
+            LOGGER.error("Could not browse the plugin folder during probe {}", key(), ex);
+            return this.error("Could not browse the plugin folder.");
         }
     }
 
@@ -74,16 +81,16 @@ public class PluginDescriptionMigrationProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Checks if the plugin description is located in the `src/main/resources/index.jelly` file.";
+        return "Detects if the code ownership file is set correctly or not.";
     }
 
     @Override
     public long getVersion() {
-        return 1;
+        return 3;
     }
 
     @Override
-    protected boolean requiresRelease() {
+    protected boolean isSourceCodeRelated() {
         return true;
     }
 }

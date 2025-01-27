@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -57,7 +56,12 @@ public final class ProbeEngine {
     private final GitHub gitHub;
     private final PluginDocumentationService pluginDocumentationService;
 
-    public ProbeEngine(ProbeService probeService, PluginService pluginService, UpdateCenterService updateCenterService, GitHub gitHub, PluginDocumentationService pluginDocumentationService) {
+    public ProbeEngine(
+            ProbeService probeService,
+            PluginService pluginService,
+            UpdateCenterService updateCenterService,
+            GitHub gitHub,
+            PluginDocumentationService pluginDocumentationService) {
         this.probeService = probeService;
         this.pluginService = pluginService;
         this.updateCenterService = updateCenterService;
@@ -72,8 +76,10 @@ public final class ProbeEngine {
         LOGGER.info("Start running probes on all plugins");
         final UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         final Map<String, String> pluginDocumentationUrl = pluginDocumentationService.fetchPluginDocumentationUrl();
-        pluginService.streamAll().parallel()
-            .forEach(plugin -> this.runOn(plugin, updateCenter, pluginDocumentationUrl));
+        pluginService
+                .streamAll()
+                .parallel()
+                .forEach(plugin -> this.runOn(plugin, updateCenter, pluginDocumentationUrl));
         LOGGER.info("Probe engine has finished");
     }
 
@@ -92,10 +98,6 @@ public final class ProbeEngine {
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter, Map<String, String> pluginDocumentationUrl) {
-        if (plugin.getScm() == null || plugin.getScm().isBlank()) {
-            LOGGER.info("Will not run probes on {} because its SCM is not set correctly.", plugin.getName());
-            return;
-        }
         final ProbeContext probeContext;
         try {
             probeContext = probeService.getProbeContext(plugin, updateCenter);

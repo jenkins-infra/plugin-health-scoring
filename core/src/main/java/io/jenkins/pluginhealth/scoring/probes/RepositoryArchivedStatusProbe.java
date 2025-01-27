@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,51 +24,38 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.kohsuke.github.GHIssueState;
-import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(DependabotPullRequestProbe.ORDER)
-public class DependabotPullRequestProbe extends Probe {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DependabotPullRequestProbe.class);
-
-    public static final String KEY = "dependabot-pull-requests";
-    public static final int ORDER = DependabotProbe.ORDER + 10;
+@Order(value = RepositoryArchivedStatusProbe.ORDER)
+public class RepositoryArchivedStatusProbe extends Probe {
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
+    public static final String KEY = "repository-archived";
 
     @Override
     protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        if (context.getRepositoryName().isEmpty()) {
-            return this.error("There is no repository for " + plugin.getName() + ".");
+        if (plugin.getScm() == null) {
+            return this.error("Plugin SCM is unknown, cannot fetch the number of open pull requests.");
         }
+        final GitHub gh = context.getGitHub();
+        final Optional<String> repositoryName = context.getRepositoryName();
+        if (repositoryName.isEmpty()) {
+            return this.error("Cannot find repository for " + plugin.getName());
+        }
+
         try {
-            final GitHub gh = context.getGitHub();
-            final GHRepository repository =
-                    gh.getRepository(context.getRepositoryName().get());
-            final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
-
-            final long count = pullRequests.stream()
-                    .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
-                    .count();
-
-            return this.success("%d".formatted(count));
-        } catch (NoSuchElementException | IOException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(e.getMessage());
-            }
-
-            return this.error("Could not count dependabot pull requests.");
+            final GHRepository repository = gh.getRepository(repositoryName.get());
+            return this.success("%b".formatted(repository.isArchived()));
+        } catch (IOException e) {
+            return this.error("Cannot access repository " + repositoryName.get());
         }
     }
 
@@ -79,7 +66,7 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "Reports the number of pull request currently opened by Dependabot";
+        return "Learn if the plugin repository is archived or not.";
     }
 
     @Override
