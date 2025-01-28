@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -97,9 +97,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         final GHPullRequest pr_2 = mock(GHPullRequest.class);
         final GHPullRequest pr_3 = mock(GHPullRequest.class);
-        when(ghRepository.queryPullRequests().state(GHIssueState.OPEN)).thenReturn(
-            List.of(pr_1, pr_2, pr_3)
-        );
+        when(ghRepository.queryPullRequests().state(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -134,9 +132,8 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(pr_3.getLabels()).thenReturn(List.of(dependenciesLabel));
         final GHPullRequest pr_4 = mock(GHPullRequest.class);
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
-        when(ghRepository.queryPullRequests().state(GHIssueState.OPEN).list()).thenReturn(
-            List.of(pr_1, pr_2, pr_3, pr_4, pr_5)
-        );
+        when(ghRepository.queryPullRequests().state(GHIssueState.OPEN).list())
+                .thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
