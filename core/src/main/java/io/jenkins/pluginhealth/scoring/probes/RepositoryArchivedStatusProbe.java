@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2024 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,40 @@
  */
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * Check if a plugin is still published by the Update Center.
- */
 @Component
-@Order(UpdateCenterPluginPublicationProbe.ORDER)
-public class UpdateCenterPluginPublicationProbe extends Probe {
-    public static final String KEY = "update-center-plugin-publication-probe";
-    public static final int ORDER = DeprecatedPluginProbe.ORDER + 100;
+@Order(value = RepositoryArchivedStatusProbe.ORDER)
+public class RepositoryArchivedStatusProbe extends Probe {
+    public static final int ORDER = SCMLinkValidationProbe.ORDER + 100;
+    public static final String KEY = "repository-archived";
 
     @Override
-    public ProbeResult doApply(Plugin plugin, ProbeContext ctx) {
-        final UpdateCenter updateCenter = ctx.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin updateCenterPlugin =
-                updateCenter.plugins().get(plugin.getName());
+    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (plugin.getScm() == null) {
+            return this.error("Plugin SCM is unknown, cannot fetch the number of open pull requests.");
+        }
+        final GitHub gh = context.getGitHub();
+        final Optional<String> repositoryName = context.getRepositoryName();
+        if (repositoryName.isEmpty()) {
+            return this.error("Cannot find repository for " + plugin.getName());
+        }
 
-        return updateCenterPlugin == null
-                ? this.success("This plugin's publication has been stopped by the update-center.")
-                : this.success("This plugin is still actively published by the update-center.");
+        try {
+            final GHRepository repository = gh.getRepository(repositoryName.get());
+            return this.success("%b".formatted(repository.isArchived()));
+        } catch (IOException e) {
+            return this.error("Cannot access repository " + repositoryName.get());
+        }
     }
 
     @Override
@@ -57,7 +66,7 @@ public class UpdateCenterPluginPublicationProbe extends Probe {
 
     @Override
     public String getDescription() {
-        return "This probe detects if a specified plugin is still actively published by the update-center.";
+        return "Learn if the plugin repository is archived or not.";
     }
 
     @Override

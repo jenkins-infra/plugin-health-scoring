@@ -103,7 +103,7 @@ public abstract class Scoring {
                                     .sum();
                             return new ScoreResult(
                                     key(),
-                                    (int) Math.max(0, Math.round(sum / weight)),
+                                    weight == 0 ? 100 : (int) Math.max(0, Math.round(sum / weight)),
                                     weight(),
                                     changelogResults,
                                     version());
