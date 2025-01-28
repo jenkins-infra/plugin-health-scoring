@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -40,47 +39,32 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import hudson.util.VersionNumber;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.kohsuke.github.GHCheckRun;
-import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHCommitState;
+import org.kohsuke.github.GHCommitStatus;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
-import org.kohsuke.github.PagedIterable;
-import org.kohsuke.github.PagedIterator;
 
 class DefaultBranchBuildStatusProbeTest extends AbstractProbeTest<DefaultBranchBuildStatusProbe> {
-
-    private DefaultBranchBuildStatusProbe probe;
-
     @Override
     DefaultBranchBuildStatusProbe getSpy() {
         return spy(DefaultBranchBuildStatusProbe.class);
     }
 
-    @BeforeEach
-    public void init() {
-
-        probe = getSpy();
-    }
-
     @Test
-    public void shouldReturnBuildSucessOntheDefaultBranch() throws IOException {
+    public void shouldReturnBuildSuccessOnTheDefaultBranch() throws IOException {
+        final DefaultBranchBuildStatusProbe probe = getSpy();
 
         final String pluginName = "mailer";
         final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + pluginRepo;
         final String defaultBranch = "main";
+
         final GitHub gitHub = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
-        final GHCommit ghCommit = mock(GHCommit.class);
-        final GHCheckRun checkRun = mock(GHCheckRun.class);
-        final PagedIterable<GHCheckRun> checkrun = mock(PagedIterable.class);
-        final PagedIterator<GHCheckRun> checkIterator = mock(PagedIterator.class);
+        final GHCommitStatus commitStatus = mock(GHCommitStatus.class);
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
-        final GitHub gh = mock(GitHub.class);
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -99,40 +83,32 @@ class DefaultBranchBuildStatusProbeTest extends AbstractProbeTest<DefaultBranchB
                                         defaultBranch)),
                         Map.of(),
                         List.of()));
-        when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
         when(ctx.getGitHub()).thenReturn(gitHub);
-        when(ctx.getRepositoryName()).thenReturn(Optional.of("org/repo"));
-        when(gitHub.getRepository("org/repo")).thenReturn(ghRepository);
-        when(ghRepository.getCommit(defaultBranch)).thenReturn(ghCommit);
-        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
-        when(ghCommit.getCheckRuns()).thenReturn(checkrun);
-        when(ghCommit.getCheckRuns().iterator()).thenReturn(checkIterator);
-        when(ghCommit.getCheckRuns().iterator().hasNext()).thenReturn /**/(true);
-        when(ghCommit.getCheckRuns().iterator().next()).thenReturn(checkRun);
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
+        when(gitHub.getRepository(pluginRepo)).thenReturn(ghRepository);
+        when(ghRepository.getLastCommitStatus(defaultBranch)).thenReturn(commitStatus);
+        when(commitStatus.getState()).thenReturn(GHCommitState.SUCCESS);
+
         assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                        DefaultBranchBuildStatusProbe.KEY, "Build is Success in Default Branch", probe.getVersion()));
-        verify(probe).doApply(plugin, ctx);
+                .isEqualTo(ProbeResult.success(DefaultBranchBuildStatusProbe.KEY, "SUCCESS", probe.getVersion()));
     }
 
     @Test
-    public void shouldReturnErrorMessageCommitsNotFound() throws IOException {
+    public void shouldCorrectlyDetectsPendingBuild() throws IOException {
+        final DefaultBranchBuildStatusProbe probe = getSpy();
 
         final String pluginName = "mailer";
         final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
         final String scmLink = "https://github.com/" + pluginRepo;
         final String defaultBranch = "main";
+
         final GitHub gitHub = mock(GitHub.class);
         final GHRepository ghRepository = mock(GHRepository.class);
-        final GHCommit ghCommit = mock(GHCommit.class);
-        final PagedIterable<GHCheckRun> checkrun = mock(PagedIterable.class);
+        final GHCommitStatus commitStatus = mock(GHCommitStatus.class);
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
-
-        final GitHub gh = mock(GitHub.class);
 
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
@@ -151,21 +127,60 @@ class DefaultBranchBuildStatusProbeTest extends AbstractProbeTest<DefaultBranchB
                                         defaultBranch)),
                         Map.of(),
                         List.of()));
-        when(ctx.getGitHub()).thenReturn(gh);
-        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
         when(ctx.getGitHub()).thenReturn(gitHub);
-        when(ctx.getRepositoryName()).thenReturn(Optional.of("org/repo"));
-        when(gitHub.getRepository("org/repo")).thenReturn(ghRepository);
-        when(ghRepository.getCommit(defaultBranch)).thenReturn(ghCommit);
-        when(gh.getRepository(pluginRepo)).thenReturn(ghRepository);
-        when(ghCommit.getCheckRuns()).thenReturn(checkrun);
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
+        when(gitHub.getRepository(pluginRepo)).thenReturn(ghRepository);
+        when(ghRepository.getLastCommitStatus(defaultBranch)).thenReturn(commitStatus);
+        when(commitStatus.getState()).thenReturn(GHCommitState.PENDING);
+
+        assertThat(probe.apply(plugin, ctx))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(DefaultBranchBuildStatusProbe.KEY, "PENDING", probe.getVersion()));
+    }
+
+    @Test
+    public void shouldReturnErrorWhenNotStatus() throws IOException {
+        final DefaultBranchBuildStatusProbe probe = getSpy();
+
+        final String pluginName = "mailer";
+        final String pluginRepo = "jenkinsci/" + pluginName + "-plugin";
+        final String scmLink = "https://github.com/" + pluginRepo;
+        final String defaultBranch = "main";
+
+        final GitHub gitHub = mock(GitHub.class);
+        final GHRepository ghRepository = mock(GHRepository.class);
+        final Plugin plugin = mock(Plugin.class);
+        final ProbeContext ctx = mock(ProbeContext.class);
+
+        when(plugin.getName()).thenReturn(pluginName);
+        when(plugin.getScm()).thenReturn(scmLink);
+        when(ctx.getUpdateCenter())
+                .thenReturn(new UpdateCenter(
+                        Map.of(
+                                pluginName,
+                                new io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin(
+                                        pluginName,
+                                        new VersionNumber("1.0"),
+                                        scmLink,
+                                        ZonedDateTime.now(),
+                                        List.of(),
+                                        0,
+                                        "42",
+                                        defaultBranch)),
+                        Map.of(),
+                        List.of()));
+        when(ctx.getGitHub()).thenReturn(gitHub);
+        when(ctx.getRepositoryName()).thenReturn(Optional.of(pluginRepo));
+        when(gitHub.getRepository(pluginRepo)).thenReturn(ghRepository);
+        when(ghRepository.getLastCommitStatus(defaultBranch)).thenReturn(null);
+
         assertThat(probe.apply(plugin, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "message", "status")
                 .isEqualTo(ProbeResult.error(
                         DefaultBranchBuildStatusProbe.KEY,
-                        "Failed to obtain the status of the default Branch.",
+                        "There is no last commit status found for the plugin.",
                         probe.getVersion()));
-        verify(probe).doApply(plugin, ctx);
     }
 }

@@ -23,15 +23,16 @@
  */
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.kohsuke.github.GHCheckRun;
-import org.kohsuke.github.GHCheckRun.Conclusion;
-import org.kohsuke.github.GHCommit;
+import org.kohsuke.github.GHCommitStatus;
 import org.kohsuke.github.GHRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(DefaultBranchBuildStatusProbe.ORDER)
 public class DefaultBranchBuildStatusProbe extends Probe {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBranchBuildStatusProbe.class);
 
     public static final int ORDER = JenkinsCoreProbe.ORDER + 100;
     public static final String KEY = "default-branch-build-status";
@@ -57,20 +59,19 @@ public class DefaultBranchBuildStatusProbe extends Probe {
             if (defaultBranch == null || defaultBranch.isBlank()) {
                 return this.error("No default branch configured for the plugin.");
             }
-
             final Optional<String> repositoryName = context.getRepositoryName();
-            final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
-            GHCommit commit = ghRepository.getCommit(ucPlugin.defaultBranch());
-            GHCheckRun checkRun = commit.getCheckRuns().iterator().next();
-            Conclusion conclusion = checkRun.getConclusion();
-
-            if (conclusion == Conclusion.FAILURE) {
-                return this.success("Build Failed in Default Branch");
-            } else {
-                return this.success("Build is Success in Default Branch");
+            if (repositoryName.isEmpty()) {
+                return this.error("No repository name configured for the plugin.");
             }
-        } catch (Exception ex) {
-            return this.error("Failed to obtain the status of the default Branch.");
+            final GHRepository ghRepository = context.getGitHub().getRepository(repositoryName.get());
+            final GHCommitStatus lastCommitStatus = ghRepository.getLastCommitStatus(defaultBranch);
+            if (lastCommitStatus == null) {
+                return error("There is no last commit status found for the plugin.");
+            }
+            return success(lastCommitStatus.getState().name());
+        } catch (IOException ex) {
+            LOGGER.debug(ex.getMessage(), ex);
+            return this.error("Failed to obtain the status of the default branch.");
         }
     }
 
