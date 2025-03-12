@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,14 +45,21 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
-    @Autowired private PluginRepository pluginRepository;
-    @Mock private UpdateCenterService ucService;
+    @Autowired
+    private PluginRepository pluginRepository;
+
+    @Mock
+    private UpdateCenterService ucService;
+
     private UpdateCenterScheduler upScheduler;
 
     @BeforeEach
     void setupUpdateCenterContent() throws IOException {
-        final UpdateCenter updateCenter = Jackson2ObjectMapperBuilder.json().build()
-            .readValue(UpdateCenterSchedulerIT.class.getResourceAsStream("/update-center/update-center.actual.json"), UpdateCenter.class);
+        final UpdateCenter updateCenter = Jackson2ObjectMapperBuilder.json()
+                .build()
+                .readValue(
+                        UpdateCenterSchedulerIT.class.getResourceAsStream("/update-center/update-center.actual.json"),
+                        UpdateCenter.class);
 
         when(ucService.fetchUpdateCenter()).thenReturn(updateCenter);
         upScheduler = new UpdateCenterScheduler(ucService, new PluginService(pluginRepository));
@@ -65,18 +71,16 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     }
 
     @Test
-    // TODO: Reduce size of the data set.
     void shouldBeAbleToInsertPluginsIntoDB() throws IOException {
         upScheduler.updateDatabase();
-        assertThat(pluginRepository.count()).isEqualTo(1885);
+        assertThat(pluginRepository.count()).isEqualTo(100);
     }
 
     @Test
-    // TODO: Reduce size of the data set.
     void shouldBeAbleToUpdatePluginsInDB() throws IOException {
         upScheduler.updateDatabase();
-        assertThat(pluginRepository.count()).isEqualTo(1885);
+        assertThat(pluginRepository.count()).isEqualTo(100);
         upScheduler.updateDatabase();
-        assertThat(pluginRepository.count()).isEqualTo(1885);
+        assertThat(pluginRepository.count()).isEqualTo(100);
     }
 }
