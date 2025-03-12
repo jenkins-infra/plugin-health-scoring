@@ -90,6 +90,13 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
@@ -97,13 +104,6 @@
         <scope>import</scope>
       </dependency>
 
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-bom</artifactId>
-        <version>${testcontainers.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>plugin-health-scoring-core</artifactId>
@@ -197,6 +197,7 @@
                 <indentSchemaLocation>false</indentSchemaLocation>
                 <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
 
+                <sortDependencyManagement>false</sortDependencyManagement>
                 <sortDependencies>scope,groupId,artifactId</sortDependencies>
                 <sortPlugins>groupId,artifactId</sortPlugins>
               </sortPom>
