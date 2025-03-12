@@ -23,7 +23,10 @@
  */
 package io.jenkins.pluginhealth.scoring.http;
 
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,15 +138,16 @@ class ScoreControllerTest {
                 .andExpect(view().name("scores/details"))
                 .andExpect(model().attribute("module", "scores"))
                 .andExpect(model().attributeExists("score"))
-        /*.andExpect(model().attribute(
-            "score",
-            allOf(
-                hasProperty("value", equalTo(42L)),
-                hasProperty("pluginName", equalTo(pluginName)),
-                hasProperty("probeResults", instanceOf(Map.class)),
-                hasProperty("details", instanceOf(Collection.class))
-            )
-        ))*/ ; // TODO see https://github.com/hamcrest/JavaHamcrest/issues/392
+                .andExpect(model().attribute(
+                                "score",
+                                allOf(
+                                        hasProperty("value", equalTo(42L)),
+                                        hasProperty(
+                                                "plugin",
+                                                allOf(
+                                                        hasProperty("name", equalTo(pluginName)),
+                                                        hasProperty("details", instanceOf(Map.class)))),
+                                        hasProperty("details", instanceOf(Collection.class)))));
     }
 
     @Test
