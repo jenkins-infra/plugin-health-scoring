@@ -193,8 +193,7 @@ class ScoreAPITest {
                     """.formatted(
                         scoreP1Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                         scoreP2Date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                    ),
-                    false)
+                    ))
             );
         // @formatter:on
     }
