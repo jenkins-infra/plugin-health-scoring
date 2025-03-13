@@ -182,62 +182,38 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.15.1</version>
+        <configuration>
+          <installDirectory>${project.build.directory}</installDirectory>
+          <nodeVersion>v${node.version}</nodeVersion>
+          <corepackVersion>${corepack.version}</corepackVersion>
+          <nodeDownloadRoot>https://repo.jenkins-ci.org/nodejs-dist/</nodeDownloadRoot>
+        </configuration>
         <executions>
           <execution>
-            <id>install node and yarn</id>
+            <id>install-node-and-corepack</id>
             <goals>
-              <goal>install-node-and-yarn</goal>
+              <goal>install-node-and-corepack</goal>
             </goals>
             <phase>initialize</phase>
+          </execution>
+          <execution>
+            <id>install</id>
+            <goals>
+              <goal>corepack</goal>
+            </goals>
+            <phase>process-resources</phase>
             <configuration>
-              <nodeVersion>v${node.version}</nodeVersion>
-              <yarnVersion>v${yarn.version}</yarnVersion>
-              <nodeDownloadRoot>https://repo.jenkins-ci.org/nodejs-dist/</nodeDownloadRoot>
+              <arguments>yarn install</arguments>
             </configuration>
           </execution>
           <execution>
-            <id>yarn install</id>
+            <id>build</id>
             <goals>
-              <goal>yarn</goal>
+              <goal>corepack</goal>
             </goals>
-            <phase>initialize</phase>
+            <phase>compile</phase>
             <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>yarn build</id>
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <arguments>build</arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>download-yarn</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <phase>validate</phase>
-            <configuration>
-              <target>
-                <property name="yarn.dest" value="${project.basedir}/.yarn/releases/yarn-${yarn-berry.version}.cjs" />
-                <dirname file="${yarn.dest}" property="yarn.dest.dir" />
-                <mkdir dir="${yarn.dest.dir}" />
-                <get dest="${yarn.dest}" src="https://repo.yarnpkg.com/${yarn-berry.version}/packages/yarnpkg-cli/bin/yarn.js" usetimestamp="true" />
-                <checksum algorithm="SHA-256" file="${yarn.dest}" property="${yarn-berry.sha256sum}" verifyProperty="yarn.checksum.matches" />
-                <condition property="yarn.checksum.matches.fail">
-                  <equals arg1="${yarn.checksum.matches}" arg2="false" />
-                </condition>
-                <fail if="yarn.checksum.matches.fail">Checksum error</fail>
-              </target>
+              <arguments>yarn build</arguments>
             </configuration>
           </execution>
         </executions>
