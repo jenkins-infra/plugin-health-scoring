@@ -30,11 +30,10 @@ Closes #issue-id.
   the bugfix or the improvement.
 -->
 
-```[tasklist]
 ### Submitter checklist
+
 - [ ] If an issue exists, it is well described and linked in the description
 - [ ] The description of this pull request is detailed and explain why this pull request is needed
 - [ ] The changeset is on a specific branch. Using `feature/` for new feature, or improvements ; Using `fix/` for bug fixes ; Using `docs/` for any documentation changes.
 - [ ] If required, the documentation has been updated
 - [ ] There is automated tests to cover the code change / addition or an explanation why there is no tests in the description.
-```
