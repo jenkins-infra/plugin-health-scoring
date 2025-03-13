@@ -77,10 +77,8 @@
     <project.build.outputEncoding>UTF-8</project.build.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <node.version>20.10.0</node.version>
-    <yarn.version>1.22.19</yarn.version>
-    <yarn-berry.version>4.0.2</yarn-berry.version>
-    <yarn-berry.sha256sum>825003a0f561ad09a3b1ac4a3b3ea6207af2796d54f62a9420520915721f5186</yarn-berry.sha256sum>
+    <node.version>22.14.0</node.version>
+    <corepack.version>0.32.0</corepack.version>
 
     <jjwt.version>0.12.6</jjwt.version>
     <testcontainers.version>1.20.6</testcontainers.version>
