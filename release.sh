@@ -15,22 +15,23 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	exit 1
 fi
 
-draft_release=$(\
+draft_releases=$(\
     gh release list --json tagName,isDraft\
     | jq '[.[] | select(.isDraft == true)]'\
 )
 
-if [ "$(echo "${draft_release}" | jq '. | length')" -eq 0 ]; then
+draft_count="$(echo "${draft_releases}" | jq '. | length')"
+if [ "${draft_count}" -eq 0 ]; then
     echo "# There is no release in draft on GitHub. Please assess."
     exit 1
 fi
-if [ "$(echo "${draft_release}" | jq '. | length')" -gt 1 ]; then
+if [ "${draft_count}" -gt 1 ]; then
     echo "# There is too many releases in draft on GitHub. Please assess."
     exit 1
 fi
 
 gh_draft_tag=$(\
-    echo "${draft_release}"\
+    echo "${draft_releases}"\
     | jq --raw-output '.[0].tagName'
 )
 
