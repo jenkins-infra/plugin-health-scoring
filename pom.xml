@@ -54,7 +54,7 @@
   <scm>
     <connection>scm:git:https://github.com/jenkins-infra/plugin-health-scoring.git</connection>
     <developerConnection>scm:git:git@github.com:jenkins-infra/plugin-health-scoring.git</developerConnection>
-    <tag>v4.0.0</tag>
+    <tag>HEAD</tag>
     <url>https://github.com/jenkins-infra/plugin-health-scoring</url>
   </scm>
   <distributionManagement>
@@ -88,6 +88,13 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
         <version>${spring-boot.version}</version>
@@ -95,13 +102,6 @@
         <scope>import</scope>
       </dependency>
 
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-bom</artifactId>
-        <version>${testcontainers.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>plugin-health-scoring-core</artifactId>
@@ -195,6 +195,7 @@
                 <indentSchemaLocation>false</indentSchemaLocation>
                 <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
 
+                <sortDependencyManagement>false</sortDependencyManagement>
                 <sortDependencies>scope,groupId,artifactId</sortDependencies>
                 <sortPlugins>groupId,artifactId</sortPlugins>
               </sortPom>
