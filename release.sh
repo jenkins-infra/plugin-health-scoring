@@ -15,6 +15,11 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	exit 1
 fi
 
+gh repo sync\
+    --source jenkins-infra/plugin-health-scoring\
+    --branch main
+git switch main
+
 draft_releases=$(\
     gh release list --json tagName,isDraft\
     | jq '[.[] | select(.isDraft == true)]'\
