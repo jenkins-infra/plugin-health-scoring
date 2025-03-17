@@ -66,7 +66,7 @@ release_title="${release_tag/#v/}"
 
 gh release edit "${gh_draft_tag}"\
     --verify-tag\
-    --tag "v${release_tag}"\
+    --tag "${release_tag}"\
     --title="${release_title}"\
     --draft=false\
     --latest
