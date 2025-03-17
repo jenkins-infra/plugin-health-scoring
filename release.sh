@@ -26,12 +26,14 @@ draft_releases=$(\
 )
 
 draft_count="$(echo "${draft_releases}" | jq '. | length')"
-if [ "${draft_count}" -eq 0 ]; then
-    echo "# There is no release in draft on GitHub. Please assess."
-    exit 1
-fi
-if [ "${draft_count}" -gt 1 ]; then
-    echo "# There is too many releases in draft on GitHub. Please assess."
+if [ "${draft_count}" -ne 1 ]; then
+    if [ "${draft_count}" -eq 0 ]; then
+        echo "# There is no release in draft on GitHub. Please assess."
+    fi
+    if [ "${draft_count}" -gt 1 ]; then
+        echo "# There is too many releases in draft on GitHub. Please assess."
+    fi
+    gh browse --releases
     exit 1
 fi
 
