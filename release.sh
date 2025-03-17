@@ -43,7 +43,7 @@ gh_draft_tag=$(\
 )
 
 if [ ${#@} -eq 1 ] ; then
-    version=$1
+    version="${1}"
     shift
 else
     echo "# Using GitHub Release to get the release version."
