@@ -42,7 +42,7 @@ if [ "${draft_count}" -ne 1 ]; then
     if [ "${draft_count}" -gt 1 ]; then
         echo "# There is too many releases in draft on GitHub. Please assess."
     fi
-    gh browse --releases
+    gh browse --repo jenkins-infra/plugin-health-scoring --releases
     exit 1
 fi
 
