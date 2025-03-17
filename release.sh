@@ -15,18 +15,35 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	exit 1
 fi
 
+main_branch_status=$(\
+    gh api /repos/jenkins-infra/plugin-health-scoring/commits/main/status\
+    | jq --raw-output ".state"\
+)
+if [ "${main_branch_status}" != "success" ]; then
+    echo "Main branch status is not successful. Please assess."
+    gh browse --repo jenkins-infra/plugin-health-scoring --branch main
+    exit 1
+fi
+
+gh repo sync\
+    --source jenkins-infra/plugin-health-scoring\
+    --branch main
+git switch main
+
 draft_releases=$(\
     gh release list --json tagName,isDraft\
     | jq '[.[] | select(.isDraft == true)]'\
 )
 
 draft_count="$(echo "${draft_releases}" | jq '. | length')"
-if [ "${draft_count}" -eq 0 ]; then
-    echo "# There is no release in draft on GitHub. Please assess."
-    exit 1
-fi
-if [ "${draft_count}" -gt 1 ]; then
-    echo "# There is too many releases in draft on GitHub. Please assess."
+if [ "${draft_count}" -ne 1 ]; then
+    if [ "${draft_count}" -eq 0 ]; then
+        echo "# There is no release in draft on GitHub. Please assess."
+    fi
+    if [ "${draft_count}" -gt 1 ]; then
+        echo "# There is too many releases in draft on GitHub. Please assess."
+    fi
+    gh browse --repo jenkins-infra/plugin-health-scoring --releases
     exit 1
 fi
 
@@ -36,7 +53,7 @@ gh_draft_tag=$(\
 )
 
 if [ ${#@} -eq 1 ] ; then
-    version=$1
+    version="${1}"
     shift
 else
     echo "# Using GitHub Release to get the release version."
