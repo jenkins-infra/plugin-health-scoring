@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.http;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -47,19 +46,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @ImportAutoConfiguration({ProjectInfoAutoConfiguration.class, SecurityConfiguration.class})
-@WebMvcTest(
-    controllers = ProbesController.class
-)
+@WebMvcTest(controllers = ProbesController.class)
 class ProbeControllerTest {
-    @MockBean private PluginService pluginService;
-    @MockBean private ProbeService probeService;
-    @Autowired private MockMvc mockMvc;
+    @MockitoBean
+    private PluginService pluginService;
+
+    @MockitoBean
+    private ProbeService probeService;
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
     void shouldDisplayListOfProbes() throws Exception {
@@ -67,12 +69,9 @@ class ProbeControllerTest {
         when(probeService.getProbes()).thenReturn(List.of(probe));
 
         mockMvc.perform(get("/probes"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("probes/listing"))
-            .andExpectAll(
-                model().attributeExists("probes"),
-                model().attribute("probes", hasSize(1))
-            );
+                .andExpect(status().isOk())
+                .andExpect(view().name("probes/listing"))
+                .andExpectAll(model().attributeExists("probes"), model().attribute("probes", hasSize(1)));
 
         verify(probeService).getProbes();
     }
@@ -82,12 +81,10 @@ class ProbeControllerTest {
         when(pluginService.getPluginsCount()).thenReturn(1L);
 
         mockMvc.perform(get("/probes/results"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("probes/results"))
-            .andExpectAll(
-                model().attributeExists("probeResults", "pluginsCount"),
-                model().attribute("pluginsCount", 1L)
-            );
+                .andExpect(status().isOk())
+                .andExpect(view().name("probes/results"))
+                .andExpectAll(
+                        model().attributeExists("probeResults", "pluginsCount"), model().attribute("pluginsCount", 1L));
 
         verify(pluginService).getPluginsCount();
         verify(probeService).getProbesFinalResults();
