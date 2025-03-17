@@ -22,6 +22,7 @@ main_branch_status=$(\
 if [ "${main_branch_status}" != "success" ]; then
     echo "Main branch status is not successful. Please assess."
     gh browse --repo jenkins-infra/plugin-health-scoring --branch main
+    exit 1
 fi
 
 gh repo sync\
