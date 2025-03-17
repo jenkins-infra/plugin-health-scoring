@@ -15,6 +15,15 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	exit 1
 fi
 
+main_branch_status=$(\
+    gh api /repos/jenkins-infra/plugin-health-scoring/commits/main/status\
+    | jq --raw-output ".state"\
+)
+if [ "${main_branch_status}" != "success" ]; then
+    echo "Main branch status is not successful. Please assess."
+    gh browse --repo jenkins-infra/plugin-health-scoring --branch main
+fi
+
 gh repo sync\
     --source jenkins-infra/plugin-health-scoring\
     --branch main
