@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -140,7 +140,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        50),
+                        56),
                 arguments( // Jenkinsfile and dependabot but with open pull request
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -157,7 +157,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        60),
+                        67),
                 arguments( // Jenkinsfile and dependabot with no open pull request
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -174,7 +174,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        70),
+                        78),
                 arguments( // Jenkinsfile and renovate but with open pull request
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -191,7 +191,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        60),
+                        67),
                 arguments( // Jenkinsfile and renovate with no open pull request
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -208,7 +208,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        70),
+                        78),
                 arguments( // Jenkinsfile and CD
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -274,7 +274,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        20),
+                        22),
                 arguments( // Dependabot only with open pull requests
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -291,7 +291,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        10),
+                        11),
                 arguments( // Dependabot with no open pull request and CD
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -325,7 +325,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        20),
+                        22),
                 arguments( // Renovate only with open pull requests
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -342,7 +342,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(
                                         CodeOwnershipProbe.KEY, "No CODEOWNERS file found in plugin repository.", 1)),
-                        10),
+                        11),
                 arguments( // Renovate with no open pull request and CD
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -392,7 +392,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)),
-                        20),
+                        22),
                 arguments( // Codeownership + Jenkinsfile
                         Map.of(
                                 JenkinsfileProbe.KEY,
@@ -408,7 +408,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
                                 CodeOwnershipProbe.KEY,
                                 ProbeResult.success(CodeOwnershipProbe.KEY, "CODEOWNERS file is valid.", 1)),
-                        70),
+                        78),
                 arguments( // Codeownership + Jenkinsfile + CD
                         Map.of(
                                 JenkinsfileProbe.KEY,
