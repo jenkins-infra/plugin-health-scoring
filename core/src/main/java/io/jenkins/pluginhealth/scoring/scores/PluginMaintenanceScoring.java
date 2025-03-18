@@ -278,6 +278,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 6;
+        return 7;
     }
 }
