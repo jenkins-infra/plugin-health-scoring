@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -185,8 +185,10 @@ public class PluginMaintenanceScoring extends Scoring {
                                     100, getWeight(), List.of("JEP-229 is configured on the plugin."));
                             case "Could not find JEP-229 workflow definition." -> new ScoringComponentResult(
                                     0,
-                                    getWeight(),
-                                    List.of("JEP-229 is not configured on the plugin."),
+                                    0,
+                                    List.of(
+                                            "JEP-229 is not configured on the plugin.",
+                                            "This is not mandatory, but can help reduce time between pull requests merge and feature / bugfix availability."),
                                     List.of(new Resolution(
                                             "See how to setup JEP-229 on the plugin.",
                                             "https://www.jenkins.io/doc/developer/publishing/releasing-cd/")));
