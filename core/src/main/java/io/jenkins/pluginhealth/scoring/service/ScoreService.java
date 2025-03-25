@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
@@ -38,11 +39,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ScoreService {
     private final ScoreRepository repository;
-    private final PluginService pluginService;
 
-    public ScoreService(ScoreRepository repository, PluginService pluginService) {
+    public ScoreService(ScoreRepository repository) {
         this.repository = repository;
-        this.pluginService = pluginService;
     }
 
     @Transactional
@@ -51,8 +50,8 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Score> latestScoreFor(String pluginName) {
-        return pluginService.findByName(pluginName).flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
+    public Optional<Score> latestScoreFor(Plugin plugin) {
+        return repository.findFirstByPluginOrderByComputedAtDesc(plugin);
     }
 
     @Transactional(readOnly = true)

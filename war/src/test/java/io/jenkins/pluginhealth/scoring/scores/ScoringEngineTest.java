@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,6 @@ class ScoringEngineTest {
         final Scoring scoringA = mock(Scoring.class);
         final Scoring scoringB = mock(Scoring.class);
 
-        when(plugin.getName()).thenReturn("foo-bar");
         when(scoringA.apply(plugin)).thenReturn(new ScoreResult("scoring-a", 100, .5f, Set.of(), 1));
         when(scoringB.apply(plugin)).thenReturn(new ScoreResult("scoring-b", 0, 1, Set.of(), 1));
 
@@ -101,10 +100,6 @@ class ScoringEngineTest {
 
         final Scoring scoringA = mock(Scoring.class);
         final Scoring scoringB = mock(Scoring.class);
-
-        when(pluginA.getName()).thenReturn("plugin-a");
-        when(pluginB.getName()).thenReturn("plugin-b");
-        when(pluginC.getName()).thenReturn("plugin-c");
 
         when(scoringA.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-a", 100, 0.5f, Set.of(), 1));
         when(scoringB.apply(any(Plugin.class))).thenReturn(new ScoreResult("scoring-b", 75, .75f, Set.of(), 1));
@@ -135,7 +130,6 @@ class ScoringEngineTest {
     void shouldOnlyScorePluginsWithNewerResultThanLatestScore() {
         final Plugin pluginA = mock(Plugin.class);
         final String pluginName = "plugin-a";
-        when(pluginA.getName()).thenReturn(pluginName);
         when(pluginA.getDetails())
                 .thenReturn(Map.of(
                         "foo-bar",
@@ -156,7 +150,7 @@ class ScoringEngineTest {
         when(oldPluginAScore.getDetails()).thenReturn(Set.of(new ScoreResult(scoringAKey, 100, 1, Set.of(), 1)));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA));
-        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(oldPluginAScore));
+        when(scoreService.latestScoreFor(pluginA)).thenReturn(Optional.of(oldPluginAScore));
 
         final ScoringEngine scoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
         final Score score = scoringEngine.runOn(pluginA);
@@ -173,7 +167,6 @@ class ScoringEngineTest {
         final Scoring scoringA = mock(Scoring.class);
         final Score previousScore = mock(Score.class);
 
-        when(plugin.getName()).thenReturn("foo-bar");
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         "foo-bar",
@@ -193,7 +186,7 @@ class ScoringEngineTest {
         when(previousScore.getComputedAt()).thenReturn(ZonedDateTime.now().minusHours(1));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA));
-        when(scoreService.latestScoreFor("foo-bar")).thenReturn(Optional.of(previousScore));
+        when(scoreService.latestScoreFor(plugin)).thenReturn(Optional.of(previousScore));
         when(scoreService.save(any(Score.class))).then(AdditionalAnswers.returnsFirstArg());
 
         final ScoringEngine scoringEngine = new ScoringEngine(scoringService, pluginService, scoreService);
@@ -215,21 +208,13 @@ class ScoringEngineTest {
         final Scoring scoringA = mock(Scoring.class);
         final Scoring scoringB = mock(Scoring.class);
 
-        String pluginName = "plugin";
-        when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails())
-                .thenReturn(Map.of(
-                        "probe-a",
-                        new ProbeResult("probe-a", "", ProbeResult.Status.SUCCESS, now.minusMinutes(10), 1)));
-
         when(scoringA.version()).thenReturn(1);
         when(scoringA.key()).thenReturn("scoring-a");
         when(scoringB.key()).thenReturn("scoring-b");
 
         Score previousScore = mock(Score.class);
         when(previousScore.getDetails()).thenReturn(Set.of(new ScoreResult("scoring-a", 1, 1, Set.of(), 1)));
-        when(previousScore.getComputedAt()).thenReturn(now.minusMinutes(5));
-        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(previousScore));
+        when(scoreService.latestScoreFor(plugin)).thenReturn(Optional.of(previousScore));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
 
@@ -248,13 +233,6 @@ class ScoringEngineTest {
         final Scoring scoringA = mock(Scoring.class);
         final Scoring scoringB = mock(Scoring.class);
 
-        String pluginName = "plugin";
-        when(plugin.getName()).thenReturn(pluginName);
-        when(plugin.getDetails())
-                .thenReturn(Map.of(
-                        "probe-a",
-                        new ProbeResult("probe-a", "", ProbeResult.Status.SUCCESS, now.minusMinutes(10), 1)));
-
         when(scoringA.version()).thenReturn(1);
         when(scoringA.key()).thenReturn("scoring-a");
         when(scoringB.version()).thenReturn(2);
@@ -265,8 +243,7 @@ class ScoringEngineTest {
                 .thenReturn(Set.of(
                         new ScoreResult("scoring-a", 1, 1, Set.of(), 1),
                         new ScoreResult("scoring-b", 1, 1, Set.of(), 1)));
-        when(previousScore.getComputedAt()).thenReturn(now.minusMinutes(5));
-        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(previousScore));
+        when(scoreService.latestScoreFor(plugin)).thenReturn(Optional.of(previousScore));
 
         when(scoringService.getScoringList()).thenReturn(List.of(scoringA, scoringB));
 

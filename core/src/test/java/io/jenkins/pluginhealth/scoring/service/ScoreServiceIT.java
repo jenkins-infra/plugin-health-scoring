@@ -25,11 +25,9 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
@@ -45,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -56,14 +53,11 @@ class ScoreServiceIT extends AbstractDBContainerTest {
     @Autowired
     private ScoreRepository scoreRepository;
 
-    @MockitoBean
-    private PluginService pluginService;
-
     private ScoreService scoreService;
 
     @BeforeEach
     void setup() {
-        scoreService = new ScoreService(scoreRepository, pluginService);
+        scoreService = new ScoreService(scoreRepository);
     }
 
     @Test
@@ -200,8 +194,6 @@ class ScoreServiceIT extends AbstractDBContainerTest {
                 name, new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(5)));
         final Score score = entityManager.persist(new Score(plugin, ZonedDateTime.now()));
 
-        when(pluginService.findByName(name)).thenReturn(Optional.of(plugin));
-
-        assertThat(scoreService.latestScoreFor(name)).contains(score);
+        assertThat(scoreService.latestScoreFor(plugin)).contains(score);
     }
 }

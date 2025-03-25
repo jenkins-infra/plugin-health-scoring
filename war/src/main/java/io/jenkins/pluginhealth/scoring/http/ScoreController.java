@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.http;
 
 import java.util.Map;
 
+import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -42,10 +42,12 @@ import org.springframework.web.servlet.ModelAndView;
 public class ScoreController {
     private final ScoreService scoreService;
     private final ScoringService scoringService;
+    private final PluginService pluginService;
 
-    public ScoreController(ScoreService scoreService, ScoringService scoringService) {
+    public ScoreController(ScoreService scoreService, ScoringService scoringService, PluginService pluginService) {
         this.scoreService = scoreService;
         this.scoringService = scoringService;
+        this.pluginService = pluginService;
     }
 
     @ModelAttribute(name = "module")
@@ -60,12 +62,13 @@ public class ScoreController {
 
     @GetMapping(path = "/{pluginName}")
     public ModelAndView getScoreOf(@PathVariable String pluginName) {
-        return scoreService.latestScoreFor(pluginName)
-            .map(score -> {
-                return new ModelAndView("scores/details", Map.of(
-                    "score", score
-                ));
-            })
-            .orElseGet(() -> new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
+        return pluginService
+                .findByName(pluginName)
+                .flatMap(scoreService::latestScoreFor)
+                .map(score -> {
+                    return new ModelAndView("scores/details", Map.of("score", score));
+                })
+                .orElseGet(() ->
+                        new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
     }
 }

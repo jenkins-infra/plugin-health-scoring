@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +49,7 @@ import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
+import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
@@ -73,6 +74,9 @@ class ScoreControllerTest {
 
     @MockitoBean
     private ScoringService scoringService;
+
+    @MockitoBean
+    private PluginService pluginService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -120,9 +124,10 @@ class ScoreControllerTest {
         final String scoreKey = "score-key";
 
         final Plugin plugin = mock(Plugin.class);
+        final String pluginScm = "this-is-the-url-of-the-plugin-location";
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getDetails()).thenReturn(Map.of(probeKey, ProbeResult.success(probeKey, "message", 1)));
-        when(plugin.getScm()).thenReturn("this-is-the-url-of-the-plugin-location");
+        when(plugin.getScm()).thenReturn(pluginScm);
         when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusHours(1));
         when(plugin.getVersion()).thenReturn(new VersionNumber("1.0"));
 
@@ -131,7 +136,8 @@ class ScoreControllerTest {
         when(score.getValue()).thenReturn(42L);
         when(score.getDetails()).thenReturn(Set.of(new ScoreResult(scoreKey, 42, 1f, Set.of(), 1)));
 
-        when(scoreService.latestScoreFor(pluginName)).thenReturn(Optional.of(score));
+        when(pluginService.findByName(pluginName)).thenReturn(Optional.of(plugin));
+        when(scoreService.latestScoreFor(plugin)).thenReturn(Optional.of(score));
 
         mockMvc.perform(get("/scores/{pluginName}", pluginName))
                 .andExpect(status().isOk())
@@ -146,13 +152,14 @@ class ScoreControllerTest {
                                                 "plugin",
                                                 allOf(
                                                         hasProperty("name", equalTo(pluginName)),
+                                                        hasProperty("scm", equalTo(pluginScm)),
                                                         hasProperty("details", instanceOf(Map.class)))),
                                         hasProperty("details", instanceOf(Collection.class)))));
     }
 
     @Test
     void shouldDisplayErrorWhenPluginUnknown() throws Exception {
-        when(scoreService.latestScoreFor(anyString())).thenReturn(Optional.empty());
+        when(scoreService.latestScoreFor(any(Plugin.class))).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/scores/foo-bar"))
                 .andExpect(status().isNotFound())

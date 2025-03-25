@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,25 +36,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ScoreServiceTest {
-    @Mock private ScoreRepository scoreRepository;
-    @Mock private PluginService pluginService;
+    @Mock
+    private ScoreRepository scoreRepository;
 
     private ScoreService scoreService;
 
     @BeforeEach
     public void setup() {
-        scoreService = new ScoreService(scoreRepository, pluginService);
+        scoreService = new ScoreService(scoreRepository);
     }
 
     @Test
     void shouldBeAbleToComputeScoreStatisticCorrectly() {
-        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(
-            new int[] { 50, 0, 100, 75, 80, 42, 0 }
-        );
+        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {50, 0, 100, 75, 80, 42, 0});
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
-        assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(
-            50, 0, 100, 0, 50, 80
-        ));
+        assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
     }
 }
