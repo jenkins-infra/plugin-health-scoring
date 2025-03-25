@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.ZonedDateTime;
@@ -63,8 +62,7 @@ public final class ScoringEngine {
 
     public void run() {
         LOGGER.info("Start scoring all plugins");
-        pluginService.streamAll()
-            .forEach(this::runOn);
+        pluginService.streamAll().forEach(this::runOn);
         LOGGER.info("Score engine has finished");
     }
 
@@ -73,18 +71,19 @@ public final class ScoringEngine {
             LOGGER.debug("Scoring {}", plugin.getName());
         }
         final Optional<ZonedDateTime> latestProbeResult = plugin.getDetails().values().stream()
-            .map(ProbeResult::timestamp).max(Comparator.naturalOrder());
-        final Optional<Score> latestScore = scoreService.latestScoreFor(plugin.getName());
-        if (latestScore.isPresent() && (latestProbeResult.isEmpty() || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
+                .map(ProbeResult::timestamp)
+                .max(Comparator.naturalOrder());
+        final Optional<Score> latestScore = scoreService.latestScoreFor(plugin);
+        if (latestScore.isPresent()
+                && (latestProbeResult.isEmpty()
+                        || latestProbeResult.get().isBefore(latestScore.get().getComputedAt()))) {
             final Score score = latestScore.get();
             boolean scoringIsSame = scoringService.getScoringList().stream()
-                .allMatch(scoring ->
-                    score.getDetails().stream()
-                        .filter(sr -> sr.key().equals(scoring.key()))
-                        .findFirst()
-                        .map(result -> scoring.version() == result.version())
-                        .orElseGet(() -> false)
-                );
+                    .allMatch(scoring -> score.getDetails().stream()
+                            .filter(sr -> sr.key().equals(scoring.key()))
+                            .findFirst()
+                            .map(result -> scoring.version() == result.version())
+                            .orElseGet(() -> false));
             if (scoringIsSame) {
                 LOGGER.debug("Previous score, computed at {} is still valid.", score.getComputedAt());
                 return score;
@@ -92,38 +91,38 @@ public final class ScoringEngine {
         }
 
         Score score = this.scoringService.getScoringList().stream()
-            .map(scoring -> scoring.apply(plugin))
-            .collect(new Collector<ScoreResult, Score, Score>() {
-                @Override
-                public Supplier<Score> supplier() {
-                    return () -> new Score(plugin, ZonedDateTime.now());
-                }
+                .map(scoring -> scoring.apply(plugin))
+                .collect(new Collector<ScoreResult, Score, Score>() {
+                    @Override
+                    public Supplier<Score> supplier() {
+                        return () -> new Score(plugin, ZonedDateTime.now());
+                    }
 
-                @Override
-                public BiConsumer<Score, ScoreResult> accumulator() {
-                    return Score::addDetail;
-                }
+                    @Override
+                    public BiConsumer<Score, ScoreResult> accumulator() {
+                        return Score::addDetail;
+                    }
 
-                @Override
-                public BinaryOperator<Score> combiner() {
-                    return (score1, score2) -> {
-                        for (ScoreResult res : score2.getDetails()) {
-                            score1.addDetail(res);
-                        }
-                        return score1;
-                    };
-                }
+                    @Override
+                    public BinaryOperator<Score> combiner() {
+                        return (score1, score2) -> {
+                            for (ScoreResult res : score2.getDetails()) {
+                                score1.addDetail(res);
+                            }
+                            return score1;
+                        };
+                    }
 
-                @Override
-                public Function<Score, Score> finisher() {
-                    return Function.identity();
-                }
+                    @Override
+                    public Function<Score, Score> finisher() {
+                        return Function.identity();
+                    }
 
-                @Override
-                public Set<Characteristics> characteristics() {
-                    return EnumSet.of(Characteristics.IDENTITY_FINISH, Characteristics.UNORDERED);
-                }
-            });
+                    @Override
+                    public Set<Characteristics> characteristics() {
+                        return EnumSet.of(Characteristics.IDENTITY_FINISH, Characteristics.UNORDERED);
+                    }
+                });
 
         try {
             return scoreService.save(score);
