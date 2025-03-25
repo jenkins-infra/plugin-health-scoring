@@ -12,7 +12,7 @@
 
     <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
     <script type="application/javascript" data-th-inline="javascript">
-        const distribution = /*[[${distribution}]]*/[]
+        const distribution = /*[[${distribution}]]*/{}
         const statistics = /*[[${statistics}]]*/{}
         if (distribution !== {} && statistics !== {}) {
             const option = {

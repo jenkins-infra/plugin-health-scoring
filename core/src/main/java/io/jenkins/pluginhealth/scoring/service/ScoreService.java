@@ -58,7 +58,7 @@ public class ScoreService {
     @Transactional(readOnly = true)
     public Map<String, Score> getLatestScoresSummaryMap() {
         return repository.findLatestScoreForAllPlugins().stream()
-                .collect(Collectors.toMap(score -> score.getPlugin().getName(), score -> score));
+            .collect(Collectors.toMap(score -> score.getPlugin().getName(), score -> score));
     }
 
     @Transactional(readOnly = true)
@@ -68,12 +68,12 @@ public class ScoreService {
         final int numberOfElement = values.length;
 
         return new ScoreStatistics(
-                Math.round((float) Arrays.stream(values).sum() / numberOfElement),
-                values[0],
-                values[numberOfElement - 1],
-                values[(int) (numberOfElement * .25)],
-                values[(int) (numberOfElement * .5)],
-                values[(int) (numberOfElement * .75)]);
+            Math.round((float) Arrays.stream(values).sum() / numberOfElement),
+            values[0],
+            values[numberOfElement - 1],
+            values[(int) (numberOfElement * .25)],
+            values[(int) (numberOfElement * .5)],
+            values[(int) (numberOfElement * .75)]);
     }
 
     @Transactional
@@ -82,15 +82,16 @@ public class ScoreService {
     }
 
     public record ScoreStatistics(
-            double average, int minimum, int maximum, int firstQuartile, int median, int thirdQuartile) {}
+        double average, int minimum, int maximum, int firstQuartile, int median, int thirdQuartile) {
+    }
 
     @Transactional(readOnly = true)
     public Map<Integer, Long> getScoresDistribution() {
         final Map<Integer, Long> distribution = Arrays.stream(repository.getLatestScoreValueOfEveryPlugin())
-                .boxed()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            .boxed()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         for (int i = 0; i < 100; i++) {
-            distribution.merge(i, distribution.getOrDefault(i, 0L), Long::sum);
+            distribution.merge(i, 0L, Long::sum);
         }
         return distribution;
     }
