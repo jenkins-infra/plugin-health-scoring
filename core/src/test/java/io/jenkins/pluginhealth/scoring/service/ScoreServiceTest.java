@@ -26,6 +26,9 @@ package io.jenkins.pluginhealth.scoring.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,5 +55,25 @@ public class ScoreServiceTest {
 
         final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
         assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
+    }
+
+    @Test
+    void shouldBeAbleToProvideScoreDistribution() {
+        final int[] scores = {50, 0, 100, 75, 80, 42, 0, 12, 43, 87, 98};
+        final Map<Integer, Long> expectedDistribution = new HashMap<>(100);
+        for (int index = 0; index < 100; index += 1) {
+            expectedDistribution.put(index, 0L);
+        }
+        for (int score : scores) {
+            expectedDistribution.merge(score, 1L, Long::sum);
+        }
+
+        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(scores);
+
+        final Map<Integer, Long> scoresDistribution = scoreService.getScoresDistribution();
+        assertThat(scoresDistribution)
+                .hasSize(101) // this to make sure the expectedDistribution filling is not totally incorrect
+                .isEqualTo(expectedDistribution);
+        assertThat(scoresDistribution.values().stream().reduce(0L, Long::sum)).isEqualTo(scores.length);
     }
 }
