@@ -23,6 +23,8 @@
  */
 package io.jenkins.pluginhealth.scoring.http;
 
+import io.jenkins.pluginhealth.scoring.service.ScoreService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -32,6 +34,13 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping(path = "/data")
 public class DataController {
+
+    private final ScoreService scoreService;
+
+    public DataController(ScoreService scoreService) {
+        this.scoreService = scoreService;
+    }
+
     @ModelAttribute(name = "module")
     /* default */ String module() {
         return "data";
@@ -40,6 +49,7 @@ public class DataController {
     @GetMapping(path = {"", "/"})
     public ModelAndView index() {
         final ModelAndView modelAndView = new ModelAndView("data/distribution");
+        modelAndView.addObject("distribution", scoreService.getScoresDistribution());
         return modelAndView;
     }
 }

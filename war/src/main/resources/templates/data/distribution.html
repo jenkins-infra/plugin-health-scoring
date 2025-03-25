@@ -7,9 +7,67 @@
 
 <section data-layout-fragment="content">
     <h1>Data</h1>
+    <div id="distribution-graph" style="width: 100%; height: 75vh">
     </div>
 
     <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
+    <script type="application/javascript" data-th-inline="javascript">
+        const data = /*[[${distribution}]]*/'noValue'
+        const option = {
+            title: {
+                show: true,
+                text: 'Number of plugins per score value',
+            },
+            dataset: {
+                source: [
+                    ['score', 'count'],
+                    ...Object.keys(data).map((key) => [key, data[key]])
+                ]
+            },
+            tooltip: {
+                show: true,
+                trigger: 'axis',
+                formatter: (params) => {
+                    const [{data: [score, count]}] = params;
+                    return `We counted ${count} plugins with a score of ${score}`;
+                },
+                axisPointer: {
+                    type: 'line',
+                    label: {show: false}
+                },
+            },
+            xAxis: {
+                type: 'category',
+                name: 'Score',
+                axisTick: {
+                    alignWithLabel: true
+                },
+                axisPointer: {
+                    snap: true
+                },
+                interval: 10,
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Number of plugins',
+                axisPointer: {
+                    snap: true
+                },
+            },
+            series: [
+                {
+                    type: 'bar',
+                    smooth: true,
+                    encode: {
+                        x: 'score',
+                        y: 'count'
+                    },
+                }
+            ]
+        };
+
+        module["js/chart"].createChart('distribution-graph', option)
+    </script>
 </section>
 
 </body>
