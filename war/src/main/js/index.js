@@ -1,19 +1,8 @@
 import {defineCustomElements} from "ionicons/dist/loader";
-import { DataTable } from "simple-datatables";
 
 defineCustomElements(window, {
   resourcesUrl: '/',
 });
-
-const probesTable = document.getElementById('probes-table');
-if (probesTable !== null) {
-    new DataTable("#probes-table", {
-      perPageSelect: [10, 25, 50],
-      columns: [
-        { select: 1, sortable: false },
-      ]
-    });
-}
 
 const updateCollapseIcon = (container, target) => {
   if (target.classList.contains('show')) {
