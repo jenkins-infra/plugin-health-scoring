@@ -12,61 +12,59 @@
 
     <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
     <script type="application/javascript" data-th-inline="javascript">
-        const data = /*[[${distribution}]]*/'noValue'
-        const option = {
-            title: {
-                show: true,
-                text: 'Number of plugins per score value',
-            },
-            dataset: {
-                source: [
-                    ['score', 'count'],
-                    ...Object.keys(data).map((key) => [key, data[key]])
-                ]
-            },
-            tooltip: {
-                show: true,
-                trigger: 'axis',
-                formatter: (params) => {
-                    const [{data: [score, count]}] = params;
-                    return `We counted ${count} plugins with a score of ${score}`;
+        const distribution = /*[[${distribution}]]*/'noValue'
+        if (distribution !== 'noValue') {
+            const option = {
+                title: {
+                    show: true,
+                    text: 'Number of plugins per score value',
                 },
-                axisPointer: {
-                    type: 'line',
-                    label: {show: false}
+                dataset: {
+                    dimensions: [
+                        {name: 'score', type: 'ordinal'},
+                        {name: 'count'},
+                    ],
+                    source: [...Object.keys(distribution).map((key) => [key, distribution[key]])],
                 },
-            },
-            xAxis: {
-                type: 'category',
-                name: 'Score',
-                axisTick: {
-                    alignWithLabel: true
-                },
-                axisPointer: {
-                    snap: true
-                },
-                interval: 10,
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Number of plugins',
-                axisPointer: {
-                    snap: true
-                },
-            },
-            series: [
-                {
-                    type: 'bar',
-                    smooth: true,
-                    encode: {
-                        x: 'score',
-                        y: 'count'
+                tooltip: {
+                    show: true,
+                    trigger: 'axis',
+                    formatter: (params) => {
+                        const [{data: [score, count]}] = params;
+                        return `We counted ${count} plugins with a score of ${score}`;
                     },
-                }
-            ]
-        };
+                    axisPointer: {
+                        type: 'line',
+                        label: {show: false}
+                    },
+                },
+                xAxis: {
+                    type: 'category',
+                    name: 'Score',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisPointer: {
+                        snap: true
+                    },
+                    interval: 10,
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Number of plugins',
+                    axisPointer: {
+                        snap: true
+                    },
+                },
+                series: [
+                    {
+                        type: 'bar',
+                    }
+                ]
+            };
 
-        module["js/chart"].createChart('distribution-graph', option)
+            module["js/chart"].createChart('distribution-graph', option)
+        }
     </script>
 </section>
 
