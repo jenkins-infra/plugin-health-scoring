@@ -35,6 +35,9 @@ module.exports = (env, argv) => ({
     'js/index': [
       path.join(__dirname, 'src/main/js/index.js'),
     ],
+    'js/collapse': [
+      path.join(__dirname, 'src/main/js/collapse.js'),
+    ],
     'js/table': [
       path.join(__dirname, 'src/main/js/table.js'),
     ],
