@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Data</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Data</h1>
+    <div id="distribution-graph" style="width: 100%; height: 75vh">
+    </div>
+
+    <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
+    <script type="application/javascript" data-th-inline="javascript">
+        const distribution = /*[[${distribution}]]*/{}
+        const statistics = /*[[${statistics}]]*/{}
+        if (distribution !== {} && statistics !== {}) {
+            const option = {
+                title: {
+                    show: true,
+                    text: 'Number of plugins per score value',
+                },
+                dataset: {
+                    dimensions: [
+                        {name: 'score', type: 'ordinal'},
+                        {name: 'count'},
+                    ],
+                    source: [...Object.keys(distribution).map((key) => [key, distribution[key]])],
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'axis',
+                    formatter: (params) => {
+                        const [{data: [score, count]}] = params;
+                        return `We counted ${count} plugins with a score of ${score}`;
+                    },
+                    axisPointer: {
+                        type: 'line',
+                        label: {show: false}
+                    },
+                },
+                xAxis: {
+                    type: 'category',
+                    name: 'Score',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisPointer: {
+                        snap: true
+                    },
+                    interval: 10,
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Number of plugins',
+                    axisPointer: {
+                        snap: true
+                    },
+                },
+                series: [
+                    {
+                        animation: false,
+                        type: 'bar',
+                        markLine: {
+                            lineStyle: {
+                                type: 'dashed',
+                                color: 'red',
+                            },
+                            symbol: 'none',
+                            animation: false,
+                            data: [
+                                [
+                                    {name: 'First quartile', xAxis: statistics.firstQuartile, yAxis: 'min'},
+                                    {xAxis: statistics.firstQuartile, yAxis: 'max'}
+                                ],
+                                [
+                                    {name: 'Median', xAxis: statistics.median, yAxis: 'min'},
+                                    {xAxis: statistics.median, yAxis: 'max'}
+                                ],
+                                [
+                                    {name: 'Third quartile', xAxis: statistics.thirdQuartile, yAxis: 'min'},
+                                    {xAxis: statistics.thirdQuartile, yAxis: 'max'}
+                                ],
+                            ],
+                        },
+                    },
+                ]
+            };
+
+            module["js/chart"].createChart('distribution-graph', option)
+        }
+    </script>
+</section>
+
+</body>
+</html>
