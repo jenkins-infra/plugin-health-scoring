@@ -8,7 +8,7 @@
 <section data-layout-fragment="content">
     <h1>Scores</h1>
     <p>This is the list of elements participating to the global score of a plugin.</p>
-    <table class="table">
+    <table class="table" id="scorings">
         <thead>
         <tr>
             <th>Key</th>
@@ -31,6 +31,16 @@
         </tr>
         </tbody>
     </table>
+
+    <script data-th-src="@{/js/table.js}" type="application/javascript"></script>
+    <link data-th-href="@{/js/table.css}" rel="stylesheet"/>
+    <script defer type="application/javascript">
+        module['js/table'].setupDataTable('#scorings', {
+            paging: false,
+            info: false,
+            ordering: false,
+        });
+    </script>
 </section>
 
 </body>

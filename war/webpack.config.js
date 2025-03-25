@@ -21,14 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* eslint no-undef: 0 */
 
 const path = require('path');
 const MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
 const CopyPlugin = require("copy-webpack-plugin");
-const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => ({
   mode: 'development',
@@ -36,12 +35,28 @@ module.exports = (env, argv) => ({
     'js/index': [
       path.join(__dirname, 'src/main/js/index.js'),
     ],
+    'js/collapse': [
+      path.join(__dirname, 'src/main/js/collapse.js'),
+    ],
+    'js/table': [
+      path.join(__dirname, 'src/main/js/table.js'),
+    ],
     'style': [
       path.join(__dirname, 'src/main/less/index.less'),
     ],
   },
   output: {
+    publicPath: "/",
     path: path.join(__dirname, 'target/classes/static'),
+    filename: '[name].js',
+    library: {
+      name: ["module", "[name]"],
+      type: 'umd',
+    },
+  },
+  resolve: {
+    extensions: [".js"],
+    modules: [path.resolve("node_modules"), path.resolve(__dirname, 'src/main/js')],
   },
   devtool:
     argv.mode === 'production'
@@ -111,12 +126,11 @@ module.exports = (env, argv) => ({
   },
   optimization: {
     splitChunks: {
-      chunks: "async",
       cacheGroups: {
-        commons: {
+        vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: "js/vendors",
-          chunks: "all",
+          name: 'js/vendors',
+          chunks: 'all',
         },
       },
     },
@@ -126,13 +140,11 @@ module.exports = (env, argv) => ({
           preset: [
             'default',
             {
-              svgo: { exclude: true },
+              svgo: {exclude: true},
             },
           ],
         },
       }),
     ],
-  },
-  resolve: {
   },
 });
