@@ -12,8 +12,9 @@
 
     <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
     <script type="application/javascript" data-th-inline="javascript">
-        const distribution = /*[[${distribution}]]*/'noValue'
-        if (distribution !== 'noValue') {
+        const distribution = /*[[${distribution}]]*/[]
+        const statistics = /*[[${statistics}]]*/{}
+        if (distribution !== {} && statistics !== {}) {
             const option = {
                 title: {
                     show: true,
@@ -58,8 +59,31 @@
                 },
                 series: [
                     {
+                        animation: false,
                         type: 'bar',
-                    }
+                        markLine: {
+                            lineStyle: {
+                                type: 'dashed',
+                                color: 'red',
+                            },
+                            symbol: 'none',
+                            animation: false,
+                            data: [
+                                [
+                                    {name: 'First quartile', xAxis: statistics.firstQuartile, yAxis: 'min'},
+                                    {xAxis: statistics.firstQuartile, yAxis: 'max'}
+                                ],
+                                [
+                                    {name: 'Median', xAxis: statistics.median, yAxis: 'min'},
+                                    {xAxis: statistics.median, yAxis: 'max'}
+                                ],
+                                [
+                                    {name: 'Third quartile', xAxis: statistics.thirdQuartile, yAxis: 'min'},
+                                    {xAxis: statistics.thirdQuartile, yAxis: 'max'}
+                                ],
+                            ],
+                        },
+                    },
                 ]
             };
 
