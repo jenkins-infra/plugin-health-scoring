@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
@@ -32,6 +31,7 @@ import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -46,13 +46,13 @@ public class UpdateCenterScheduler {
         this.pluginService = pluginService;
     }
 
+    @Async
     @Scheduled(cron = "${app.cron.update-center}", zone = "UTC")
     public void updateDatabase() throws IOException {
         LOGGER.info("Updating plugins from update-center");
-        updateCenterService.fetchUpdateCenter()
-            .plugins().values().stream()
-            .map(Plugin::toPlugin)
-            .forEach(pluginService::saveOrUpdate);
+        updateCenterService.fetchUpdateCenter().plugins().values().stream()
+                .map(Plugin::toPlugin)
+                .forEach(pluginService::saveOrUpdate);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Plugins updated from update-center");
         }
