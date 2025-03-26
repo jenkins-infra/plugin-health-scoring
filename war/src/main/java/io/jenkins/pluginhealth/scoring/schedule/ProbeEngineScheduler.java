@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +42,7 @@ public class ProbeEngineScheduler {
         this.scoringEngine = scoringEngine;
     }
 
+    @Async
     @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
     public void run() throws IOException {
         probeEngine.run();
