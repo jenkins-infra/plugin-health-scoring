@@ -24,6 +24,7 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -92,5 +93,10 @@ public class ScoreService {
             distribution.merge(i, 0L, Long::sum);
         }
         return distribution;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Plugin> getAllPluginsWithScore(int score) {
+        return repository.getAllPluginsForScore(score);
     }
 }

@@ -196,4 +196,33 @@ class ScoreServiceIT extends AbstractDBContainerTest {
 
         assertThat(scoreService.latestScoreFor(plugin)).contains(score);
     }
+
+    @Test
+    void shouldBeAbleToRetrieveAllPluginsWithSpecificScore() {
+        final Plugin p1 =
+                entityManager.persist(new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now()));
+        final Plugin p2 =
+                entityManager.persist(new Plugin("bar", new VersionNumber("1.1"), "scm", ZonedDateTime.now()));
+        final Plugin p3 =
+                entityManager.persist(new Plugin("zoo", new VersionNumber("1.1"), "scm", ZonedDateTime.now()));
+
+        final Score s1 = new Score(p1, ZonedDateTime.now().minusDays(1));
+        s1.addDetail(new ScoreResult("key-1", 100, 1, Set.of(), 1));
+        final Score s2 = new Score(p1, ZonedDateTime.now());
+        s2.addDetail(new ScoreResult("key-1", 50, 1, Set.of(), 1));
+        final Score s3 = new Score(p2, ZonedDateTime.now());
+        s3.addDetail(new ScoreResult("key-1", 50, 1, Set.of(), 1));
+        s3.addDetail(new ScoreResult("key-2", 100, 1, Set.of(), 1));
+        final Score s4 = new Score(p3, ZonedDateTime.now());
+        s4.addDetail(new ScoreResult("key-1", 75, 1, Set.of(), 1));
+
+        entityManager.persist(s1);
+        entityManager.persist(s2);
+        entityManager.persist(s3);
+        entityManager.persist(s4);
+
+        assertThat(scoreService.getAllPluginsWithScore(100)).isEmpty();
+        assertThat(scoreService.getAllPluginsWithScore(50)).containsExactly(p1);
+        assertThat(scoreService.getAllPluginsWithScore(75)).containsExactlyInAnyOrder(p2, p3);
+    }
 }
