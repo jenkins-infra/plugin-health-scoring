@@ -5,6 +5,7 @@
   background-color: var(--table-background);
   border-radius: calc(var(--table-border-radius));
   border: var(--table-border-width) solid var(--table-background);
+  border-spacing: 0 2px !important;
   margin-bottom: var(--section-padding);
 
   * {
@@ -52,10 +53,6 @@
     & > tr {
       background: var(--table-body-background);
       color: var(--table-body-foreground);
-
-      &:not(:last-of-type) {
-        border-spacing: 0 2px !important;
-      }
 
       & > td {
         vertical-align: middle;
