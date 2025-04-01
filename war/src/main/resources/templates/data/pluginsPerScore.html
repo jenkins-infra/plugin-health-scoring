@@ -12,14 +12,18 @@
             <thead>
             <tr>
                 <th>Name</th>
+                <th>Value</th>
+                <th>Computation timestamp</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr data-th-each="plugin : ${plugins}">
+            <tr data-th-each="score : ${scores}" data-th-with="plugin = ${score.plugin}">
                 <td data-th-text="${plugin.name}"></td>
+                <td data-th-text="${score.value}">
+                <td data-th-text="${#temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC')}"></td>
                 <td>
-                    <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">Score</a>
+                    <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">details</a>
                 </td>
             </tr>
             </tbody>

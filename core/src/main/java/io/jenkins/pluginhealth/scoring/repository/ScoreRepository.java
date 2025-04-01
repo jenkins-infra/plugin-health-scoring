@@ -86,7 +86,11 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             value =
                     """
             SELECT
-                p.id, p.name, p.scm, p.version, p.release_timestamp, p.details
+                s.id,
+                s.plugin_id,
+                s.computed_at,
+                s.details,
+                s.value
             FROM scores s
             LEFT JOIN plugins p on s.plugin_id = p.id
             WHERE s.value = ?1 AND s.id IN (
@@ -97,5 +101,5 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             );
             """,
             nativeQuery = true)
-    List<Plugin> getAllPluginsForScore(int score);
+    List<Score> getAllScoresWithValue(int score);
 }

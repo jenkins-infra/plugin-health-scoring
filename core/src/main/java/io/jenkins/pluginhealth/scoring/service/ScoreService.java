@@ -96,7 +96,7 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<Plugin> getAllPluginsWithScore(int score) {
-        return repository.getAllPluginsForScore(score);
+    public List<Score> getAllPluginsWithScore(int score) {
+        return repository.getAllScoresWithValue(score);
     }
 }

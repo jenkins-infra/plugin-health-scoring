@@ -222,7 +222,7 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         entityManager.persist(s4);
 
         assertThat(scoreService.getAllPluginsWithScore(100)).isEmpty();
-        assertThat(scoreService.getAllPluginsWithScore(50)).containsExactly(p1);
-        assertThat(scoreService.getAllPluginsWithScore(75)).containsExactlyInAnyOrder(p2, p3);
+        assertThat(scoreService.getAllPluginsWithScore(50)).containsExactly(s2);
+        assertThat(scoreService.getAllPluginsWithScore(75)).containsExactlyInAnyOrder(s3, s4);
     }
 }
