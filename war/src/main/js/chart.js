@@ -27,4 +27,5 @@ export function createChart(elementId, option = {}) {
   const chart = echarts.init(chartContainer, null, {renderer: 'svg'});
   chart.setOption(option);
   window.addEventListener('resize', () => chart.resize());
+  return chart;
 }

@@ -15,6 +15,7 @@
         const distribution = /*[[${distribution}]]*/{}
         const statistics = /*[[${statistics}]]*/{}
         if (distribution !== {} && statistics !== {}) {
+            const {firstQuartile, median, thirdQuartile} = statistics
             const option = {
                 title: {
                     show: true,
@@ -70,16 +71,16 @@
                             animation: false,
                             data: [
                                 [
-                                    {name: 'First quartile', xAxis: statistics.firstQuartile, yAxis: 'min'},
-                                    {xAxis: statistics.firstQuartile, yAxis: 'max'}
+                                    {name: 'First quartile', xAxis: firstQuartile, yAxis: 'min'},
+                                    {xAxis: firstQuartile, yAxis: 'max'}
                                 ],
                                 [
-                                    {name: 'Median', xAxis: statistics.median, yAxis: 'min'},
-                                    {xAxis: statistics.median, yAxis: 'max'}
+                                    {name: 'Median', xAxis: median, yAxis: 'min'},
+                                    {xAxis: median, yAxis: 'max'}
                                 ],
                                 [
-                                    {name: 'Third quartile', xAxis: statistics.thirdQuartile, yAxis: 'min'},
-                                    {xAxis: statistics.thirdQuartile, yAxis: 'max'}
+                                    {name: 'Third quartile', xAxis: thirdQuartile, yAxis: 'min'},
+                                    {xAxis: thirdQuartile, yAxis: 'max'}
                                 ],
                             ],
                         },
@@ -87,7 +88,10 @@
                 ]
             };
 
-            module["js/chart"].createChart('distribution-graph', option)
+            const chart = module["js/chart"].createChart('distribution-graph', option)
+            chart.on('click', {seriesName: 'count'}, ({data:[count]}) => {
+                window.open(`/data/pluginsPerScore/${count}`)
+            })
         }
     </script>
 </section>

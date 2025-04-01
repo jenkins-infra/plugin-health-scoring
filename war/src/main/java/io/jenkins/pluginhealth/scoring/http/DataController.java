@@ -28,6 +28,7 @@ import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,6 +52,13 @@ public class DataController {
         final ModelAndView modelAndView = new ModelAndView("data/distribution");
         modelAndView.addObject("distribution", scoreService.getScoresDistribution());
         modelAndView.addObject("statistics", scoreService.getScoresStatistics());
+        return modelAndView;
+    }
+
+    @GetMapping(path = {"/pluginsPerScore/{score}"})
+    public ModelAndView pluginsPerScore(@PathVariable int score) {
+        final ModelAndView modelAndView = new ModelAndView("data/pluginsPerScore");
+        modelAndView.addObject("plugins", scoreService.getAllPluginsWithScore(score));
         return modelAndView;
     }
 }
