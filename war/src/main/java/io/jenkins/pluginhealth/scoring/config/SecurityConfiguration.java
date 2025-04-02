@@ -43,9 +43,9 @@ public class SecurityConfiguration {
                     .requestMatchers(HttpMethod.GET,
                         "/api/scores",
                         "/",
-                        "/probes", "/probes/*",
-                        "/scores", "/scores/*",
-                        "/data", "/data/*",
+                        "/probes", "/probes/**",
+                        "/scores", "/scores/**",
+                        "/data", "/data/**",
                         "/actuator/**"
                     ).permitAll()
                     .anyRequest().authenticated()

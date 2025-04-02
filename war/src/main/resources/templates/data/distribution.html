@@ -15,23 +15,21 @@
         const distribution = /*[[${distribution}]]*/{}
         const statistics = /*[[${statistics}]]*/{}
         if (distribution !== {} && statistics !== {}) {
+            const {firstQuartile, median, thirdQuartile} = statistics
+            const source = [...Object.keys(distribution).flatMap((key) => ({'score': key, 'count': distribution[key]}))]
             const option = {
                 title: {
                     show: true,
                     text: 'Number of plugins per score value',
                 },
                 dataset: {
-                    dimensions: [
-                        {name: 'score', type: 'ordinal'},
-                        {name: 'count'},
-                    ],
-                    source: [...Object.keys(distribution).map((key) => [key, distribution[key]])],
+                    source,
                 },
                 tooltip: {
                     show: true,
                     trigger: 'axis',
                     formatter: (params) => {
-                        const [{data: [score, count]}] = params;
+                        const [{data: {score, count}}] = params;
                         return `We counted ${count} plugins with a score of ${score}`;
                     },
                     axisPointer: {
@@ -48,7 +46,6 @@
                     axisPointer: {
                         snap: true
                     },
-                    interval: 10,
                 },
                 yAxis: {
                     type: 'value',
@@ -59,9 +56,13 @@
                 },
                 series: [
                     {
-                        animation: false,
                         type: 'bar',
+                        animation: false,
                         markLine: {
+                            silent: true,
+                            emphasis: {
+                                disabled: true,
+                            },
                             lineStyle: {
                                 type: 'dashed',
                                 color: 'red',
@@ -70,24 +71,27 @@
                             animation: false,
                             data: [
                                 [
-                                    {name: 'First quartile', xAxis: statistics.firstQuartile, yAxis: 'min'},
-                                    {xAxis: statistics.firstQuartile, yAxis: 'max'}
+                                    {name: 'First quartile', xAxis: firstQuartile, yAxis: 'min'},
+                                    {xAxis: firstQuartile, yAxis: 'max'}
                                 ],
                                 [
-                                    {name: 'Median', xAxis: statistics.median, yAxis: 'min'},
-                                    {xAxis: statistics.median, yAxis: 'max'}
+                                    {name: 'Median', xAxis: median, yAxis: 'min'},
+                                    {xAxis: median, yAxis: 'max'}
                                 ],
                                 [
-                                    {name: 'Third quartile', xAxis: statistics.thirdQuartile, yAxis: 'min'},
-                                    {xAxis: statistics.thirdQuartile, yAxis: 'max'}
+                                    {name: 'Third quartile', xAxis: thirdQuartile, yAxis: 'min'},
+                                    {xAxis: thirdQuartile, yAxis: 'max'}
                                 ],
                             ],
                         },
                     },
-                ]
-            };
+                ],
+            }
 
-            module["js/chart"].createChart('distribution-graph', option)
+            const chart = module["js/chart"].createChart('distribution-graph', option)
+            chart.on('click', ({data: {score}}) => {
+                window.open(`/data/pluginsPerScore/${score}`)
+            })
         }
     </script>
 </section>
