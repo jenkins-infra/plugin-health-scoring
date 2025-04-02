@@ -55,7 +55,7 @@ public class DataController {
         return modelAndView;
     }
 
-    @GetMapping(path = {"/pluginsPerScore/{score}"})
+    @GetMapping(path = "/pluginsPerScore/{score}")
     public ModelAndView pluginsPerScore(@PathVariable int score) {
         final ModelAndView modelAndView = new ModelAndView("data/pluginsPerScore");
         modelAndView.addObject("scores", scoreService.getAllPluginsWithScore(score));
