@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Data</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Data</h1>
+    <div data-th-if="${scores != null}">
+        <table class="table" id="plugins">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Computation timestamp</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-th-each="score : ${scores}" data-th-with="plugin = ${score.plugin}">
+                <td data-th-text="${plugin.name}"></td>
+                <td data-th-text="${score.value}">
+                <td data-th-text="${#temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC')}"></td>
+                <td>
+                    <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">details</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div data-th-if="${distribution != null}" id="distribution-graph" style="width: 100%; height: 75vh"></div>
+
+    <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
+    <script data-th-src="@{/js/table.js}" type="application/javascript"></script>
+    <link data-th-href="@{/js/table.css}" rel="stylesheet"/>
+    <script defer type="application/javascript" data-th-if="${scores != null}">
+        module['js/table'].setupDataTable('#plugins', {
+            perPageSelect: [25, 50, 100],
+        });
+    </script>
+    <script defer type="application/javascript" data-th-inline="javascript" data-th-if="${distribution != null}">
+        const distribution = /*[[${distribution}]]*/{}
+        if (distribution !== {}) {
+            const source = [...Object.keys(distribution).flatMap((scoring) => ({'scoring': scoring, 'count': distribution[scoring]}))]
+            const option = {
+                title: {
+                    show: true,
+                    text: 'Count of plugins failing each scoring',
+                },
+                dataset: {
+                    source,
+                },
+                xAxis: {
+                    type: 'category',
+                    name: 'Scoring',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisPointer: {
+                        snap: true,
+                    },
+                    axisLabel: {
+                        interval: 0,
+                    },
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Number of plugins',
+                    axisPointer: {
+                        snap: true
+                    },
+                },
+                series: [{
+                    type: 'bar',
+                    animation: false,
+                }]
+            }
+            const chart = module["js/chart"].createChart('distribution-graph', option)
+            chart.on('click', ({data: {scoring}}) => {
+                window.open(`/data/pluginsPerScoring/${scoring}`)
+            })
+        }
+    </script>
+</section>
+
+</body>
+</html>
