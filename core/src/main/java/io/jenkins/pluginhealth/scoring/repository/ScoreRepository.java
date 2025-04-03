@@ -101,5 +101,5 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             );
             """,
             nativeQuery = true)
-    List<Score> getAllScoresWithValue(int score);
+    List<Score> getAllLatestScoresWithValue(int score);
 }
