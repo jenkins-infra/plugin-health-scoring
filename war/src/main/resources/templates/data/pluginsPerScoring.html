@@ -7,6 +7,7 @@
 
 <section data-layout-fragment="content">
     <h1>Data</h1>
+    <h2 data-th-if="${selectedScoring != null}" data-th-text="${selectedScoring}"></h2>
     <div data-th-if="${scores != null}">
         <table class="table" id="plugins">
             <thead>
