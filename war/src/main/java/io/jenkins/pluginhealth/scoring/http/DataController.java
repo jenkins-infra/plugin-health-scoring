@@ -23,13 +23,10 @@
  */
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.scores.Scoring;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
 import io.jenkins.pluginhealth.scoring.service.ScoringService;
@@ -76,16 +73,17 @@ public class DataController {
     @GetMapping(path = {"/pluginsPerScoring", "/pluginsPerScoring/", "/pluginsPerScoring/{scoring}"})
     public ModelAndView pluginsPerScoring(@PathVariable(required = false) String scoring) {
         final ModelAndView modelAndView = new ModelAndView("data/pluginsPerScoring");
-        final Set<String> scoringsKey = scoringService.getScoringList().stream().map(Scoring::key).collect(Collectors.toSet());
-        modelAndView.addObject("scorings", scoringsKey);
-        if(scoring != null) {
+        final Set<String> scoringKeys =
+                scoringService.getScoringList().stream().map(Scoring::key).collect(Collectors.toSet());
+        modelAndView.addObject("scorings", scoringKeys);
+        if (scoring != null) {
             modelAndView.addObject("selectedScoring", scoring);
             modelAndView.addObject("scores", scoreService.getAllLatestScoresWithIncompleteScoring(scoring));
         } else {
-            final Map<String, Integer> distribution = scoringsKey.stream().collect(Collectors.toMap(
-                key -> key,
-                key -> scoreService.getAllLatestScoresWithIncompleteScoring(key).size()
-            ));
+            final Map<String, Integer> distribution = scoringKeys.stream()
+                    .collect(Collectors.toMap(key -> key, key -> scoreService
+                            .getAllLatestScoresWithIncompleteScoring(key)
+                            .size()));
             modelAndView.addObject("distribution", distribution);
         }
         return modelAndView;
