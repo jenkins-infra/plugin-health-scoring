@@ -146,8 +146,8 @@ There are a few components that use `@Scheduled` in the app. This can be a pain 
 
 There are 2 classes that use `@Scheduled` in the app:
 
-* `src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java`
-* `src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java`
 
 NOTE: There is actually a third file (`src/main/java/io/jenkins/pluginhealth/scoring/schedule/DeleteOldScoreScheduler.java`), but that doesn't really matter for development.
 
