@@ -149,7 +149,7 @@ There are 2 classes that use `@Scheduled` in the app:
 * `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java`
 * `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java`
 
-NOTE: There is actually a third file (`src/main/java/io/jenkins/pluginhealth/scoring/schedule/DeleteOldScoreScheduler.java`), but that doesn't really matter for development.
+NOTE: There is actually a third file (`war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DeleteOldScoreScheduler.java`), but that doesn't really matter for development.
 
 You have a choice. You can choose to always update the cron value in your `.env` file or while in development, you can change the `@Scheduled` value to something like:
 
