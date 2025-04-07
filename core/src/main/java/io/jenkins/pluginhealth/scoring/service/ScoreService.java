@@ -91,7 +91,7 @@ public class ScoreService {
         final Map<Integer, Long> distribution = Arrays.stream(repository.getLatestScoreValueOfEveryPlugin())
                 .boxed()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i <= 100; i++) {
             distribution.merge(i, 0L, Long::sum);
         }
         return distribution;

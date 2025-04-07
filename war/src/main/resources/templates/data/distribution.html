@@ -13,9 +13,38 @@
     <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
     <script type="application/javascript" data-th-inline="javascript">
         const distribution = /*[[${distribution}]]*/{}
-        const statistics = /*[[${statistics}]]*/{}
-        if (distribution !== {} && statistics !== {}) {
-            const {firstQuartile, median, thirdQuartile} = statistics
+        const statistics = /*[[${statistics}]]*/null
+        if (distribution !== {}) {
+            let markLine = {};
+            if (statistics !== null) {
+                const {firstQuartile, median, thirdQuartile} = statistics
+                markLine = {
+                    silent: true,
+                    emphasis: {
+                        disabled: true,
+                    },
+                    lineStyle: {
+                        type: 'dashed',
+                        color: 'red',
+                    },
+                    symbol: 'none',
+                    animation: false,
+                    data: [
+                        [
+                            {name: 'First quartile', xAxis: firstQuartile, yAxis: 'min'},
+                            {xAxis: firstQuartile, yAxis: 'max'}
+                        ],
+                        [
+                            {name: 'Median', xAxis: median, yAxis: 'min'},
+                            {xAxis: median, yAxis: 'max'}
+                        ],
+                        [
+                            {name: 'Third quartile', xAxis: thirdQuartile, yAxis: 'min'},
+                            {xAxis: thirdQuartile, yAxis: 'max'}
+                        ],
+                    ],
+                }
+            }
             const source = [...Object.keys(distribution).flatMap((key) => ({'score': key, 'count': distribution[key]}))]
             const option = {
                 title: {
@@ -58,32 +87,7 @@
                     {
                         type: 'bar',
                         animation: false,
-                        markLine: {
-                            silent: true,
-                            emphasis: {
-                                disabled: true,
-                            },
-                            lineStyle: {
-                                type: 'dashed',
-                                color: 'red',
-                            },
-                            symbol: 'none',
-                            animation: false,
-                            data: [
-                                [
-                                    {name: 'First quartile', xAxis: firstQuartile, yAxis: 'min'},
-                                    {xAxis: firstQuartile, yAxis: 'max'}
-                                ],
-                                [
-                                    {name: 'Median', xAxis: median, yAxis: 'min'},
-                                    {xAxis: median, yAxis: 'max'}
-                                ],
-                                [
-                                    {name: 'Third quartile', xAxis: thirdQuartile, yAxis: 'min'},
-                                    {xAxis: thirdQuartile, yAxis: 'max'}
-                                ],
-                            ],
-                        },
+                        markLine,
                     },
                 ],
             }

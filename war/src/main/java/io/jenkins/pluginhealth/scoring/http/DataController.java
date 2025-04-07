@@ -51,7 +51,7 @@ public class DataController {
     public ModelAndView index() {
         final ModelAndView modelAndView = new ModelAndView("data/distribution");
         modelAndView.addObject("distribution", scoreService.getScoresDistribution());
-        modelAndView.addObject("statistics", scoreService.getScoresStatistics());
+        modelAndView.addObject("statistics", scoreService.getScoresStatistics().orElse(null));
         return modelAndView;
     }
 
