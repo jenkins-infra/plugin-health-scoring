@@ -62,18 +62,20 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public ScoreStatistics getScoresStatistics() {
+    public Optional<ScoreStatistics> getScoresStatistics() {
         final int[] values = repository.getLatestScoreValueOfEveryPlugin();
         Arrays.sort(values);
         final int numberOfElement = values.length;
 
-        return new ScoreStatistics(
-                Math.round((float) Arrays.stream(values).sum() / numberOfElement),
-                values[0],
-                values[numberOfElement - 1],
-                values[(int) (numberOfElement * .25)],
-                values[(int) (numberOfElement * .5)],
-                values[(int) (numberOfElement * .75)]);
+        return values.length == 0
+                ? Optional.empty()
+                : Optional.of(new ScoreStatistics(
+                        Math.round((float) Arrays.stream(values).sum() / numberOfElement),
+                        values[0],
+                        values[numberOfElement - 1],
+                        values[(int) (numberOfElement * .25)],
+                        values[(int) (numberOfElement * .5)],
+                        values[(int) (numberOfElement * .75)]));
     }
 
     @Transactional
