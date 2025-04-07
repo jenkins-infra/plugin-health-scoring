@@ -76,4 +76,11 @@ public class ScoreServiceTest {
                 .isEqualTo(expectedDistribution);
         assertThat(scoresDistribution.values().stream().reduce(0L, Long::sum)).isEqualTo(scores.length);
     }
+
+    @Test
+    void shouldBeAbleToSurviveEmptyScores() {
+        when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {});
+        final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
+        assertThat(scoresStatistics).isNull();
+    }
 }
