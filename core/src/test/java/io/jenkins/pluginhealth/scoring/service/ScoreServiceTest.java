@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
@@ -53,8 +54,8 @@ public class ScoreServiceTest {
     void shouldBeAbleToComputeScoreStatisticCorrectly() {
         when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {50, 0, 100, 75, 80, 42, 0});
 
-        final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
-        assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
+        final Optional<ScoreService.ScoreStatistics> scoresStatistics = scoreService.getScoresStatistics();
+        assertThat(scoresStatistics).contains(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class ScoreServiceTest {
     @Test
     void shouldBeAbleToSurviveEmptyScores() {
         when(scoreRepository.getLatestScoreValueOfEveryPlugin()).thenReturn(new int[] {});
-        final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
-        assertThat(scoresStatistics).isNull();
+        final Optional<ScoreService.ScoreStatistics> scoresStatistics = scoreService.getScoresStatistics();
+        assertThat(scoresStatistics).isEmpty();
     }
 }
