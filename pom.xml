@@ -223,7 +223,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.22.0</version>
+              <version>10.23.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -239,7 +239,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
           <configuration>
             <classesDirectory>${project.build.outputDirectory}</classesDirectory>
           </configuration>
@@ -263,12 +263,12 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.12</version>
+          <version>0.8.13</version>
           <configuration>
             <formats>
               <format>XML</format>
