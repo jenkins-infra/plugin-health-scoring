@@ -57,6 +57,8 @@ include::.env.example[]
 
 ==== GitHub App
 
+We also need to setup a GitHub application because of the number of API calls that happen from our application back to GitHub. If we didn't setup the GitHub application, we could run into a token exhaustion scenario which causes our app to effectively quit working until more tokens are made available to us to use.
+
 To create the GitHub App, please see link:https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app[]
 
 The application requires the following permissions:
@@ -110,7 +112,7 @@ First remember to run `mvn clean install` at root. Then, at the `war directory`,
 
 [source,bash]
 ----
-mvn spring-boot:run -Dskip.yarn -Dspring.profiles.active=dev
+mvn spring-boot:run -Dskip.yarn -Dspring-boot.run.profiles=dev
 ----
 
 This will start the application.
@@ -137,6 +139,25 @@ If you are using Docker you can connect to the database using the following comm
 ----
 docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
 ----
+
+==== Not using `cron` when doing development
+
+There are a few components that use `@Scheduled` in the app. This can be a pain to work with while doing development:
+
+There are 2 classes that use `@Scheduled` in the app:
+
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java`
+
+NOTE: There is actually a third file (`war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DeleteOldScoreScheduler.java`), but that doesn't really matter for development.
+
+You have a choice. You can choose to always update the cron value in your `.env` file or while in development, you can change the `@Scheduled` value to something like:
+
+`@Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)`
+
+What this means is the initial delay will be 10 seconds, and then after that initial run, it will run every 90 minutes. Tweak the values to whatever you want, but leave the `initialDelay` in so you don't have a race condition on startup.
+
+WARNING: DO NOT COMMIT the `@Scheduled` changes.
 
 == Run the application on Gitpod
 
