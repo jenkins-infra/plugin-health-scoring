@@ -14,6 +14,7 @@
             <tr>
                 <th>Name</th>
                 <th>Value</th>
+                <th>Scorings</th>
                 <th>Computation timestamp</th>
                 <th></th>
             </tr>
@@ -22,7 +23,15 @@
             <tr data-th-each="score : ${scores}" data-th-with="plugin = ${score.plugin}">
                 <td data-th-text="${plugin.name}"></td>
                 <td data-th-text="${score.value}">
-                <td data-th-text="${#temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC')}"></td>
+                <td>
+                    <code data-th-each="scoring: ${score.getDetails()}"
+                          class="label" data-th-classappend="|score--${scoring.value() == 100 ? 'success':'failure'}|">
+                        <span data-th-text="${scoring.key()}"></span>
+                        <ion-icon name="failure" data-th-if="${scoring.value() != 100}"></ion-icon>
+                        <ion-icon name="success" data-th-if="${scoring.value() == 100}"></ion-icon>
+                    </code>
+                </td>
+                <td data-th-text="${{score.computedAt}}"></td>
                 <td>
                     <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">details</a>
                 </td>
