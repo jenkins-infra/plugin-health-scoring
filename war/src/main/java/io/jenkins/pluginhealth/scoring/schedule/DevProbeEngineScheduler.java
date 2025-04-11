@@ -28,6 +28,8 @@ import java.io.IOException;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,6 +38,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("dev")
 public class DevProbeEngineScheduler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DevProbeEngineScheduler.class);
+
     private final ProbeEngine probeEngine;
     private final ScoringEngine scoringEngine;
 
@@ -47,6 +51,9 @@ public class DevProbeEngineScheduler {
     @Async
     @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
     public void run() throws IOException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Loaded via dev profile, so we're using initialDelay and fixedDelay");
+        }
         probeEngine.run();
         scoringEngine.run();
     }
