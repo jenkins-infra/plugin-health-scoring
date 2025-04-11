@@ -51,7 +51,7 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     @Mock
     private UpdateCenterService ucService;
 
-    private UpdateCenterScheduler upScheduler;
+    private DefaultUpdateCenterScheduler upScheduler;
 
     @BeforeEach
     void setupUpdateCenterContent() throws IOException {
@@ -62,7 +62,7 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
                         UpdateCenter.class);
 
         when(ucService.fetchUpdateCenter()).thenReturn(updateCenter);
-        upScheduler = new UpdateCenterScheduler(ucService, new PluginService(pluginRepository));
+        upScheduler = new DefaultUpdateCenterScheduler(ucService, new PluginService(pluginRepository));
     }
 
     @Test
