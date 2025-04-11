@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,29 @@ package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
 
-import io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin;
-import io.jenkins.pluginhealth.scoring.service.PluginService;
-import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
+import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
+import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateCenterScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCenterScheduler.class);
-    private final UpdateCenterService updateCenterService;
-    private final PluginService pluginService;
+@Profile("dev")
+public class DevProbeEngineScheduler {
+    private final ProbeEngine probeEngine;
+    private final ScoringEngine scoringEngine;
 
-    public UpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService) {
-        this.updateCenterService = updateCenterService;
-        this.pluginService = pluginService;
+    public DevProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
+        this.probeEngine = probeEngine;
+        this.scoringEngine = scoringEngine;
     }
 
     @Async
-    @Scheduled(cron = "${app.cron.update-center}", zone = "UTC")
-    public void updateDatabase() throws IOException {
-        LOGGER.info("Updating plugins from update-center");
-        updateCenterService.fetchUpdateCenter().plugins().values().stream()
-                .map(Plugin::toPlugin)
-                .forEach(pluginService::saveOrUpdate);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Plugins updated from update-center");
-        }
+    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
+    public void run() throws IOException {
+        probeEngine.run();
+        scoringEngine.run();
     }
 }

@@ -28,16 +28,18 @@ import java.io.IOException;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProbeEngineScheduler {
+@Profile("default")
+public class DefaultProbeEngineScheduler {
     private final ProbeEngine probeEngine;
     private final ScoringEngine scoringEngine;
 
-    public ProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
+    public DefaultProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
         this.probeEngine = probeEngine;
         this.scoringEngine = scoringEngine;
     }
