@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,50 +38,50 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 
 @JsonTest
 class PluginDocumentationServiceTest {
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldBeAbleToParseAvailableFile() {
-        final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
+        final URL url =
+                PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls.json");
         assertThat(url).isNotNull();
 
         final ApplicationConfiguration config = new ApplicationConfiguration(
-            new ApplicationConfiguration.Jenkins("foo", url.toString()),
-            new ApplicationConfiguration.GitHub("foo", null, "bar")
-        );
+                new ApplicationConfiguration.Jenkins("foo", url.toString()),
+                new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
         final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
-            .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
-            .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
+                .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
+                .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
     }
 
     @Test
     void shouldBeAbleToParseFileWithNullValue() {
-        final URL url = PluginDocumentationService.class.getResource("/documentation-urls/plugin-documentation-urls-with-nulls.json");
+        final URL url = PluginDocumentationService.class.getResource(
+                "/documentation-urls/plugin-documentation-urls-with-nulls.json");
         assertThat(url).isNotNull();
 
         final ApplicationConfiguration config = new ApplicationConfiguration(
-            new ApplicationConfiguration.Jenkins("foo", url.toString()),
-            new ApplicationConfiguration.GitHub("foo", null, "bar")
-        );
+                new ApplicationConfiguration.Jenkins("foo", url.toString()),
+                new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
         final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
-            .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
-            .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
+                .contains(entry("foo", "https://wiki.jenkins-ci.org/display/JENKINS/foo+plugin"))
+                .contains(entry("bar", "https://github.com/jenkinsci/bar-plugin"));
     }
 
     @Test
     void shouldSurviveIncorrectlyConfiguredDocumentationURL() {
         final ApplicationConfiguration config = new ApplicationConfiguration(
-            new ApplicationConfiguration.Jenkins("foo", "this-is-not-a-correct-url"),
-            new ApplicationConfiguration.GitHub("foo", null, "bar")
-        );
+                new ApplicationConfiguration.Jenkins("foo", "https://this-is-not-a-correct-url"),
+                new ApplicationConfiguration.GitHub("foo", null, "bar"));
         final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
