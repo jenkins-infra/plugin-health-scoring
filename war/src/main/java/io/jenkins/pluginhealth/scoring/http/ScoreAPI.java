@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -86,7 +86,8 @@ public class ScoreAPI {
         return bodyBuilder.body(new ScoreReport(plugins, scoreService.getScoresStatistics()));
     }
 
-    public record ScoreReport(Map<String, PluginScoreSummary> plugins, ScoreService.ScoreStatistics statistics) {}
+    public record ScoreReport(
+            Map<String, PluginScoreSummary> plugins, Optional<ScoreService.ScoreStatistics> statistics) {}
 
     private record PluginScoreSummary(long value, ZonedDateTime date, Map<String, PluginScoreDetail> details) {}
 
