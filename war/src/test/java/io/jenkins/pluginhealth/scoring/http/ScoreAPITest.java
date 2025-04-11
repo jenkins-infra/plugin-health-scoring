@@ -36,6 +36,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.config.SecurityConfiguration;
@@ -119,7 +120,7 @@ class ScoreAPITest {
                         "plugin-1", scoreP1,
                         "plugin-2", scoreP2));
         when(scoreService.getScoresStatistics())
-                .thenReturn(new ScoreService.ScoreStatistics(87.5, 50, 100, 100, 100, 100));
+                .thenReturn(Optional.of(new ScoreService.ScoreStatistics(87.5, 50, 100, 100, 100, 100)));
 
         // @formatter:off
         mockMvc.perform(get("/api/scores"))
@@ -253,5 +254,24 @@ class ScoreAPITest {
                         status().isOk(),
                         header().string("ETag", equalTo("\"%s\"".formatted(newScoreComputedAt.toEpochSecond()))),
                         content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoScores() throws Exception {
+        when(scoreService.getLatestScoresSummaryMap()).thenReturn(Map.of());
+        when(scoreService.getScoresStatistics()).thenReturn(Optional.empty());
+
+        // @formatter:off
+        mockMvc.perform(get("/api/scores"))
+            .andExpectAll(
+                status().isOk(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                content().json("""
+                    {
+                    }
+                    """
+                )
+            );
+        // @formatter:on
     }
 }

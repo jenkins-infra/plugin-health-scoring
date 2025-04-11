@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
@@ -182,9 +183,9 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         Set.of(p1s, p1sOld, p2s, p2sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(9);
 
-        final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
+        final Optional<ScoreService.ScoreStatistics> scoresStatistics = scoreService.getScoresStatistics();
 
-        assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
+        assertThat(scoresStatistics).contains(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
     }
 
     @Test
