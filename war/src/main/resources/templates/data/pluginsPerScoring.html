@@ -16,7 +16,7 @@
                 <th>Value</th>
                 <th>Scorings</th>
                 <th>Computation timestamp</th>
-                <th></th>
+                <th>Details</th>
             </tr>
             </thead>
             <tbody>
@@ -33,7 +33,9 @@
                 </td>
                 <td data-th-text="${{score.computedAt}}"></td>
                 <td>
-                    <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">details</a>
+                    <a data-th-href="|/scores/${plugin.name}|" target="_blank">
+                        <ion-icon name="eye-outline"></ion-icon>
+                    </a>
                 </td>
             </tr>
             </tbody>
