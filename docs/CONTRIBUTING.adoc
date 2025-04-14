@@ -142,22 +142,21 @@ docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name
 
 ==== Not using `cron` when doing development
 
-There are a few components that use `@Scheduled` in the app. This can be a pain to work with while doing development:
+There are a few components that use `cron` inside `@Scheduled` in the app. This is a pain to work with when doing development.
 
-There are 2 classes that use `@Scheduled` in the app:
+Therefore, we actually have 2 versions of these schedules:
 
-* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java`
-* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultUpdateCenterScheduler.java`
 
-NOTE: There is actually a third file (`war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DeleteOldScoreScheduler.java`), but that doesn't really matter for development.
+and 
 
-You have a choice. You can choose to always update the cron value in your `.env` file or while in development, you can change the `@Scheduled` value to something like:
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DevProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DevUpdateCenterScheduler.java`
 
-`@Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)`
+The `default` versions use `cron`. However, the `dev` versions use a combination of `initialDelay` and `fixedDelay`. 
 
-What this means is the initial delay will be 10 seconds, and then after that initial run, it will run every 90 minutes. Tweak the values to whatever you want, but leave the `initialDelay` in so you don't have a race condition on startup.
-
-WARNING: DO NOT COMMIT the `@Scheduled` changes.
+Depending on how you start the application will determine which schedules start. If you start with `-Dspring-boot.run.profiles=dev`, then the `Dev*` versions will start. Otherwise the `Default*` versions will start.
 
 == Run the application on Gitpod
 
