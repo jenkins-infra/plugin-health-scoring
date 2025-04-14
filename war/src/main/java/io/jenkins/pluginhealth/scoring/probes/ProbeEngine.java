@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -98,41 +98,31 @@ public final class ProbeEngine {
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter, Map<String, String> pluginDocumentationUrl) {
-        final ProbeContext probeContext;
-        try {
-            probeContext = probeService.getProbeContext(plugin, updateCenter);
-        } catch (IOException ex) {
-            LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
-            return;
-        }
+        try (final ProbeContext probeContext = probeService.getProbeContext(plugin, updateCenter)) {
+            probeContext.setGitHub(gitHub);
+            probeContext.setPluginDocumentationLinks(pluginDocumentationUrl);
+            probeContext.cloneRepository();
 
-        probeContext.setGitHub(gitHub);
-        probeContext.setPluginDocumentationLinks(pluginDocumentationUrl);
-        probeContext.cloneRepository();
-
-        probeService.getProbes().forEach(probe -> {
-            try {
-                final ProbeResult result = probe.apply(plugin, probeContext);
-                plugin.addDetails(result);
-                if (ProbeResult.Status.ERROR.equals(result.status())) {
-                    LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
-                    LOGGER.info(result.message());
+            probeService.getProbes().forEach(probe -> {
+                try {
+                    final ProbeResult result = probe.apply(plugin, probeContext);
+                    plugin.addDetails(result);
+                    if (ProbeResult.Status.ERROR.equals(result.status())) {
+                        LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
+                        LOGGER.info(result.message());
+                    }
+                } catch (Throwable t) {
+                    LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
                 }
-            } catch (Throwable t) {
-                LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);
+            });
+
+            try {
+                pluginService.saveOrUpdate(plugin);
+            } catch (Throwable e) {
+                LOGGER.error("Could not save result of probe engine for plugin {}", plugin.getName(), e);
             }
-        });
-
-        try {
-            pluginService.saveOrUpdate(plugin);
-        } catch (Throwable e) {
-            LOGGER.error("Could not save result of probe engine for plugin {}", plugin.getName(), e);
-        }
-
-        try {
-            probeContext.cleanUp();
-        } catch (IOException ex) {
-            LOGGER.error("Failed to cleanup {} for {}", probeContext.getScmRepository(), plugin.getName(), ex);
+        } catch (Exception ex) {
+            LOGGER.error("Cannot create temporary plugin for {}", plugin.getName(), ex);
         }
     }
 }
