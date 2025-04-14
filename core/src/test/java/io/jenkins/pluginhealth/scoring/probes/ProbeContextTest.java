@@ -42,7 +42,7 @@ public class ProbeContextTest {
 
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-client-plugin");
 
-        try (final ProbeContext ctx = new ProbeContext(plugin, uc)) {
+        try (ProbeContext ctx = new ProbeContext(plugin, uc)) {
             assertThat(ctx.getRepositoryName()).isEqualTo(Optional.of("jenkinsci/git-client-plugin"));
         }
     }

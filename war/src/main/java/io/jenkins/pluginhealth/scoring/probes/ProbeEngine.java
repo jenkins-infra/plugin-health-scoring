@@ -98,7 +98,7 @@ public final class ProbeEngine {
     }
 
     private void runOn(Plugin plugin, UpdateCenter updateCenter, Map<String, String> pluginDocumentationUrl) {
-        try (final ProbeContext probeContext = probeService.getProbeContext(plugin, updateCenter)) {
+        try (ProbeContext probeContext = probeService.getProbeContext(plugin, updateCenter)) {
             probeContext.setGitHub(gitHub);
             probeContext.setPluginDocumentationLinks(pluginDocumentationUrl);
             probeContext.cloneRepository();
