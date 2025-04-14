@@ -51,9 +51,6 @@ public class DevProbeEngineScheduler {
     @Async
     @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
     public void run() throws IOException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Loaded via dev profile, so we're using initialDelay and fixedDelay");
-        }
         probeEngine.run();
         scoringEngine.run();
     }

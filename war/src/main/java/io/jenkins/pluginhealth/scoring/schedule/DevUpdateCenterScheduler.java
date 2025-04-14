@@ -51,9 +51,6 @@ public class DevUpdateCenterScheduler {
     @Async
     @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
     public void updateDatabase() throws IOException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Loaded via dev profile, so we're using initialDelay and fixedDelay");
-        }
         LOGGER.info("Updating plugins from update-center");
         updateCenterService.fetchUpdateCenter().plugins().values().stream()
                 .map(Plugin::toPlugin)
