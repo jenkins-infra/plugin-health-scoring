@@ -80,10 +80,8 @@ public class ProbeService {
 
     private long getProbesRawResultsFromDatabase(String probeID, boolean valid) {
         return switch (probeID) {
-            case UpForAdoptionProbe.KEY,
-                    KnownSecurityVulnerabilityProbe.KEY,
-                    DeprecatedPluginProbe.KEY -> pluginRepository.getProbeRawResult(
-                    probeID, valid ? "FAILURE" : "SUCCESS");
+            case UpForAdoptionProbe.KEY, KnownSecurityVulnerabilityProbe.KEY, DeprecatedPluginProbe.KEY ->
+                pluginRepository.getProbeRawResult(probeID, valid ? "FAILURE" : "SUCCESS");
             default -> pluginRepository.getProbeRawResult(probeID, valid ? "SUCCESS" : "FAILURE");
         };
     }
