@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProbeContext {
+public class ProbeContext implements AutoCloseable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProbeContext.class);
 
     private final Plugin plugin;
@@ -140,7 +140,8 @@ public class ProbeContext {
         this.scmFolderPath = scmFolderPath;
     }
 
-    /* default */ void cleanUp() throws IOException {
+    @Override
+    public void close() throws Exception {
         if (scmRepository != null) {
             try (Stream<Path> paths = Files.walk(this.scmRepository)) {
                 paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
