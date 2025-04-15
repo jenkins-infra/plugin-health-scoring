@@ -57,6 +57,8 @@ include::.env.example[]
 
 ==== GitHub App
 
+We also need to setup a GitHub application because of the number of API calls that happen from our application back to GitHub. If we didn't setup the GitHub application, we could run into a token exhaustion scenario which causes our app to effectively quit working until more tokens are made available to us to use.
+
 To create the GitHub App, please see link:https://docs.github.com/en/developers/apps/building-github-apps/creating-a-github-app[]
 
 The application requires the following permissions:
@@ -110,7 +112,7 @@ First remember to run `mvn clean install` at root. Then, at the `war directory`,
 
 [source,bash]
 ----
-mvn spring-boot:run -Dskip.yarn -Dspring.profiles.active=dev
+mvn spring-boot:run -Dskip.yarn -Dspring-boot.run.profiles=dev
 ----
 
 This will start the application.
@@ -137,6 +139,24 @@ If you are using Docker you can connect to the database using the following comm
 ----
 docker container exec -it plugin-health-scoring-db-1 psql -U <postgres-user-name>
 ----
+
+==== Not using `cron` when doing development
+
+There are a few components that use `cron` inside `@Scheduled` in the app. This is a pain to work with when doing development.
+
+Therefore, we actually have 2 versions of these schedules:
+
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultUpdateCenterScheduler.java`
+
+and 
+
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DevProbeEngineScheduler.java`
+* `war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DevUpdateCenterScheduler.java`
+
+The `default` versions use `cron`. However, the `dev` versions use a combination of `initialDelay` and `fixedDelay`. 
+
+Depending on how you start the application will determine which schedules start. If you start with `-Dspring-boot.run.profiles=dev`, then the `Dev*` versions will start. Otherwise the `Default*` versions will start.
 
 == Run the application on Gitpod
 
