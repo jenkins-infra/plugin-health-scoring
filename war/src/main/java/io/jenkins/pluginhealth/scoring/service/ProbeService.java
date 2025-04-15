@@ -86,7 +86,7 @@ public class ProbeService {
         };
     }
 
-    public ProbeContext getProbeContext(Plugin plugin, UpdateCenter updateCenter) throws Exception {
+    public ProbeContext getProbeContext(Plugin plugin, UpdateCenter updateCenter) {
         return new ProbeContext(plugin, updateCenter);
     }
 
