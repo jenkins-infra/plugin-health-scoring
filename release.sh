@@ -31,7 +31,7 @@ gh repo sync\
 git switch main
 
 draft_releases=$(\
-    gh release list --json tagName,isDraft\
+    gh release list --repo jenkins-infra/plugin-health-scoring --json tagName,isDraft\
     | jq '[.[] | select(.isDraft == true)]'\
 )
 
@@ -86,6 +86,7 @@ gh release edit "${gh_draft_tag}"\
     --tag "${release_tag}"\
     --title="${release_title}"\
     --draft=false\
-    --latest
+    --latest\
+    --repo jenkins-infra/plugin-health-scoring 
 
 mvn -q release:clean
