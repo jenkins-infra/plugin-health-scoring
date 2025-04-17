@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,7 +49,7 @@ public class DevUpdateCenterScheduler {
     }
 
     @Async
-    //    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 30)
+    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 30)
     public void updateDatabase() throws IOException {
         LOGGER.info("Updating plugins from update-center");
         updateCenterService.fetchUpdateCenter().plugins().values().stream()
