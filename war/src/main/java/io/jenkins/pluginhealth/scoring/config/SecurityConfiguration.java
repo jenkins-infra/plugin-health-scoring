@@ -25,7 +25,7 @@ package io.jenkins.pluginhealth.scoring.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,23 +34,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain authorizedFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+        String [] allowedPaths = {
+            "/js/**",
+            "/style.css",
+            "/svg/**",
+            "/",
+            "/actuator/health/**",
+            "/api/scores",
+            "/data/**",
+            "/probes/**",
+            "/scores/**"
+        };
+        http
+            .securityMatcher(allowedPaths)
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().permitAll()
+            );
+        // @formatter:on
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .authorizeHttpRequests(request ->
-                request
-                    .requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*").permitAll()
-                    .requestMatchers(HttpMethod.GET,
-                        "/api/scores",
-                        "/",
-                        "/probes", "/probes/**",
-                        "/scores", "/scores/**",
-                        "/data", "/data/**",
-                        "/actuator/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().denyAll()
             );
-        //@formatter:on
+        // @formatter:on
         return http.build();
     }
 }
