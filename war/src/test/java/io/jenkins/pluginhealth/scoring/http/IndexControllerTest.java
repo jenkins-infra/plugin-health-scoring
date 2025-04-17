@@ -26,15 +26,14 @@ package io.jenkins.pluginhealth.scoring.http;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,10 +74,8 @@ public class IndexControllerTest {
 
     @Test
     void shouldRequireCsrf() throws Exception {
-        mockMvc.perform(post("/"))
-            .andExpect(status().isForbidden());
-        mockMvc.perform(post("/").with(csrf().useInvalidToken()))
-            .andExpect(status().isForbidden());
+        mockMvc.perform(post("/")).andExpect(status().isForbidden());
+        mockMvc.perform(post("/").with(csrf().useInvalidToken())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -88,8 +85,8 @@ public class IndexControllerTest {
         when(pluginService.search("mailer")).thenReturn(List.of(plugin));
 
         mockMvc.perform(post("/").with(csrf()).formField("search", "mailer"))
-            .andExpect(status().is3xxRedirection())
-            .andExpect(redirectedUrl("/scores/mailer"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/scores/mailer"));
     }
 
     @Test
@@ -101,9 +98,9 @@ public class IndexControllerTest {
         when(pluginService.search("ma")).thenReturn(expectedResult);
 
         mockMvc.perform(post("/").with(csrf()).formField("search", "ma"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("index"))
-            .andExpect(model().attribute("results", expectedResult));
+                .andExpect(status().isOk())
+                .andExpect(view().name("index"))
+                .andExpect(model().attribute("results", expectedResult));
     }
 
     @Test

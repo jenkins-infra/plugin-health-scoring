@@ -35,7 +35,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,7 +68,8 @@ public class IndexController {
     public ModelAndView search(@RequestParam SearchRequest search) {
         final List<Plugin> results = pluginService.search(search.query());
         if (results.isEmpty()) {
-            final ModelAndView modelAndView = new ModelAndView("index", Map.of("error", "No plugin found with query '" + search.query() + "'"));
+            final ModelAndView modelAndView =
+                    new ModelAndView("index", Map.of("error", "No plugin found with query '" + search.query() + "'"));
             modelAndView.setStatus(HttpStatus.NOT_FOUND);
             return modelAndView;
         } else if (results.size() == 1) {
