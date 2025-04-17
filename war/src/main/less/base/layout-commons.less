@@ -54,12 +54,67 @@ main {
 
   & > section {
     width: 90%;
+    height: 100%;
     padding: .75rem 0;
+    display: flex;
+    flex-direction: column;
   }
 }
 
 .grow {
   flex-grow: 1;
+}
+
+.search-box {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .error {
+    color: var(--danger);
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0;
+    font-weight: 700;
+  }
+
+  form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: grid;
+      pointer-events: none;
+      bottom: 0;
+      aspect-ratio: unset;
+      width: 2.8rem;
+
+      ion-icon {
+        grid-column-start: 1;
+        grid-row-start: 1;
+        height: 1rem;
+        max-height: 1rem;
+        max-width: 1rem;
+        place-self: center center;
+        transition: var(--standard-transition);
+        width: 1rem;
+      }
+    }
+
+    input {
+      border: 1.5px solid var(--medium-grey);
+      border-radius: 10px;
+      min-height: 2.375rem;
+      padding-left: 2.6rem;
+    }
+  }
 }
 
 code.label {

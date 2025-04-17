@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -43,14 +43,15 @@ public class PluginService {
 
     @Transactional
     public void saveOrUpdate(Plugin plugin) {
-        pluginRepository.findByName(plugin.getName())
-            .map(pluginFromDatabase -> pluginFromDatabase
-                .setScm(plugin.getScm())
-                .setReleaseTimestamp(plugin.getReleaseTimestamp())
-                .setVersion(plugin.getVersion())
-                .addDetails(plugin.getDetails()))
-            .map(pluginRepository::save)
-            .orElseGet(() -> pluginRepository.save(plugin));
+        pluginRepository
+                .findByName(plugin.getName())
+                .map(pluginFromDatabase -> pluginFromDatabase
+                        .setScm(plugin.getScm())
+                        .setReleaseTimestamp(plugin.getReleaseTimestamp())
+                        .setVersion(plugin.getVersion())
+                        .addDetails(plugin.getDetails()))
+                .map(pluginRepository::save)
+                .orElseGet(() -> pluginRepository.save(plugin));
     }
 
     @Transactional(readOnly = true)
@@ -66,5 +67,9 @@ public class PluginService {
     @Transactional(readOnly = true)
     public Optional<Plugin> findByName(String pluginName) {
         return pluginRepository.findByName(pluginName);
+    }
+
+    public List<Plugin> search(String query) {
+        return pluginRepository.searchPluginsByNameContainingIgnoreCase(query);
     }
 }

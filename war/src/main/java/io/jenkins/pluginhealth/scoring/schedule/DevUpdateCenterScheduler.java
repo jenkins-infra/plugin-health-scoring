@@ -49,7 +49,7 @@ public class DevUpdateCenterScheduler {
     }
 
     @Async
-    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
+    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 30)
     public void updateDatabase() throws IOException {
         LOGGER.info("Updating plugins from update-center");
         updateCenterService.fetchUpdateCenter().plugins().values().stream()

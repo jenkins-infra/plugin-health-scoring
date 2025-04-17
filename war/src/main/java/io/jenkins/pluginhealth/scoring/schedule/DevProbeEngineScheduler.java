@@ -49,7 +49,7 @@ public class DevProbeEngineScheduler {
     }
 
     @Async
-    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 90 * 1)
+    @Scheduled(initialDelay = 20 * 1000 /* 20 secs after startup */, fixedDelay = 1000 * 60 * 90)
     public void run() throws IOException {
         probeEngine.run();
         scoringEngine.run();
