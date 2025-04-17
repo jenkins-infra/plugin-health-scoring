@@ -46,7 +46,7 @@ public class SecurityConfiguration {
             "/api/scores",
             "/data/**",
             "/probes/**",
-            "/scores/**"
+            "/scores/**",
         };
         http
             .securityMatcher(allowedPaths)
