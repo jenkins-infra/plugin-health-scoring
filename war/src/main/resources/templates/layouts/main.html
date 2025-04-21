@@ -17,9 +17,13 @@
 <body id="app">
 
 <nav id="page-navbar" class="navbar">
+    <a href="" data-th-href="@{/}" class="page-navbar__item"
+       data-th-classappend="${module == 'index' ? 'page-navbar__item-selected' : ''}">
+        <ion-icon name="home"></ion-icon>
+    </a>
     <a href="" data-th-href="@{/probes}" class="page-navbar__item"
        data-th-classappend="${module == 'probes' ? 'page-navbar__item-selected' : ''}">
-        <ion-icon name="home"></ion-icon>
+        <ion-icon name="probe"></ion-icon>
     </a>
     <a href="" data-th-href="@{/scores}" class="page-navbar__item"
        data-th-classappend="${module == 'scores' ? 'page-navbar__item-selected' : ''}">
@@ -27,7 +31,7 @@
     </a>
     <a href="" data-th-href="@{/data}" class="page-navbar__item"
        data-th-classappend="${module == 'data' ? 'page-navbar__item-selected' : ''}">
-        <ion-icon name="analytics-outline"></ion-icon>
+        <ion-icon name="bar-chart"></ion-icon>
     </a>
 </nav>
 <main id="page-content">

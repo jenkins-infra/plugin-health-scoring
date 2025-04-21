@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -37,13 +37,15 @@ public interface PluginRepository extends JpaRepository<Plugin, Long> {
     Optional<Plugin> findByName(String name);
 
     @Query(
-        value = """
+            value =
+                    """
             SELECT count(id)
             FROM plugins
             WHERE
               details -> ?1 ->> 'status' = ?2
             """,
-        nativeQuery = true
-    )
+            nativeQuery = true)
     long getProbeRawResult(String probeID, String status);
+
+    List<Plugin> searchPluginsByNameContainingIgnoreCase(String query);
 }
