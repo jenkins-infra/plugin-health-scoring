@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Index</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <div class="search-box">
+        <h1>Plugin Health Scoring</h1>
+        <div>
+            <div data-th-if="${error != null}" class="error" data-th-text="${error}">
+            </div>
+            <form action="/" method="post">
+                <label for="search">
+                    <ion-icon name="search"></ion-icon>
+                </label>
+                <input type="search" id="search" name="search" placeholder="Search" data-th-value="${search}"/>
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
+            </form>
+        </div>
+        <div data-th-if="${results != null}">
+            <table id="search-result">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th data-sortable="false"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr data-th-each="plugin : ${results}">
+                    <td data-th-text="${plugin.getName()}"></td>
+                    <td>
+                        <a data-th-href="|/scores/${plugin.getName()}|">details</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <script data-th-src="@{/js/table.js}" type="application/javascript"></script>
+            <link data-th-href="@{/js/table.css}" rel="stylesheet"/>
+            <script defer type="application/javascript">
+                module['js/table'].setupDataTable('#search-result', {
+                });
+            </script>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
