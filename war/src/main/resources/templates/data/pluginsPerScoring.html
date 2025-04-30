@@ -6,8 +6,11 @@
 <body>
 
 <section data-layout-fragment="content">
-    <h1>Data</h1>
-    <h2 data-th-if="${selectedScoring != null}" data-th-text="${selectedScoring}"></h2>
+    <h1>
+        <a href="/data">Data</a> /
+        <span data-th-if="${selectedScoring != null}" ><a href="/data/pluginsPerScoring">Per scoring</a> / <span data-th-text="${selectedScoring}"></span></span>
+        <span data-th-else>Per scoring</span>
+    </h1>
     <div data-th-if="${scores != null}">
         <table class="table" id="plugins">
             <thead>
