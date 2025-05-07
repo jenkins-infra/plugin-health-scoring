@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "echarts": "5.6.0",
-    "ionicons": "7.4.0",
+    "ionicons": "8.0.8",
     "simple-datatables": "10.0.0"
   },
   "browserslist": [
