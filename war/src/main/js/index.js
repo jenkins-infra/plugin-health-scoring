@@ -1,4 +1,4 @@
-import {defineCustomElements} from "ionicons/dist/loader";
+import {defineCustomElements} from "ionicons/loader";
 
 defineCustomElements(window, {
   resourcesUrl: '/',
