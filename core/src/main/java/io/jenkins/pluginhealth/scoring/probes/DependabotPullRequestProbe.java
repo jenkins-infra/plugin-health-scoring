@@ -107,6 +107,6 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }
