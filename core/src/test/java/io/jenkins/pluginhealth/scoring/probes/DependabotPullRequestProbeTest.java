@@ -98,14 +98,9 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHLabel dependenciesLabel = mock(GHLabel.class);
         when(dependenciesLabel.getName()).thenReturn("dependencies");
 
-        final Date thirtyDaysAgo = getThirtyDaysAgoAsDate();
-
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
-        doReturn(thirtyDaysAgo).when(pr_1).getCreatedAt();
         final GHPullRequest pr_2 = mock(GHPullRequest.class);
-        doReturn(thirtyDaysAgo).when(pr_2).getCreatedAt();
         final GHPullRequest pr_3 = mock(GHPullRequest.class);
-        doReturn(thirtyDaysAgo).when(pr_3).getCreatedAt();
         when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3));
 
         final DependabotPullRequestProbe probe = getSpy();
@@ -141,13 +136,16 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(pr_1.getLabels()).thenReturn(List.of(dependenciesLabel));
         doReturn(ninetyOneDaysAgo).when(pr_1).getCreatedAt();
         final GHPullRequest pr_2 = mock(GHPullRequest.class);
+        doReturn(List.of(dependenciesLabel)).when(pr_2).getLabels();
         doReturn(thirtyDaysAgo).when(pr_2).getCreatedAt();
         final GHPullRequest pr_3 = mock(GHPullRequest.class);
         when(pr_3.getLabels()).thenReturn(List.of(dependenciesLabel));
         doReturn(ninetyOneDaysAgo).when(pr_3).getCreatedAt();
         final GHPullRequest pr_4 = mock(GHPullRequest.class);
+        doReturn(List.of(dependenciesLabel)).when(pr_4).getLabels();
         doReturn(thirtyDaysAgo).when(pr_4).getCreatedAt();
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
+        doReturn(List.of(dependenciesLabel)).when(pr_5).getLabels();
         doReturn(thirtyDaysAgo).when(pr_5).getCreatedAt();
         when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
