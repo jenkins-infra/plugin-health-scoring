@@ -70,7 +70,6 @@ public class DependabotPullRequestProbe extends Probe {
                     .filter(pr -> {
                         try {
                             return pr.getCreatedAt()
-                                    .toInstant()
                                     .atOffset(ZoneOffset.UTC)
                                     .toLocalDate()
                                     .atStartOfDay()

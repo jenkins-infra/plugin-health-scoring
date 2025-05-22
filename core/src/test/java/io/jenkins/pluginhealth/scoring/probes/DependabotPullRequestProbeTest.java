@@ -30,9 +30,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -128,8 +128,8 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHLabel dependenciesLabel = mock(GHLabel.class);
         when(dependenciesLabel.getName()).thenReturn("dependencies");
 
-        final Date thirtyDaysAgo = getThirtyDaysAgoAsDate();
-        final Date ninetyOneDaysAgo = getNinetyOneDaysAgoAsDate();
+        final Instant thirtyDaysAgo = getThirtyDaysAgoAsInstant();
+        final Instant ninetyOneDaysAgo = getNinetyOneDaysAgoAsInstant();
 
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         when(pr_1.getLabels()).thenReturn(List.of(dependenciesLabel));
@@ -199,7 +199,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHLabel dependenciesLabel = mock(GHLabel.class);
         when(dependenciesLabel.getName()).thenReturn("dependencies");
 
-        final Date thirtyDaysAgo = getThirtyDaysAgoAsDate();
+        final Instant thirtyDaysAgo = getThirtyDaysAgoAsInstant();
 
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         when(pr_1.getLabels()).thenReturn(List.of(dependenciesLabel));
@@ -238,7 +238,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHLabel dependenciesLabel = mock(GHLabel.class);
         when(dependenciesLabel.getName()).thenReturn("dependencies");
 
-        final Date ninetyOneDaysAgo = getNinetyOneDaysAgoAsDate();
+        final Instant ninetyOneDaysAgo = getNinetyOneDaysAgoAsInstant();
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         when(pr_1.getLabels()).thenReturn(List.of(dependenciesLabel));
         when(pr_1.getCreatedAt()).thenReturn(ninetyOneDaysAgo);
@@ -265,19 +265,19 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
                 .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "5", probe.getVersion()));
     }
 
-    private Date getThirtyDaysAgoAsDate() {
-        return Date.from(LocalDate.now()
+    private Instant getThirtyDaysAgoAsInstant() {
+        return LocalDate.now()
                 .minusDays(30)
                 .atStartOfDay()
                 .atOffset(ZoneOffset.UTC)
-                .toInstant());
+                .toInstant();
     }
 
-    private Date getNinetyOneDaysAgoAsDate() {
-        return Date.from(LocalDate.now()
+    private Instant getNinetyOneDaysAgoAsInstant() {
+        return LocalDate.now()
                 .minusDays(91)
                 .atStartOfDay()
                 .atOffset(ZoneOffset.UTC)
-                .toInstant());
+                .toInstant();
     }
 }
