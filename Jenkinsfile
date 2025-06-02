@@ -32,6 +32,7 @@ pipeline {
                 ./mvnw -V \
                   --no-transfer-progress \
                   ${OPTS} \
+                  clean \
                   verify \
                   checkstyle:checkstyle \
                   spotbugs:spotbugs \
