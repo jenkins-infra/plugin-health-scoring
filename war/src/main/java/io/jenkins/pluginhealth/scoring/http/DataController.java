@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,8 @@
  */
 package io.jenkins.pluginhealth.scoring.http;
 
-import java.util.Map;
-
-import io.jenkins.pluginhealth.scoring.service.PluginService;
 import io.jenkins.pluginhealth.scoring.service.ScoreService;
-import io.jenkins.pluginhealth.scoring.service.ScoringService;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -38,37 +33,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping(path = "/scores")
-public class ScoreController {
-    private final ScoreService scoreService;
-    private final ScoringService scoringService;
-    private final PluginService pluginService;
+@RequestMapping(path = "/data")
+public class DataController {
 
-    public ScoreController(ScoreService scoreService, ScoringService scoringService, PluginService pluginService) {
+    private final ScoreService scoreService;
+
+    public DataController(ScoreService scoreService) {
         this.scoreService = scoreService;
-        this.scoringService = scoringService;
-        this.pluginService = pluginService;
     }
 
     @ModelAttribute(name = "module")
     /* default */ String module() {
-        return "scores";
+        return "data";
     }
 
-    @GetMapping(path = "")
-    public ModelAndView list() {
-        return new ModelAndView("scores/listing", Map.of("scorings", scoringService.getScoringList()));
+    @GetMapping(path = {"", "/"})
+    public ModelAndView index() {
+        final ModelAndView modelAndView = new ModelAndView("data/distribution");
+        modelAndView.addObject("distribution", scoreService.getScoresDistribution());
+        modelAndView.addObject("statistics", scoreService.getScoresStatistics().orElse(null));
+        return modelAndView;
     }
 
-    @GetMapping(path = "/{pluginName}")
-    public ModelAndView getScoreOf(@PathVariable String pluginName) {
-        return pluginService
-                .findByName(pluginName)
-                .flatMap(scoreService::latestScoreFor)
-                .map(score -> {
-                    return new ModelAndView("scores/details", Map.of("score", score));
-                })
-                .orElseGet(() ->
-                        new ModelAndView("scores/unknown", Map.of("pluginName", pluginName), HttpStatus.NOT_FOUND));
+    @GetMapping(path = "/pluginsPerScore/{score}")
+    public ModelAndView pluginsPerScore(@PathVariable int score) {
+        final ModelAndView modelAndView = new ModelAndView("data/pluginsPerScore");
+        modelAndView.addObject("scores", scoreService.getAllLatestScoresWithValue(score));
+        return modelAndView;
     }
 }

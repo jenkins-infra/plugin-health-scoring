@@ -25,7 +25,6 @@ package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.when;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -45,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -56,14 +54,11 @@ class ScoreServiceIT extends AbstractDBContainerTest {
     @Autowired
     private ScoreRepository scoreRepository;
 
-    @MockitoBean
-    private PluginService pluginService;
-
     private ScoreService scoreService;
 
     @BeforeEach
     void setup() {
-        scoreService = new ScoreService(scoreRepository, pluginService);
+        scoreService = new ScoreService(scoreRepository);
     }
 
     @Test
@@ -188,9 +183,9 @@ class ScoreServiceIT extends AbstractDBContainerTest {
         Set.of(p1s, p1sOld, p2s, p2sOld, p3s, p4s, p5s, p6s, p7s).forEach(scoreService::save);
         assertThat(scoreRepository.count()).isEqualTo(9);
 
-        final ScoreService.ScoreStatistics scoresStatistics = scoreService.getScoresStatistics();
+        final Optional<ScoreService.ScoreStatistics> scoresStatistics = scoreService.getScoresStatistics();
 
-        assertThat(scoresStatistics).isEqualTo(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
+        assertThat(scoresStatistics).contains(new ScoreService.ScoreStatistics(50, 0, 100, 0, 50, 80));
     }
 
     @Test
@@ -200,8 +195,35 @@ class ScoreServiceIT extends AbstractDBContainerTest {
                 name, new VersionNumber("1.0"), "scm", ZonedDateTime.now().minusMinutes(5)));
         final Score score = entityManager.persist(new Score(plugin, ZonedDateTime.now()));
 
-        when(pluginService.findByName(name)).thenReturn(Optional.of(plugin));
+        assertThat(scoreService.latestScoreFor(plugin)).contains(score);
+    }
 
-        assertThat(scoreService.latestScoreFor(name)).contains(score);
+    @Test
+    void shouldBeAbleToRetrieveAllPluginsWithSpecificScore() {
+        final Plugin p1 =
+                entityManager.persist(new Plugin("foo", new VersionNumber("1.0"), "scm", ZonedDateTime.now()));
+        final Plugin p2 =
+                entityManager.persist(new Plugin("bar", new VersionNumber("1.1"), "scm", ZonedDateTime.now()));
+        final Plugin p3 =
+                entityManager.persist(new Plugin("zoo", new VersionNumber("1.1"), "scm", ZonedDateTime.now()));
+
+        final Score s1 = new Score(p1, ZonedDateTime.now().minusDays(1));
+        s1.addDetail(new ScoreResult("key-1", 100, 1, Set.of(), 1));
+        final Score s2 = new Score(p1, ZonedDateTime.now());
+        s2.addDetail(new ScoreResult("key-1", 50, 1, Set.of(), 1));
+        final Score s3 = new Score(p2, ZonedDateTime.now());
+        s3.addDetail(new ScoreResult("key-1", 50, 1, Set.of(), 1));
+        s3.addDetail(new ScoreResult("key-2", 100, 1, Set.of(), 1));
+        final Score s4 = new Score(p3, ZonedDateTime.now());
+        s4.addDetail(new ScoreResult("key-1", 75, 1, Set.of(), 1));
+
+        entityManager.persist(s1);
+        entityManager.persist(s2);
+        entityManager.persist(s3);
+        entityManager.persist(s4);
+
+        assertThat(scoreService.getAllLatestScoresWithValue(100)).isEmpty();
+        assertThat(scoreService.getAllLatestScoresWithValue(50)).containsExactly(s2);
+        assertThat(scoreService.getAllLatestScoresWithValue(75)).containsExactlyInAnyOrder(s3, s4);
     }
 }

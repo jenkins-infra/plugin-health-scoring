@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jenkins.pluginhealth.scoring.service;
+package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
-import java.net.URI;
 
-import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
+import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
+import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-@Service
-public class UpdateCenterService {
-    private final ObjectMapper objectMapper;
-    private final ApplicationConfiguration configuration;
+@Component
+@Profile("production")
+public class DefaultProbeEngineScheduler {
+    private final ProbeEngine probeEngine;
+    private final ScoringEngine scoringEngine;
 
-    public UpdateCenterService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
-        this.objectMapper = objectMapper;
-        this.configuration = configuration;
+    public DefaultProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
+        this.probeEngine = probeEngine;
+        this.scoringEngine = scoringEngine;
     }
 
-    public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(
-                URI.create(configuration.jenkins().updateCenter()).toURL(), UpdateCenter.class);
+    @Async
+    @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
+    public void run() throws IOException {
+        probeEngine.run();
+        scoringEngine.run();
     }
 }

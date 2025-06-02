@@ -12,7 +12,7 @@
         Raw results of the probes execution can be found on the
         <a href="" data-th-href="@{/probes/results}">results page</a>.
     </p>
-    <table class="table" id="probes-table">
+    <table class="table" id="probes">
         <thead>
         <tr>
             <th>ID</th>
@@ -26,6 +26,12 @@
         </tr>
         </tbody>
     </table>
+
+    <script data-th-src="@{/js/table.js}" type="application/javascript"></script>
+    <link data-th-href="@{/js/table.css}" rel="stylesheet"/>
+    <script defer type="application/javascript">
+        module['js/table'].setupDataTable('#probes');
+    </script>
 </section>
 
 </body>

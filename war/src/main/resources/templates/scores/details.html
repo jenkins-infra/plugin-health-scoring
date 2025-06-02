@@ -129,6 +129,11 @@
     <p data-th-unless="${#maps.size(plugin.details) > 0}">
         No probe were executed on the plugin yet.
     </p>
+
+    <script data-th-src="@{/js/collapse.js}" type="application/javascript"></script>
+    <script defer type="application/javascript">
+        module['js/collapse'].collapse();
+    </script>
 </section>
 
 </body>

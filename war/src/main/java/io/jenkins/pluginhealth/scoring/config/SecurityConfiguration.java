@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,12 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,20 +34,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain authorizedFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+        String [] allowedPaths = {
+            "/js/**",
+            "/style.css",
+            "/svg/**",
+            "/",
+            "/actuator/health/**",
+            "/api/scores",
+            "/data/**",
+            "/probes/**",
+            "/scores/**",
+        };
         http
-            .authorizeHttpRequests(request ->
-                request
-                    .requestMatchers(HttpMethod.GET, "/js/*", "/style.css", "/svg/*").permitAll()
-                    .requestMatchers(HttpMethod.GET,
-                        "/api/scores",
-                        "/",
-                        "/probes", "/probes/*",
-                        "/scores", "/scores/*",
-                        "/actuator/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+            .securityMatcher(allowedPaths)
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().permitAll()
             );
+        // @formatter:on
+        return http.build();
+    }
+
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+        http
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().denyAll()
+            );
+        // @formatter:on
         return http.build();
     }
 }

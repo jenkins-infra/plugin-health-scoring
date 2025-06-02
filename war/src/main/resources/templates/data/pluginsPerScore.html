@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Data</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Data</h1>
+    <div>
+        <table class="table" id="plugins">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Computation timestamp</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr data-th-each="score : ${scores}" data-th-with="plugin = ${score.plugin}">
+                <td data-th-text="${plugin.name}"></td>
+                <td data-th-text="${score.value}">
+                <td data-th-text="${#temporals.format(score.computedAt, 'yyyy-MM-dd HH:mm', 'UTC')}"></td>
+                <td>
+                    <a data-th-href="'/scores/' + ${plugin.name}" target="_blank">details</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script data-th-src="@{/js/table.js}" type="application/javascript"></script>
+    <link data-th-href="@{/js/table.css}" rel="stylesheet"/>
+    <script defer type="application/javascript">
+        module['js/table'].setupDataTable('#plugins', {
+            perPageSelect: [25, 50],
+        });
+    </script>
+</section>
+
+</body>
+</html>

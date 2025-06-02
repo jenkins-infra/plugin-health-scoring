@@ -32,6 +32,7 @@ pipeline {
                 ./mvnw -V \
                   --no-transfer-progress \
                   ${OPTS} \
+                  clean \
                   verify \
                   checkstyle:checkstyle \
                   spotbugs:spotbugs \
@@ -69,7 +70,7 @@ pipeline {
 
     stage('Docker image') {
       steps {
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary', targetplatforms: 'linux/amd64,linux/arm64'])
+        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary', targetplatforms: 'linux/amd64,linux/arm64', automaticSemanticVersioning: false])
       }
     }
   }

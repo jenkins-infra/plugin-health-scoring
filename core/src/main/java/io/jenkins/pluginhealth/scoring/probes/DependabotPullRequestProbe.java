@@ -24,6 +24,9 @@
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 
@@ -54,6 +57,11 @@ public class DependabotPullRequestProbe extends Probe {
             return this.error("There is no repository for " + plugin.getName() + ".");
         }
         try {
+            final LocalDate ninetyDaysAgo = LocalDate.now()
+                    .minusDays(90)
+                    .atStartOfDay()
+                    .atOffset(ZoneOffset.UTC)
+                    .toLocalDate();
             final GitHub gh = context.getGitHub();
             final GHRepository repository =
                     gh.getRepository(context.getRepositoryName().get());
@@ -61,6 +69,21 @@ public class DependabotPullRequestProbe extends Probe {
                     repository.queryPullRequests().state(GHIssueState.OPEN).list();
             final long count = StreamSupport.stream(pullRequests.spliterator(), false)
                     .filter(pr -> pr.getLabels().stream().anyMatch(label -> "dependencies".equals(label.getName())))
+                    .filter(pr -> {
+                        try {
+                            return pr.getCreatedAt()
+                                    .atOffset(ZoneOffset.UTC)
+                                    .toLocalDate()
+                                    .atStartOfDay()
+                                    .toLocalDate()
+                                    .isBefore(ninetyDaysAgo);
+                        } catch (IOException e) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug(e.getMessage());
+                            }
+                            return false;
+                        }
+                    })
                     .count();
 
             return this.success("%d".formatted(count));
@@ -85,6 +108,6 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }

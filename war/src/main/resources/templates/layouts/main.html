@@ -7,9 +7,9 @@
     <title data-layout-title-pattern="$LAYOUT_TITLE :: $CONTENT_TITLE">Plugin Health Scoring</title>
 
     <link rel="icon" data-th-href="@{/svg/logo.svg}" type="image/svg+xml">
-    <link href="" data-th-href="@{/style.css}" rel="stylesheet"/>
-    <script src="" data-th-src="@{/js/index.js}" type="text/javascript"></script>
-    <script src="" data-th-src="@{/js/vendors.js}" async type="text/javascript"></script>
+    <link data-th-href="@{/style.css}" rel="stylesheet"/>
+    <script data-th-src="@{/js/index.js}" type="application/javascript"></script>
+    <script data-th-src="@{/js/vendors.js}" type="application/javascript"></script>
 
     <script src="http://localhost:35729/livereload.js"
             data-th-if="${#arrays.contains(@environment.getActiveProfiles(), 'dev')}"></script>
@@ -17,13 +17,21 @@
 <body id="app">
 
 <nav id="page-navbar" class="navbar">
+    <a href="" data-th-href="@{/}" class="page-navbar__item"
+       data-th-classappend="${module == 'index' ? 'page-navbar__item-selected' : ''}">
+        <ion-icon name="home"></ion-icon>
+    </a>
     <a href="" data-th-href="@{/probes}" class="page-navbar__item"
        data-th-classappend="${module == 'probes' ? 'page-navbar__item-selected' : ''}">
-        <ion-icon name="home"></ion-icon>
+        <ion-icon name="probe"></ion-icon>
     </a>
     <a href="" data-th-href="@{/scores}" class="page-navbar__item"
        data-th-classappend="${module == 'scores' ? 'page-navbar__item-selected' : ''}">
         <ion-icon name="pulse"></ion-icon>
+    </a>
+    <a href="" data-th-href="@{/data}" class="page-navbar__item"
+       data-th-classappend="${module == 'data' ? 'page-navbar__item-selected' : ''}">
+        <ion-icon name="bar-chart"></ion-icon>
     </a>
 </nav>
 <main id="page-content">

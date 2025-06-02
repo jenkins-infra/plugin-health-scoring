@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
@@ -32,27 +31,30 @@ import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateCenterScheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateCenterScheduler.class);
+@Profile("dev")
+public class DevUpdateCenterScheduler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DevUpdateCenterScheduler.class);
     private final UpdateCenterService updateCenterService;
     private final PluginService pluginService;
 
-    public UpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService) {
+    public DevUpdateCenterScheduler(UpdateCenterService updateCenterService, PluginService pluginService) {
         this.updateCenterService = updateCenterService;
         this.pluginService = pluginService;
     }
 
-    @Scheduled(cron = "${app.cron.update-center}", zone = "UTC")
+    @Async
+    @Scheduled(initialDelay = 10 * 1000 /* 10 secs after startup */, fixedDelay = 1000 * 60 * 30)
     public void updateDatabase() throws IOException {
         LOGGER.info("Updating plugins from update-center");
-        updateCenterService.fetchUpdateCenter()
-            .plugins().values().stream()
-            .map(Plugin::toPlugin)
-            .forEach(pluginService::saveOrUpdate);
+        updateCenterService.fetchUpdateCenter().plugins().values().stream()
+                .map(Plugin::toPlugin)
+                .forEach(pluginService::saveOrUpdate);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Plugins updated from update-center");
         }

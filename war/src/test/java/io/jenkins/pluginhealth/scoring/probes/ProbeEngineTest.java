@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -74,12 +73,12 @@ class ProbeEngineTest {
     private PluginDocumentationService pluginDocumentationService;
 
     @BeforeEach
-    void setup() throws IOException {
+    void setup() throws Exception {
         when(updateCenterService.fetchUpdateCenter()).thenReturn(new UpdateCenter(Map.of(), Map.of(), List.of()));
     }
 
     @Test
-    void shouldBeAbleToRunSimpleProbe() throws IOException {
+    void shouldBeAbleToRunSimpleProbe() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -105,7 +104,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() throws IOException {
+    void shouldNotApplyProbeWithReleaseRequirementOnPluginWithNoNewReleaseWithPastResult() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final String probeKey = "wiz";
         final Probe probe = spy(Probe.class);
@@ -133,7 +132,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldNotApplyProbeRelatedToCodeWithNoNewCode() throws IOException {
+    void shouldNotApplyProbeRelatedToCodeWithNoNewCode() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -167,7 +166,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldApplyProbeRelatedToCodeWithNewCommit() throws IOException {
+    void shouldApplyProbeRelatedToCodeWithNewCommit() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -209,7 +208,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() throws IOException {
+    void shouldApplyProbeWithReleaseRequirementOnPluginWithNewReleaseAndPastResult() throws Exception {
         final String probeKey = "wiz";
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
@@ -245,7 +244,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() throws IOException {
+    void shouldApplyProbeWithNoReleaseRequirementOnPluginWithPastResult() throws Exception {
         final String probeKey = "wiz";
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
@@ -280,7 +279,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldSaveEvenErrors() throws IOException {
+    void shouldSaveEvenErrors() throws Exception {
         final Plugin plugin = mock(Plugin.class);
         final Probe probe = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -300,7 +299,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldBeAbleToGetPreviousContextResultInExecution() throws IOException {
+    void shouldBeAbleToGetPreviousContextResultInExecution() throws Exception {
         final Plugin plugin = spy(Plugin.class);
         final Probe probeOne = spy(Probe.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -345,7 +344,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldForceProbeExecutionWhenNewVersionOfTheProbe() throws IOException {
+    void shouldForceProbeExecutionWhenNewVersionOfTheProbe() throws Exception {
         final String probeKey = "foo";
         final long version = 1L;
         final ProbeResult newProbeResult =
@@ -398,7 +397,7 @@ class ProbeEngineTest {
     }
 
     @Test
-    void shouldRequestUpdateCenterAndDocumentationUrlOnce() throws IOException {
+    void shouldRequestUpdateCenterAndDocumentationUrlOnce() throws Exception {
         final Plugin p1 = mock(Plugin.class);
         final Plugin p2 = mock(Plugin.class);
         final Probe probe = mock(Probe.class);

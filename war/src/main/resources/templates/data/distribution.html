@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-decorate="~{layouts/main}">
+<head>
+    <title>Data</title>
+</head>
+<body>
+
+<section data-layout-fragment="content">
+    <h1>Data</h1>
+    <div id="distribution-graph" style="width: 100%; height: 75vh">
+    </div>
+
+    <script data-th-src="@{/js/chart.js}" type="application/javascript"></script>
+    <script type="application/javascript" data-th-inline="javascript">
+        const distribution = /*[[${distribution}]]*/{}
+        const statistics = /*[[${statistics}]]*/null
+        if (distribution !== {}) {
+            let markLine = {};
+            if (statistics !== null) {
+                const {firstQuartile, median, thirdQuartile} = statistics
+                markLine = {
+                    silent: true,
+                    emphasis: {
+                        disabled: true,
+                    },
+                    lineStyle: {
+                        type: 'dashed',
+                        color: 'red',
+                    },
+                    symbol: 'none',
+                    animation: false,
+                    data: [
+                        [
+                            {name: 'First quartile', xAxis: firstQuartile, yAxis: 'min'},
+                            {xAxis: firstQuartile, yAxis: 'max'}
+                        ],
+                        [
+                            {name: 'Median', xAxis: median, yAxis: 'min'},
+                            {xAxis: median, yAxis: 'max'}
+                        ],
+                        [
+                            {name: 'Third quartile', xAxis: thirdQuartile, yAxis: 'min'},
+                            {xAxis: thirdQuartile, yAxis: 'max'}
+                        ],
+                    ],
+                }
+            }
+            const source = [...Object.keys(distribution).flatMap((key) => ({'score': key, 'count': distribution[key]}))]
+            const option = {
+                title: {
+                    show: true,
+                    text: 'Number of plugins per score value',
+                },
+                dataset: {
+                    source,
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'axis',
+                    formatter: (params) => {
+                        const [{data: {score, count}}] = params;
+                        return `We counted ${count} plugins with a score of ${score}`;
+                    },
+                    axisPointer: {
+                        type: 'line',
+                        label: {show: false}
+                    },
+                },
+                xAxis: {
+                    type: 'category',
+                    name: 'Score',
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisPointer: {
+                        snap: true
+                    },
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Number of plugins',
+                    axisPointer: {
+                        snap: true
+                    },
+                },
+                series: [
+                    {
+                        type: 'bar',
+                        animation: false,
+                        markLine,
+                    },
+                ],
+            }
+
+            const chart = module["js/chart"].createChart('distribution-graph', option)
+            chart.on('click', ({data: {score}}) => {
+                window.open(`/data/pluginsPerScore/${score}`)
+            })
+        }
+    </script>
+</section>
+
+</body>
+</html>

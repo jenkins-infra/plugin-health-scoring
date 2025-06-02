@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2024-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,8 @@ public class ProbeContextTest {
 
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/git-client-plugin");
 
-        final ProbeContext ctx = new ProbeContext(plugin, uc);
-        assertThat(ctx.getRepositoryName()).isEqualTo(Optional.of("jenkinsci/git-client-plugin"));
+        try (ProbeContext ctx = new ProbeContext(plugin, uc)) {
+            assertThat(ctx.getRepositoryName()).isEqualTo(Optional.of("jenkinsci/git-client-plugin"));
+        }
     }
 }

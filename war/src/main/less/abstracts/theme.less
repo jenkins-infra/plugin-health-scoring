@@ -86,8 +86,9 @@
   --table-header-foreground: black;
   --table-body-background: white;
   --table-body-foreground: black;
+  --table-border-width: 5px;
   --table-border-radius: 10px;
-  --table-row-border-radius: 4px;
+  --table-row-border-radius: calc(var(--table-border-radius) - var(--table-border-width));
 
   // Link
   --link-color: var(--primary);

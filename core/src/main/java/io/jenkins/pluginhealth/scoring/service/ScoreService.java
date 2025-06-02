@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.Score;
 import io.jenkins.pluginhealth.scoring.repository.ScoreRepository;
 
@@ -38,11 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ScoreService {
     private final ScoreRepository repository;
-    private final PluginService pluginService;
 
-    public ScoreService(ScoreRepository repository, PluginService pluginService) {
+    public ScoreService(ScoreRepository repository) {
         this.repository = repository;
-        this.pluginService = pluginService;
     }
 
     @Transactional
@@ -51,34 +51,31 @@ public class ScoreService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Score> latestScoreFor(String pluginName) {
-        return pluginService.findByName(pluginName)
-            .flatMap(repository::findFirstByPluginOrderByComputedAtDesc);
+    public Optional<Score> latestScoreFor(Plugin plugin) {
+        return repository.findFirstByPluginOrderByComputedAtDesc(plugin);
     }
 
     @Transactional(readOnly = true)
     public Map<String, Score> getLatestScoresSummaryMap() {
         return repository.findLatestScoreForAllPlugins().stream()
-            .collect(Collectors.toMap(
-                score -> score.getPlugin().getName(),
-                score -> score
-            ));
+                .collect(Collectors.toMap(score -> score.getPlugin().getName(), score -> score));
     }
 
     @Transactional(readOnly = true)
-    public ScoreStatistics getScoresStatistics() {
+    public Optional<ScoreStatistics> getScoresStatistics() {
         final int[] values = repository.getLatestScoreValueOfEveryPlugin();
         Arrays.sort(values);
         final int numberOfElement = values.length;
 
-        return new ScoreStatistics(
-            Math.round((float) Arrays.stream(values).sum() / numberOfElement),
-            values[0],
-            values[numberOfElement - 1],
-            values[(int) (numberOfElement * .25)],
-            values[(int) (numberOfElement * .5)],
-            values[(int) (numberOfElement * .75)]
-        );
+        return values.length == 0
+                ? Optional.empty()
+                : Optional.of(new ScoreStatistics(
+                        Math.round((float) Arrays.stream(values).sum() / numberOfElement),
+                        values[0],
+                        values[numberOfElement - 1],
+                        values[(int) (numberOfElement * .25)],
+                        values[(int) (numberOfElement * .5)],
+                        values[(int) (numberOfElement * .75)]));
     }
 
     @Transactional
@@ -86,7 +83,22 @@ public class ScoreService {
         return repository.deleteOldScoreFromPlugin();
     }
 
-    public record ScoreStatistics(double average, int minimum, int maximum, int firstQuartile, int median,
-                                  int thirdQuartile) {
+    public record ScoreStatistics(
+            double average, int minimum, int maximum, int firstQuartile, int median, int thirdQuartile) {}
+
+    @Transactional(readOnly = true)
+    public Map<Integer, Long> getScoresDistribution() {
+        final Map<Integer, Long> distribution = Arrays.stream(repository.getLatestScoreValueOfEveryPlugin())
+                .boxed()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        for (int i = 0; i <= 100; i++) {
+            distribution.merge(i, 0L, Long::sum);
+        }
+        return distribution;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Score> getAllLatestScoresWithValue(int value) {
+        return repository.getAllLatestScoresWithValue(value);
     }
 }

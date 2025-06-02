@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
@@ -29,20 +28,28 @@ import java.io.IOException;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProbeEngineScheduler {
+@Profile("dev")
+public class DevProbeEngineScheduler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DevProbeEngineScheduler.class);
+
     private final ProbeEngine probeEngine;
     private final ScoringEngine scoringEngine;
 
-    public ProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
+    public DevProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
         this.probeEngine = probeEngine;
         this.scoringEngine = scoringEngine;
     }
 
-    @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
+    @Async
+    @Scheduled(initialDelay = 20 * 1000 /* 20 secs after startup */, fixedDelay = 1000 * 60 * 90)
     public void run() throws IOException {
         probeEngine.run();
         scoringEngine.run();
