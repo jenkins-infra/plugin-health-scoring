@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.probes;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 
