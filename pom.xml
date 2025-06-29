@@ -81,7 +81,7 @@
     <corepack.version>0.32.0</corepack.version>
 
     <jjwt.version>0.12.6</jjwt.version>
-    <testcontainers.version>1.21.2</testcontainers.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <spring-boot.version>3.5.3</spring-boot.version>
   </properties>
 
