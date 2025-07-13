@@ -188,9 +188,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stencil/core@npm:^4.30.0":
-  version: 4.31.0
-  resolution: "@stencil/core@npm:4.31.0"
+"@stencil/core@npm:^4.35.3":
+  version: 4.35.3
+  resolution: "@stencil/core@npm:4.35.3"
   dependencies:
     "@rollup/rollup-darwin-arm64": "npm:4.34.9"
     "@rollup/rollup-darwin-x64": "npm:4.34.9"
@@ -219,7 +219,7 @@ __metadata:
       optional: true
   bin:
     stencil: bin/stencil
-  checksum: 10/44c72030a2ef928967bfa0adca99ac01122085db3b775885743a3d8084093f2e65cb39b939963e9ff9c6fbcc6217d76135866c02f34f20a03e0d7d887764b40f
+  checksum: 10/424acf0092cce4870b96cf5e081ff46a5e31cb8a3fb5d1a89a95cb95fe3d918a4d011abe8e43f2dd4fc3ccedbc0ce388badb9da024089db470638027ee44747a
   languageName: node
   linkType: hard
 
@@ -1512,12 +1512,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ionicons@npm:8.0.10":
-  version: 8.0.10
-  resolution: "ionicons@npm:8.0.10"
+"ionicons@npm:8.0.13":
+  version: 8.0.13
+  resolution: "ionicons@npm:8.0.13"
   dependencies:
-    "@stencil/core": "npm:^4.30.0"
-  checksum: 10/8200562968434e2bc22f4425d6c0d012bcc4859b8d91bc4bb7b44b675be32d9efa9ca05fb363a16a12424e2b71ac041786c91fe5e31993a514b6c597a32c883c
+    "@stencil/core": "npm:^4.35.3"
+  checksum: 10/8d507c41ce2bd3a635cf25fcb05c7fabb7c75c27802a8476548f85cedf3366251eee4a0306b95f9a71870cb509ef6ac317c7d84ffd6898dd0218d100e5c640fe
   languageName: node
   linkType: hard
 
@@ -2138,7 +2138,7 @@ __metadata:
     css-loader: "npm:7.1.2"
     css-minimizer-webpack-plugin: "npm:7.0.2"
     echarts: "npm:5.6.0"
-    ionicons: "npm:8.0.10"
+    ionicons: "npm:8.0.13"
     less: "npm:4.3.0"
     less-loader: "npm:12.3.0"
     mini-css-extract-plugin: "npm:2.9.2"
