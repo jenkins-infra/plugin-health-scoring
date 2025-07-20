@@ -12,7 +12,7 @@
     "copy-webpack-plugin": "13.0.0",
     "css-loader": "7.1.2",
     "css-minimizer-webpack-plugin": "7.0.2",
-    "less": "4.3.0",
+    "less": "4.4.0",
     "less-loader": "12.3.0",
     "mini-css-extract-plugin": "2.9.2",
     "path": "0.12.7",
