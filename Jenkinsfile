@@ -73,6 +73,7 @@ pipeline {
         buildDockerAndPublishImage('plugin-health-scoring', [
           dockerfile: 'war/src/main/docker/Dockerfile',
           unstash: 'binary',
+          disablePublication: !infra.isInfra(),
           publishToPrivateAzureRegistry: true,
           targetplatforms: 'linux/arm64',
           automaticSemanticVersioning: false,
