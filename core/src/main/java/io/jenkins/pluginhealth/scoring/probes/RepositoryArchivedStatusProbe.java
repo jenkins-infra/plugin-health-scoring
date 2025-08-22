@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2024-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ public class RepositoryArchivedStatusProbe extends Probe {
 
         try {
             final GHRepository repository = gh.getRepository(repositoryName.get());
-            return this.success("%b".formatted(repository.isArchived()));
+            return this.success(repository.isArchived());
         } catch (IOException e) {
             return this.error("Cannot access repository " + repositoryName.get());
         }
@@ -71,6 +71,6 @@ public class RepositoryArchivedStatusProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }

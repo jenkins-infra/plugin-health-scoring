@@ -109,7 +109,7 @@ public final class ProbeEngine {
                     plugin.addDetails(result);
                     if (ProbeResult.Status.ERROR.equals(result.status())) {
                         LOGGER.info("There was a problem while running {} on {}", probe.key(), plugin.getName());
-                        LOGGER.info(result.message());
+                        LOGGER.info((String) result.message());
                     }
                 } catch (Throwable t) {
                     LOGGER.error("Couldn't run {} on {}", probe.key(), plugin.getName(), t);

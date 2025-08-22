@@ -60,23 +60,25 @@ public class DeprecatedPluginScoring extends Scoring {
                                     List.of("Cannot determine if the plugin is marked as deprecated or not."));
                         }
 
-                        return switch (probeResult.message()) {
-                            case "This plugin is marked as deprecated." -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of("Plugin is marked as deprecated."),
-                                    List.of(
-                                            new Resolution(
-                                                    "See deprecation guidelines",
-                                                    "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")));
-                            case "This plugin is NOT deprecated." -> new ScoringComponentResult(
-                                    100, 0, List.of("Plugin is not marked as deprecated."));
-                            default -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of(
-                                            "Cannot determine if the plugin is marked as deprecated or not.",
-                                            probeResult.message()));
+                        return switch ((String) probeResult.message()) {
+                            case "This plugin is marked as deprecated." ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Plugin is marked as deprecated."),
+                                        List.of(
+                                                new Resolution(
+                                                        "See deprecation guidelines",
+                                                        "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-or-removing-plugin/")));
+                            case "This plugin is NOT deprecated." ->
+                                new ScoringComponentResult(100, 0, List.of("Plugin is not marked as deprecated."));
+                            default ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of(
+                                                "Cannot determine if the plugin is marked as deprecated or not.",
+                                                (String) probeResult.message()));
                         };
                     }
 
@@ -99,7 +101,7 @@ public class DeprecatedPluginScoring extends Scoring {
                                     -100, 100, List.of("Cannot determine if the repository is archived or not."));
                         }
 
-                        final boolean isArchived = Boolean.parseBoolean(probeResult.message());
+                        final boolean isArchived = (boolean) probeResult.message();
                         return isArchived
                                 ? new ScoringComponentResult(
                                         0, getWeight(), List.of("The plugin repository is archived."))
@@ -125,17 +127,19 @@ public class DeprecatedPluginScoring extends Scoring {
                                     -100, 100, List.of("Cannot determine if the plugin is part of the update-center."));
                         }
 
-                        return switch (probeResult.message()) {
-                            case "This plugin is still actively published by the update-center." -> new ScoringComponentResult(
-                                    100, 0, List.of("The plugin appears in the update-center."));
-                            case "This plugin's publication has been stopped by the update-center." -> new ScoringComponentResult(
-                                    0, getWeight(), List.of("Ths plugin is not part of the update-center."));
-                            default -> new ScoringComponentResult(
-                                    -5,
-                                    getWeight(),
-                                    List.of(
-                                            "Cannot determine if the plugin is part of the update-center or not.",
-                                            probeResult.message()));
+                        return switch ((String) probeResult.message()) {
+                            case "This plugin is still actively published by the update-center." ->
+                                new ScoringComponentResult(100, 0, List.of("The plugin appears in the update-center."));
+                            case "This plugin's publication has been stopped by the update-center." ->
+                                new ScoringComponentResult(
+                                        0, getWeight(), List.of("Ths plugin is not part of the update-center."));
+                            default ->
+                                new ScoringComponentResult(
+                                        -5,
+                                        getWeight(),
+                                        List.of(
+                                                "Cannot determine if the plugin is part of the update-center or not.",
+                                                (String) probeResult.message()));
                         };
                     }
 
@@ -163,6 +167,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 5;
+        return 6;
     }
 }
