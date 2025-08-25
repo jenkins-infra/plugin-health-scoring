@@ -80,7 +80,7 @@
     <node.version>22.14.0</node.version>
     <corepack.version>0.32.0</corepack.version>
 
-    <jjwt.version>0.12.7</jjwt.version>
+    <jjwt.version>0.13.0</jjwt.version>
     <testcontainers.version>1.21.3</testcontainers.version>
     <spring-boot.version>3.5.5</spring-boot.version>
   </properties>
