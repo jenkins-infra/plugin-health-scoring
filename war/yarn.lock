@@ -1718,9 +1718,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less@npm:4.4.0":
-  version: 4.4.0
-  resolution: "less@npm:4.4.0"
+"less@npm:4.4.1":
+  version: 4.4.1
+  resolution: "less@npm:4.4.1"
   dependencies:
     copy-anything: "npm:^2.0.1"
     errno: "npm:^0.1.1"
@@ -1749,7 +1749,7 @@ __metadata:
       optional: true
   bin:
     lessc: bin/lessc
-  checksum: 10/a51a3cd3a34655cae455a6e58e3fc3b4a04bfadf9b3da93ed1421e7659fd1dd66c697084e4a83fd64c5ae68f9c89b4cfada0ff5356acb04552dc3addf2b2b784
+  checksum: 10/c2d8c6a20b441184044e95bd1e11a0e61d9c62b99dd4ba2716dd084492b874da88f15e6e33abe51495f1fb3a23e043e4b1b550905c96b7cd9f70cb28009c12d3
   languageName: node
   linkType: hard
 
@@ -2148,7 +2148,7 @@ __metadata:
     css-minimizer-webpack-plugin: "npm:7.0.2"
     echarts: "npm:6.0.0"
     ionicons: "npm:8.0.13"
-    less: "npm:4.4.0"
+    less: "npm:4.4.1"
     less-loader: "npm:12.3.0"
     mini-css-extract-plugin: "npm:2.9.4"
     path: "npm:0.12.7"
@@ -2156,7 +2156,7 @@ __metadata:
     postcss-loader: "npm:8.1.1"
     simple-datatables: "npm:10.0.0"
     style-loader: "npm:4.0.0"
-    webpack: "npm:5.101.2"
+    webpack: "npm:5.101.3"
     webpack-cli: "npm:6.0.1"
     webpack-remove-empty-scripts: "npm:1.1.1"
   languageName: unknown
@@ -3129,9 +3129,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.101.2":
-  version: 5.101.2
-  resolution: "webpack@npm:5.101.2"
+"webpack@npm:5.101.3":
+  version: 5.101.3
+  resolution: "webpack@npm:5.101.3"
   dependencies:
     "@types/eslint-scope": "npm:^3.7.7"
     "@types/estree": "npm:^1.0.8"
@@ -3163,7 +3163,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 10/d042ceb6e43c6de5be9ed39ea011b3fb28eed3f526974f10d6d3c324cbbaa01994167bd0fda394216d9929168489614fb8234dfeac6a363fc28e1b4ae6142747
+  checksum: 10/c4740e9c59d1e0562d1e5654e12559e6308acd60fc639cf3089657c85e946c8910ba06cbd9d74b08daa7f28b5ff786c0482617415a7c1fa8e4637a88b20b76a6
   languageName: node
   linkType: hard
 
