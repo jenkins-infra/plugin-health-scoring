@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +37,7 @@ import java.util.Optional;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
@@ -69,9 +68,12 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
 
         final PullRequestProbe probe = getSpy();
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Plugin SCM is unknown, cannot fetch the number of open pull requests.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        PullRequestProbe.KEY,
+                        "Plugin SCM is unknown, cannot fetch the number of open pull requests.",
+                        probe.getVersion()));
     }
 
     @Test
@@ -86,23 +88,22 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         when(plugin.getScm()).thenReturn("https://github.com/jenkinsci/mailer-plugin");
         when(ctx.getRepositoryName()).thenReturn(Optional.of("jenkinsci/mailer-plugin"));
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
-        final List<GHPullRequest> ghPullRequests = List.of(
-            new GHPullRequest(),
-            new GHPullRequest(),
-            new GHPullRequest()
-        );
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(ghPullRequests);
+        final List<GHPullRequest> ghPullRequests =
+                List.of(new GHPullRequest(), new GHPullRequest(), new GHPullRequest());
+        when(ghRepository.queryPullRequests().state(GHIssueState.OPEN).list().toList())
+                .thenReturn(ghPullRequests);
 
         final PullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(ctx).getGitHub();
-        verify(gh.getRepository(anyString())).getPullRequests(GHIssueState.OPEN);
+        verify(gh.getRepository(anyString())).queryPullRequests().state(GHIssueState.OPEN);
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size()), probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        PullRequestProbe.KEY, "%d".formatted(ghPullRequests.size()), probe.getVersion()));
     }
 
     @Test
@@ -123,8 +124,9 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         verify(ctx).getGitHub();
 
         assertThat(result)
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(PullRequestProbe.KEY, "Cannot access repository " + plugin.getScm(), probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        PullRequestProbe.KEY, "Cannot access repository " + plugin.getScm(), probe.getVersion()));
     }
 }

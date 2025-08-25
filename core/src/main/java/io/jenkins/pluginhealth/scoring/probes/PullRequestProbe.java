@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import java.io.IOException;
@@ -56,7 +55,11 @@ public class PullRequestProbe extends Probe {
                 return this.error("Cannot find repository for " + plugin.getName());
             }
             final GHRepository repository = gh.getRepository(repositoryName.get());
-            final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
+            final List<GHPullRequest> pullRequests = repository
+                    .queryPullRequests()
+                    .state(GHIssueState.OPEN)
+                    .list()
+                    .toList();
             return this.success("%d".formatted(pullRequests.size()));
         } catch (IOException e) {
             return this.error("Cannot access repository " + plugin.getScm());
