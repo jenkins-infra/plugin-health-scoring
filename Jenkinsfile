@@ -32,7 +32,8 @@ pipeline {
           }
           infra.withArtifactCachingProxy() {
             def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
-            OPTS += env.TAG_NAME ? ' -Dspotless.check.skip=true' : ''
+            // TODO enable spotless on infra when we understand why fetching origin/main is not enough
+            OPTS += env.TAG_NAME || infra.isInfra() ? ' -Dspotless.check.skip=true' : ''
             withEnv(["OPTS=${OPTS}"]) {
               sh '''
                 ./mvnw -V \
