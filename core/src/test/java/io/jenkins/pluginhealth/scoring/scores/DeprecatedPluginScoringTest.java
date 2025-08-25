@@ -55,7 +55,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1),
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, false, 1),
                         UpdateCenterPluginPublicationProbe.KEY,
                         ProbeResult.success(
                                 UpdateCenterPluginPublicationProbe.KEY,
@@ -79,7 +79,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1),
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, true, 1),
                         UpdateCenterPluginPublicationProbe.KEY,
                         ProbeResult.success(
                                 UpdateCenterPluginPublicationProbe.KEY,
@@ -103,7 +103,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1),
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, false, 1),
                         UpdateCenterPluginPublicationProbe.KEY,
                         ProbeResult.success(
                                 UpdateCenterPluginPublicationProbe.KEY,
@@ -141,7 +141,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1)));
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, true, 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
@@ -160,7 +160,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is NOT deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1)));
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, true, 1)));
 
         final ScoreResult result = scoring.apply(plugin);
 
@@ -179,7 +179,7 @@ class DeprecatedPluginScoringTest extends AbstractScoringTest<DeprecatedPluginSc
                         DeprecatedPluginProbe.KEY,
                         ProbeResult.success(DeprecatedPluginProbe.KEY, "This plugin is marked as deprecated.", 1),
                         RepositoryArchivedStatusProbe.KEY,
-                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1),
+                        ProbeResult.success(RepositoryArchivedStatusProbe.KEY, true, 1),
                         UpdateCenterPluginPublicationProbe.KEY,
                         ProbeResult.success(
                                 UpdateCenterPluginPublicationProbe.KEY,

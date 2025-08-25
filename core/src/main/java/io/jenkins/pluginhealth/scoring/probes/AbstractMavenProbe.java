@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,41 +23,37 @@
  */
 package io.jenkins.pluginhealth.scoring.probes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
-import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-@Component
-@Order(value = InstallationStatProbe.ORDER)
-public class InstallationStatProbe extends Probe {
-    public static final String KEY = "stat";
-    public static final int ORDER = UpdateCenterPluginPublicationProbe.ORDER + 100;
-
+public abstract class AbstractMavenProbe extends Probe {
     @Override
-    protected ProbeResult doApply(Plugin plugin, ProbeContext context) {
-        final UpdateCenter updateCenter = context.getUpdateCenter();
-        final io.jenkins.pluginhealth.scoring.model.updatecenter.Plugin ucPlugin =
-                updateCenter.plugins().get(plugin.getName());
-        return ucPlugin != null
-                ? this.success(ucPlugin.popularity())
-                : this.error("Could not find plugin " + plugin.getName() + " in Update Center.");
+    protected final ProbeResult doApply(Plugin plugin, ProbeContext context) {
+        if (context.getScmRepository().isEmpty()) {
+            return this.error("There is no local repository for the plugin.");
+        }
+        final Path scmRepository = context.getScmRepository().get();
+        final Path pomFile = scmRepository.resolve("pom.xml");
+        if (Files.notExists(pomFile)) {
+            return this.error("There is no pom.xml file for the plugin.");
+        }
+
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+        try {
+            final Model projectConfiguration = reader.read(Files.newInputStream(pomFile));
+            return getMavenDetails(projectConfiguration);
+        } catch (IOException | XmlPullParserException e) {
+            return error("Could not process project configuration file because of " + e.getMessage());
+        }
     }
 
-    @Override
-    public String key() {
-        return KEY;
-    }
-
-    @Override
-    public String getDescription() {
-        return "This probe registers the latest installation count stat for a specific plugin.";
-    }
-
-    @Override
-    public long getVersion() {
-        return 2;
-    }
+    protected abstract ProbeResult getMavenDetails(Model pom);
 }

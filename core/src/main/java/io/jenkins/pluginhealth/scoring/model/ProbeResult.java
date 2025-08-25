@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
@@ -38,8 +37,8 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  * @param timestamp    when the probe generated this result
  * @param probeVersion the version of the probe which generated this result
  */
-public record ProbeResult(String id, String message, Status status, ZonedDateTime timestamp, long probeVersion) {
-    public ProbeResult(String id, String message, Status status, long probeVersion) {
+public record ProbeResult(String id, Object message, Status status, ZonedDateTime timestamp, long probeVersion) {
+    public ProbeResult(String id, Object message, Status status, long probeVersion) {
         this(id, message, status, ZonedDateTime.now(), probeVersion);
     }
 
@@ -48,7 +47,10 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProbeResult that = (ProbeResult) o;
-        return id.equals(that.id) && message.equals(that.message) && status == that.status && probeVersion == that.probeVersion;
+        return id.equals(that.id)
+                && message.equals(that.message)
+                && status == that.status
+                && probeVersion == that.probeVersion;
     }
 
     @Override
@@ -56,11 +58,11 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
         return Objects.hash(id, status);
     }
 
-    public static ProbeResult success(String id, String message, long probeVersion) {
+    public static ProbeResult success(String id, Object message, long probeVersion) {
         return new ProbeResult(id, message, Status.SUCCESS, probeVersion);
     }
 
-    public static ProbeResult error(String id, String message, long probeVersion) {
+    public static ProbeResult error(String id, Object message, long probeVersion) {
         return new ProbeResult(id, message, Status.ERROR, probeVersion);
     }
 
@@ -69,7 +71,8 @@ public record ProbeResult(String id, String message, Status status, ZonedDateTim
      * the execution of the probe.
      */
     public enum Status {
-        SUCCESS, @JsonAlias("FAILURE") ERROR
+        SUCCESS,
+        @JsonAlias("FAILURE")
+        ERROR
     }
 }
-
