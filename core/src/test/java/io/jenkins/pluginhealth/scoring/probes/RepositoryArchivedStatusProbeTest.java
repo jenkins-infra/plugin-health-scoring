@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Jenkins Infra
+ * Copyright (c) 2024-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +111,7 @@ class RepositoryArchivedStatusProbeTest extends AbstractProbeTest<RepositoryArch
         assertThat(probe.apply(pl, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "true", 1));
+                .isEqualTo(ProbeResult.success(RepositoryArchivedStatusProbe.KEY, true, 1));
     }
 
     @Test
@@ -135,6 +135,6 @@ class RepositoryArchivedStatusProbeTest extends AbstractProbeTest<RepositoryArch
         assertThat(probe.apply(pl, ctx))
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(RepositoryArchivedStatusProbe.KEY, "false", 1));
+                .isEqualTo(ProbeResult.success(RepositoryArchivedStatusProbe.KEY, false, 1));
     }
 }

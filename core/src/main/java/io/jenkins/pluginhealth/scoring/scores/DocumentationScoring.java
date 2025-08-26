@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -109,22 +109,24 @@ public class DocumentationScoring extends Scoring {
                             return new ScoringComponentResult(
                                     0, getWeight(), List.of("Cannot confirm or not the documentation migration."));
                         }
-                        return switch (probeResult.message()) {
-                            case "Documentation is located in the plugin repository." -> new ScoringComponentResult(
-                                    100, getWeight(), List.of("Documentation is in plugin repository."));
-                            case "Documentation is not located in the plugin repository." -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of("Documentation should be migrated in plugin repository."),
-                                    List.of(
-                                            new Resolution(
-                                                    "https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")));
-                            default -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of(
-                                            "Cannot confirm or not the documentation migration.",
-                                            probeResult.message()));
+                        return switch ((String) probeResult.message()) {
+                            case "Documentation is located in the plugin repository." ->
+                                new ScoringComponentResult(
+                                        100, getWeight(), List.of("Documentation is in plugin repository."));
+                            case "Documentation is not located in the plugin repository." ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Documentation should be migrated in plugin repository."),
+                                        List.of(
+                                                new Resolution(
+                                                        "https://www.jenkins.io/doc/developer/tutorial-improve/migrate-documentation-to-github/")));
+                            default ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Cannot confirm or not the documentation migration.", (String)
+                                                probeResult.message()));
                         };
                     }
 
@@ -184,7 +186,7 @@ public class DocumentationScoring extends Scoring {
                                     List.of("Cannot determine if the plugin description was correctly migrated."));
                         }
 
-                        final String message = result.message();
+                        final String message = (String) result.message();
                         if ("Plugin seems to have a correct description.".equals(message)) {
                             return new ScoringComponentResult(100, getWeight(), List.of(message));
                         }
@@ -207,6 +209,6 @@ public class DocumentationScoring extends Scoring {
 
     @Override
     public int version() {
-        return 3;
+        return 4;
     }
 }

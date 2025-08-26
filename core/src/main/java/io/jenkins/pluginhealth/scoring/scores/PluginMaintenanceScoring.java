@@ -60,23 +60,25 @@ public class PluginMaintenanceScoring extends Scoring {
                             return new ScoringComponentResult(
                                     0, getWeight(), List.of("Cannot confirm or not the presence of Jenkinsfile."));
                         }
-                        return switch (probeResult.message()) {
-                            case "Jenkinsfile found" -> new ScoringComponentResult(
-                                    100, getWeight(), List.of("Jenkinsfile detected in plugin repository."));
-                            case "No Jenkinsfile found" -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of("Jenkinsfile not detected in plugin repository."),
-                                    List.of(
-                                            new Resolution(
-                                                    "See how to add a Jenkinsfile",
-                                                    "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")));
-                            default -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of(
-                                            "Cannot confirm or not the presence of Jenkinsfile.",
-                                            probeResult.message()));
+                        return switch ((String) probeResult.message()) {
+                            case "Jenkinsfile found" ->
+                                new ScoringComponentResult(
+                                        100, getWeight(), List.of("Jenkinsfile detected in plugin repository."));
+                            case "No Jenkinsfile found" ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Jenkinsfile not detected in plugin repository."),
+                                        List.of(
+                                                new Resolution(
+                                                        "See how to add a Jenkinsfile",
+                                                        "https://www.jenkins.io/doc/developer/tutorial-improve/add-a-jenkinsfile/")));
+                            default ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Cannot confirm or not the presence of Jenkinsfile.", (String)
+                                                probeResult.message()));
                         };
                     }
 
@@ -106,8 +108,8 @@ public class PluginMaintenanceScoring extends Scoring {
                                     getWeight(),
                                     List.of(
                                             "It seems that both dependabot and renovate are configured.",
-                                            dependabot.message(),
-                                            renovate.message()));
+                                            (String) dependabot.message(),
+                                            (String) renovate.message()));
                         }
 
                         if (dependabot != null
@@ -134,19 +136,18 @@ public class PluginMaintenanceScoring extends Scoring {
                     private ScoringComponentResult manageOpenDependencyPullRequestValue(
                             Plugin plugin, ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
                         if (dependencyPullRequestResult != null) {
-                            return "0".equals(dependencyPullRequestResult.message())
+                            return 0 == (int) dependencyPullRequestResult.message()
                                     ? new ScoringComponentResult(
                                             100,
                                             getWeight(),
                                             List.of(
-                                                    dependencyBotResult.message(),
-                                                    "%s open dependency pull request"
-                                                            .formatted(dependencyPullRequestResult.message())))
+                                                    (String) dependencyBotResult.message(),
+                                                    "0 open dependency pull request"))
                                     : new ScoringComponentResult(
                                             50,
                                             getWeight(),
                                             List.of(
-                                                    dependencyBotResult.message(),
+                                                    (String) dependencyBotResult.message(),
                                                     "%s open dependency pull request"
                                                             .formatted(dependencyPullRequestResult.message())),
                                             List.of(new Resolution(
@@ -158,7 +159,7 @@ public class PluginMaintenanceScoring extends Scoring {
                                 0,
                                 getWeight(),
                                 List.of(
-                                        dependencyBotResult.message(),
+                                        (String) dependencyBotResult.message(),
                                         "Cannot determine if there is any dependency pull request opened on the repository."));
                     }
 
@@ -180,22 +181,26 @@ public class PluginMaintenanceScoring extends Scoring {
                             return new ScoringComponentResult(
                                     0, getWeight(), List.of("Cannot confirm or not the JEP-229 configuration."));
                         }
-                        return switch (probeResult.message()) {
-                            case "JEP-229 workflow definition found." -> new ScoringComponentResult(
-                                    100, getWeight(), List.of("JEP-229 is configured on the plugin."));
-                            case "Could not find JEP-229 workflow definition." -> new ScoringComponentResult(
-                                    0,
-                                    0,
-                                    List.of(
-                                            "JEP-229 is not configured on the plugin.",
-                                            "This is not mandatory, but can help reduce time between pull requests merge and feature / bugfix availability."),
-                                    List.of(new Resolution(
-                                            "See how to setup JEP-229 on the plugin.",
-                                            "https://www.jenkins.io/doc/developer/publishing/releasing-cd/")));
-                            default -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of("Cannot confirm or not the JEP-229 configuration.", probeResult.message()));
+                        return switch ((String) probeResult.message()) {
+                            case "JEP-229 workflow definition found." ->
+                                new ScoringComponentResult(
+                                        100, getWeight(), List.of("JEP-229 is configured on the plugin."));
+                            case "Could not find JEP-229 workflow definition." ->
+                                new ScoringComponentResult(
+                                        0,
+                                        0,
+                                        List.of(
+                                                "JEP-229 is not configured on the plugin.",
+                                                "This is not mandatory, but can help reduce time between pull requests merge and feature / bugfix availability."),
+                                        List.of(new Resolution(
+                                                "See how to setup JEP-229 on the plugin.",
+                                                "https://www.jenkins.io/doc/developer/publishing/releasing-cd/")));
+                            default ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Cannot confirm or not the JEP-229 configuration.", (String)
+                                                probeResult.message()));
                         };
                     }
 
@@ -224,31 +229,34 @@ public class PluginMaintenanceScoring extends Scoring {
                                                     "https://github.com/jenkins-infra/plugin-health-scoring/issues/new/choose")));
                         }
 
-                        return switch (result.message()) {
-                            case "CODEOWNERS file is valid." -> new ScoringComponentResult(
-                                    100, getWeight(), List.of("Code Ownership definition found and is valid."));
-                            case "CODEOWNERS file is not set correctly." -> new ScoringComponentResult(
-                                    50,
-                                    getWeight(),
-                                    List.of("Code Ownership is not set properly."),
-                                    List.of(
-                                            new Resolution(
-                                                    "Learn about code owners",
-                                                    "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
-                                            new Resolution(
-                                                    "See OpenRewrite recipe to fix this.",
-                                                    "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
-                            default -> new ScoringComponentResult(
-                                    0,
-                                    getWeight(),
-                                    List.of("Repository would benefit from defining the code ownership."),
-                                    List.of(
-                                            new Resolution(
-                                                    "Learn about code owners",
-                                                    "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
-                                            new Resolution(
-                                                    "See OpenRewrite recipe to fix this.",
-                                                    "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
+                        return switch ((String) result.message()) {
+                            case "CODEOWNERS file is valid." ->
+                                new ScoringComponentResult(
+                                        100, getWeight(), List.of("Code Ownership definition found and is valid."));
+                            case "CODEOWNERS file is not set correctly." ->
+                                new ScoringComponentResult(
+                                        50,
+                                        getWeight(),
+                                        List.of("Code Ownership is not set properly."),
+                                        List.of(
+                                                new Resolution(
+                                                        "Learn about code owners",
+                                                        "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
+                                                new Resolution(
+                                                        "See OpenRewrite recipe to fix this.",
+                                                        "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
+                            default ->
+                                new ScoringComponentResult(
+                                        0,
+                                        getWeight(),
+                                        List.of("Repository would benefit from defining the code ownership."),
+                                        List.of(
+                                                new Resolution(
+                                                        "Learn about code owners",
+                                                        "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners"),
+                                                new Resolution(
+                                                        "See OpenRewrite recipe to fix this.",
+                                                        "https://docs.openrewrite.org/recipes/jenkins/github/addteamtocodeowners")));
                         };
                     }
 
@@ -278,6 +286,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 7;
+        return 9;
     }
 }

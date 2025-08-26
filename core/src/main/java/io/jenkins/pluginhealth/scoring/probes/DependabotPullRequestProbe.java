@@ -84,7 +84,7 @@ public class DependabotPullRequestProbe extends Probe {
                     })
                     .count();
 
-            return this.success("%d".formatted(count));
+            return this.success(count);
         } catch (NoSuchElementException | IOException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(e.getMessage());
@@ -106,6 +106,6 @@ public class DependabotPullRequestProbe extends Probe {
 
     @Override
     public long getVersion() {
-        return 2;
+        return 3;
     }
 }

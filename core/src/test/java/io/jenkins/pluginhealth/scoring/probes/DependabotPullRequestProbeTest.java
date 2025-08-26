@@ -108,7 +108,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0", probe.getVersion()));
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, 0L, probe.getVersion()));
     }
 
     @Test
@@ -154,7 +154,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "2", probe.getVersion()));
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, 2L, probe.getVersion()));
     }
 
     @Test
@@ -218,7 +218,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "0", probe.getVersion()));
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, 0L, probe.getVersion()));
     }
 
     @Test
@@ -262,7 +262,7 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         assertThat(result)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, "5", probe.getVersion()));
+                .isEqualTo(ProbeResult.success(DependabotPullRequestProbe.KEY, 5L, probe.getVersion()));
     }
 
     private Instant getThirtyDaysAgoAsInstant() {
