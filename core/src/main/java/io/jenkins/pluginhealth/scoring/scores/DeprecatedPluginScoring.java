@@ -167,6 +167,6 @@ public class DeprecatedPluginScoring extends Scoring {
 
     @Override
     public int version() {
-        return 6;
+        return 7;
     }
 }
