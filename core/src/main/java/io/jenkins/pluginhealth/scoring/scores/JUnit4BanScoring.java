@@ -38,10 +38,6 @@ import org.springframework.stereotype.Component;
 public class JUnit4BanScoring extends Scoring {
     public static final String KEY = "junit4-ban";
 
-    public JUnit4BanScoring() {
-        super();
-    }
-
     @Override
     public String key() {
         return KEY;
