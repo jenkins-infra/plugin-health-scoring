@@ -80,7 +80,7 @@ public class JUnit4BanScoring extends Scoring {
                                 List.of("ban-junit4-imports.skip property is not set or true on the plugin."),
                                 List.of(new Resolution(
                                         "How to set up JUnit 4 import ban",
-                                        "https://github.com/jenkinsci/plugin-pom/pull/1178.")));
+                                        "https://github.com/jenkinsci/plugin-pom/pull/1178")));
                     }
                     return new ScoringComponentResult(
                             100, getWeight(), List.of("JUnit4 imports are banned on the plugin."));

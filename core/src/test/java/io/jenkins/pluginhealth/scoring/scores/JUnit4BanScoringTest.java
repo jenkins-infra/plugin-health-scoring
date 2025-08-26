@@ -117,7 +117,7 @@ class JUnit4BanScoringTest extends AbstractScoringTest<JUnit4BanScoring> {
                                 List.of("ban-junit4-imports.skip property is not set or true on the plugin."),
                                 List.of(new Resolution(
                                         "How to set up JUnit 4 import ban",
-                                        "https://github.com/jenkinsci/plugin-pom/pull/1178.")))),
+                                        "https://github.com/jenkinsci/plugin-pom/pull/1178")))),
                         0));
 
         when(plugin.getDetails())
