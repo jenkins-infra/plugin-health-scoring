@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -163,7 +163,7 @@ public abstract class Probe {
      * @param message the message to be stored in the returned {@link ProbeResult}
      * @return a {@link ProbeResult} with a success status, the provided message and the probe version
      */
-    public final ProbeResult success(String message) {
+    public final ProbeResult success(Object message) {
         return ProbeResult.success(this.key(), message, this.getVersion());
     }
 
@@ -174,7 +174,7 @@ public abstract class Probe {
      * @param message the message to be stored in the returned {@link ProbeResult}
      * @return a {@link ProbeResult} with a error status, the provided message and the probe version
      */
-    public final ProbeResult error(String message) {
+    public final ProbeResult error(Object message) {
         return ProbeResult.error(this.key(), message, this.getVersion());
     }
 }

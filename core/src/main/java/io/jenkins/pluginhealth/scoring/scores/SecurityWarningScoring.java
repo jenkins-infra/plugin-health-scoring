@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,8 +59,7 @@ public class SecurityWarningScoring extends Scoring {
                     return new ScoringComponentResult(
                             100, getWeight(), List.of("Plugin does not seem to have on-going security advisory."));
                 }
-                final List<Resolution> resolutions = Arrays.stream(
-                                probeResult.message().split(", "))
+                final List<Resolution> resolutions = Arrays.stream(((String) probeResult.message()).split(", "))
                         .map(m -> {
                             final String[] parts = m.trim().split("\\|");
                             return new Resolution(parts[0], parts[1]);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2025 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,17 +79,19 @@ public class AdoptionScoring extends Scoring {
                                     -1000, 1000, List.of("Cannot determine if the plugin is up for adoption."));
                         }
 
-                        return switch (probeResult.message()) {
-                            case "This plugin is not up for adoption." -> new ScoringComponentResult(
-                                    100, getWeight(), List.of("The plugin is not marked as up for adoption."));
-                            case "This plugin is up for adoption." -> new ScoringComponentResult(
-                                    -1000,
-                                    getWeight(),
-                                    List.of("The plugin is marked as up for adoption."),
-                                    List.of(
-                                            new Resolution(
-                                                    "See adoption guidelines",
-                                                    "https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")));
+                        return switch ((String) probeResult.message()) {
+                            case "This plugin is not up for adoption." ->
+                                new ScoringComponentResult(
+                                        100, getWeight(), List.of("The plugin is not marked as up for adoption."));
+                            case "This plugin is up for adoption." ->
+                                new ScoringComponentResult(
+                                        -1000,
+                                        getWeight(),
+                                        List.of("The plugin is marked as up for adoption."),
+                                        List.of(
+                                                new Resolution(
+                                                        "See adoption guidelines",
+                                                        "https://www.jenkins.io/doc/developer/plugin-governance/adopt-a-plugin/#plugins-marked-for-adoption")));
                             default -> new ScoringComponentResult(-100, getWeight(), List.of());
                         };
                     }
@@ -113,7 +115,7 @@ public class AdoptionScoring extends Scoring {
                                     -100, 100, List.of("Cannot determine the last commit date."));
                         }
                         final long days = getTimeBetweenLastCommitAndDate(
-                                        probeResult.message(),
+                                        (String) probeResult.message(),
                                         plugin.getReleaseTimestamp().withZoneSameInstant(getZone()))
                                 .toDays();
                         if (days < 0) {
@@ -179,6 +181,6 @@ public class AdoptionScoring extends Scoring {
 
     @Override
     public int version() {
-        return 5;
+        return 6;
     }
 }

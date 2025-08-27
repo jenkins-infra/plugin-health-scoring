@@ -69,7 +69,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -86,7 +86,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -103,7 +103,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -119,7 +119,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -150,7 +150,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -167,7 +167,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -184,7 +184,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -201,7 +201,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -233,7 +233,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -250,7 +250,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -267,7 +267,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -284,7 +284,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -301,7 +301,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -318,7 +318,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -335,7 +335,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -352,7 +352,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -369,7 +369,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -386,7 +386,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -402,7 +402,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "Could not find JEP-229 workflow definition.", 1),
@@ -418,7 +418,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -434,7 +434,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "1", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 1, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),
@@ -450,7 +450,7 @@ class PluginMaintenanceScoringTest extends AbstractScoringTest<PluginMaintenance
                                 RenovateProbe.KEY,
                                 ProbeResult.success(RenovateProbe.KEY, "Renovate is not configured.", 1),
                                 DependabotPullRequestProbe.KEY,
-                                ProbeResult.success(DependabotPullRequestProbe.KEY, "0", 1),
+                                ProbeResult.success(DependabotPullRequestProbe.KEY, 0, 1),
                                 ContinuousDeliveryProbe.KEY,
                                 ProbeResult.success(
                                         ContinuousDeliveryProbe.KEY, "JEP-229 workflow definition found.", 1),

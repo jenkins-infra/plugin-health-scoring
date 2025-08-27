@@ -34,7 +34,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("default")
+@Profile("production")
 public class DefaultProbeEngineScheduler {
     private final ProbeEngine probeEngine;
     private final ScoringEngine scoringEngine;

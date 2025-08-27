@@ -37,7 +37,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("default")
+@Profile("production")
 public class DefaultUpdateCenterScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUpdateCenterScheduler.class);
     private final UpdateCenterService updateCenterService;

@@ -24,14 +24,22 @@ pipeline {
       }
       steps {
         script {
+          if (!env.BRANCH_IS_PRIMARY) {
+            sh '''
+              git remote -vvv
+              git fetch origin main
+            '''
+          }
           infra.withArtifactCachingProxy() {
             def OPTS = env.MAVEN_SETTINGS ? "-s ${MAVEN_SETTINGS}" : ''
-            OPTS += env.TAG_NAME ? ' -Dspotless.check.skip=true' : ''
+            // TODO enable spotless on infra when we understand why fetching origin/main is not enough
+            OPTS += env.TAG_NAME || infra.isInfra() ? ' -Dspotless.check.skip=true' : ''
             withEnv(["OPTS=${OPTS}"]) {
               sh '''
                 ./mvnw -V \
                   --no-transfer-progress \
                   ${OPTS} \
+                  clean \
                   verify \
                   checkstyle:checkstyle \
                   spotbugs:spotbugs \
@@ -69,7 +77,14 @@ pipeline {
 
     stage('Docker image') {
       steps {
-        buildDockerAndPublishImage('plugin-health-scoring', [dockerfile: 'war/src/main/docker/Dockerfile', unstash: 'binary', targetplatforms: 'linux/amd64,linux/arm64', automaticSemanticVersioning: false])
+        buildDockerAndPublishImage('plugin-health-scoring', [
+          dockerfile: 'war/src/main/docker/Dockerfile',
+          unstash: 'binary',
+          disablePublication: !infra.isInfra(),
+          publishToPrivateAzureRegistry: true,
+          targetplatforms: 'linux/arm64',
+          automaticSemanticVersioning: false,
+        ])
       }
     }
   }
