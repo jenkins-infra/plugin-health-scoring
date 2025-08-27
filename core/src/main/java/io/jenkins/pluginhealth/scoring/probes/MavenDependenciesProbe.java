@@ -45,6 +45,7 @@ public class MavenDependenciesProbe extends AbstractMavenProbe {
             return success(List.of());
         }
         return success(dependencies.stream()
+                .filter(dep -> !"provided".equals(dep.getScope()) && !"runtime".equals(dep.getScope()))
                 .map(dep -> String.format(
                         "%s:%s:%s:%b", dep.getGroupId(), dep.getArtifactId(), dep.getVersion(), dep.isOptional()))
                 .toList());
