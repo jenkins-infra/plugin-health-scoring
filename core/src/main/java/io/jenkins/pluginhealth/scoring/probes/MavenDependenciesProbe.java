@@ -63,6 +63,6 @@ public class MavenDependenciesProbe extends AbstractMavenProbe {
 
     @Override
     public long getVersion() {
-        return 1;
+        return 2;
     }
 }
