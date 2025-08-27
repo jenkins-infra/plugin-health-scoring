@@ -95,4 +95,31 @@ class MavenDependenciesProbeTest extends AbstractProbeTest<MavenDependenciesProb
                                 "other-groupId:other-artifactId:other-version:true"),
                         probe.getVersion()));
     }
+
+    @Test
+    void shouldNotConsiderProvidedNorRuntimeDependencies() throws Exception {
+
+        final Model pom = mock(Model.class);
+        final MavenDependenciesProbe probe = getSpy();
+
+        final Dependency dep1 = new Dependency();
+        dep1.setGroupId("groupId");
+        dep1.setArtifactId("artifactId");
+        dep1.setVersion("version");
+        dep1.setScope("runtime");
+        dep1.setOptional(false);
+        final Dependency dep2 = new Dependency();
+        dep2.setGroupId("other-groupId");
+        dep2.setArtifactId("other-artifactId");
+        dep2.setVersion("other-version");
+        dep2.setOptional(true);
+        dep2.setScope("provided");
+
+        when(pom.getDependencies()).thenReturn(List.of(dep1, dep2));
+
+        assertThat(probe.getMavenDetails(pom))
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(MavenDependenciesProbe.KEY, List.of(), probe.getVersion()));
+    }
 }
