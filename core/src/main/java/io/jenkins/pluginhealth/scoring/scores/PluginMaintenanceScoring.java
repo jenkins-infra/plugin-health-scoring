@@ -32,10 +32,7 @@ import io.jenkins.pluginhealth.scoring.model.Resolution;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
 import io.jenkins.pluginhealth.scoring.probes.CodeOwnershipProbe;
 import io.jenkins.pluginhealth.scoring.probes.ContinuousDeliveryProbe;
-import io.jenkins.pluginhealth.scoring.probes.DependabotProbe;
-import io.jenkins.pluginhealth.scoring.probes.DependabotPullRequestProbe;
 import io.jenkins.pluginhealth.scoring.probes.JenkinsfileProbe;
-import io.jenkins.pluginhealth.scoring.probes.RenovateProbe;
 
 import org.springframework.stereotype.Component;
 
@@ -87,87 +84,6 @@ public class PluginMaintenanceScoring extends Scoring {
                         return 50;
                     }
                 },
-                new ScoringComponent() { // Dependabot and not dependency pull requests
-                    @Override
-                    public String getDescription() {
-                        return "Plugin should be using a using a dependency version management bot.";
-                    }
-
-                    @Override
-                    public ScoringComponentResult getScore(Plugin pl, Map<String, ProbeResult> probeResults) {
-                        final ProbeResult dependabot = probeResults.get(DependabotProbe.KEY);
-                        final ProbeResult renovate = probeResults.get(RenovateProbe.KEY);
-                        final ProbeResult dependencyPullRequest = probeResults.get(DependabotPullRequestProbe.KEY);
-
-                        if (dependabot != null
-                                && "Dependabot is configured.".equals(dependabot.message())
-                                && renovate != null
-                                && "Renovate is configured.".equals(renovate.message())) {
-                            return new ScoringComponentResult(
-                                    50,
-                                    getWeight(),
-                                    List.of(
-                                            "It seems that both dependabot and renovate are configured.",
-                                            (String) dependabot.message(),
-                                            (String) renovate.message()));
-                        }
-
-                        if (dependabot != null
-                                && ProbeResult.Status.SUCCESS.equals(dependabot.status())
-                                && "Dependabot is configured.".equals(dependabot.message())) {
-                            return manageOpenDependencyPullRequestValue(pl, dependabot, dependencyPullRequest);
-                        }
-                        if (renovate != null
-                                && ProbeResult.Status.SUCCESS.equals(renovate.status())
-                                && "Renovate is configured.".equals(renovate.message())) {
-                            return manageOpenDependencyPullRequestValue(pl, renovate, dependencyPullRequest);
-                        }
-
-                        return new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of("No dependency version manager bot are used on the plugin repository."),
-                                List.of(
-                                        new Resolution(
-                                                "See how to automate the dependencies updates",
-                                                "https://www.jenkins.io/doc/developer/tutorial-improve/automate-dependency-update-checks/")));
-                    }
-
-                    private ScoringComponentResult manageOpenDependencyPullRequestValue(
-                            Plugin plugin, ProbeResult dependencyBotResult, ProbeResult dependencyPullRequestResult) {
-                        if (dependencyPullRequestResult != null) {
-                            return 0 == (int) dependencyPullRequestResult.message()
-                                    ? new ScoringComponentResult(
-                                            100,
-                                            getWeight(),
-                                            List.of(
-                                                    (String) dependencyBotResult.message(),
-                                                    "0 open dependency pull request"))
-                                    : new ScoringComponentResult(
-                                            50,
-                                            getWeight(),
-                                            List.of(
-                                                    (String) dependencyBotResult.message(),
-                                                    "%s open dependency pull request"
-                                                            .formatted(dependencyPullRequestResult.message())),
-                                            List.of(new Resolution(
-                                                    "See the open pull requests of the plugin",
-                                                    "%s/pulls?q=is%%3Aopen+is%%3Apr+label%%3Adependencies"
-                                                            .formatted(plugin.getScm()))));
-                        }
-                        return new ScoringComponentResult(
-                                0,
-                                getWeight(),
-                                List.of(
-                                        (String) dependencyBotResult.message(),
-                                        "Cannot determine if there is any dependency pull request opened on the repository."));
-                    }
-
-                    @Override
-                    public int getWeight() {
-                        return 20;
-                    }
-                },
                 new ScoringComponent() { // ContinuousDelivery JEP
                     @Override
                     public String getDescription() {
@@ -206,7 +122,7 @@ public class PluginMaintenanceScoring extends Scoring {
 
                     @Override
                     public int getWeight() {
-                        return 10;
+                        return 0;
                     }
                 },
                 new ScoringComponent() { // CodeOwnership
@@ -286,6 +202,6 @@ public class PluginMaintenanceScoring extends Scoring {
 
     @Override
     public int version() {
-        return 9;
+        return 10;
     }
 }
