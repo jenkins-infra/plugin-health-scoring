@@ -26,7 +26,7 @@
   "dependencies": {
     "echarts": "6.0.0",
     "ionicons": "8.0.13",
-    "simple-datatables": "10.0.0"
+    "simple-datatables": "10.2.0"
   },
   "browserslist": [
     "defaults",
