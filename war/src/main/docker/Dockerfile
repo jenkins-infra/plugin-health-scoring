@@ -1,11 +1,13 @@
-FROM eclipse-temurin:21-jdk AS builder
+#FROM eclipse-temurin:25-jdk AS builder
+FROM eclipse-temurin:25-jdk@sha256:1dad643c8ccf9534e555612dd13e976a39336c3e5fb479030dd5f7a3ce274b1c AS builder
 
 WORKDIR /src
 
 COPY war/target/plugin-health-scoring.jar /src/plugin-health-scoring.jar
 RUN jar -xf plugin-health-scoring.jar
 
-FROM eclipse-temurin:21-jre
+#FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:25-jre@sha256:014b951b8f1e7c723e008f31a447068fac48d316e9aff1c586ef1f032529533d
 
 ENV HOME=/app
 
