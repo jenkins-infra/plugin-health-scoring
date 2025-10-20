@@ -81,7 +81,7 @@
     <corepack.version>0.32.0</corepack.version>
 
     <jjwt.version>0.13.0</jjwt.version>
-    <testcontainers.version>1.21.3</testcontainers.version>
+    <testcontainers.version>2.0.1</testcontainers.version>
     <spring-boot.version>3.5.6</spring-boot.version>
   </properties>
 
@@ -205,7 +205,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.9.6.0</version>
+          <version>4.9.8.0</version>
           <configuration>
             <excludeFilterFile>analytics/spotbugs-exclude.xml</excludeFilterFile>
             <effort>Max</effort>
@@ -223,7 +223,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>12.0.1</version>
+              <version>12.1.0</version>
             </dependency>
           </dependencies>
         </plugin>
