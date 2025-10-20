@@ -4,14 +4,14 @@ This page provides information about contributing to the Plugin Health Scoring c
 
 == Getting started
 
-The project is using Maven with Java 21 and Yarn to be built.
+The project is using Maven with Java 25 and Yarn to be built.
 The entire build process can be handled by Maven.
 When building, Yarn will bundle the front-end files only.
 
 . Clone the repository.
 . Install tools
-.. Java 21
-.. Maven 3.9.9
+.. Java 25
+.. Maven 3.9.11
 .. Node 22.14.0 and Yarn 4.7.0 (these should be done in the "war" directory)
 .. Docker installed and running in your environment
 . Open the project in your favorite IDE.
