@@ -230,6 +230,10 @@
           </dependencies>
         </plugin>
         <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.14.1</version>
           <configuration>
@@ -256,6 +260,10 @@
           </executions>
         </plugin>
         <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-release-plugin</artifactId>
           <version>3.2.0</version>
           <configuration>
@@ -263,6 +271,10 @@
             <signTag>true</signTag>
             <tagNameFormat>v@{project.version}</tagNameFormat>
           </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
