@@ -998,9 +998,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-minimizer-webpack-plugin@npm:7.0.3":
-  version: 7.0.3
-  resolution: "css-minimizer-webpack-plugin@npm:7.0.3"
+"css-minimizer-webpack-plugin@npm:7.0.4":
+  version: 7.0.4
+  resolution: "css-minimizer-webpack-plugin@npm:7.0.4"
   dependencies:
     "@jridgewell/trace-mapping": "npm:^0.3.25"
     cssnano: "npm:^7.0.4"
@@ -1023,7 +1023,7 @@ __metadata:
       optional: true
     lightningcss:
       optional: true
-  checksum: 10/4ef2c9971176d880d5e97eb5ce4b66be4b30c274df8873fecd497f13bc16ceb4ecda44fc8e70e7c674d869b5568b9ae2066a94a62d789d350f0128a4fe610c57
+  checksum: 10/23688887b9b8166555864d7b6571b98390cf81b296b283736fe1aa7598d84face212ad983c02696cba1bf0e51f0a3208944ebd00cd5e1ccab9a6dc0af0914593
   languageName: node
   linkType: hard
 
@@ -1782,9 +1782,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less@npm:4.4.2":
-  version: 4.4.2
-  resolution: "less@npm:4.4.2"
+"less@npm:4.5.1":
+  version: 4.5.1
+  resolution: "less@npm:4.5.1"
   dependencies:
     copy-anything: "npm:^2.0.1"
     errno: "npm:^0.1.1"
@@ -1813,7 +1813,7 @@ __metadata:
       optional: true
   bin:
     lessc: bin/lessc
-  checksum: 10/634e669514e6c59270b04bb8b9f9b058bf07f99a3d06cda068b60576c84cfe79bfe83bde5d84abd35c37118b0342924f978a178dc8103be0e3ea85ab75c0feb2
+  checksum: 10/ea48075c73e206520b738c9387668a84cec404d24972b9e93c038fdde6ee38f8e2e9c820ed41e299c9f421711f4ce5bc9f719e6939367a0e6d5177d27f593038
   languageName: node
   linkType: hard
 
@@ -2209,10 +2209,10 @@ __metadata:
     clean-webpack-plugin: "npm:4.0.0"
     copy-webpack-plugin: "npm:13.0.1"
     css-loader: "npm:7.1.2"
-    css-minimizer-webpack-plugin: "npm:7.0.3"
+    css-minimizer-webpack-plugin: "npm:7.0.4"
     echarts: "npm:6.0.0"
     ionicons: "npm:8.0.13"
-    less: "npm:4.4.2"
+    less: "npm:4.5.1"
     less-loader: "npm:12.3.0"
     mini-css-extract-plugin: "npm:2.9.4"
     path: "npm:0.12.7"
