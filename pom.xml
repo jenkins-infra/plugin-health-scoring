@@ -83,6 +83,8 @@
     <jjwt.version>0.13.0</jjwt.version>
     <testcontainers.version>2.0.3</testcontainers.version>
     <spring-boot.version>3.5.7</spring-boot.version>
+
+    <mockito.version>5.17.0</mockito.version>
   </properties>
 
   <dependencyManagement>
@@ -228,6 +230,10 @@
           </dependencies>
         </plugin>
         <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.15.0</version>
           <configuration>
@@ -241,6 +247,7 @@
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>3.5.4</version>
           <configuration>
+            <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
             <classesDirectory>${project.build.outputDirectory}</classesDirectory>
           </configuration>
           <executions>
@@ -253,6 +260,10 @@
           </executions>
         </plugin>
         <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-release-plugin</artifactId>
           <version>3.3.1</version>
           <configuration>
@@ -262,8 +273,15 @@
           </configuration>
         </plugin>
         <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.5.4</version>
+          <configuration>
+            <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
