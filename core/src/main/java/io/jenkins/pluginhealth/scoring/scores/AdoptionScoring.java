@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2025 Jenkins Infra
+ * Copyright (c) 2022-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 package io.jenkins.pluginhealth.scoring.scores;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -160,6 +162,39 @@ public class AdoptionScoring extends Scoring {
                                 -1000,
                                 getWeight(),
                                 List.of("There is more than 4 years between the last release and the last commit."));
+                    }
+                },
+                new ScoringComponent() {
+                    @Override
+                    public String getDescription() {
+                        return "Last release should have been done recently.";
+                    }
+
+                    @Override
+                    public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> $) {
+                        long timespanInMonths = Period.between(
+                                        LocalDate.from(plugin.getReleaseTimestamp()),
+                                        LocalDate.now(
+                                                plugin.getReleaseTimestamp().getZone()))
+                                .toTotalMonths();
+                        if (timespanInMonths < 12) {
+                            return new ScoringComponentResult(
+                                    100, getWeight(), List.of("Plugin was released less than 12 months ago."));
+                        } else if (timespanInMonths >= 5 * 12) {
+                            return new ScoringComponentResult(
+                                    0, getWeight(), List.of("Plugin was releases more than 5 years ago."));
+                        }
+                        int score = Math.round((-25f / 12) * (timespanInMonths - 12))
+                                + 100; // Linear decrease of the score.
+                        return new ScoringComponentResult(
+                                score,
+                                getWeight(),
+                                List.of("Plugin was released %d months ago".formatted(timespanInMonths)));
+                    }
+
+                    @Override
+                    public int getWeight() {
+                        return 1;
                     }
                 });
     }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2024 Jenkins Infra
+ * Copyright (c) 2022-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -141,7 +141,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
                                         1)));
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(80);
+        assertThat(result.value()).isEqualTo(87);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("Less than a year between last release and last commit.");
     }
@@ -163,7 +163,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
                                         1)));
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(60);
+        assertThat(result.value()).isEqualTo(69);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("Less than 2 years between last release and last commit.");
     }
@@ -185,7 +185,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
                                         1)));
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(40);
+        assertThat(result.value()).isEqualTo(43);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("Less than 4 years between last release and last commit.");
     }
@@ -235,5 +235,27 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         assertThat(result.value()).isEqualTo(100);
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("The latest release is more recent than the latest commit on the plugin.");
+    }
+
+    @Test
+    void shouldScoreZeroWhenLastReleaseWasMoreThanFiveYearsAgo() {
+        final ZonedDateTime releaseDateTime = ZonedDateTime.now().minusYears(7);
+
+        final AdoptionScoring scoring = getSpy();
+        final Plugin plugin = mock(Plugin.class);
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        UpForAdoptionProbe.KEY,
+                        ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption", 1),
+                        LastCommitDateProbe.KEY,
+                        ProbeResult.success(
+                                LastCommitDateProbe.KEY,
+                                releaseDateTime.plusMinutes(10).format(DateTimeFormatter.ISO_DATE_TIME),
+                                1)));
+        when(plugin.getReleaseTimestamp()).thenReturn(releaseDateTime);
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result.value()).isZero();
     }
 }
