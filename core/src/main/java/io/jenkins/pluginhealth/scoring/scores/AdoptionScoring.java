@@ -173,7 +173,7 @@ public class AdoptionScoring extends Scoring {
                     @Override
                     public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> $) {
                         long timespanInMonths = Period.between(
-                                        LocalDate.from(plugin.getReleaseTimestamp()),
+                                        plugin.getReleaseTimestamp().toLocalDate(),
                                         LocalDate.now(
                                                 plugin.getReleaseTimestamp().getZone()))
                                 .toTotalMonths();

@@ -51,6 +51,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMinutes(5));
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         UpForAdoptionProbe.KEY,
@@ -59,7 +60,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
         assertThat(result.weight()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(0);
+        assertThat(result.value()).isZero();
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("Cannot determine the last commit date.");
     }
@@ -83,7 +84,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result.key()).isEqualTo("adoption");
         assertThat(result.weight()).isEqualTo(.8f);
-        assertThat(result.value()).isEqualTo(0);
+        assertThat(result.value()).isZero();
     }
 
     @Test
@@ -91,13 +92,14 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
         final AdoptionScoring scoring = getSpy();
         final Plugin plugin = mock(Plugin.class);
 
+        when(plugin.getReleaseTimestamp()).thenReturn(ZonedDateTime.now().minusMinutes(5));
         when(plugin.getDetails())
                 .thenReturn(Map.of(
                         UpForAdoptionProbe.KEY,
                         ProbeResult.success(UpForAdoptionProbe.KEY, "This plugin is not up for adoption.", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0);
+        assertThat(result.value()).isZero();
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("Cannot determine the last commit date.");
     }
@@ -207,7 +209,7 @@ class AdoptionScoringTest extends AbstractScoringTest<AdoptionScoring> {
                                         1)));
 
         final ScoreResult result = scoring.apply(plugin);
-        assertThat(result.value()).isEqualTo(0);
+        assertThat(result.value()).isZero();
         assertThat(result.componentsResults().stream().flatMap(scr -> scr.reasons().stream()))
                 .contains("There is more than 4 years between the last release and the last commit.");
     }
