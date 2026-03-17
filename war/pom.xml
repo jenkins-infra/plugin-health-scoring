@@ -41,7 +41,14 @@
       <dependency>
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy</artifactId>
-        <version>5.0.3</version>
+        <version>5.0.4</version>
+      </dependency>
+      <dependency>
+        <!-- TODO remove once spring-boot upgraded to 4.x and library in that bom -->
+        <!-- See https://github.com/ultraq/thymeleaf-layout-dialect/issues/251 -->
+        <groupId>nz.net.ultraq.thymeleaf</groupId>
+        <artifactId>thymeleaf-layout-dialect</artifactId>
+        <version>4.0.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
