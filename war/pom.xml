@@ -28,7 +28,7 @@
   <parent>
     <groupId>io.jenkins.pluginhealth.scoring</groupId>
     <artifactId>plugin-health-scoring-parent</artifactId>
-    <version>5.0.1-SNAPSHOT</version>
+    <version>5.0.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -43,8 +43,7 @@
         <artifactId>groovy</artifactId>
         <version>5.0.5</version>
       </dependency>
-      <dependency>
-        <!-- TODO remove once spring-boot upgraded to 4.x and library in that bom -->
+      <dependency><!-- TODO remove once spring-boot upgraded to 4.x and library in that bom -->
         <!-- See https://github.com/ultraq/thymeleaf-layout-dialect/issues/251 -->
         <groupId>nz.net.ultraq.thymeleaf</groupId>
         <artifactId>thymeleaf-layout-dialect</artifactId>
