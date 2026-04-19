@@ -24,13 +24,17 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class UpdateCenterService {
@@ -43,7 +47,14 @@ public class UpdateCenterService {
     }
 
     public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(
-                URI.create(configuration.jenkins().updateCenter()).toURL(), UpdateCenter.class);
+        try (HttpClient client = HttpClient.newBuilder().build()) {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(configuration.jenkins().updateCenter()))
+                .GET()
+                .build();
+            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            return objectMapper.readValue(response.body(), UpdateCenter.class);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

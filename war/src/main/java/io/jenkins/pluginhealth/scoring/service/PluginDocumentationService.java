@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,18 +24,22 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class PluginDocumentationService {
@@ -50,9 +54,16 @@ public class PluginDocumentationService {
     }
 
     public Map<String, String> fetchPluginDocumentationUrl() {
-        try {
-            final Map<String, Link> documentationUrlsMap = objectMapper.readValue(
-                    URI.create(configuration.jenkins().documentationUrls()).toURL(), new TypeReference<>() {});
+        try (HttpClient http = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .build()) {
+            HttpRequest request = HttpRequest.newBuilder(
+                            URI.create(configuration.jenkins().documentationUrls()))
+                    .GET()
+                    .build();
+            HttpResponse<InputStream> response = http.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            final Map<String, Link> documentationUrlsMap =
+                    objectMapper.readValue(response.body(), new TypeReference<>() {});
             return documentationUrlsMap.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
@@ -62,7 +73,7 @@ public class PluginDocumentationService {
         } catch (MalformedURLException e) {
             LOGGER.error("URL to documentation link is incorrect.", e);
             return Map.of();
-        } catch (IOException e) {
+        } catch (InterruptedException | IOException e) {
             LOGGER.error("Could not fetch plugin documentation.", e);
             return Map.of();
         }

@@ -31,10 +31,10 @@ import java.net.URL;
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import tools.jackson.databind.ObjectMapper;
 
 @JsonTest
 class UpdateCenterServiceTest {
