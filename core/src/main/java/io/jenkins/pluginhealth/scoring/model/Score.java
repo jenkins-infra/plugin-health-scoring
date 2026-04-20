@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.DoubleStream;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +43,7 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "scores")
-public class Score {
+public class Score implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -62,8 +62,7 @@ public class Score {
     @Type(JsonType.class)
     private final Set<ScoreResult> details = new HashSet<>();
 
-    public Score() {
-    }
+    public Score() {}
 
     public Score(Plugin plugin, ZonedDateTime computedAt) {
         this.plugin = plugin;
@@ -84,13 +83,13 @@ public class Score {
 
     private void computeValue() {
         var sum = details.stream()
-            .filter(Objects::nonNull)
-            .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
-            .sum();
+                .filter(Objects::nonNull)
+                .flatMapToDouble(res -> DoubleStream.of(res.value() * res.weight()))
+                .sum();
         var coefficient = details.stream()
-            .filter(Objects::nonNull)
-            .flatMapToDouble(res -> DoubleStream.of(res.weight()))
-            .sum();
+                .filter(Objects::nonNull)
+                .flatMapToDouble(res -> DoubleStream.of(res.weight()))
+                .sum();
         this.value = Math.round((sum / coefficient));
     }
 
