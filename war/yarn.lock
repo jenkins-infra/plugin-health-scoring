@@ -2157,7 +2157,7 @@ __metadata:
     less-loader: "npm:12.3.2"
     mini-css-extract-plugin: "npm:2.10.2"
     path: "npm:0.12.7"
-    postcss: "npm:8.5.9"
+    postcss: "npm:8.5.10"
     postcss-loader: "npm:8.2.1"
     simple-datatables: "npm:10.2.0"
     style-loader: "npm:4.0.0"
@@ -2575,14 +2575,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.9":
-  version: 8.5.9
-  resolution: "postcss@npm:8.5.9"
+"postcss@npm:8.5.10":
+  version: 8.5.10
+  resolution: "postcss@npm:8.5.10"
   dependencies:
     nanoid: "npm:^3.3.11"
     picocolors: "npm:^1.1.1"
     source-map-js: "npm:^1.2.1"
-  checksum: 10/b34661c6efca87f7bf747c6c943435e4bfef7617a238c3719103e607c605d16720682fb121b7ebd4f7f748228dfdf8711b82f7ffed80a5c4a9249c070ed5fd87
+  checksum: 10/7eac6169e535b63c8412e94d4f6047fc23efa3e9dde804b541940043c831b25f1cd867d83cd2c4371ad2450c8abcb42c208aa25668c1f0f3650d7f72faf711a8
   languageName: node
   linkType: hard
 
