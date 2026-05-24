@@ -290,6 +290,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/less@npm:^3.0.8":
+  version: 3.0.8
+  resolution: "@types/less@npm:3.0.8"
+  checksum: 10/7b4dd5d1fec813883c0f5e659a06cc0634da163925f3c9246cefcfb98f99682fd7135e2eb8dbba66ddfd582a8776a44ed78e06ebbfd89682771c8f12ebfe1146
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:*":
   version: 5.1.2
   resolution: "@types/minimatch@npm:5.1.2"
@@ -1699,9 +1706,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less-loader@npm:12.3.2":
-  version: 12.3.2
-  resolution: "less-loader@npm:12.3.2"
+"less-loader@npm:13.0.0":
+  version: 13.0.0
+  resolution: "less-loader@npm:13.0.0"
+  dependencies:
+    "@types/less": "npm:^3.0.8"
   peerDependencies:
     "@rspack/core": 0.x || ^1.0.0 || ^2.0.0-0
     less: ^3.5.0 || ^4.0.0
@@ -1711,7 +1720,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10/9018d0dae852d99370b7202b548b34334b1a069123bae3717b20143290f17fb639da4f6fd9894b659e100af603f03d1eb74922d6b761e8ba91d1f758d692459a
+  checksum: 10/b88d3ae67e81df863a492734f1d94ae29e226d101612b0efa668826813f42ba945584ddafacc811423ecb5c82d0fb5c50321af539ed5bd9141a11f02f525dc64
   languageName: node
   linkType: hard
 
@@ -2127,7 +2136,7 @@ __metadata:
     echarts: "npm:6.0.0"
     ionicons: "npm:8.0.13"
     less: "npm:4.6.4"
-    less-loader: "npm:12.3.2"
+    less-loader: "npm:13.0.0"
     mini-css-extract-plugin: "npm:2.10.2"
     path: "npm:0.12.7"
     postcss: "npm:8.5.15"
