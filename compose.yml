@@ -19,7 +19,7 @@ services:
       - "${GITHUB_APP_PRIVATE_KEY_PATH}:/app/github-app-private-key.pem:ro"
 
   db:
-    image: postgres:14.1-alpine
+    image: postgres:17.9-alpine
     restart: always
     env_file:
       - .env
