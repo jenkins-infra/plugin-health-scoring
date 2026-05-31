@@ -19,7 +19,7 @@
     "postcss": "8.5.15",
     "postcss-loader": "8.2.1",
     "style-loader": "4.0.0",
-    "webpack": "5.107.1",
+    "webpack": "5.107.2",
     "webpack-cli": "7.0.2",
     "webpack-remove-empty-scripts": "1.1.1"
   },
