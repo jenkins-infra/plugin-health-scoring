@@ -23,6 +23,7 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -46,15 +47,28 @@ public class UpdateCenterService {
         this.configuration = configuration;
     }
 
+    private InputStream getDataStream(String source) throws IOException {
+        var updateCenterURI = URI.create(source);
+        return switch(updateCenterURI.getScheme()) {
+            case "http", "https" -> {
+                try (HttpClient client = HttpClient.newBuilder().build()) {
+                    HttpRequest request = HttpRequest.newBuilder(URI.create(configuration.jenkins().updateCenter()))
+                        .GET()
+                        .build();
+                    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    yield response.body();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case "file", "content" -> { // This should only be for tests
+                yield new FileInputStream(updateCenterURI.getPath());
+            }
+            default -> throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(updateCenterURI.getScheme()));
+        };
+    }
+
     public UpdateCenter fetchUpdateCenter() throws IOException {
-        try (HttpClient client = HttpClient.newBuilder().build()) {
-            HttpRequest request = HttpRequest.newBuilder(URI.create(configuration.jenkins().updateCenter()))
-                .GET()
-                .build();
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            return objectMapper.readValue(response.body(), UpdateCenter.class);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        return objectMapper.readValue(getDataStream(configuration.jenkins().updateCenter()), UpdateCenter.class);
     }
 }
