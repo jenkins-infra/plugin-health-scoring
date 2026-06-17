@@ -23,6 +23,7 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -53,27 +54,36 @@ public class PluginDocumentationService {
         this.configuration = configuration;
     }
 
+    private InputStream getDataStream(String source) throws IOException {
+        var uri = URI.create(source);
+        return switch(uri.getScheme()) {
+            case "http", "https" -> {
+                try (HttpClient client = HttpClient.newBuilder().build()) {
+                    HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
+                    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    yield response.body();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case "file", "content" -> { // This should only be for tests
+                yield new FileInputStream(uri.getPath());
+            }
+            default -> throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
+        };
+    }
+
     public Map<String, String> fetchPluginDocumentationUrl() {
-        try (HttpClient http = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build()) {
-            HttpRequest request = HttpRequest.newBuilder(
-                            URI.create(configuration.jenkins().documentationUrls()))
-                    .GET()
-                    .build();
-            HttpResponse<InputStream> response = http.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try {
             final Map<String, Link> documentationUrlsMap =
-                    objectMapper.readValue(response.body(), new TypeReference<>() {});
+                objectMapper.readValue(getDataStream(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
             return documentationUrlsMap.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             e -> e.getValue() == null || e.getValue().url() == null
                                     ? ""
                                     : e.getValue().url()));
-        } catch (MalformedURLException e) {
-            LOGGER.error("URL to documentation link is incorrect.", e);
-            return Map.of();
-        } catch (InterruptedException | IOException e) {
+        } catch (IOException e) {
             LOGGER.error("Could not fetch plugin documentation.", e);
             return Map.of();
         }
