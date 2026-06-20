@@ -36,10 +36,10 @@ import io.jenkins.pluginhealth.scoring.service.UpdateCenterService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import tools.jackson.databind.json.JsonMapper;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -48,7 +48,7 @@ class UpdateCenterSchedulerIT extends AbstractDBContainerTest {
     @Autowired
     private PluginRepository pluginRepository;
 
-    @Mock
+    @MockitoBean
     private UpdateCenterService ucService;
 
     private DefaultUpdateCenterScheduler upScheduler;
