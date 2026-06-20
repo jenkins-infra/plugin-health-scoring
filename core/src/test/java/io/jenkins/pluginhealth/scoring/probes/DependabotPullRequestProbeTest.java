@@ -43,8 +43,10 @@ import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHLabel;
 import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.github.GHPullRequestQueryBuilder;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.PagedIterable;
 
 class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullRequestProbe> {
     @Override
@@ -100,7 +102,12 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHPullRequest pr_1 = mock(GHPullRequest.class);
         final GHPullRequest pr_2 = mock(GHPullRequest.class);
         final GHPullRequest pr_3 = mock(GHPullRequest.class);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3));
+        final var ghPrBuilder = mock(GHPullRequestQueryBuilder.class);
+        final var ghPrIterable = mock(PagedIterable.class);
+        when(ghRepository.queryPullRequests()).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.state(GHIssueState.OPEN)).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.list()).thenReturn(ghPrIterable);
+        when(ghPrIterable.toList()).thenReturn(List.of(pr_1, pr_2, pr_3));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -146,7 +153,12 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
         when(pr_5.getLabels()).thenReturn(List.of(dependenciesLabel));
         when(pr_5.getCreatedAt()).thenReturn(thirtyDaysAgo);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
+        final var ghPrBuilder = mock(GHPullRequestQueryBuilder.class);
+        final var ghPrIterable = mock(PagedIterable.class);
+        when(ghRepository.queryPullRequests()).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.state(GHIssueState.OPEN)).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.list()).thenReturn(ghPrIterable);
+        when(ghPrIterable.toList()).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -210,7 +222,12 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         when(pr_3.getCreatedAt()).thenReturn(thirtyDaysAgo);
         final GHPullRequest pr_4 = mock(GHPullRequest.class);
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
+        final var ghPrBuilder = mock(GHPullRequestQueryBuilder.class);
+        final var ghPrIterable = mock(PagedIterable.class);
+        when(ghRepository.queryPullRequests()).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.state(GHIssueState.OPEN)).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.list()).thenReturn(ghPrIterable);
+        when(ghPrIterable.toList()).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
@@ -254,7 +271,12 @@ class DependabotPullRequestProbeTest extends AbstractProbeTest<DependabotPullReq
         final GHPullRequest pr_5 = mock(GHPullRequest.class);
         when(pr_5.getLabels()).thenReturn(List.of(dependenciesLabel));
         when(pr_5.getCreatedAt()).thenReturn(ninetyOneDaysAgo);
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
+        final var ghPrBuilder = mock(GHPullRequestQueryBuilder.class);
+        final var ghPrIterable = mock(PagedIterable.class);
+        when(ghRepository.queryPullRequests()).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.state(GHIssueState.OPEN)).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.list()).thenReturn(ghPrIterable);
+        when(ghPrIterable.toList()).thenReturn(List.of(pr_1, pr_2, pr_3, pr_4, pr_5));
 
         final DependabotPullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);

@@ -55,7 +55,7 @@ public class PullRequestProbe extends Probe {
                 return this.error("Cannot find repository for " + plugin.getName());
             }
             final GHRepository repository = gh.getRepository(repositoryName.get());
-            final List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
+            final List<GHPullRequest> pullRequests = repository.queryPullRequests().state(GHIssueState.OPEN).list().toList();
             return this.success(pullRequests.size());
         } catch (IOException e) {
             return this.error("Cannot access repository " + plugin.getScm());

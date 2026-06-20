@@ -40,8 +40,10 @@ import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import org.junit.jupiter.api.Test;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHPullRequest;
+import org.kohsuke.github.GHPullRequestQueryBuilder;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.PagedIterable;
 
 class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
     @Override
@@ -90,13 +92,18 @@ class PullRequestProbeTest extends AbstractProbeTest<PullRequestProbe> {
         when(gh.getRepository(anyString())).thenReturn(ghRepository);
         final List<GHPullRequest> ghPullRequests =
                 List.of(new GHPullRequest(), new GHPullRequest(), new GHPullRequest());
-        when(ghRepository.getPullRequests(GHIssueState.OPEN)).thenReturn(ghPullRequests);
+        final var ghPrBuilder = mock(GHPullRequestQueryBuilder.class);
+        final var ghPrIterable = mock(PagedIterable.class);
+        when(ghRepository.queryPullRequests()).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.state(GHIssueState.OPEN)).thenReturn(ghPrBuilder);
+        when(ghPrBuilder.list()).thenReturn(ghPrIterable);
+        when(ghPrIterable.toList()).thenReturn(ghPullRequests);
 
         final PullRequestProbe probe = getSpy();
         final ProbeResult result = probe.apply(plugin, ctx);
 
         verify(ctx).getGitHub();
-        verify(gh.getRepository(anyString())).getPullRequests(GHIssueState.OPEN);
+        verify(gh.getRepository(anyString())).queryPullRequests();
 
         assertThat(result)
                 .usingRecursiveComparison()
