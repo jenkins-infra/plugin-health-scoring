@@ -43,12 +43,6 @@
         <artifactId>groovy</artifactId>
         <version>5.0.5</version>
       </dependency>
-      <dependency><!-- TODO remove once spring-boot upgraded to 4.x and library in that bom -->
-        <!-- See https://github.com/ultraq/thymeleaf-layout-dialect/issues/251 -->
-        <groupId>nz.net.ultraq.thymeleaf</groupId>
-        <artifactId>thymeleaf-layout-dialect</artifactId>
-        <version>4.0.1</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
@@ -59,11 +53,6 @@
     <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp-jvm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.vladmihalcea</groupId>
-      <artifactId>hibernate-types-60</artifactId>
-      <version>2.21.1</version>
     </dependency>
     <dependency>
       <groupId>nz.net.ultraq.thymeleaf</groupId>
@@ -110,7 +99,7 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -149,6 +138,11 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
       <exclusions>
@@ -159,13 +153,18 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-postgresql</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

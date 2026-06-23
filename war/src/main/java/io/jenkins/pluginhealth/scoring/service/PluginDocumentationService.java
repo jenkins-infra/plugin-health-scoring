@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,23 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class PluginDocumentationService {
@@ -49,19 +53,37 @@ public class PluginDocumentationService {
         this.configuration = configuration;
     }
 
+    private InputStream getDataStream(String source) throws IOException {
+        var uri = URI.create(source);
+        return switch (uri.getScheme()) {
+            case "http", "https" -> {
+                try (HttpClient client = HttpClient.newBuilder().build()) {
+                    HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
+                    HttpResponse<InputStream> response =
+                            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    yield response.body();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case "file", "content" -> { // This should only be for tests
+                yield new FileInputStream(uri.getPath());
+            }
+            default ->
+                throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
+        };
+    }
+
     public Map<String, String> fetchPluginDocumentationUrl() {
         try {
             final Map<String, Link> documentationUrlsMap = objectMapper.readValue(
-                    URI.create(configuration.jenkins().documentationUrls()).toURL(), new TypeReference<>() {});
+                    getDataStream(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
             return documentationUrlsMap.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             e -> e.getValue() == null || e.getValue().url() == null
                                     ? ""
                                     : e.getValue().url()));
-        } catch (MalformedURLException e) {
-            LOGGER.error("URL to documentation link is incorrect.", e);
-            return Map.of();
         } catch (IOException e) {
             LOGGER.error("Could not fetch plugin documentation.", e);
             return Map.of();
