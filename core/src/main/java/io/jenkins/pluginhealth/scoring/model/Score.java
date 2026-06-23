@@ -23,7 +23,6 @@
  */
 package io.jenkins.pluginhealth.scoring.model;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -43,7 +42,7 @@ import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "scores")
-public class Score implements Serializable {
+public class Score {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
