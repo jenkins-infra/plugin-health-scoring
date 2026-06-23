@@ -12,7 +12,7 @@
     "copy-webpack-plugin": "14.0.0",
     "css-loader": "7.1.4",
     "css-minimizer-webpack-plugin": "8.0.0",
-    "less": "4.6.4",
+    "less": "4.6.6",
     "less-loader": "13.0.0",
     "mini-css-extract-plugin": "2.10.2",
     "path": "0.12.7",
@@ -20,7 +20,7 @@
     "postcss-loader": "8.2.1",
     "style-loader": "4.0.0",
     "webpack": "5.107.2",
-    "webpack-cli": "7.0.2",
+    "webpack-cli": "7.0.3",
     "webpack-remove-empty-scripts": "1.1.1"
   },
   "dependencies": {
