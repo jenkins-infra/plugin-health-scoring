@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,11 @@ public class PullRequestProbe extends Probe {
                 return this.error("Cannot find repository for " + plugin.getName());
             }
             final GHRepository repository = gh.getRepository(repositoryName.get());
-            final List<GHPullRequest> pullRequests = repository.queryPullRequests().state(GHIssueState.OPEN).list().toList();
+            final List<GHPullRequest> pullRequests = repository
+                    .queryPullRequests()
+                    .state(GHIssueState.OPEN)
+                    .list()
+                    .toList();
             return this.success(pullRequests.size());
         } catch (IOException e) {
             return this.error("Cannot access repository " + plugin.getScm());

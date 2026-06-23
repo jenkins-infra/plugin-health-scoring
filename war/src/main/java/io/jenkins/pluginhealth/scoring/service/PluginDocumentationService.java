@@ -26,7 +26,6 @@ package io.jenkins.pluginhealth.scoring.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -56,11 +55,12 @@ public class PluginDocumentationService {
 
     private InputStream getDataStream(String source) throws IOException {
         var uri = URI.create(source);
-        return switch(uri.getScheme()) {
+        return switch (uri.getScheme()) {
             case "http", "https" -> {
                 try (HttpClient client = HttpClient.newBuilder().build()) {
                     HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
-                    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    HttpResponse<InputStream> response =
+                            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
                     yield response.body();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -69,14 +69,15 @@ public class PluginDocumentationService {
             case "file", "content" -> { // This should only be for tests
                 yield new FileInputStream(uri.getPath());
             }
-            default -> throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
+            default ->
+                throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
         };
     }
 
     public Map<String, String> fetchPluginDocumentationUrl() {
         try {
-            final Map<String, Link> documentationUrlsMap =
-                objectMapper.readValue(getDataStream(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
+            final Map<String, Link> documentationUrlsMap = objectMapper.readValue(
+                    getDataStream(configuration.jenkins().documentationUrls()), new TypeReference<>() {});
             return documentationUrlsMap.entrySet().stream()
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,

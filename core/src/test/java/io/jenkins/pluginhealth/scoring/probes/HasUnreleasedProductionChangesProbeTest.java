@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.probes;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,13 +62,12 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         final HasUnreleasedProductionChangesProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.error(
-                HasUnreleasedProductionChangesProbe.KEY,
-                "There is no local repository for plugin " + pluginName + ".",
-                probe.getVersion()
-            ));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.error(
+                        HasUnreleasedProductionChangesProbe.KEY,
+                        "There is no local repository for plugin " + pluginName + ".",
+                        probe.getVersion()));
     }
 
     @Test
@@ -83,33 +81,41 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
             final Path srcMainResources = Files.createDirectories(
-                repository.resolve("src").resolve("main").resolve("resources")
-            );
+                    repository.resolve("src").resolve("main").resolve("resources"));
             Files.createFile(srcMainResources.resolve("index.jelly"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
 
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             git.add().addFilepattern("src/main").call();
-            git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
-
+            git.commit()
+                    .setMessage("Imports production files")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
         }
         final HasUnreleasedProductionChangesProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/index.jelly", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        HasUnreleasedProductionChangesProbe.KEY,
+                        "Unreleased production modifications might exist in the plugin source code at pom.xml, src/main/resources/index.jelly",
+                        probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -127,38 +133,42 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
 
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
             Files.createFile(module.resolve("pom.xml"));
             final Path srcMainResources = Files.createDirectories(
-                module.resolve("src").resolve("main").resolve("resources")
-            );
+                    module.resolve("src").resolve("main").resolve("resources"));
             Files.createFile(srcMainResources.resolve("index.jelly"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
 
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             git.add().addFilepattern("test-folder").call();
-            git.commit().setMessage("Imports module files").setSign(false).setCommitter(committer).call();
-
+            git.commit()
+                    .setMessage("Imports module files")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
         }
         final HasUnreleasedProductionChangesProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "message", "status")
-            .isEqualTo(ProbeResult.success(
-                HasUnreleasedProductionChangesProbe.KEY,
-                "Unreleased production modifications might exist in the plugin source code at pom.xml, test-folder/pom.xml, test-folder/src/main/resources/index.jelly",
-                probe.getVersion()
-            ));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "message", "status")
+                .isEqualTo(ProbeResult.success(
+                        HasUnreleasedProductionChangesProbe.KEY,
+                        "Unreleased production modifications might exist in the plugin source code at pom.xml, test-folder/pom.xml, test-folder/src/main/resources/index.jelly",
+                        probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -175,26 +185,32 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
 
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
         }
 
         final HasUnreleasedProductionChangesProbe probe = getSpy();
 
         assertThat(probe.apply(plugin, ctx))
-            .usingRecursiveComparison()
-            .comparingOnlyFields("id", "status", "message")
-            .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
+                .usingRecursiveComparison()
+                .comparingOnlyFields("id", "status", "message")
+                .isEqualTo(ProbeResult.success(
+                        HasUnreleasedProductionChangesProbe.KEY,
+                        "All production modifications were released.",
+                        probe.getVersion()));
         verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
     }
 
@@ -209,25 +225,31 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("README.md"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
 
             git.add().addFilepattern("README.md").call();
-            git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Updated README.md file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "status", "message")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "All production modifications were released.",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -243,27 +265,33 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
-            final Path srcMainResources = Files.createDirectories(repository.resolve("src").resolve("main")
-                .resolve("resources"));
+            final Path srcMainResources = Files.createDirectories(
+                    repository.resolve("src").resolve("main").resolve("resources"));
             Files.createFile(srcMainResources.resolve("test.txt"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
 
             git.add().addFilepattern("src/main").call();
-            git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports production files")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "All production modifications were released.",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -281,25 +309,31 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(7).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(7).toInstant());
 
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at pom.xml", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at pom.xml",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -315,28 +349,33 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             final Path srcMainResources = Files.createDirectories(
-                repository.resolve("src").resolve("main").resolve("resources")
-            );
+                    repository.resolve("src").resolve("main").resolve("resources"));
             Files.createFile(srcMainResources.resolve("index.jelly"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
 
             git.add().addFilepattern("src/main").call();
-            git.commit().setMessage("Imports production files").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports production files")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "Unreleased production modifications might exist in the plugin source code at src/main/resources/index.jelly", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at src/main/resources/index.jelly",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -352,25 +391,31 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("README.md"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusHours(1).toInstant());
 
             git.add().addFilepattern("README.md").call();
-            git.commit().setMessage("Updated README.md file").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Updated README.md file")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
 
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "status", "message")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "All production modifications were released.",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -386,26 +431,33 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getScm()).thenReturn(scmLink);
         when(ctx.getScmRepository()).thenReturn(Optional.of(repository));
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
-            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("test").resolve("java"));
+            final Path srcTestJava = Files.createDirectories(
+                    repository.resolve("src").resolve("test").resolve("java"));
             Files.createFile(srcTestJava.resolve("TestA.java"));
 
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(1).toInstant());
 
             git.add().addFilepattern("src/test").call();
-            git.commit().setMessage("Import test").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Import test")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             final ProbeResult result = probe.apply(plugin, ctx);
 
             assertThat(result)
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "status", "message")
-                .isEqualTo(ProbeResult.success(HasUnreleasedProductionChangesProbe.KEY, "All production modifications were released.", probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "status", "message")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "All production modifications were released.",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -423,36 +475,50 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusHours(3).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusHours(3).toInstant());
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file before commit date")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
-            final Path srcMainJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
+            final Path srcMainJava = Files.createDirectories(
+                    repository.resolve("src").resolve("main").resolve("java"));
             Files.createFile(srcMainJava.resolve("Hello.java"));
-            PersonIdent committer2 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(3).toInstant());
+            PersonIdent committer2 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(3).toInstant());
             git.add().addFilepattern("src/main").call();
-            git.commit().setMessage("Import main after commit  date").setSign(false).setCommitter(committer2).call();
+            git.commit()
+                    .setMessage("Import main after commit  date")
+                    .setSign(false)
+                    .setCommitter(committer2)
+                    .call();
 
             Files.createFile(repository.resolve("README.md"));
-            PersonIdent committer3 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusHours(3).toInstant());
+            PersonIdent committer3 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusHours(3).toInstant());
             git.add().addFilepattern("README.md").call();
-            git.commit().setMessage("Updated README.md file after commit date").setSign(false).setCommitter(committer3).call();
+            git.commit()
+                    .setMessage("Updated README.md file after commit date")
+                    .setSign(false)
+                    .setCommitter(committer3)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                    HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
-                    probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -470,33 +536,43 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file before commit date")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
-            final Path srcMainJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
+            final Path srcMainJava = Files.createDirectories(
+                    repository.resolve("src").resolve("main").resolve("java"));
             Files.createFile(srcMainJava.resolve("Hello.java"));
-            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("test").resolve("java"));
+            final Path srcTestJava = Files.createDirectories(
+                    repository.resolve("src").resolve("test").resolve("java"));
             Files.createFile(srcTestJava.resolve("HelloTest.java"));
-            PersonIdent committer2 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
+            PersonIdent committer2 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
             git.add().addFilepattern("src").call();
-            git.commit().setMessage("Import class and test like for a bugfix").setSign(false).setCommitter(committer2).call();
+            git.commit()
+                    .setMessage("Import class and test like for a bugfix")
+                    .setSign(false)
+                    .setCommitter(committer2)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                    HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
-                    probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at src/main/java/Hello.java",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
@@ -514,44 +590,60 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("pom.xml"));
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file before commit date")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
-            final Path srcMainJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
+            final Path srcMainJava = Files.createDirectories(
+                    repository.resolve("src").resolve("main").resolve("java"));
             Files.createFile(srcMainJava.resolve("Hello.java"));
-            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("test").resolve("java"));
+            final Path srcTestJava = Files.createDirectories(
+                    repository.resolve("src").resolve("test").resolve("java"));
             Files.createFile(srcTestJava.resolve("HelloTest.java"));
-            PersonIdent committer2 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
+            PersonIdent committer2 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
             git.add().addFilepattern("src").call();
-            git.commit().setMessage("Import class and test like for a bugfix").setSign(false).setCommitter(committer2).call();
+            git.commit()
+                    .setMessage("Import class and test like for a bugfix")
+                    .setSign(false)
+                    .setCommitter(committer2)
+                    .call();
 
             Files.createFile(srcMainJava.resolve("AnotherClass.java"));
-            PersonIdent committer3 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(5).toInstant());
+            PersonIdent committer3 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(5).toInstant());
             git.add().addFilepattern("src").call();
-            git.commit().setMessage("New class for new feature").setSign(false).setCommitter(committer3).call();
+            git.commit()
+                    .setMessage("New class for new feature")
+                    .setSign(false)
+                    .setCommitter(committer3)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                    HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
-                    probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }
 
     @Test
-    void shouldBeAbleToDisplayProductionFilesInDifferentCommitsWithIntermediateCommits() throws IOException, GitAPIException {
+    void shouldBeAbleToDisplayProductionFilesInDifferentCommitsWithIntermediateCommits()
+            throws IOException, GitAPIException {
         final Path repository = Files.createTempDirectory("test-foo-bar");
         final Plugin plugin = mock(Plugin.class);
         final ProbeContext ctx = mock(ProbeContext.class);
@@ -563,48 +655,73 @@ class HasUnreleasedProductionChangesProbeTest extends AbstractProbeTest<HasUnrel
         when(plugin.getName()).thenReturn(pluginName);
         when(plugin.getScm()).thenReturn(scmLink);
 
-        final PersonIdent defaultCommitter = new PersonIdent(
-            "Not real person", "this is not a real email"
-        );
+        final PersonIdent defaultCommitter = new PersonIdent("Not real person", "this is not a real email");
 
         try (Git git = Git.init().setDirectory(repository.toFile()).call()) {
 
             Files.createFile(repository.resolve("LICENSE"));
-            PersonIdent committer0 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(4).toInstant());
+            PersonIdent committer0 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(4).toInstant());
             git.add().addFilepattern("LICENSE").call();
-            git.commit().setMessage("Import license file").setSign(false).setCommitter(committer0).call();
+            git.commit()
+                    .setMessage("Import license file")
+                    .setSign(false)
+                    .setCommitter(committer0)
+                    .call();
 
             Files.createFile(repository.resolve("pom.xml"));
-            PersonIdent committer = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
+            PersonIdent committer = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().minusDays(3).toInstant());
             git.add().addFilepattern("pom.xml").call();
-            git.commit().setMessage("Imports pom.xml file before commit date").setSign(false).setCommitter(committer).call();
+            git.commit()
+                    .setMessage("Imports pom.xml file before commit date")
+                    .setSign(false)
+                    .setCommitter(committer)
+                    .call();
 
-            final Path srcMainJava = Files.createDirectories(repository.resolve("src").resolve("main").resolve("java"));
+            final Path srcMainJava = Files.createDirectories(
+                    repository.resolve("src").resolve("main").resolve("java"));
             Files.createFile(srcMainJava.resolve("Hello.java"));
-            final Path srcTestJava = Files.createDirectories(repository.resolve("src").resolve("test").resolve("java"));
+            final Path srcTestJava = Files.createDirectories(
+                    repository.resolve("src").resolve("test").resolve("java"));
             Files.createFile(srcTestJava.resolve("HelloTest.java"));
-            PersonIdent committer2 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
+            PersonIdent committer2 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(3).toInstant());
             git.add().addFilepattern("src").call();
-            git.commit().setMessage("Import class and test like for a bugfix").setSign(false).setCommitter(committer2).call();
+            git.commit()
+                    .setMessage("Import class and test like for a bugfix")
+                    .setSign(false)
+                    .setCommitter(committer2)
+                    .call();
 
             Files.createFile(repository.resolve("README.adoc"));
-            PersonIdent committer3 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(4).toInstant());
+            PersonIdent committer3 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(4).toInstant());
             git.add().addFilepattern("README.adoc").call();
-            git.commit().setMessage("Import readme file").setSign(false).setCommitter(committer3).call();
+            git.commit()
+                    .setMessage("Import readme file")
+                    .setSign(false)
+                    .setCommitter(committer3)
+                    .call();
 
             Files.createFile(srcMainJava.resolve("AnotherClass.java"));
-            PersonIdent committer4 = new PersonIdent(defaultCommitter, plugin.getReleaseTimestamp().plusDays(5).toInstant());
+            PersonIdent committer4 = new PersonIdent(
+                    defaultCommitter, plugin.getReleaseTimestamp().plusDays(5).toInstant());
             git.add().addFilepattern("src").call();
-            git.commit().setMessage("New class for new feature").setSign(false).setCommitter(committer4).call();
+            git.commit()
+                    .setMessage("New class for new feature")
+                    .setSign(false)
+                    .setCommitter(committer4)
+                    .call();
 
             final HasUnreleasedProductionChangesProbe probe = getSpy();
             assertThat(probe.apply(plugin, ctx))
-                .usingRecursiveComparison()
-                .comparingOnlyFields("id", "message", "status")
-                .isEqualTo(ProbeResult.success(
-                    HasUnreleasedProductionChangesProbe.KEY,
-                    "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
-                    probe.getVersion()));
+                    .usingRecursiveComparison()
+                    .comparingOnlyFields("id", "message", "status")
+                    .isEqualTo(ProbeResult.success(
+                            HasUnreleasedProductionChangesProbe.KEY,
+                            "Unreleased production modifications might exist in the plugin source code at src/main/java/AnotherClass.java, src/main/java/Hello.java",
+                            probe.getVersion()));
             verify(probe).doApply(any(Plugin.class), any(ProbeContext.class));
         }
     }

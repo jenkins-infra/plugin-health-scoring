@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,11 +49,12 @@ public class UpdateCenterService {
 
     private InputStream getDataStream(String source) throws IOException {
         var uri = URI.create(source);
-        return switch(uri.getScheme()) {
+        return switch (uri.getScheme()) {
             case "http", "https" -> {
                 try (HttpClient client = HttpClient.newBuilder().build()) {
                     HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
-                    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    HttpResponse<InputStream> response =
+                            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
                     yield response.body();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -62,7 +63,8 @@ public class UpdateCenterService {
             case "file", "content" -> { // This should only be for tests
                 yield new FileInputStream(uri.getPath());
             }
-            default -> throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
+            default ->
+                throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
         };
     }
 
