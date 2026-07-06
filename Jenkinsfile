@@ -3,8 +3,8 @@
 // Do not rebuild daily if not on the principal branch (e.g. not on PR, not on other branches, not on tags)
 final String cronPattern = env.BRANCH_IS_PRIMARY ? '@daily' : ''
 
-// infra.ci.jenkins.io defaults to arm64 container agents while ci.jenkins.io has the default spot amd64 used by Java builds.
-final String agentLabel = infra.isInfra() ? 'jnlp-linux-amd64' : 'maven-25'
+// Docker is required for Integration Tests.
+final String agentLabel = infra.isInfra() ? 'linux-amd64-docker' : 'docker && linux-amd64 && spot'
 
 pipeline {
   agent {
