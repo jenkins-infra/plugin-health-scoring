@@ -1,12 +1,14 @@
 #!/usr/bin/env groovy
 
 // Do not rebuild daily if not on the principal branch (e.g. not on PR, not on other branches, not on tags)
-String cronPattern = env.BRANCH_IS_PRIMARY ? '@daily' : ''
+final String cronPattern = env.BRANCH_IS_PRIMARY ? '@daily' : ''
+
+// infra.ci.jenkins.io defaults to arm64 container agents while ci.jenkins.io has the default spot amd64 used by Java builds.
+final String agentLabel = infra.isInfra() ? 'jnlp-linux-amd64' : 'maven-25'
 
 pipeline {
   agent {
-    // 'docker' is the (legacy) label used on ci.jenkins.io for "Docker Linux AMD64" while 'linux-amd64-docker' is the label used on infra.ci.jenkins.io
-    label 'docker || linux-amd64-docker'
+    label agentLabel
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
