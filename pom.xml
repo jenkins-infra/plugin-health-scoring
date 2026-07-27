@@ -141,7 +141,7 @@
       <dependency>
         <groupId>org.kohsuke</groupId>
         <artifactId>github-api</artifactId>
-        <version>2.0-rc.6</version>
+        <version>2.0-rc.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -224,7 +224,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>13.7.0</version>
+              <version>13.8.0</version>
             </dependency>
           </dependencies>
         </plugin>
