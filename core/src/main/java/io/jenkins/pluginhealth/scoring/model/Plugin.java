@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
 import java.time.ZonedDateTime;
@@ -31,8 +30,8 @@ import java.util.Objects;
 
 import io.jenkins.pluginhealth.scoring.config.VersionNumberType;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
 import hudson.util.VersionNumber;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -65,8 +64,7 @@ public class Plugin {
     @Type(value = JsonType.class)
     private final Map<String, ProbeResult> details = new HashMap<>();
 
-    public Plugin() {
-    }
+    public Plugin() {}
 
     public Plugin(String name, VersionNumber version, String scm, ZonedDateTime releaseTimestamp) {
         this.name = name;
@@ -111,11 +109,11 @@ public class Plugin {
     }
 
     public Plugin addDetails(ProbeResult newProbeResult) {
-        this.details.compute(newProbeResult.id(), (s, previousProbeResult) ->
-            newProbeResult.status() == ProbeResult.Status.ERROR ?
-                null :
-                Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult
-        );
+        this.details.compute(
+                newProbeResult.id(),
+                (s, previousProbeResult) -> newProbeResult.status() == ProbeResult.Status.ERROR
+                        ? null
+                        : Objects.equals(previousProbeResult, newProbeResult) ? previousProbeResult : newProbeResult);
         return this;
     }
 

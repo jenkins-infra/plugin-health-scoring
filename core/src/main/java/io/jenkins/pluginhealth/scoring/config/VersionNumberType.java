@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.Serializable;
@@ -31,8 +30,8 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import hudson.util.VersionNumber;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.type.SqlTypes;
+import org.hibernate.type.descriptor.WrapperOptions;
 import org.hibernate.usertype.UserType;
 
 public class VersionNumberType implements UserType<VersionNumber> {
@@ -57,13 +56,14 @@ public class VersionNumberType implements UserType<VersionNumber> {
     }
 
     @Override
-    public VersionNumber nullSafeGet(ResultSet rs, int position, SharedSessionContractImplementor session, Object owner) throws SQLException {
+    public VersionNumber nullSafeGet(ResultSet rs, int position, WrapperOptions options) throws SQLException {
         final String value = rs.getString(position);
         return Objects.isNull(value) ? null : new VersionNumber(value);
     }
 
     @Override
-    public void nullSafeSet(PreparedStatement st, VersionNumber value, int index, SharedSessionContractImplementor session) throws SQLException {
+    public void nullSafeSet(PreparedStatement st, VersionNumber value, int index, WrapperOptions options)
+            throws SQLException {
         if (Objects.isNull(value)) {
             st.setNull(index, SqlTypes.VARCHAR);
         } else {

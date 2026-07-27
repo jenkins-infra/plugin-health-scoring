@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring;
 
 import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PluginHealthScoringDatabaseContainer extends PostgreSQLContainer<PluginHealthScoringDatabaseContainer> {
-    private static final String IMAGE_VERSION = "postgres:14.1-alpine";
+    private static final String IMAGE_VERSION = "postgres:17.9-alpine";
     private static PluginHealthScoringDatabaseContainer container;
 
     private PluginHealthScoringDatabaseContainer() {

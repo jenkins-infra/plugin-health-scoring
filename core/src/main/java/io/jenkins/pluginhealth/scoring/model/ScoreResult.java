@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,7 +35,13 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  * @param weight  the importance of the score facing the others
  * @param componentsResults a list of {@link ScoringComponentResult} which explain the score
  */
-public record ScoreResult(String key, int value, @JsonAlias("coefficient") float weight, Set<ScoringComponentResult> componentsResults, int version) {
+public record ScoreResult(
+        String key,
+        int value,
+        @JsonAlias("coefficient") float weight,
+        Set<ScoringComponentResult> componentsResults,
+        int version)
+        implements Serializable {
     public ScoreResult {
         if (weight > 1) {
             throw new IllegalArgumentException("Value and Coefficient must be less or equal to 1.");

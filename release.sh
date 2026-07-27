@@ -3,6 +3,11 @@ set -euo pipefail
 
 # This script is used to generate the project releases.
 # This uses 'git' 'gh', 'jq', 'mvn' and must be used with a Bash version greater than or equal to 4.
+readonly REPO=jenkins-infra/plugin-health-scoring
+readonly BRANCH=main
+
+FORCE=0
+VERSION=""
 
 cmds=('git' 'gh' 'jq' 'mvn')
 for cmd in "${cmds[@]}"; do
@@ -15,23 +20,35 @@ if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
 	exit 1
 fi
 
-main_branch_status=$(\
-    gh api /repos/jenkins-infra/plugin-health-scoring/commits/main/status\
-    | jq --raw-output ".state"\
-)
-if [ "${main_branch_status}" != "success" ]; then
+while getopts "fv:" opt; do
+    case "${opt}" in
+        f) FORCE=1;;
+        v) VERSION="${OPTARG}";;
+    esac
+done
+
+function is_branch_validated() {
+    if [ "${FORCE}" == 1 ]; then
+        echo "success"
+    else
+        gh api /repos/${REPO}/commits/${BRANCH}/status\
+            | jq --raw-output ".state"
+    fi
+}
+
+if [ "$(is_branch_validated)" != "success" ]; then
     echo "Main branch status is not successful. Please assess."
-    gh browse --repo jenkins-infra/plugin-health-scoring --branch main
+    gh browse --repo ${REPO} --branch ${BRANCH}
     exit 1
 fi
 
 gh repo sync\
-    --source jenkins-infra/plugin-health-scoring\
-    --branch main
-git switch main
+    --source ${REPO}\
+    --branch ${BRANCH}
+git switch ${BRANCH}
 
 draft_releases=$(\
-    gh release list --repo jenkins-infra/plugin-health-scoring --json tagName,isDraft\
+    gh release list --repo ${REPO} --json tagName,isDraft\
     | jq '[.[] | select(.isDraft == true)]'\
 )
 
@@ -43,7 +60,7 @@ if [ "${draft_count}" -ne 1 ]; then
     if [ "${draft_count}" -gt 1 ]; then
         echo "# There is too many releases in draft on GitHub. Please assess."
     fi
-    gh browse --repo jenkins-infra/plugin-health-scoring --releases
+    gh browse --repo ${REPO} --releases
     exit 1
 fi
 
@@ -52,9 +69,8 @@ gh_draft_tag=$(\
     | jq --raw-output '.[0].tagName'
 )
 
-if [ ${#@} -eq 1 ] ; then
-    version="${1}"
-    shift
+if [ -n ${VERSION} ] ; then
+    version="${VERSION}"
 else
     echo "# Using GitHub Release to get the release version."
     version=${gh_draft_tag/#v/}
@@ -87,6 +103,6 @@ gh release edit "${gh_draft_tag}"\
     --title="${release_title}"\
     --draft=false\
     --latest\
-    --repo jenkins-infra/plugin-health-scoring 
+    --repo ${REPO}
 
 mvn -q release:clean

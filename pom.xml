@@ -27,7 +27,7 @@
 
   <groupId>io.jenkins.pluginhealth.scoring</groupId>
   <artifactId>plugin-health-scoring-parent</artifactId>
-  <version>5.0.1-SNAPSHOT</version>
+  <version>6.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Plugin Health Scoring :: Parent</name>
@@ -81,10 +81,10 @@
     <corepack.version>0.32.0</corepack.version>
 
     <jjwt.version>0.13.0</jjwt.version>
-    <testcontainers.version>2.0.1</testcontainers.version>
-    <spring-boot.version>3.5.7</spring-boot.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
+    <spring-boot.version>4.1.0</spring-boot.version>
 
-    <mockito.version>5.17.0</mockito.version>
+    <mockito.version>5.23.0</mockito.version>
   </properties>
 
   <dependencyManagement>
@@ -117,7 +117,7 @@
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp-jvm</artifactId>
-        <version>5.3.0</version>
+        <version>5.4.0</version>
       </dependency>
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
@@ -137,12 +137,12 @@
       <dependency>
         <groupId>org.apache.maven</groupId>
         <artifactId>maven-model</artifactId>
-        <version>3.9.11</version>
+        <version>3.9.16</version>
       </dependency>
       <dependency>
         <groupId>org.kohsuke</groupId>
         <artifactId>github-api</artifactId>
-        <version>2.0-rc.5</version>
+        <version>2.0-rc.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -166,7 +166,7 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.8.0</version>
           <configuration>
             <ratchetFrom>origin/main</ratchetFrom>
             <java>
@@ -207,7 +207,7 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.9.8.1</version>
+          <version>4.10.2.0</version>
           <configuration>
             <excludeFilterFile>analytics/spotbugs-exclude.xml</excludeFilterFile>
             <effort>Max</effort>
@@ -225,7 +225,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>12.1.1</version>
+              <version>13.8.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -235,7 +235,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.14.1</version>
+          <version>3.15.0</version>
           <configuration>
             <release>${maven.compiler.target}</release>
             <compilerArgs>
@@ -245,10 +245,11 @@
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.4</version>
+          <version>3.5.6</version>
           <configuration>
             <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
             <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+            <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
           </configuration>
           <executions>
             <execution>
@@ -265,7 +266,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.1</version>
           <configuration>
             <goals>verify</goals>
             <signTag>true</signTag>
@@ -278,7 +279,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.4</version>
+          <version>3.5.6</version>
           <configuration>
             <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
           </configuration>
@@ -286,7 +287,7 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.14</version>
+          <version>0.8.15</version>
           <configuration>
             <formats>
               <format>XML</format>

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,19 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class UpdateCenterService {
@@ -42,8 +47,28 @@ public class UpdateCenterService {
         this.configuration = configuration;
     }
 
+    private InputStream getDataStream(String source) throws IOException {
+        var uri = URI.create(source);
+        return switch (uri.getScheme()) {
+            case "http", "https" -> {
+                try (HttpClient client = HttpClient.newBuilder().build()) {
+                    HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
+                    HttpResponse<InputStream> response =
+                            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    yield response.body();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            case "file", "content" -> { // This should only be for tests
+                yield new FileInputStream(uri.getPath());
+            }
+            default ->
+                throw new UnsupportedOperationException("Cannot be used with %s scheme.".formatted(uri.getScheme()));
+        };
+    }
+
     public UpdateCenter fetchUpdateCenter() throws IOException {
-        return objectMapper.readValue(
-                URI.create(configuration.jenkins().updateCenter()).toURL(), UpdateCenter.class);
+        return objectMapper.readValue(getDataStream(configuration.jenkins().updateCenter()), UpdateCenter.class);
     }
 }

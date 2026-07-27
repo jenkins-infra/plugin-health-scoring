@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,15 +31,18 @@ import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import tools.jackson.databind.json.JsonMapper;
 
 @JsonTest
 class PluginDocumentationServiceTest {
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper mapper;
+
+    // TODO Resources URL seems to be incorrect
+    // It seems to return file:/path/to/class rather than file:///path/to/class
 
     @Test
     void shouldBeAbleToParseAvailableFile() {
@@ -51,7 +54,7 @@ class PluginDocumentationServiceTest {
                 new ApplicationConfiguration.Jenkins("foo", url.toString()),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
@@ -69,7 +72,7 @@ class PluginDocumentationServiceTest {
                 new ApplicationConfiguration.Jenkins("foo", url.toString()),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
@@ -82,7 +85,7 @@ class PluginDocumentationServiceTest {
         final ApplicationConfiguration config = new ApplicationConfiguration(
                 new ApplicationConfiguration.Jenkins("foo", "https://this-is-not-a-correct-url"),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
-        final PluginDocumentationService service = new PluginDocumentationService(objectMapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map).isEmpty();
