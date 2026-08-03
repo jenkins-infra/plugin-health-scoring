@@ -1719,9 +1719,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less@npm:4.8.0":
-  version: 4.8.0
-  resolution: "less@npm:4.8.0"
+"less@npm:4.8.1":
+  version: 4.8.1
+  resolution: "less@npm:4.8.1"
   dependencies:
     copy-anything: "npm:^3.0.5"
     errno: "npm:^0.1.1"
@@ -1749,7 +1749,7 @@ __metadata:
       optional: true
   bin:
     lessc: bin/lessc
-  checksum: 10/a2264aa6a028fc2a803d7d72689251d0bd8b516371903f566a0a956ec9975a6c62c3ed33fe61cf63f71820d654024f7e4552cac43963d6059048e75d79017afb
+  checksum: 10/2594c9b366c3d77b7e711b51c2f04848504b6c4f927b4665e46bd5a21b823ae6e60178b48f73c6b2c7b4b2b478aa82a2f4416d5245d1d70c6d0add4e46393ecd
   languageName: node
   linkType: hard
 
@@ -2193,7 +2193,7 @@ __metadata:
     css-minimizer-webpack-plugin: "npm:8.0.0"
     echarts: "npm:6.1.0"
     ionicons: "npm:8.1.0"
-    less: "npm:4.8.0"
+    less: "npm:4.8.1"
     less-loader: "npm:13.0.0"
     mini-css-extract-plugin: "npm:2.10.2"
     path: "npm:0.12.7"
