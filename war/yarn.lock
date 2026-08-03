@@ -1077,10 +1077,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.10":
-  version: 1.11.10
-  resolution: "dayjs@npm:1.11.10"
-  checksum: 10/27e8f5bc01c0a76f36c656e62ab7f08c2e7b040b09e613cd4844abf03fb258e0350f0a83b02c887b84d771c1f11e092deda0beef8c6df2a1afbc3f6c1fade279
+"dayjs@npm:^1.11.21":
+  version: 1.11.21
+  resolution: "dayjs@npm:1.11.21"
+  checksum: 10/dd16f9f2706b61b90e3c346a3211ac3afd9e26193136ce0e87f70bf74d1c17a447bceb230a88b175467fc9f5e3243d8c1544b9897092a12d9c80ee44d338dcb6
   languageName: node
   linkType: hard
 
@@ -2199,7 +2199,7 @@ __metadata:
     path: "npm:0.12.7"
     postcss: "npm:8.5.25"
     postcss-loader: "npm:8.2.1"
-    simple-datatables: "npm:10.2.0"
+    simple-datatables: "npm:10.3.0"
     style-loader: "npm:4.0.0"
     webpack: "npm:5.109.0"
     webpack-cli: "npm:7.2.2"
@@ -2845,13 +2845,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simple-datatables@npm:10.2.0":
-  version: 10.2.0
-  resolution: "simple-datatables@npm:10.2.0"
+"simple-datatables@npm:10.3.0":
+  version: 10.3.0
+  resolution: "simple-datatables@npm:10.3.0"
   dependencies:
-    dayjs: "npm:^1.11.10"
+    dayjs: "npm:^1.11.21"
     diff-dom: "npm:5.2.1"
-  checksum: 10/20b4a39fdb04031ac7e37b3f41c1dfd11a2f3df376a4883de3eb3e067e32bd07b28fe84b1a3edd24f7307d6464b3aab0a85b8c1e3480b1880be57a4807c72746
+  checksum: 10/08ce0178f411ef2f7de10c4e9d13cc0d451560fc2589cf796d57346099579288a377265edd1e1559d717ad13dde785cb9bd40321446038285e466fe52557f9fe
   languageName: node
   linkType: hard
 
