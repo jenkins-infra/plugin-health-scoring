@@ -24,12 +24,17 @@
 package io.jenkins.pluginhealth.scoring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
+import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -53,5 +58,30 @@ class UpdateCenterServiceTest {
 
         UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         assertThat(updateCenter.plugins()).hasSize(25);
+    }
+
+    @Test
+    void shouldThrowIOExceptionOnNonOkHttpResponse() throws Exception {
+        byte[] htmlBody = "<html>Service Unavailable</html>".getBytes(StandardCharsets.UTF_8);
+        HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+        server.createContext("/uc.json", exchange -> {
+            exchange.sendResponseHeaders(503, htmlBody.length);
+            try (var os = exchange.getResponseBody()) {
+                os.write(htmlBody);
+            }
+        });
+        server.start();
+        try {
+            int port = server.getAddress().getPort();
+            ApplicationConfiguration configuration = new ApplicationConfiguration(
+                    new ApplicationConfiguration.Jenkins("http://localhost:%d/uc.json".formatted(port), "foo"),
+                    new ApplicationConfiguration.GitHub("foo", null, "bar"));
+            UpdateCenterService service = new UpdateCenterService(objectMapper, configuration);
+            assertThatThrownBy(service::fetchUpdateCenter)
+                    .isInstanceOf(IOException.class)
+                    .hasMessageContaining("503");
+        } finally {
+            server.stop(0);
+        }
     }
 }
