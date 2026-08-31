@@ -23,6 +23,7 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,11 +52,17 @@ public class UpdateCenterService {
         var uri = URI.create(source);
         return switch (uri.getScheme()) {
             case "http", "https" -> {
-                try (HttpClient client = HttpClient.newBuilder().build()) {
+                try {
+                    HttpClient client = HttpClient.newBuilder()
+                            .followRedirects(HttpClient.Redirect.NORMAL)
+                            .build();
                     HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
-                    HttpResponse<InputStream> response =
-                            client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-                    yield response.body();
+                    HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                    if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                        throw new IOException("Unexpected HTTP %d fetching update center from %s"
+                                .formatted(response.statusCode(), source));
+                    }
+                    yield new ByteArrayInputStream(response.body());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
