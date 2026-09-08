@@ -27,6 +27,9 @@ management:
           include: livenessState
         readiness:
           include: readinessState, db
+        engines:
+          include: probeEngine, scoringEngine
+          show-details: always
   endpoints:
     web:
       exposure:
