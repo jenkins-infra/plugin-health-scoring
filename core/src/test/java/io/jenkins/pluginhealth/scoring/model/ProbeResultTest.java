@@ -81,11 +81,11 @@ class ProbeResultTest {
         final ProbeResult original = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
 
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (final ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
             oos.writeObject(original);
         }
 
-        try (final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
+        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
             final ProbeResult deserialized = (ProbeResult) ois.readObject();
             assertThat(deserialized).isEqualTo(original);
         }
