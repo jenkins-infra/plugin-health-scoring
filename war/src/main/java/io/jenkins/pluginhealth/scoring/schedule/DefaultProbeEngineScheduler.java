@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022-2025 Jenkins Infra
+ * Copyright (c) 2022-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,10 @@
 package io.jenkins.pluginhealth.scoring.schedule;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 
+import io.jenkins.pluginhealth.scoring.config.ProbeEngineHealthIndicator;
+import io.jenkins.pluginhealth.scoring.config.ScoringEngineHealthIndicator;
 import io.jenkins.pluginhealth.scoring.probes.ProbeEngine;
 import io.jenkins.pluginhealth.scoring.scores.ScoringEngine;
 
@@ -38,16 +41,35 @@ import org.springframework.stereotype.Component;
 public class DefaultProbeEngineScheduler {
     private final ProbeEngine probeEngine;
     private final ScoringEngine scoringEngine;
+    private final ProbeEngineHealthIndicator probeEngineHealth;
+    private final ScoringEngineHealthIndicator scoringEngineHealth;
 
-    public DefaultProbeEngineScheduler(ProbeEngine probeEngine, ScoringEngine scoringEngine) {
+    public DefaultProbeEngineScheduler(
+            ProbeEngine probeEngine,
+            ScoringEngine scoringEngine,
+            ProbeEngineHealthIndicator probeEngineHealth,
+            ScoringEngineHealthIndicator scoringEngineHealth) {
         this.probeEngine = probeEngine;
         this.scoringEngine = scoringEngine;
+        this.probeEngineHealth = probeEngineHealth;
+        this.scoringEngineHealth = scoringEngineHealth;
     }
 
     @Async
     @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
     public void run() throws IOException {
-        probeEngine.run();
-        scoringEngine.run();
+        try {
+            probeEngine.run();
+            probeEngineHealth.recordSuccess(ZonedDateTime.now());
+        } catch (IOException ex) {
+            probeEngineHealth.recordFailure(ex);
+            throw ex;
+        }
+        try {
+            scoringEngine.run();
+            scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+        } catch (Throwable t) {
+            scoringEngineHealth.recordFailure(t);
+        }
     }
 }
