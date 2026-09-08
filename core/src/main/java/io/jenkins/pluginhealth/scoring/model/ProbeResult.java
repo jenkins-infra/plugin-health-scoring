@@ -23,6 +23,7 @@
  */
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
  * @param timestamp    when the probe generated this result
  * @param probeVersion the version of the probe which generated this result
  */
-public record ProbeResult(String id, Object message, Status status, ZonedDateTime timestamp, long probeVersion) {
+public record ProbeResult(String id, Object message, Status status, ZonedDateTime timestamp, long probeVersion) implements Serializable {
     public ProbeResult(String id, Object message, Status status, long probeVersion) {
         this(id, message, status, ZonedDateTime.now(), probeVersion);
     }

@@ -26,6 +26,11 @@ package io.jenkins.pluginhealth.scoring.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.Test;
@@ -69,5 +74,25 @@ class ProbeResultTest {
         final ProbeResult result2 = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 2);
 
         assertThat(result1).isNotEqualTo(result2);
+    }
+
+    @Test
+    void shouldBeSerializable() throws Exception {
+        final ProbeResult original = new ProbeResult("probe", "this is a message", ProbeResult.Status.SUCCESS, ZonedDateTime.now(), 1);
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (final ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(original);
+        }
+
+        try (final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))) {
+            final ProbeResult deserialized = (ProbeResult) ois.readObject();
+            assertThat(deserialized).isEqualTo(original);
+        }
+    }
+
+    @Test
+    void shouldImplementSerializable() {
+        assertThat(ProbeResult.class).isAssignableTo(Serializable.class);
     }
 }
