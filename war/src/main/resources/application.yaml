@@ -17,6 +17,15 @@ management:
   health:
     db.enabled: true
     defaults.enabled: false
+    probes:
+      enabled: true
+  endpoint:
+    health:
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState, db
   endpoints:
     web:
       exposure:
