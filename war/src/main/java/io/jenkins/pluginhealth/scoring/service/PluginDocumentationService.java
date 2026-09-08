@@ -69,6 +69,11 @@ public class PluginDocumentationService {
                         throw new IOException("Unexpected HTTP %d fetching documentation URLs from %s"
                                 .formatted(response.statusCode(), source));
                     }
+                    String contentType = response.headers().firstValue("content-type").orElse("");
+                    if (!contentType.contains("application/json")) {
+                        throw new IOException("Unexpected Content-Type '%s' fetching documentation URLs from %s"
+                                .formatted(contentType, source));
+                    }
                     yield new ByteArrayInputStream(response.body());
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
