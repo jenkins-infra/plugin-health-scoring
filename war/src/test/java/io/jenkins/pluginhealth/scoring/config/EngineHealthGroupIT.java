@@ -27,24 +27,27 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.ZonedDateTime;
+
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-    "app.github.app-id=test",
-    "app.github.private-key-path=/nonexistent",
-    "app.github.app-installation-name=test"
-})
+@TestPropertySource(
+        properties = {
+            "app.github.app-id=test",
+            "app.github.private-key-path=/nonexistent",
+            "app.github.app-installation-name=test"
+        })
 class EngineHealthGroupIT extends AbstractDBContainerTest {
 
     @Autowired
@@ -61,8 +64,7 @@ class EngineHealthGroupIT extends AbstractDBContainerTest {
         probeEngineHealth.recordFailure(new RuntimeException("probe engine down"));
         scoringEngineHealth.recordFailure(new RuntimeException("scoring engine down"));
 
-        mockMvc.perform(get("/actuator/health/liveness"))
-            .andExpect(status().isOk());
+        mockMvc.perform(get("/actuator/health/liveness")).andExpect(status().isOk());
     }
 
     @Test
@@ -70,8 +72,7 @@ class EngineHealthGroupIT extends AbstractDBContainerTest {
         probeEngineHealth.recordFailure(new RuntimeException("probe engine down"));
         scoringEngineHealth.recordFailure(new RuntimeException("scoring engine down"));
 
-        mockMvc.perform(get("/actuator/health/readiness"))
-            .andExpect(status().isOk());
+        mockMvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk());
     }
 
     @Test
@@ -79,6 +80,91 @@ class EngineHealthGroupIT extends AbstractDBContainerTest {
         probeEngineHealth.recordFailure(new RuntimeException("probe engine down"));
 
         mockMvc.perform(get("/actuator/health"))
-            .andExpect(jsonPath("$.components.probeEngine.status").value("DOWN"));
+                .andExpect(jsonPath("$.components.probeEngine.status").value("DOWN"));
+    }
+
+    /**
+     * Guards the tests below: a path outside the permit-all matcher must be rejected,
+     * proving the security filter chain is actually applied in this context.
+     */
+    @Test
+    void nonAllowlistedPathIsDenied() throws Exception {
+        mockMvc.perform(get("/not-allowlisted")).andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void aggregateHealthEndpointIsAccessibleWithoutAuthentication() throws Exception {
+        probeEngineHealth.recordSuccess(ZonedDateTime.now());
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health")).andExpect(status().isOk());
+    }
+
+    @Test
+    void aggregateHealthEndpointReturns503WhenAnEngineIsDown() throws Exception {
+        probeEngineHealth.recordFailure(new RuntimeException("probe engine down"));
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health")).andExpect(status().isServiceUnavailable());
+    }
+
+    @Test
+    void probeEngineHealthEndpointIsAccessibleWithoutAuthentication() throws Exception {
+        probeEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health/probeEngine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
+    void scoringEngineHealthEndpointIsAccessibleWithoutAuthentication() throws Exception {
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health/scoringEngine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
+    void enginesGroupIsAccessibleWithoutAuthentication() throws Exception {
+        probeEngineHealth.recordSuccess(ZonedDateTime.now());
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health/engines")).andExpect(status().isOk());
+    }
+
+    @Test
+    void lastSuccessTimestampIsVisibleInEnginesGroup() throws Exception {
+        probeEngineHealth.recordSuccess(ZonedDateTime.now());
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health/engines"))
+                .andExpect(
+                        jsonPath("$.components.probeEngine.details.lastSuccess").exists())
+                .andExpect(jsonPath("$.components.scoringEngine.details.lastSuccess")
+                        .exists());
+    }
+
+    @Test
+    void engineErrorIsVisibleInEnginesGroup() throws Exception {
+        probeEngineHealth.recordFailure(new RuntimeException("update center unreachable"));
+
+        mockMvc.perform(get("/actuator/health/engines"))
+                .andExpect(jsonPath("$.components.probeEngine.details.error").value("update center unreachable"));
+    }
+
+    /**
+     * The engines group is the only place details are exposed: the public aggregate
+     * endpoint must keep reporting statuses without leaking component internals.
+     */
+    @Test
+    void aggregateHealthEndpointDoesNotExposeDetails() throws Exception {
+        probeEngineHealth.recordSuccess(ZonedDateTime.now());
+        scoringEngineHealth.recordSuccess(ZonedDateTime.now());
+
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(jsonPath("$.components.db.details").doesNotExist())
+                .andExpect(jsonPath("$.components.probeEngine.details").doesNotExist());
     }
 }
