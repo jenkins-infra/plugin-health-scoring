@@ -90,4 +90,20 @@ class PluginDocumentationServiceTest {
 
         assertThat(map).isEmpty();
     }
+
+    @Test
+    void shouldReturnEmptyMapWhenResponseIsNotJson() {
+        final URL url = PluginDocumentationService.class.getResource(
+                "/documentation-urls/plugin-documentation-urls-html-error.html");
+        assertThat(url).isNotNull();
+
+        final ApplicationConfiguration config = new ApplicationConfiguration(
+                new ApplicationConfiguration.Jenkins("foo", url.toString()),
+                new ApplicationConfiguration.GitHub("foo", null, "bar"));
+
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
+        final Map<String, String> map = service.fetchPluginDocumentationUrl();
+
+        assertThat(map).isEmpty();
+    }
 }
