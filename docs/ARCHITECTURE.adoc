@@ -1,7 +1,7 @@
 == Application architecture
 
 The application is fetching the list of plugins from the Update Center of Jenkins community.
-This is done in link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/UpdateCenterScheduler.java[`UpdateCenterScheduler`].
+This is done in link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultUpdateCenterScheduler.java[`DefaultUpdateCenterScheduler`].
 It registers all the known plugins into the database.
 
 Once this is done, the application is divided into two main parts: link:../core/src/main/java/io/jenkins/pluginhealth/scoring/probes/Probe.java[`Probe`] and link:../core/src/main/java/io/jenkins/pluginhealth/scoring/scores/Scoring.java[`Scoring`].
@@ -42,7 +42,7 @@ There are conditions for each probe to be executed:
 
 Each probe can override the method `Probe#isApplicable(Plugin, ProbeContext)` to use other data and decide if it should be executed or no by the `ProbeEngine`.
 
-The `ProbeEngine` is scheduled by the link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/ProbeEngineScheduler.java[`ProbeEngineScheduler`] class.
+The `ProbeEngine` is scheduled by the link:../war/src/main/java/io/jenkins/pluginhealth/scoring/schedule/DefaultProbeEngineScheduler.java[`DefaultProbeEngineScheduler`] class.
 This is using a CRON expression for its scheduling.
 The environment variable `PROBE_ENGINE_CRON` is used to configure this CRON.
 
@@ -58,4 +58,4 @@ The link:../war/src/main/java/io/jenkins/pluginhealth/scoring/scores/ScoringEngi
 However, if the last score of a plugin was computed more recently than the most recent `ProbeResult` for a plugin, the scoring implementation is skipped.
 This because the same score would be generated.
 
-The execution of the `ScoringEngine` is schedule by the `ProbeEngineScheduler`, just after the `ProbeEngine` is finished.
+The execution of the `ScoringEngine` is schedule by the `DefaultProbeEngineScheduler`, just after the `ProbeEngine` is finished.
