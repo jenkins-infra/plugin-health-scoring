@@ -21,6 +21,7 @@ management:
       enabled: true
   endpoint:
     health:
+      show-components: always
       group:
         liveness:
           include: livenessState
