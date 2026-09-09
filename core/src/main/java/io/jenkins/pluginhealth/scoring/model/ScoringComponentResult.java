@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2024 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
@@ -36,7 +36,8 @@ import io.jenkins.pluginhealth.scoring.scores.ScoringComponent;
  * @param reasons     the list of string explaining the score granted to the plugin
  * @param resolutions a list of {@link Resolution} to help increase the score with human-readable description as key
  */
-public record ScoringComponentResult(int score, float weight, List<String> reasons, List<Resolution> resolutions) {
+public record ScoringComponentResult(int score, float weight, List<String> reasons, List<Resolution> resolutions)
+        implements Serializable {
     public ScoringComponentResult(int score, float weight, List<String> reasons) {
         this(score, weight, reasons, List.of());
     }
