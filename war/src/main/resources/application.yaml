@@ -17,6 +17,19 @@ management:
   health:
     db.enabled: true
     defaults.enabled: false
+    probes:
+      enabled: true
+  endpoint:
+    health:
+      show-components: always
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState, db
+        engines:
+          include: probeEngine, scoringEngine
+          show-details: always
   endpoints:
     web:
       exposure:
