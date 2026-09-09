@@ -24,8 +24,11 @@
 package io.jenkins.pluginhealth.scoring.config;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import org.kohsuke.github.GHRateLimit;
 import org.kohsuke.github.GitHub;
 import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.Health;
@@ -44,10 +47,27 @@ public class GitHubHealthIndicator extends AbstractHealthIndicator {
         try {
             if (Objects.isNull(github)) {
                 builder.down().withDetail("error", "GitHub object is null");
-            } else {
-                github.checkApiUrlValidity();
-                builder.up();
+                return;
             }
+            github.checkApiUrlValidity();
+            boolean authenticated = !github.isAnonymous();
+            Map<String, Object> connection = new HashMap<>();
+            connection.put("authenticated", authenticated);
+            GHRateLimit rateLimit = github.lastRateLimit();
+            if (rateLimit != null) {
+                connection.put(
+                        "rateLimit",
+                        Map.of(
+                                "limit", rateLimit.getLimit(),
+                                "remaining", rateLimit.getRemaining(),
+                                "resetDate", rateLimit.getResetDate()));
+            }
+            if (authenticated) {
+                builder.up();
+            } else {
+                builder.outOfService();
+            }
+            builder.withDetail("connection", connection);
         } catch (IOException ex) {
             builder.down(ex);
         }
