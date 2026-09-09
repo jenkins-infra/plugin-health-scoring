@@ -59,6 +59,7 @@ public class DefaultProbeEngineScheduler {
     @Scheduled(cron = "${app.cron.probe-engine}", zone = "UTC")
     public void run() throws IOException {
         try {
+            probeEngineHealth.recordStart(ZonedDateTime.now());
             probeEngine.run();
             probeEngineHealth.recordSuccess(ZonedDateTime.now());
         } catch (IOException ex) {
@@ -66,6 +67,7 @@ public class DefaultProbeEngineScheduler {
             throw ex;
         }
         try {
+            scoringEngineHealth.recordStart(ZonedDateTime.now());
             scoringEngine.run();
             scoringEngineHealth.recordSuccess(ZonedDateTime.now());
         } catch (Throwable t) {

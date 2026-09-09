@@ -25,11 +25,14 @@ package io.jenkins.pluginhealth.scoring.schedule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.jenkins.pluginhealth.scoring.config.ProbeEngineHealthIndicator;
 import io.jenkins.pluginhealth.scoring.config.ScoringEngineHealthIndicator;
@@ -50,6 +53,32 @@ class DefaultProbeEngineSchedulerTest {
 
     @Mock
     private ScoringEngine scoringEngine;
+
+    /**
+     * A run that hangs is only detectable if its start was recorded before the engine
+     * was invoked, so the health is sampled from inside the engine call itself.
+     */
+    @Test
+    void reportsRunInProgressWhileProbeEngineIsStillRunning() throws IOException {
+        var probeHealth = new ProbeEngineHealthIndicator();
+        var scoringHealth = new ScoringEngineHealthIndicator();
+        var scheduler = new DefaultProbeEngineScheduler(probeEngine, scoringEngine, probeHealth, scoringHealth);
+
+        final AtomicReference<Status> statusDuringRun = new AtomicReference<>();
+        final AtomicReference<Map<String, Object>> detailsDuringRun = new AtomicReference<>();
+        doAnswer(invocation -> {
+                    statusDuringRun.set(probeHealth.health().getStatus());
+                    detailsDuringRun.set(probeHealth.health().getDetails());
+                    return null;
+                })
+                .when(probeEngine)
+                .run();
+
+        scheduler.run();
+
+        assertThat(statusDuringRun.get()).isEqualTo(Status.UP);
+        assertThat(detailsDuringRun.get()).containsKey("runningSince");
+    }
 
     @Test
     void recordsBothSuccessesAfterSuccessfulRun() throws IOException {
@@ -90,7 +119,7 @@ class DefaultProbeEngineSchedulerTest {
         assertThatThrownBy(scheduler::run).isInstanceOf(IOException.class);
 
         verifyNoInteractions(scoringEngine);
-        assertThat(scoringHealth.health().getStatus()).isEqualTo(Status.OUT_OF_SERVICE);
+        assertThat(scoringHealth.health().getStatus()).isEqualTo(Status.UNKNOWN);
     }
 
     @Test

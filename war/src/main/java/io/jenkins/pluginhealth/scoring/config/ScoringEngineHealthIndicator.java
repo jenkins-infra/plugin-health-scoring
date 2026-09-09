@@ -23,37 +23,7 @@
  */
 package io.jenkins.pluginhealth.scoring.config;
 
-import java.time.ZonedDateTime;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.springframework.boot.health.contributor.AbstractHealthIndicator;
-import org.springframework.boot.health.contributor.Health;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ScoringEngineHealthIndicator extends AbstractHealthIndicator {
-
-    private record RunState(ZonedDateTime lastSuccess, Throwable lastError) {}
-
-    private final AtomicReference<RunState> state = new AtomicReference<>();
-
-    public void recordSuccess(ZonedDateTime time) {
-        state.set(new RunState(time, null));
-    }
-
-    public void recordFailure(Throwable t) {
-        state.set(new RunState(null, t));
-    }
-
-    @Override
-    protected void doHealthCheck(Health.Builder builder) {
-        RunState current = state.get();
-        if (current == null) {
-            builder.outOfService();
-        } else if (current.lastError() != null) {
-            builder.down().withDetail("error", current.lastError().getMessage());
-        } else {
-            builder.up().withDetail("lastSuccess", current.lastSuccess());
-        }
-    }
-}
+public class ScoringEngineHealthIndicator extends EngineHealthIndicator {}

@@ -63,6 +63,7 @@ public class DevProbeEngineScheduler {
     @Scheduled(initialDelay = 20 * 1000 /* 20 secs after startup */, fixedDelay = 1000 * 60 * 90)
     public void run() throws IOException {
         try {
+            probeEngineHealth.recordStart(ZonedDateTime.now());
             probeEngine.run();
             probeEngineHealth.recordSuccess(ZonedDateTime.now());
         } catch (IOException ex) {
@@ -70,6 +71,7 @@ public class DevProbeEngineScheduler {
             throw ex;
         }
         try {
+            scoringEngineHealth.recordStart(ZonedDateTime.now());
             scoringEngine.run();
             scoringEngineHealth.recordSuccess(ZonedDateTime.now());
         } catch (Throwable t) {
