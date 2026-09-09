@@ -260,6 +260,7 @@
           <includeOnlyProperties>
             <includeOnlyProperty>git.commit.id.abbrev</includeOnlyProperty>
           </includeOnlyProperties>
+          <useNativeGit>true</useNativeGit>
         </configuration>
         <executions>
           <execution>
