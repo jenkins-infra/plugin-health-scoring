@@ -171,6 +171,12 @@
 
   <build>
     <finalName>plugin-health-scoring</finalName>
+    <resources>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -227,6 +233,15 @@
         </executions>
       </plugin>
       <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <configuration>
+          <delimiters>
+            <delimiter>@</delimiter>
+          </delimiters>
+          <useDefaultDelimiters>false</useDefaultDelimiters>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <version>${spring-boot.version}</version>
@@ -267,7 +282,7 @@
             <goals>
               <goal>revision</goal>
             </goals>
-            <phase>generate-resources</phase>
+            <phase>initialize</phase>
           </execution>
         </executions>
       </plugin>
