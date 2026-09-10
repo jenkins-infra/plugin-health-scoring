@@ -32,11 +32,13 @@ import java.time.ZonedDateTime;
 import io.jenkins.pluginhealth.scoring.AbstractDBContainerTest;
 
 import org.junit.jupiter.api.Test;
+import org.kohsuke.github.GitHub;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -49,6 +51,9 @@ import org.springframework.test.web.servlet.MockMvc;
             "app.github.app-installation-name=test"
         })
 class EngineHealthGroupIT extends AbstractDBContainerTest {
+
+    @MockitoBean
+    private GitHub github;
 
     @Autowired
     private MockMvc mockMvc;

@@ -27,7 +27,7 @@
 
   <groupId>io.jenkins.pluginhealth.scoring</groupId>
   <artifactId>plugin-health-scoring-parent</artifactId>
-  <version>6.0.3-SNAPSHOT</version>
+  <version>6.1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Plugin Health Scoring :: Parent</name>
