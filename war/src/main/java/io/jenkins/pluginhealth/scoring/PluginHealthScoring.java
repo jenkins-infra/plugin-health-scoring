@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 package io.jenkins.pluginhealth.scoring;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
@@ -29,9 +28,12 @@ import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 
 @EnableConfigurationProperties(value = ApplicationConfiguration.class)
-@SpringBootApplication(scanBasePackages = "io.jenkins.pluginhealth.scoring")
+@SpringBootApplication(
+        scanBasePackages = "io.jenkins.pluginhealth.scoring",
+        exclude = UserDetailsServiceAutoConfiguration.class)
 public class PluginHealthScoring {
     public static void main(String[] args) {
         SpringApplication.run(PluginHealthScoring.class, args);
