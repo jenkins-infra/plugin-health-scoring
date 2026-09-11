@@ -2,7 +2,7 @@
 ###########################################################
 ###########################################################
 
-:: Plugin Health Scoring ::   ${application.formatted-version}
+:: Plugin Health Scoring ::   @project.version@ (@git.commit.id.abbrev@)
 :: Spring Boot ::             ${spring-boot.formatted-version}
 
 ###########################################################
