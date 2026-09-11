@@ -15,6 +15,7 @@
             <th>Weight</th>
             <th>What is validated</th>
             <th>Description</th>
+            <th>View failing plugins</th>
         </tr>
         </thead>
         <tbody>
@@ -28,6 +29,11 @@
                 </ul>
             </td>
             <td data-th-text="${scoring.description}"></td>
+            <td>
+                <a data-th-href="|/data/pluginsPerScoring/${scoring.key()}|">
+                    <ion-icon name="eye-outline"></ion-icon>
+                </a>
+            </td>
         </tr>
         </tbody>
     </table>
