@@ -31,14 +31,14 @@ import io.jenkins.pluginhealth.scoring.model.Score;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.NativeQuery;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ScoreRepository extends JpaRepository<Score, Long> {
     Optional<Score> findFirstByPluginOrderByComputedAtDesc(Plugin plugin);
 
-    @Query(
+    @NativeQuery(
             value =
                     """
             SELECT DISTINCT ON (s.plugin_id)
@@ -50,23 +50,21 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             FROM scores s
             JOIN plugins p on s.plugin_id = p.id
             ORDER BY s.plugin_id, s.computed_at DESC;
-            """,
-            nativeQuery = true)
+            """)
     List<Score> findLatestScoreForAllPlugins();
 
-    @Query(
+    @NativeQuery(
             value =
                     """
             SELECT DISTINCT ON (s.plugin_id)
                 s.value
             FROM scores s
             ORDER BY s.plugin_id, s.computed_at DESC, s.value;
-            """,
-            nativeQuery = true)
+            """)
     int[] getLatestScoreValueOfEveryPlugin();
 
     @Modifying
-    @Query(
+    @NativeQuery(
             value =
                     """
             DELETE FROM scores
@@ -78,11 +76,10 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
                 ) s
                 WHERE row_num <= 5
             );
-            """,
-            nativeQuery = true)
+            """)
     int deleteOldScoreFromPlugin();
 
-    @Query(
+    @NativeQuery(
             value =
                     """
             SELECT
@@ -99,7 +96,35 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
                 FROM scores s
                 ORDER BY s.plugin_id, s.computed_at DESC
             );
-            """,
-            nativeQuery = true)
+            """)
     List<Score> getAllLatestScoresWithValue(int score);
+
+    @NativeQuery(
+            value =
+                    """
+            SELECT
+                s.id,
+                s.plugin_id,
+                s.computed_at,
+                s.details,
+                s.value
+            FROM scores s
+            LEFT JOIN plugins p on s.plugin_id = p.id
+            WHERE s.id IN (
+                SELECT DISTINCT ON (s.plugin_id)
+                        s.id
+                    FROM scores s
+                    ORDER BY s.plugin_id, s.computed_at DESC
+            ) AND (EXISTS (
+                SELECT *
+                FROM jsonb_array_elements(s.details) as r(detail)
+                WHERE detail ->> 'key' = ?1
+                AND (detail -> 'value')::int < 100
+            ) OR NOT EXISTS (
+                SELECT *
+                FROM jsonb_array_elements(s.details) as r(detail)
+                WHERE detail ->> 'key' = ?1
+            ));
+            """)
+    List<Score> getAllLatestScoresWithIncompleteScoring(String scoringKey);
 }
