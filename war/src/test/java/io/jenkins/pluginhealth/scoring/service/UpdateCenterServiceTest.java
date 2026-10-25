@@ -29,19 +29,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
+import io.jenkins.pluginhealth.scoring.config.HttpClientConfiguration;
 import io.jenkins.pluginhealth.scoring.model.updatecenter.UpdateCenter;
 
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.context.annotation.Import;
 import tools.jackson.databind.ObjectMapper;
 
 @JsonTest
+@Import(HttpClientConfiguration.class)
 class UpdateCenterServiceTest {
+    @Autowired
+    private HttpClient httpClient;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -54,7 +61,7 @@ class UpdateCenterServiceTest {
                 new ApplicationConfiguration.Jenkins(updateCenterURL.toString(), "foo"),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, configuration);
+        UpdateCenterService updateCenterService = new UpdateCenterService(objectMapper, configuration, httpClient);
 
         UpdateCenter updateCenter = updateCenterService.fetchUpdateCenter();
         assertThat(updateCenter.plugins()).hasSize(25);
@@ -76,7 +83,7 @@ class UpdateCenterServiceTest {
             ApplicationConfiguration configuration = new ApplicationConfiguration(
                     new ApplicationConfiguration.Jenkins("http://localhost:%d/uc.json".formatted(port), "foo"),
                     new ApplicationConfiguration.GitHub("foo", null, "bar"));
-            UpdateCenterService service = new UpdateCenterService(objectMapper, configuration);
+            UpdateCenterService service = new UpdateCenterService(objectMapper, configuration, httpClient);
             assertThatThrownBy(service::fetchUpdateCenter)
                     .isInstanceOf(IOException.class)
                     .hasMessageContaining("503");
