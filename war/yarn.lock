@@ -1702,9 +1702,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"less-loader@npm:13.0.0":
-  version: 13.0.0
-  resolution: "less-loader@npm:13.0.0"
+"less-loader@npm:13.1.0":
+  version: 13.1.0
+  resolution: "less-loader@npm:13.1.0"
   dependencies:
     "@types/less": "npm:^3.0.8"
   peerDependencies:
@@ -1716,7 +1716,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10/b88d3ae67e81df863a492734f1d94ae29e226d101612b0efa668826813f42ba945584ddafacc811423ecb5c82d0fb5c50321af539ed5bd9141a11f02f525dc64
+  checksum: 10/2020a5661023d21efb621280b06111f949aa581cff4407d9a690846e52952e683df96f5ccc66cff5b4d0f4ad154d719d9783f2a7af3d18e68c1678dcd1329f10
   languageName: node
   linkType: hard
 
@@ -2196,7 +2196,7 @@ __metadata:
     echarts: "npm:6.1.0"
     ionicons: "npm:8.1.0"
     less: "npm:4.9.1"
-    less-loader: "npm:13.0.0"
+    less-loader: "npm:13.1.0"
     mini-css-extract-plugin: "npm:2.10.2"
     path: "npm:0.12.7"
     postcss: "npm:8.5.32"
