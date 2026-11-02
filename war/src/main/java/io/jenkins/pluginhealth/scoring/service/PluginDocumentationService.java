@@ -47,10 +47,13 @@ import tools.jackson.databind.ObjectMapper;
 public class PluginDocumentationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginDocumentationService.class);
 
+    private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final ApplicationConfiguration configuration;
 
-    public PluginDocumentationService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
+    public PluginDocumentationService(
+            ObjectMapper objectMapper, ApplicationConfiguration configuration, HttpClient httpClient) {
+        this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.configuration = configuration;
     }
@@ -60,16 +63,14 @@ public class PluginDocumentationService {
         return switch (uri.getScheme()) {
             case "http", "https" -> {
                 try {
-                    HttpClient client = HttpClient.newBuilder()
-                            .followRedirects(HttpClient.Redirect.NORMAL)
-                            .build();
                     HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
-                    HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                    HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
                     if (response.statusCode() < 200 || response.statusCode() >= 300) {
                         throw new IOException("Unexpected HTTP %d fetching documentation URLs from %s"
                                 .formatted(response.statusCode(), source));
                     }
-                    String contentType = response.headers().firstValue("content-type").orElse("");
+                    String contentType =
+                            response.headers().firstValue("content-type").orElse("");
                     if (!contentType.contains("application/json")) {
                         throw new IOException("Unexpected Content-Type '%s' fetching documentation URLs from %s"
                                 .formatted(contentType, source));

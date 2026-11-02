@@ -40,10 +40,13 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class UpdateCenterService {
+    private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private final ApplicationConfiguration configuration;
 
-    public UpdateCenterService(ObjectMapper objectMapper, ApplicationConfiguration configuration) {
+    public UpdateCenterService(
+            ObjectMapper objectMapper, ApplicationConfiguration configuration, HttpClient httpClient) {
+        this.httpClient = httpClient;
         this.objectMapper = objectMapper;
         this.configuration = configuration;
     }
@@ -53,11 +56,8 @@ public class UpdateCenterService {
         return switch (uri.getScheme()) {
             case "http", "https" -> {
                 try {
-                    HttpClient client = HttpClient.newBuilder()
-                            .followRedirects(HttpClient.Redirect.NORMAL)
-                            .build();
                     HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
-                    HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+                    HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
                     if (response.statusCode() < 200 || response.statusCode() >= 300) {
                         throw new IOException("Unexpected HTTP %d fetching update center from %s"
                                 .formatted(response.statusCode(), source));
