@@ -29,13 +29,16 @@ import java.util.Map;
 import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
+import io.jenkins.pluginhealth.scoring.probes.MavenParentVersionProbe;
 import io.jenkins.pluginhealth.scoring.probes.MavenPropertiesProbe;
 
+import hudson.util.VersionNumber;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ObsoleteDependencyOverridesBanScoring extends Scoring {
     public static final String KEY = "obsolete-dependency-overrides-ban";
+    private static final VersionNumber MINIMUM_PARENT_VERSION = new VersionNumber("6.2185.v41f4290b_a_458");
 
     @Override
     public String key() {
@@ -63,6 +66,26 @@ public class ObsoleteDependencyOverridesBanScoring extends Scoring {
 
             @Override
             public ScoringComponentResult getScore(Plugin plugin, Map<String, ProbeResult> probeResults) {
+                final ProbeResult mavenParentVersionResult = probeResults.get(MavenParentVersionProbe.KEY);
+                if (mavenParentVersionResult == null
+                        || mavenParentVersionResult.status().equals(ProbeResult.Status.ERROR)) {
+                    return new ScoringComponentResult(
+                            0, getWeight(), List.of("Cannot find the Maven parent POM version for the plugin."));
+                }
+                final Object parentVersionMessage = mavenParentVersionResult.message();
+                if (!(parentVersionMessage instanceof String parentVersionValue) || parentVersionValue.isBlank()) {
+                    return new ScoringComponentResult(
+                            0, getWeight(), List.of("Cannot determine the Maven parent POM version for the plugin."));
+                }
+                if (new VersionNumber(parentVersionValue).isOlderThan(MINIMUM_PARENT_VERSION)) {
+                    return new ScoringComponentResult(
+                            0,
+                            getWeight(),
+                            List.of("banObsoleteDependencyOverrides.skip property is not applicable: the plugin"
+                                    + " parent POM version " + parentVersionValue + " is older than "
+                                    + MINIMUM_PARENT_VERSION + "."));
+                }
+
                 final ProbeResult mavenPropertiesResult = probeResults.get(MavenPropertiesProbe.KEY);
                 if (mavenPropertiesResult == null
                         || mavenPropertiesResult.status().equals(ProbeResult.Status.ERROR)) {

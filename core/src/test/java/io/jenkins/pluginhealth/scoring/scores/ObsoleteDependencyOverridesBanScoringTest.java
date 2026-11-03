@@ -36,11 +36,14 @@ import io.jenkins.pluginhealth.scoring.model.Plugin;
 import io.jenkins.pluginhealth.scoring.model.ProbeResult;
 import io.jenkins.pluginhealth.scoring.model.ScoreResult;
 import io.jenkins.pluginhealth.scoring.model.ScoringComponentResult;
+import io.jenkins.pluginhealth.scoring.probes.MavenParentVersionProbe;
 import io.jenkins.pluginhealth.scoring.probes.MavenPropertiesProbe;
 
 import org.junit.jupiter.api.Test;
 
 class ObsoleteDependencyOverridesBanScoringTest extends AbstractScoringTest<ObsoleteDependencyOverridesBanScoring> {
+    private static final String MINIMUM_SUPPORTED_PARENT_VERSION = "6.2185.v41f4290b_a_458";
+    private static final String UNSUPPORTED_PARENT_VERSION = "6.2184.v41f4290b_a_458";
 
     @Override
     ObsoleteDependencyOverridesBanScoring getSpy() {
@@ -53,9 +56,84 @@ class ObsoleteDependencyOverridesBanScoringTest extends AbstractScoringTest<Obso
     }
 
     @Test
+    void requiresMavenParentVersionProbe() {
+        final Plugin plugin = mock(Plugin.class);
+        final ObsoleteDependencyOverridesBanScoring scoring = getSpy();
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("value", "weight", "componentsResults")
+                .isEqualTo(new ScoreResult(
+                        ObsoleteDependencyOverridesBanScoring.KEY,
+                        0,
+                        0,
+                        Set.of(new ScoringComponentResult(
+                                0, 1, List.of("Cannot find the Maven parent POM version for the plugin."))),
+                        0));
+    }
+
+    @Test
+    void requiresWellFormedMavenParentVersionProbe() {
+        final Plugin plugin = mock(Plugin.class);
+        final ObsoleteDependencyOverridesBanScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY, ProbeResult.success(MavenParentVersionProbe.KEY, Map.of(), 1)));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("value", "weight", "componentsResults")
+                .isEqualTo(new ScoreResult(
+                        ObsoleteDependencyOverridesBanScoring.KEY,
+                        0,
+                        0,
+                        Set.of(new ScoringComponentResult(
+                                0, 1, List.of("Cannot determine the Maven parent POM version for the plugin."))),
+                        0));
+    }
+
+    @Test
+    void shouldNotBeApplicableWhenParentVersionIsTooOld() {
+        final Plugin plugin = mock(Plugin.class);
+        final ObsoleteDependencyOverridesBanScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY,
+                        ProbeResult.success(MavenParentVersionProbe.KEY, UNSUPPORTED_PARENT_VERSION, 1)));
+
+        final ScoreResult result = scoring.apply(plugin);
+        assertThat(result)
+                .isNotNull()
+                .usingRecursiveComparison()
+                .comparingOnlyFields("value", "weight", "componentsResults")
+                .isEqualTo(new ScoreResult(
+                        ObsoleteDependencyOverridesBanScoring.KEY,
+                        0,
+                        0,
+                        Set.of(new ScoringComponentResult(
+                                0,
+                                1,
+                                List.of("banObsoleteDependencyOverrides.skip property is not applicable: the plugin"
+                                        + " parent POM version " + UNSUPPORTED_PARENT_VERSION
+                                        + " is older than " + MINIMUM_SUPPORTED_PARENT_VERSION + "."))),
+                        0));
+    }
+
+    @Test
     void requiresMavenPropertiesProbe() {
         final Plugin plugin = mock(Plugin.class);
         final ObsoleteDependencyOverridesBanScoring scoring = getSpy();
+
+        when(plugin.getDetails())
+                .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY,
+                        ProbeResult.success(MavenParentVersionProbe.KEY, MINIMUM_SUPPORTED_PARENT_VERSION, 1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result)
@@ -77,7 +155,11 @@ class ObsoleteDependencyOverridesBanScoringTest extends AbstractScoringTest<Obso
         final ObsoleteDependencyOverridesBanScoring scoring = getSpy();
 
         when(plugin.getDetails())
-                .thenReturn(Map.of(MavenPropertiesProbe.KEY, ProbeResult.success(MavenPropertiesProbe.KEY, "foo", 1)));
+                .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY,
+                        ProbeResult.success(MavenParentVersionProbe.KEY, MINIMUM_SUPPORTED_PARENT_VERSION, 1),
+                        MavenPropertiesProbe.KEY,
+                        ProbeResult.success(MavenPropertiesProbe.KEY, "foo", 1)));
 
         final ScoreResult result = scoring.apply(plugin);
         assertThat(result)
@@ -100,6 +182,8 @@ class ObsoleteDependencyOverridesBanScoringTest extends AbstractScoringTest<Obso
 
         when(plugin.getDetails())
                 .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY,
+                        ProbeResult.success(MavenParentVersionProbe.KEY, MINIMUM_SUPPORTED_PARENT_VERSION, 1),
                         MavenPropertiesProbe.KEY,
                         ProbeResult.success(
                                 MavenPropertiesProbe.KEY, Map.of("banObsoleteDependencyOverrides.skip", "true"), 1)));
@@ -121,6 +205,8 @@ class ObsoleteDependencyOverridesBanScoringTest extends AbstractScoringTest<Obso
 
         when(plugin.getDetails())
                 .thenReturn(Map.of(
+                        MavenParentVersionProbe.KEY,
+                        ProbeResult.success(MavenParentVersionProbe.KEY, MINIMUM_SUPPORTED_PARENT_VERSION, 1),
                         MavenPropertiesProbe.KEY,
                         ProbeResult.success(
                                 MavenPropertiesProbe.KEY, Map.of("banObsoleteDependencyOverrides.skip", "false"), 1)));
