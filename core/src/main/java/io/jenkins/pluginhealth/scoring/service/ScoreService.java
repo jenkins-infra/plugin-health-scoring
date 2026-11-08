@@ -101,4 +101,9 @@ public class ScoreService {
     public List<Score> getAllLatestScoresWithValue(int value) {
         return repository.getAllLatestScoresWithValue(value);
     }
+
+    @Transactional(readOnly = true)
+    public List<Score> getAllLatestScoresWithIncompleteScoring(String scoringKey) {
+        return repository.getAllLatestScoresWithIncompleteScoring(scoringKey);
+    }
 }
