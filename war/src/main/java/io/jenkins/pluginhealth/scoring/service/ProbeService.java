@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023-2025 Jenkins Infra
+ * Copyright (c) 2023-2026 Jenkins Infra
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,10 @@
  */
 package io.jenkins.pluginhealth.scoring.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.jenkins.pluginhealth.scoring.model.Plugin;
@@ -51,6 +53,12 @@ public class ProbeService {
 
     public ProbeService(List<Probe> probes, PluginRepository pluginRepository) {
         this.probes = List.copyOf(probes);
+        final Set<String> keys = new HashSet<>();
+        for (Probe probe : this.probes) {
+            if (!keys.add(probe.key())) {
+                throw new IllegalArgumentException("Duplicate probe key: " + probe.key());
+            }
+        }
         this.pluginRepository = pluginRepository;
     }
 
