@@ -1464,12 +1464,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ionicons@npm:8.1.0":
-  version: 8.1.0
-  resolution: "ionicons@npm:8.1.0"
+"ionicons@npm:8.1.1":
+  version: 8.1.1
+  resolution: "ionicons@npm:8.1.1"
   dependencies:
     "@stencil/core": "npm:^4.43.5"
-  checksum: 10/66bbffce989568b442341f332304916d6b91322274a7b66c3efc2799f0769cdef97b426f0d06ff9f2788541f1a62856b33673187a9ffddd36f81eca616d9ab2d
+  checksum: 10/d68c998008e0f69e54ed67264f65124fc3ffcebd69a92a2a3ceeeb5adcc5a1d8ca2551ed5773d6af24abf58909529b08f87df0cf3806923d2216ede2a4d48ce4
   languageName: node
   linkType: hard
 
@@ -2065,7 +2065,7 @@ __metadata:
     css-loader: "npm:7.1.5"
     css-minimizer-webpack-plugin: "npm:8.0.0"
     echarts: "npm:6.1.0"
-    ionicons: "npm:8.1.0"
+    ionicons: "npm:8.1.1"
     less: "npm:4.9.1"
     less-loader: "npm:13.1.0"
     mini-css-extract-plugin: "npm:2.10.2"
