@@ -27,17 +27,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.util.Map;
 
 import io.jenkins.pluginhealth.scoring.config.ApplicationConfiguration;
+import io.jenkins.pluginhealth.scoring.config.HttpClientConfiguration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.context.annotation.Import;
 import tools.jackson.databind.json.JsonMapper;
 
 @JsonTest
+@Import(HttpClientConfiguration.class)
 class PluginDocumentationServiceTest {
+    @Autowired
+    private HttpClient httpClient;
+
     @Autowired
     private JsonMapper mapper;
 
@@ -54,7 +61,7 @@ class PluginDocumentationServiceTest {
                 new ApplicationConfiguration.Jenkins("foo", url.toString()),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config, httpClient);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
@@ -72,7 +79,7 @@ class PluginDocumentationServiceTest {
                 new ApplicationConfiguration.Jenkins("foo", url.toString()),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config, httpClient);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map)
@@ -85,7 +92,7 @@ class PluginDocumentationServiceTest {
         final ApplicationConfiguration config = new ApplicationConfiguration(
                 new ApplicationConfiguration.Jenkins("foo", "https://this-is-not-a-correct-url"),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
-        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config, httpClient);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map).isEmpty();
@@ -101,7 +108,7 @@ class PluginDocumentationServiceTest {
                 new ApplicationConfiguration.Jenkins("foo", url.toString()),
                 new ApplicationConfiguration.GitHub("foo", null, "bar"));
 
-        final PluginDocumentationService service = new PluginDocumentationService(mapper, config);
+        final PluginDocumentationService service = new PluginDocumentationService(mapper, config, httpClient);
         final Map<String, String> map = service.fetchPluginDocumentationUrl();
 
         assertThat(map).isEmpty();
