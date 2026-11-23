@@ -8,5 +8,5 @@ export function setupDataTable(elementId, option = {}) {
     },
     ...option
   }
-  new DataTable(elementId, mergedOpt);
+  return new DataTable(elementId, mergedOpt);
 }
