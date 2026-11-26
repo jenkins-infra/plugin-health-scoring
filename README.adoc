@@ -8,6 +8,11 @@ This project started as part of the Google Summer of Code 2022 selection for the
 
 You can find out more about the project at link:https://www.jenkins.io/projects/gsoc/2022/projects/plugin-health-scoring-system.
 
+== Plugin probe results
+
+`GET /api/probes/{pluginName}` returns the plugin's stored probe results as a JSON object keyed by probe ID.
+For example, use `/api/probes/git` for the Git plugin. A known plugin with no results returns `{}`. An unknown plugin returns HTTP 404.
+
 == Contributing
 
 Please see the contributing guide in link:docs/CONTRIBUTING.adoc[CONTRIBUTING].
